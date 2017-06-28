@@ -11,8 +11,8 @@
 </head>
 <body>
 	<div class="container">
-		<div class="row h-100" style="">
-			<div class="col-sm-8 offset-sm-2 col-md-6 offset-md-3 my-auto">
+		<div class="row main"> 
+			<div class="col-xs-12 col-sm-8 col-sm-offset-2 col-md-6 col-md-offset-3">
 				<form method="POST">
 					<div class="logo"><img src="../../static/img/logo.png"></div>
 					<div class="row">
@@ -21,13 +21,58 @@
 					<div class="form-group row" style="">
 						<input type="password" value="" id="password" placeholder="password">
 					</div>
+					<div class="form-group row">
+						<button type="submit" id="login" name="login">
+							Log in
+						</button>
+					</div>
 					<div class="row">
-						<button type="submit" id="login" name="login">Log in</button>
-						<a href="" class="col-8 offset-2"><center>Forgot Password?</center></a>
+						<a href="" class="col-12" data-toggle="modal" data-target="#forgotPassword">
+							<center>Forgot Password?</center>
+						</a>
 					</div>
 				</form>
 			</div>
 		</div>
+
+		<!-- Forgot Password -->
+		<div class="modal fade" id="forgotPassword" role="dialog">
+		    <div class="modal-dialog">
+		      <!-- Modal content-->
+		     	<div class="modal-content">
+			        <div class="modal-header">
+			        	<button type="button" class="close" data-dismiss="modal" style="color: black">&times;</button>
+			        	<h4 class="modal-title" style="float:left"><strong>Request for New Password</strong></h4>
+			          	
+			        </div>
+		       		<div class="modal-body">
+		       			<div class="row">
+		       				<div class="col-xs-12 col-sm-8 col-sm-offset-2">
+			       				<center>
+			       					Please contact the Sayun help desk:
+			       				</center>
+			       				<hr>
+			       			</div>
+
+		       				<div class="clearfix"></div>
+		       				<div class="col-xs-12 col-sm-4 col-sm-offset-2" style="margin-top: 15px">
+		       					<center>
+						            <p><i class="glyphicon glyphicon-earphone"></i></p>
+								    <p><strong>Phone:</strong></br>+36 (53) 505-320<br>+36 (53) 505-320<br></p>
+								</center>
+					        </div>
+					        <div class="col-xs-12 col-sm-4" style="margin-top: 15px">
+					        	<center>
+						            <p><i class="glyphicon glyphicon-envelope"></i></p>
+						            <p><strong>E-mail:</strong></br>catcomp@catcomp.hu</p>
+						        </center>
+					        </div>
+		       			</div>
+		       		</div>
+		      	</div>
+		    </div>
+		</div>
+		<!-- end of Forgot Password -->
 	</div>
 </body>
 </html>

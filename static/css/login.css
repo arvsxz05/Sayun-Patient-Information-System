@@ -3,6 +3,7 @@
     padding: 0;
     height: 100%;
     width: 100%;
+    font-size: 16px;
   }
 
   body{
@@ -13,17 +14,18 @@
     background-size: cover;         /* Generic*/
   }
 
-  .my-auto{
-    background: #d92323; 
-    border-radius: 0.5rem;
-    max-width: 430px;
-    margin: 0 auto;
-    padding: 0;
+  .main{
+    display: flex;
+    align-items: center;
+    flex-direction: row;
+    min-height: 100vh;
   }
-
+  
   form {
+    margin: 0 auto;
     min-height: 430px;
     width: 100%;
+    max-width: 430px;
 
     display: flex;
     flex-direction: column;
@@ -56,8 +58,8 @@
   }
 
   form a, form a:focus, form a:active{
+    font-size: 15px;
     align-self: center;
-    margin-top: 8px;
     outline: none;
     text-decoration: none;
   }
@@ -92,4 +94,8 @@
     text-decoration: none;
     display: inline-block;
     font-size: 16px;
+  }
+
+  .glyphicon{
+    font-size: 30px;
   }
