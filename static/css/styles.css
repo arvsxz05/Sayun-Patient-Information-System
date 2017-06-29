@@ -1,0 +1,107 @@
+@import url('https://fonts.googleapis.com/css?family=Source+Sans+Pro');
+
+body{
+    font-family: 'Source Sans Pro', sans-serif;
+}
+
+.main-container{
+	margin: 0 10px; 
+	padding: 0;
+}
+.feature{
+	padding: 20px;
+}
+.feature-icon{
+	border-radius: 50%;
+    background-color: #d92323;
+    width: 130px;
+    max-width: 80%;
+    position: relative;
+    margin-bottom: 20px;
+    transition: 0.5s ease;
+}
+
+.feature-icon:before {
+  content: " ";
+  border-radius: 50%;
+  position: absolute;
+  z-index: -1;
+  top: -8px;
+  left: -8px;
+  right: -8px;
+  bottom: -8px;
+  border: 3px solid #d92323;
+}
+
+.feature-icon:hover{
+    -webkit-transform: scale(1.05);
+    -ms-transform: scale(1.05);
+    transform: scale(1.05);
+    transition: 0.5s ease;
+}
+
+.feature-icon .fa{
+    color: white;
+}
+
+.feature h4{
+	font-weight: bold;
+    color: black;
+}
+
+.feature a:hover{
+    text-decoration: none !important;
+}  
+
+.form-container{
+	padding-bottom: 50px;
+	box-shadow: -60px 0px 100px -100px #000000, 60px 0px 100px -100px #000000;
+}
+
+.control-label{
+	text-align: left !important;
+}
+
+.doctor-fields{
+	display: none;
+}
+
+.btn-file {
+    position: relative;
+    overflow: hidden;
+}
+.btn-file input[type=file] {
+    position: absolute;
+    top: 0;
+    right: 0;
+    min-width: 100%;
+    min-height: 100%;
+    font-size: 100px;
+    text-align: right;
+    filter: alpha(opacity=0);
+    opacity: 0;
+    outline: none;
+    background: white;
+    cursor: inherit;
+    display: block;
+}
+
+#img-upload{
+	border: 2px solid #ccc;
+    width: 200px;
+    height: 200px;
+    margin: 20px calc(50% - 100px);
+    object-fit: cover !important; 
+    object-position: center !important;
+}
+
+#digital-sign-upload{
+	width: 90%;
+	margin: 10px 5%;
+	object-fit: cover !important; 
+    object-position: center !important;
+}
+
+.pull-right{
+	margin: 5px;
+}

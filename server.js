@@ -1,82 +1,67 @@
 //Module Dependencies
-var http = require('http');
-var express = require('express');
-var bodyParser = require('body-parser');
-var consolidate = require('consolidate');
+const express = require('express');
+const bodyParser = require('body-parser');
+const consolidate = require('consolidate');
+const User_Account = require('./models').User_Account;
+// const Hospital = require('./database').Hospital;
 
 //Database Set-up
-var options = {promiseLib: Promise};  
-var pgp = require('pg-promise')(options);
-var connectionString =  'postgres://admin:admin@127.0.0.1:5432/spis';
-var db = pgp(connectionString);
-//
-
-//Passport Set-up; for User Authentication
-var passport = require('passport');
-var Strategy = require('passport-local').Strategy;
-//
 
 //end of Module Dependencies
 
 //Server Set-up
-var port = 8000;
-var app = express();
+const port = 8000;
+const app = express();
 
-var server = http.createServer(app);
-var io = require('socket.io')(server);
-server.listen(port, function(){
+app.listen(port, function(){
 	console.log('SPIS: Server Running!');
 });
-
-//////////MIDDLEWARE/////////////
-
-// Passport middleware
-
-passport.use(new Strategy(
-	function(username, password, cb){
-		db.users.findByUsername(username, function(err, user){
-			if(err){
-				return cb(err);
-			}
-			if(!user){
-				return cb(null, false);
-			}
-			if(user.password != password){
-				return cb(null, false);
-			}
-			return cb(null, user);
-		});
-	}));
 
 app.set('views', __dirname + '/views');
 app.use('/static', express.static(__dirname + '/static'));
 app.engine('html', consolidate.nunjucks);
+
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 ///////////// ROUTES ///////////////////
 
 app.get('/', function(req, res){
-	res.redirect("/login");
+	res.render('account/home.html');
+	// User_Account.findAll().then(function(results) {
+	// 	console.log(results);
+	// });
 });
 
 app.get('/login', function(req, res){
-	db.any("select last_name from Patient where last_name = $1", ['Erasmo'])
-		.then(function(data){
-			console.log(data);
-		})
-		.catch(function(error){
-			console.log(error);
-		});
 	res.render('account/login.html');
+});
+
+app.get('/add_account', function(req, res){
+	res.render('account/add-account.html');
+});
+
+app.post('/add_account', function(req, res){
+	// console.log(req.body);
+	// res.redirect('/add_account');
+	var username = req.body.username;
+	var lastname = req.body.last_name;
+	var firstname = req.body.first_name;
+	var middlename = req.body.middle_name;
+	var suffix = req.body.suffix;
+	var contact_num = req.body.contact_num;
+	var email_add = req.body.email_add;
+	var license_num = req.body.license_num;
+	var ptr_num = req.body.ptr_num;
+	var s2_license_num = req.body.s2_license_num;
+	var password = req.body.password;
 });
 
 app.post('/login', function(req, res){
 	console.log(req.body);
-	var username = req.body.user_name;
+	var username = req.body.username;
 	var password = req.body.password;
 	res.redirect("/login");
 
-	// res.sendFile(__dirname+"/views"+"/accounts/login.html")
-})
+});
 

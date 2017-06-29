@@ -1,11 +1,12 @@
 ﻿\c postgres
 
+CREATE USER sayunsuperuser with superuser login encrypted password 's@yun';
 DROP DATABASE IF EXISTS spis;
-CREATE DATABASE spis;
+CREATE DATABASE spis WITH OWNER sayunsuperuser;
 
 \c spis
 
-create user admin with superuser login encrypted password 'admin';
+CREATE DATABASE spis with owner sayunsuperuser;
 
 \i 'C:/Program Files (x86)/PostgreSQL/9.5/share/extension/pgcrypto--1.2.sql'
 CREATE EXTENSION pgcrypto;
@@ -53,7 +54,7 @@ CREATE TABLE Doctor (
 	username varchar(20) NOT NULL REFERENCES User_Account(username) PRIMARY KEY,
 	licence_no varchar(15) UNIQUE NOT NULL,
 	ptr_no varchar(15) UNIQUE NOT NULL,
-	s2_licence_no varchar(15) UNIQUE NOT NULL
+	s2_licence_no varchar(15) UNIQUE NOT NULL,
 );
 
 CREATE TABLE Secretary (
