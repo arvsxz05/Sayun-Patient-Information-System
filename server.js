@@ -3,7 +3,8 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const consolidate = require('consolidate');
 const User_Account = require('./models').User_Account;
-// const Hospital = require('./database').Hospital;
+const Hospital = require('./database').Hospital;
+const Doctor = require('./database').Doctor;
 
 //Database Set-up
 
@@ -55,6 +56,24 @@ app.post('/add_account', function(req, res){
 	var ptr_num = req.body.ptr_num;
 	var s2_license_num = req.body.s2_license_num;
 	var password = req.body.password;
+
+	// User_Account.create({ 
+	// 	username : username,
+	// 	lastname : last_name,
+	// 	firstname : first_name,
+	// 	middlename : middle_name,
+	// 	suffix : suffix,
+	// 	contact_num : contact_num,
+	// 	email_add : email_add,
+	// 	license_num : license_num,
+	// 	ptr_num : ptr_num,
+	// 	s2_license_num : s2_license_num,
+	// 	password : password
+	// });
+
+	if(req.body.doctor == "Doctor") {
+		// Doctor.create
+	}
 });
 
 app.post('/login', function(req, res){

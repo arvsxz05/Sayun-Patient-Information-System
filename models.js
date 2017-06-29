@@ -118,6 +118,9 @@ const Doctor = database.define('doctor', {
 
 const Secretary = database.define('secretary');
 
+const Admin = database.define('admin');
+
+Admin.belongsTo(User_Account, {as: 'username'});
 Secretary.belongsTo(User_Account, {as: 'username'});
 Doctor.belongsTo(User_Account, {as: 'username'});
 
@@ -151,3 +154,5 @@ database.sync();
 
 module.exports.Hospital = Hospital
 module.exports.User_Account = User_Account;
+module.exports.Doctor = Doctor;
+module.exports.Secretary = Secretary;
