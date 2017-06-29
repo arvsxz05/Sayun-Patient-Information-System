@@ -18,11 +18,13 @@
   "homepage": "https://github.com/arvsxz05/Sayun-Patient-Information-System#readme",
   "dependencies": {
     "angular": "^1.6.4",
+    "bcrypt": "^1.0.2",
     "body-parser": "^1.17.2",
     "consolidate": "^0.14.5",
     "express": "^4.15.3",
     "express-validator": "^3.2.0",
     "nunjucks": "^3.0.1",
+    "pg": "^6.4.0",
     "sequelize": "^4.2.0",
     "sequelize-cli": "^2.7.0",
     "socket.io": "^2.0.3"

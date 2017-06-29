@@ -3,12 +3,12 @@
 
 <head>
     <title>Add an Account</title>
-    <link rel="stylesheet"  type="text/css"         href="/static/css/bootstrap.css">
-    <link rel="stylesheet"  type="text/css"         href="/static/css/bootstrap.min.css">
-    <link rel="stylesheet"  type="text/css"         href="/static/css/styles.css">
-    <script                 type="text/javascript"  src="/static/js/jquery.js"></script>
-    <script                 type="text/javascript"  src="/static/js/bootstrap.min.js"></script>
-    <script                 type="text/javascript"  src="/static/js/upload-image.js"></script>
+    <link rel="stylesheet"  type="text/css"         href="../../static/css/bootstrap.css">
+    <link rel="stylesheet"  type="text/css"         href="../../static/css/bootstrap.min.css">
+    <link rel="stylesheet"  type="text/css"         href="../../static/css/styles.css">
+    <script                 type="text/javascript"  src="../../static/js/jquery.js"></script>
+    <script                 type="text/javascript"  src="../../static/js/bootstrap.min.js"></script>
+    <script                 type="text/javascript"  src="../../static/js/upload-image.js"></script>
 </head>
 
 <body>
@@ -95,9 +95,21 @@
                                 <div class="form-group">
                                     <label class="col-sm-4 control-label" for="username">User Type*</label>
                                     <div class="col-sm-8">
-                                        <label class="checkbox-inline"><input type="checkbox" name="admin" value="Admin">Administrator</label>
-                                        <label class="checkbox-inline"><input type="checkbox" name="doctor" value="Doctor">Doctor</label>
-                                        <label class="checkbox-inline"><input type="checkbox" name="secretary" value="Secretary">Secretary</label>
+                                        <select id="user-type" name="user_type" required>
+                                          <option value="">----</option>
+                                          <option value="Doctor">Doctor</option>
+                                          <option value="Secretary">Secretary</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-4 control-label" for="username">Access Rights*</label>
+                                    <div class="col-sm-8">
+                                        <select id="access-rights" name="access_rights" required>
+                                          <option value="">----</option>
+                                          <option value="Normal">Normal</option>
+                                          <option value="Admin">Administrator</option>
+                                        </select>
                                     </div>
                                 </div>
                                 <div class="form-group">
@@ -178,9 +190,11 @@
                             </fieldset>
                         </div>
 
+                        <p name="error">{{ error }}</p>
+
                         <div class="button-group">
-                            <a href="" class="btn btn-success pull-right">Cancel</a>
-                            <button type="submit" class="btn btn-success pull-right">Save</button>    
+                            <a href="" class="btn btn-gray pull-right">Cancel</a>
+                            <button type="submit" class="btn btn-lime pull-right">Save</button>    
                         </div>
                     </form>
                 </div>
@@ -190,8 +204,8 @@
 </body>
 
 <script type="text/javascript">
-    $('input[name="doctor"]').on('click', function(){
-        if ( $(this).is(':checked') ) {
+    $('#user-type').on('change', function(){
+        if ($(this).val()=='Doctor') {
             $('.doctor-fields').slideDown(600);
             $('.doctor-fields input').prop('required', true);
             $('#digitalSignInp').prop('required', false);

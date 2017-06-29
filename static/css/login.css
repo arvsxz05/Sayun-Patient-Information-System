@@ -83,7 +83,6 @@
   }
 
   #login{
-    background-color: #d92323;
     color: white;
     width: 80%;
     margin-left: 10%;
@@ -96,6 +95,26 @@
     font-size: 16px;
   }
 
-  .glyphicon{
+  .glyphicon {
     font-size: 30px;
+  }
+
+  .center {
+    float: none; 
+    margin: 20px auto;
+    width: 80%;
+  }
+
+  .bootstrap-select:not([class*="span"]):not([class*="col-"]):not([class*="form-control"]):not(.input-group-btn){
+    width:100%;
+  }
+
+  .selectpicker{
+    background-color: #F9F2F2;
+    border-color: rgba(0, 0, 0, 0.3) !important;
+  }
+
+  .bs-searchbox input {
+    width: 94% !important;
+    margin: 5px 3% !important;
   }

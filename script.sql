@@ -6,8 +6,6 @@ CREATE DATABASE spis WITH OWNER sayunsuperuser;
 
 \c spis
 
-CREATE DATABASE spis with owner sayunsuperuser;
-
 \i 'C:/Program Files (x86)/PostgreSQL/9.5/share/extension/pgcrypto--1.2.sql'
 CREATE EXTENSION pgcrypto;
 
@@ -208,3 +206,10 @@ INSERT INTO Hospital VALUES ('Mandaue City Hospital', 'Mandaue City, Cebu', 'Hos
 
 INSERT INTO Secretary VALUES ('mbarnado'), ('pmarts');
 INSERT INTO Doctor VALUES ('doc_james', '111-1111-111', '111-1111-111', '111-1111-111'), ('drbean', '222-2222-222', '222-2222-222', '222-2222-222');
+
+INSERT INTO User_Accounts (id, first_name, middle_name, last_name, contact_number, email, password, md5, spis_instance) VALUES 
+	('pmarts', 'Patrick', 'Aragon', 'Martinez', 'Mr.', '09242857393', 
+	'patrickm@gmail.com', crypt('qwerty123', gen_salt('md5')), md5('qwerty123'), 3);
+
+	insert into spis_instances (description, "createdAt", "updatedAt") values ('Bernard Lees Clinic', now(), now());
+	insert into spis_instances (description, "createdAt", "updatedAt") values ('ChongHua Clinic', now(), now());

@@ -1,5 +1,6 @@
 const Sequelize = require('sequelize');
 const database = require('./database');
+const bcrypt = require('bcrypt');
 
 const user_types = ['Doctor', 'Secretary', 'Admin'];
 const institution_types = ['Clinic', 'Hospital', 'Laboratory'];
@@ -25,11 +26,10 @@ const User_Account = database.define('user_account', {
 		type: Sequelize.STRING(30),
 		allowNull: false,
 		set(val) {
-	    	this.setDataValue('last_name', val.toUpperCase());
+	    	this.setDataValue('middle_name', val.toUpperCase());
 	    },
 	    validate: {
 			is: /^[a-zA-Z]+$/i,
-			notEmpty: true
 		}
 	},
 	last_name: {
@@ -51,25 +51,27 @@ const User_Account = database.define('user_account', {
 	    }
 	},
 	contact_number: {
-		type: Sequelize.STRING(15),
+		type: Sequelize.STRING(20),
 		allowNull: false,
 		notEmpty: true
 	},
 	email: {
-		type: Sequelize.STRING(15),
+		type: Sequelize.STRING(50),
 		allowNull: false,
 		validate: {
 			isEmail: true,
 			notEmpty: true
 		}
 	},
-	password_hash: Sequelize.STRING,
-	password: {
-		type: Sequelize.VIRTUAL,
+	password_hash: {
+		type: Sequelize.STRING,
+		allowNull: false,
 		set: function (val) {
-			// Remember to set the data value, otherwise it won't be validated
-			this.setDataValue('password', val);
-			this.setDataValue('password_hash', this.salt + val);
+	// 		// Remember to set the data value, otherwise it won't be validated
+			// bcrypt.hash(val, 10, function(err, hash) {
+				this.setDataValue('password_hash', bcrypt.hashSync(val, 10));
+			// });
+			
 		},
 		validate: {
 			isLongEnough: function (val) {
@@ -79,6 +81,21 @@ const User_Account = database.define('user_account', {
 			}
 		}
 	},
+	// password: {
+	// 	type: Sequelize.VIRTUAL,
+	// 	set: function (val) {
+	// 		// Remember to set the data value, otherwise it won't be validated
+	// 		this.setDataValue('password', val);
+	// 		this.setDataValue('password_hash', this.salt + val);
+	// 	},
+	// 	validate: {
+	// 		isLongEnough: function (val) {
+	// 			if (val.length < 7) {
+	// 				throw new Error("Please choose a longer password")
+	// 			}
+	// 		}
+	// 	}
+	// },
 	photo: {
 		type: Sequelize.STRING
 	}
@@ -95,7 +112,7 @@ const SPIS_Instance = database.define('spis_instance', {
 	},
 	description: {
 		type: Sequelize.TEXT,
-		allowNull: true
+		allowNull: false
 	}
 });
 
@@ -146,13 +163,12 @@ const Hospital = database.define('hospital', {
 	contact_numbers: {
 		type: Sequelize.ARRAY(Sequelize.STRING),
 		allowNull: true,
-
 	}
 });
-
-database.sync();
 
 module.exports.Hospital = Hospital
 module.exports.User_Account = User_Account;
 module.exports.Doctor = Doctor;
+module.exports.Admin = Admin;
 module.exports.Secretary = Secretary;
+module.exports.SPIS_Instance = SPIS_Instance;
