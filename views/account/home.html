@@ -26,8 +26,8 @@
 	        <li class="active"><a href="#">Home</a></li>
 	      </ul>
 	      <ul class="nav navbar-nav navbar-right">
-	        <li><a href="#">NAME OF USER HERE</a></li>
-	        <li><a href="#"><span class="glyphicon glyphicon-log-out"></span> Log out</a></li>
+	        <li><a href="#">{{ user.id }}</a></li>
+	        <li><a href="/logout"><span class="glyphicon glyphicon-log-out"></span> Log out</a></li>
 	      </ul>
 	    </div>
 	  </div>
@@ -40,7 +40,7 @@
 		  <li class="active">Home</li>
 		</ol>
 		<!-- END OF BREADCRUMBS -->
-		<center><h3>Welcome, USER'S NAME HERE!</h3></center><hr>
+		<center><h3>Welcome, {{ user.id }}!</h3></center><hr>
 
 		<div class="container-fluid">
 			<div class="row feature-row" style="padding-top: 20px">

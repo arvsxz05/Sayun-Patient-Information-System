@@ -81,21 +81,6 @@ const User_Account = database.define('user_account', {
 			}
 		}
 	},
-	// password: {
-	// 	type: Sequelize.VIRTUAL,
-	// 	set: function (val) {
-	// 		// Remember to set the data value, otherwise it won't be validated
-	// 		this.setDataValue('password', val);
-	// 		this.setDataValue('password_hash', this.salt + val);
-	// 	},
-	// 	validate: {
-	// 		isLongEnough: function (val) {
-	// 			if (val.length < 7) {
-	// 				throw new Error("Please choose a longer password")
-	// 			}
-	// 		}
-	// 	}
-	// },
 	photo: {
 		type: Sequelize.STRING
 	}

@@ -1,6 +1,7 @@
 //Module Dependencies
 const express = require('express');
 const bodyParser = require('body-parser');
+const cookieParser = require('cookie-parser');
 const consolidate = require('consolidate');
 const User_Account = require('./models').User_Account;
 const Hospital = require('./models').Hospital;
@@ -8,7 +9,7 @@ const Doctor = require('./models').Doctor;
 const Admin = require('./models').Admin;
 const SPIS_Instance = require('./models').SPIS_Instance;
 const database = require('./database');
-const bcrypt = require('bcrypt');
+
 
 //Database Set-up
 
@@ -28,31 +29,29 @@ app.engine('html', consolidate.nunjucks);
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
+app.use(cookieParser('secret-cookie'));
+
+app.use(require('./auth-routes'));
 
 ///////////// ROUTES ///////////////////
 
 ///// GET /////
 
-app.get('/', function(req, res){
-	res.render('account/home.html');
-	// User_Account.findAll().then(function(results) {
-	// 	console.log(results);
-	// });
-});
-
-app.get('/login', function(req, res){
-	var instances;
-
-	instances = SPIS_Instance.findAll({ attributes: ['description', 'license_no'], raw: true })
-	.then(function (hospArr) {
-		instances = hospArr;
-		console.log(instances);
-		res.render('account/login.html', {
-			instances : instances
+app.get('/', function requireLoggedIn(req, res, next) {
+		const currentUser = req.signedCookies.user;
+		if(!currentUser) {
+			return res.redirect('/login');
+		}
+		console.log(currentUser)
+		next();
+	},
+	function(req, res){
+		const currentUser = req.signedCookies.user;
+		res.render('account/home.html', {
+			user: currentUser
 		});
-	});
-	// console.log(instances);
-});
+	}
+);
 
 app.get('/add_account', function(req, res){
 	res.render('account/add-account.html');
@@ -71,15 +70,13 @@ app.get('/account_list', function(req, res){
 			for( var i = 0; i < results.length; i++ ){
 				var result = results[i];
 
-				allAccounts.push(
-				{
+				allAccounts.push({
 					username: result.username,
 					last_name: result.last_name,
 					middle_name: result.middle_name,
 					first_name: result.first_name,
 					usertype: result.usertype,
-				}
-					);
+				});
 			}
 		});
 
@@ -214,36 +211,7 @@ app.post('/add_account', function(req, res){
 	});
 });
 
-app.post('/login', function(req, res){
-	console.log(req.body);
-	var username = req.body.username;
-	var password = req.body.password;
-	var spis_instance = req.body.spis_instance;
-	// var hash = bcrypt.hashSync(password, 10);
 
-	User_Account.findOne({where: {
-		id: username, spisInstanceLicenseNo: spis_instance
-	}}).then (single_user => {
-		if(single_user == null) {
-			console.log("Empty");
-			res.redirect('/login');
-			//TODO ERRORS
-		}
-		else {
-			if(bcrypt.compareSync(password, single_user.dataValues.password_hash)) {
-				// password_hash: hash,
-				console.log(single_user);
-				res.redirect('/');
-			} else {
-				console.log("Empty");
-				res.redirect('/login');
-			}
-			// password_hash: hash,
-			// res.redirect('/');
-			//TODO with cookies and stuff
-		}
-	});
-});
 
 app.post('/account_delete', function(req, res){
 	var results = req.body;

@@ -20,7 +20,7 @@
 					<div class="logo"><img src="../../static/img/logo.png"></div>
 					<div class="row">
 						<div class="center">
-							<select class="selectpicker" data-live-search="true" data-size="5" name="spis_instance">
+							<select class="selectpicker" data-live-search="true" data-size="5" name="spis_instance" required>
 							  <option data-tokens="" value="">Select your Clinic/Hospital</option>
 							  {% for single_instance in instances %}
 
@@ -36,6 +36,7 @@
 					<div class="form-group row" style="">
 						<input type="password" value="" id="password" name="password" placeholder="password">
 					</div>
+						<p>{{ error }}</p>
 					<div class="form-group row">
 						<button type="submit" class="btn-success" id="login">
 							Log in
