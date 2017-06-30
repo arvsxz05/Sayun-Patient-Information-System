@@ -6,6 +6,7 @@ const consolidate = require('consolidate');
 const User_Account = require('./models').User_Account;
 const Hospital = require('./models').Hospital;
 const Doctor = require('./models').Doctor;
+const Secretary = require('./models').Secretary;
 const Admin = require('./models').Admin;
 const SPIS_Instance = require('./models').SPIS_Instance;
 const database = require('./database');
@@ -48,64 +49,74 @@ function requireLoggedIn(req, res, next) {
 	next();
 }
 
+function requireSuperUser(req, res, next) {
+	const currentUser = req.session.user;
+	const superu = req.session.superuser;
+	if(!currentUser || !superu) {
+		return res.redirect('/login');
+	}
+	next();
+}
+
+function requireSuperAdmin(req, res, next) {
+	const admin = req.session.admin;
+	const superu = req.session.superuser;
+	if(!(admin || superu)) {
+		return res.redirect('/login');
+	}
+	next();
+}
+
 app.get('/', requireLoggedIn,
 	function(req, res){
 		const currentUser = req.session.user; //req.signedCookies.user;
 		res.render('account/home.html', {
-			user: currentUser
+			user: currentUser,
+			doctor: req.session.doctor,
+			secretary: req.session.secretary,
+			admin : req.session.admin,
+			superuser: req.session.superuser
 		});
 	}
 );
 
-app.get('/add_account', requireLoggedIn, function(req, res){
+app.get('/account_add', requireLoggedIn, requireSuperUser, function(req, res){
 	res.render('account/add-account.html');
 });
 
-app.get('/account_view_edit/:username', requireLoggedIn, function(req, res){
-	res.render('account/view-edit-account.html');
-});
 
-app.get('/account_list', requireLoggedIn, function(req, res){
-	var allAccounts = [];
-
-	User_Account.findAll(
-		{raw: true}
-		).then(function(results){
-			for( var i = 0; i < results.length; i++ ){
-				var result = results[i];
-
-				allAccounts.push({
-					username: result.username,
-					last_name: result.last_name,
-					middle_name: result.middle_name,
-					first_name: result.first_name,
-					usertype: result.usertype,
-				});
-			}
-		});
-
-
-	res.render('account/account-list.html', {
-		user_accounts: allAccounts
-	});
-});
-
-app.get('/hcl_add', requireLoggedIn, function(req, res){
+app.get('/hcl_add', requireLoggedIn, requireSuperUser, function(req, res){
 	res.render('account/add-hcl.html');
 });
 
-app.get('/hcl_view_edit/:name', requireLoggedIn, function(req, res){
-	res.render('account/view-edit-hcl.html');
-})
+app.get('/hcl_edit/:name', requireLoggedIn, requireSuperUser, function(req, res){
 
-app.get('/hcl_list', requireLoggedIn, function(req, res){
+	// var name = req.body;
+	var key = req.params.name;
+	var hospital;
+
+	Hospital.findOne({
+		where: {
+			name: key,
+		},
+		raw: true
+	}).then(function(result){
+		hospital = result;
+		// console.log("HERE IN : " + JSON.stringify(hospital));
+		res.json(hospital);
+	});
+
+});
+
+app.get('/hcl_list', requireLoggedIn, requireSuperAdmin, function(req, res){
 	var allHCL = [];
-	Hospital.findAll(
-		{	raw: true, 
-			where: {active: true}}
-		).then(function(results){
-			console.log("RAW QUERY");
-			console.log(results);
+	Hospital.findAll({	
+		raw: true,
+		order: [
+			['createdAt', 'DESC'],
+		],
+		}).then(function(results){
+			// console.log(results);
 			for( var i = 0; i < results.length; i++ ){
 				var result = results[i];
 				allHCL.push(
@@ -114,22 +125,109 @@ app.get('/hcl_list', requireLoggedIn, function(req, res){
 					address: result.address,
 					type: result.type,
 					contact_num: result.contact_numbers,
+					active: result.active,
 				}
 					);
 
-				console.log("contact number of "+result.name+" : "+result.contact_numbers);
 			}
 
 	});
 
-	res.render('account/hcl-list.html', {
-		hcls : allHCL
+	res.render('hospital/list-hospital.html', {
+		hcls : allHCL,
+		admin : req.session.admin,
+		superuser : req.session.superuser
 	});
+});
+
+app.get('/account_list', requireLoggedIn, requireSuperAdmin, function(req, res){
+	var allAccounts = [];
+
+	User_Account.findAll(
+		{raw: true}
+		).then(function(results){
+			for( var i = 0; i < results.length; i++ ){
+				var result = results[i];
+				console.log("HEREEEEE:" + result);
+				allAccounts.push({
+					id: result.id,
+					last_name: result.last_name,
+					middle_name: result.middle_name,
+					first_name: result.first_name,
+					usertype: result.usertype,
+				});
+			}
+
+			console.log("here");
+
+			res.render('account/list-accounts.html', {
+				user_accounts: allAccounts
+			});
+		});
+
+});
+
+app.get('/account_edit/:id', requireLoggedIn, requireSuperUser, function(req, res){
+	var id = req.params.id;
+	var user, type;
+
+	Secretary.findOne({
+		where: {
+			usernameId: id,
+		},
+		raw: true
+	}).then(function(result){
+		// console.log(result);
+		if( result != null ){
+			type = result;
+		}
+		console.log("Secretary");
+	});
+
+	Doctor.findOne({
+		where: {
+			usernameId: id,
+		},
+		raw: true
+	}).then(function(result){
+		// console.log(result);
+		if( result != null ){
+			type = result;
+		}
+		console.log("Doctor");
+	});
+
+	Admin.findOne({
+		where: {
+			usernameId: id,
+		},
+		raw: true
+	}).then(function(result){
+		// console.log(result);
+		if( result != null ){
+			type = result;
+		}
+		console.log("Admin");
+	});
+
+
+	User_Account.findOne({
+		where: {
+			id: id,
+		},
+		raw: true
+	}).then(function(result){
+		user = result;
+		console.log(user);
+		console.log(type);
+		res.render('account/view-edit-account.html', {user: user, type: type});
+	});
+
 });
 
 ///// POST /////
 
-app.post('/add_account', requireLoggedIn, function(req, res){
+app.post('/add_account', requireLoggedIn, requireSuperUser, function(req, res){
 	// console.log(req.body);
 	// res.redirect('/add_account');
 
@@ -217,7 +315,7 @@ app.post('/add_account', requireLoggedIn, function(req, res){
 
 
 
-app.post('/account_delete', requireLoggedIn, function(req, res){
+app.post('/account_delete', requireLoggedIn, requireSuperUser, function(req, res){
 	var results = req.body;
 
 	for(result in results){
@@ -235,23 +333,23 @@ app.post('/account_delete', requireLoggedIn, function(req, res){
 		});
 
 	}
-})
+});
 
-app.post('/hcl_add', requireLoggedIn, function(req, res){
+/////////////////// HCL ///////////////////
 
-	console.log(req.body)
+app.post('/hcl_add', requireLoggedIn, requireSuperUser, function(req, res){
+	console.log("ADDING HCL");
+	console.log(req.body);
 
-	// console.log(req.santizeBody('name').escape());
+	var name = req.body.name.trim();
+	var address = req.body.address.trim();
+	var type = req.body.type.trim();
+	var cn_arr = req.body.cn;
 
-	var name = req.body.name;
-	var address = req.body.address;
-	var type = req.body.type;
-	var cn = req.body.cn;
-
-	var cn_arr = cn.split(",");
-
-	for(var i = 0; i < cn_arr.length; i++){
-		cn_arr[i].trim();
+	if( cn_arr != undefined ){
+		for(var i = 0; i < cn_arr.length; i++){
+			cn_arr[i].trim();
+		}
 	}
 
 	Hospital.create({
@@ -260,37 +358,104 @@ app.post('/hcl_add', requireLoggedIn, function(req, res){
 		type: type,
 		contact_numbers: cn_arr,
 	}).then(function(item){
-		var message = "Created "+item.type+" successfully!";
-
-		res.render('account/add-hcl.html', {message: message});
-
+		res.json({"status": "success"});
 	}).catch(function(error){
-		console.log(error.stack);
-
-		var message = "Something happened!";
-
-		res.render('account/add-hcl.html', {message: message});
+		res.json({"status" : "error", "name": req.body.name.trim()});
 	});
 });
 
-app.post('/hcl_disable', requireLoggedIn, function(req, res){
-	console.log("in disable: ");
-	var results = req.body;
+app.post('/hcl_edit', requireLoggedIn, requireSuperUser, function(req, res){
 
-	for(result in results){
-		console.log(result);
+	console.log(req.body)
 
-		Hospital.update({
-			active: false,
-		}, 
-		{
-			where: {name: result},
-		}).then(function(item){
-			console.log("Disabled "+item+" successfully!");
-		}).catch(function(error){
-			console.log(error.stack);
-		});
+	var name = req.body.name.trim();
+	var address = req.body.address.trim();
+	var type = req.body.type.trim();
+	var active = req.body.active;
+	var cn_arr = req.body.cn;
+	var key = req.body.key;
 
+	if( cn_arr != undefined ){
+		for(var i = 0; i < cn_arr.length; i++){
+			cn_arr[i].trim();
+		}
 	}
 
+	console.log(cn_arr);
+
+	Hospital.update({
+		name: name,
+		address: address,
+		active: active,
+		type: type,
+		contact_numbers: cn_arr,
+	},
+	{
+		where: {
+			name: key
+		}
+	}).then(function(item){
+		res.json({"status": "success"});
+	}).catch(function(error){
+		res.json({"status" : "error", "name": req.body.name.trim()});
+	});
 });
+
+
+app.post('/account_edit', requireLoggedIn, function(req, res){
+	console.log("IN ACCOUNT EDIT");
+	console.log(req.body);
+
+	var id = req.body.id.trim();
+	var title = req.body.title.trim();
+	var lname = req.body.last_name.trim();
+	var fname = req.body.first_name.trim();
+	var mname = req.body.middle_name.trim();
+	var suffix = req.body.suffix.trim();
+	var cnum = req.body.contact_num.trim();
+	var email = req.body.email_add.trim();
+	var lnum = req.body.license_num.trim();
+	var pnum = req.body.ptr_num.trim();
+	var s2num = req.body.s2_license_num.trim();
+	var key = req.body.edit;
+
+	if( lnum != '' && pnum != '' && s2num != '' ){
+		Doctor.update({
+			license_no: lnum,
+			ptr_no: pnum,
+			s2_license_no: s2num,
+			usernameId: id,
+		},{
+			where: {
+				usernameId: key
+			}
+		})
+		// .then(function(item){
+		// 	res.json({"status": "success"});
+		// }).catch(function(error){
+		// 	res.json({"status" : "error", "name": req.body.id.trim()});
+		// });
+	}
+
+
+	User_Account.update({
+		id: id,
+		title: title,
+		last_name: lname,
+		first_name: fname,
+		middle_name: mname,
+		suffix: suffix,
+		contact_num: cnum,
+		email: email,
+	},
+	{
+		where: {
+			id: key
+		}
+	}).then(function(item){
+		// res.json({"status": "success"});
+		res.render('/account_list')
+	}).catch(function(error){
+		res.json({"status" : "error", "name": req.body.id.trim()});
+	});
+})

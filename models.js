@@ -4,6 +4,7 @@ const bcrypt = require('bcrypt');
 
 const user_types = ['Doctor', 'Secretary', 'Admin'];
 const institution_types = ['Clinic', 'Hospital', 'Laboratory'];
+const spis_instance_types = ['active', 'deactivated'];
 
 const User_Account = database.define('user_account', {
 	id: {
@@ -18,7 +19,7 @@ const User_Account = database.define('user_account', {
 	    	this.setDataValue('first_name', val.toUpperCase());
 	    },
 		validate: {
-			is: /^[a-zA-Z]+$/i,
+			is: /^[a-zA-Z\s]+$/i,
 			notEmpty: true
 		}
 	},
@@ -29,7 +30,7 @@ const User_Account = database.define('user_account', {
 	    	this.setDataValue('middle_name', val.toUpperCase());
 	    },
 	    validate: {
-			is: /^[a-zA-Z]+$/i,
+			is: /^[a-zA-Z\s]+$/i,
 		}
 	},
 	last_name: {
@@ -39,7 +40,7 @@ const User_Account = database.define('user_account', {
 	    	this.setDataValue('last_name', val.toUpperCase());
 	    },
 	    validate: {
-			is: /^[a-zA-Z]+$/i,
+			is: /^[a-zA-Z\s]+$/i,
 			notEmpty: true
 		}
 	},
@@ -88,6 +89,34 @@ const User_Account = database.define('user_account', {
 	timestamps: true
 });
 
+const Superuser = database.define('superuser', {
+	id: {
+		type: Sequelize.STRING(20),
+		primaryKey: true,
+		allowNull: false
+	},
+	password: {
+		type: Sequelize.STRING,
+		allowNull: false,
+		set: function (val) {
+			this.setDataValue('password', bcrypt.hashSync(val, 10));
+		}
+	},
+	contact_number: {
+		type: Sequelize.STRING(20),
+		allowNull: false,
+		notEmpty: true
+	},
+	email: {
+		type: Sequelize.STRING(50),
+		allowNull: false,
+		validate: {
+			isEmail: true,
+			notEmpty: true
+		}
+	}
+});
+
 const SPIS_Instance = database.define('spis_instance', {
 	license_no: {
 		type: Sequelize.INTEGER,
@@ -98,6 +127,11 @@ const SPIS_Instance = database.define('spis_instance', {
 	description: {
 		type: Sequelize.TEXT,
 		allowNull: false
+	},
+	status: {
+		type: Sequelize.ENUM,
+		values: spis_instance_types,
+		defaultValue: 'active'
 	}
 });
 
@@ -151,9 +185,21 @@ const Hospital = database.define('hospital', {
 	}
 });
 
+// database.sync();
+
+// Superuser.create({
+// 	id: 'sayunsuperuser',
+// 	password: 's@yun',
+// 	contact_number: '+639062494175',
+// 	email: 'sales@sayunsolutions.com'
+// }).catch(function(error) {
+// 	console.log(error);
+// });
+
 module.exports.Hospital = Hospital
 module.exports.User_Account = User_Account;
 module.exports.Doctor = Doctor;
 module.exports.Admin = Admin;
 module.exports.Secretary = Secretary;
+module.exports.Superuser = Superuser;
 module.exports.SPIS_Instance = SPIS_Instance;

@@ -213,3 +213,4 @@ INSERT INTO User_Accounts (id, first_name, middle_name, last_name, contact_numbe
 
 	insert into spis_instances (description, "createdAt", "updatedAt") values ('Bernard Lees Clinic', now(), now());
 	insert into spis_instances (description, "createdAt", "updatedAt") values ('ChongHua Clinic', now(), now());
+	insert into superusers values ('sayunsuperuser', 's@yun', '+639062494175', 'sales@sayunsolutions.com', now(), now());

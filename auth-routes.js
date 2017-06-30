@@ -3,6 +3,28 @@ const router = new express.Router();
 const bcrypt = require('bcrypt');
 const User_Account = require('./models').User_Account;
 const SPIS_Instance = require('./models').SPIS_Instance;
+const Doctor = require('./models').Doctor;
+const Secretary = require('./models').Secretary;
+const Admin = require('./models').Admin;
+const Superuser = require('./models').Superuser;
+
+function requireSuperUser(req, res, next) {
+	const currentUser = req.session.user;
+	const superu = req.session.superuser;
+	if(!currentUser || !superu) {
+		return res.redirect('/login');
+	}
+	next();
+}
+
+function logOut(req, res, next) {
+	req.session.user = null;
+	req.session.admin = null;
+	req.session.doctor = null;
+	req.session.secretary = null;
+	req.session.superuser = null;
+	next();
+}
 
 router.get('/login', function(req, res, next) {
 		const currentUser = req.session.user; //req.signedCookies.user;
@@ -22,12 +44,15 @@ router.get('/login', function(req, res, next) {
 				instances : instances
 			});
 		});
-		// console.log(instances);
 	}
 );
 
 router.get('/logout', function(req, res) {
 	req.session.user = null;
+	req.session.admin = null;
+	req.session.doctor = null;
+	req.session.secretary = null;
+	req.session.superuser = null;
 	res.redirect('/login');
 });
 
@@ -38,28 +63,133 @@ router.post('/login', function(req, res){
 	var spis_instance = req.body.spis_instance;
 	// var hash = bcrypt.hashSync(password, 10);
 
-	User_Account.findOne({where: {
-		id: username, spisInstanceLicenseNo: spis_instance
-	}}).then (single_user => {
-		if(single_user == null) {
-			req.flash('statusMessage', 'Wrong username and/or password.');
+	SPIS_Instance.findOne({where : {
+		license_no: spis_instance
+	}}).then(spisinstance => {
+		if(!spisinstance) {
+			req.flash('statusMessage', "Please select SPIS Instance");
 			req.flash('username', username);
 			return res.redirect('/');
 		}
-		else {
-			if(bcrypt.compareSync(password, single_user.dataValues.password_hash)) {
-				// res.cookie('user', single_user.dataValues, {signed: true});
-				req.session.user = single_user.dataValues;
-				res.redirect('/');
-			} else {
-				req.flash('statusMessage', "Wrong username and/or password");
-				req.flash('username', username);
+		Superuser.findOne({where: {
+			id: username
+		}}).then(superuserInstance => {
+			if(superuserInstance && bcrypt.compareSync(password, superuserInstance.dataValues.password)) {
+				req.session.user = superuserInstance.dataValues;
+				req.session.superuser = true;
+				req.session.admin = null;
+				req.session.doctor = null;
+				req.session.secretary = null;
 				return res.redirect('/');
+			} else {
+				req.session.superuser = null
+				User_Account.findOne({where: {
+					id: username, spisInstanceLicenseNo: spis_instance
+				}}).then (single_user => {
+					if(!single_user) {
+						req.flash('statusMessage', 'Wrong username and/or password.');
+						req.flash('username', username);
+						return res.redirect('/');
+					}
+					else {
+						if(bcrypt.compareSync(password, single_user.dataValues.password_hash)) {
+							// res.cookie('user', single_user.dataValues, {signed: true});
+							req.session.user = single_user.dataValues;
+							Doctor.findOne({where: {
+								usernameId: single_user.dataValues.id
+							}}).then(doctorInstance => {
+								if(doctorInstance) {
+									req.session.doctor = doctorInstance.dataValues;
+									req.session.secretary = null;
+									Admin.findOne({where: {
+										usernameId: single_user.dataValues.id
+									}}).then(adminInstance => {
+										req.session.admin = false;
+										if(adminInstance) {
+											req.session.admin = true;
+										}
+										console.log(req.session);
+										return res.redirect('/');
+									});
+								} else {
+									Secretary.findOne({where: {
+										usernameId: single_user.dataValues.id
+									}}).then(secretaryInstance => {
+										if(secretaryInstance) {
+											req.session.doctor = null;
+											req.session.secretary = secretaryInstance.dataValues;
+											Admin.findOne({where: {
+												usernameId: single_user.dataValues.id
+											}}).then(adminInstance => {
+												req.session.admin = false;
+												if(adminInstance) {
+													req.session.admin = true;
+												}
+												console.log(req.session);
+												return res.redirect('/');
+											});
+										} else {
+											req.flash('statusMessage', "Error for unknown reason, please refresh page.");
+											req.flash('username', username);
+											return res.redirect('/');
+										}
+									});
+								}
+							});
+							
+						} else {
+							req.flash('statusMessage', "Wrong username and/or password");
+							req.flash('username', username);
+							return res.redirect('/');
+						}
+					};
+				});
 			}
-			// password_hash: hash,
-			// res.redirect('/');
-			//TODO with cookies and stuff
-		};
+		});
+	});
+});
+
+router.get('/adminlicense', logOut, function(req, res) {
+	res.render('spis_instance/su-login.html');
+});
+
+router.post('/adminlicense', function(req, res) {
+	var username = req.body.username;
+	var password = req.body.password;
+
+	Superuser.findOne({where: {
+		id: username,
+	}}).then(superuserInstance => {
+		if(!superuserInstance) {
+			req.flash('statusMessage', "Wrong username and/or password");
+			req.flash('username', username);
+			return res.redirect('/adminlicense');
+		}
+		if(bcrypt.compareSync(password, superuserInstance.dataValues.password)) {
+			req.session.user = superuserInstance.dataValues;
+			req.session.superuser = true;
+			req.session.doctor = false;
+			req.session.admin = false;
+			req.session.secretary = false;
+			// SPIS_Instance.findAll().then(results => {
+				// console.log(results);
+				res.redirect('/spis_list');
+			// });
+		} else {
+			req.flash('statusMessage', "Wrong username and/or password");
+			req.flash('username', username);
+			return res.redirect('/adminlicense');
+		}
+	});
+});
+
+router.get('/spis_list', requireSuperUser, function(req, res) {
+	 SPIS_Instance.findAll({raw: true}).then(results => {
+		console.log(results);
+		res.render('spis_instance/list-SPIS.html', {
+			user: req.session.user,
+			instances: results
+		});
 	});
 });
 
