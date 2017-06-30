@@ -9,7 +9,8 @@ const Doctor = require('./models').Doctor;
 const Admin = require('./models').Admin;
 const SPIS_Instance = require('./models').SPIS_Instance;
 const database = require('./database');
-
+const session = require('express-session');
+const flash = require('express-flash');
 
 //Database Set-up
 
@@ -30,6 +31,8 @@ app.engine('html', consolidate.nunjucks);
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser('secret-cookie'));
+app.use(session({ secret: 'secret-cookie' }));
+app.use(flash());
 
 app.use(require('./auth-routes'));
 
@@ -37,31 +40,32 @@ app.use(require('./auth-routes'));
 
 ///// GET /////
 
-app.get('/', function requireLoggedIn(req, res, next) {
-		const currentUser = req.signedCookies.user;
-		if(!currentUser) {
-			return res.redirect('/login');
-		}
-		console.log(currentUser)
-		next();
-	},
+function requireLoggedIn(req, res, next) {
+	const currentUser = req.session.user; //req.signedCookies.user;
+	if(!currentUser) {
+		return res.redirect('/login');
+	}
+	next();
+}
+
+app.get('/', requireLoggedIn,
 	function(req, res){
-		const currentUser = req.signedCookies.user;
+		const currentUser = req.session.user; //req.signedCookies.user;
 		res.render('account/home.html', {
 			user: currentUser
 		});
 	}
 );
 
-app.get('/add_account', function(req, res){
+app.get('/add_account', requireLoggedIn, function(req, res){
 	res.render('account/add-account.html');
 });
 
-app.get('/account_view_edit/:username', function(req, res){
+app.get('/account_view_edit/:username', requireLoggedIn, function(req, res){
 	res.render('account/view-edit-account.html');
 });
 
-app.get('/account_list', function(req, res){
+app.get('/account_list', requireLoggedIn, function(req, res){
 	var allAccounts = [];
 
 	User_Account.findAll(
@@ -86,15 +90,15 @@ app.get('/account_list', function(req, res){
 	});
 });
 
-app.get('/hcl_add', function(req, res){
+app.get('/hcl_add', requireLoggedIn, function(req, res){
 	res.render('account/add-hcl.html');
 });
 
-app.get('/hcl_view_edit/:name', function(req, res){
+app.get('/hcl_view_edit/:name', requireLoggedIn, function(req, res){
 	res.render('account/view-edit-hcl.html');
 })
 
-app.get('/hcl_list', function(req, res){
+app.get('/hcl_list', requireLoggedIn, function(req, res){
 	var allHCL = [];
 	Hospital.findAll(
 		{	raw: true, 
@@ -125,7 +129,7 @@ app.get('/hcl_list', function(req, res){
 
 ///// POST /////
 
-app.post('/add_account', function(req, res){
+app.post('/add_account', requireLoggedIn, function(req, res){
 	// console.log(req.body);
 	// res.redirect('/add_account');
 
@@ -213,7 +217,7 @@ app.post('/add_account', function(req, res){
 
 
 
-app.post('/account_delete', function(req, res){
+app.post('/account_delete', requireLoggedIn, function(req, res){
 	var results = req.body;
 
 	for(result in results){
@@ -233,7 +237,7 @@ app.post('/account_delete', function(req, res){
 	}
 })
 
-app.post('/hcl_add', function(req, res){
+app.post('/hcl_add', requireLoggedIn, function(req, res){
 
 	console.log(req.body)
 
@@ -269,7 +273,7 @@ app.post('/hcl_add', function(req, res){
 	});
 });
 
-app.post('/hcl_disable', function(req, res){
+app.post('/hcl_disable', requireLoggedIn, function(req, res){
 	console.log("in disable: ");
 	var results = req.body;
 
