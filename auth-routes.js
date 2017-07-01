@@ -202,16 +202,6 @@ router.post('/adminlicense', function(req, res) {
 	});
 });
 
-router.get('/spis_list', requireSuperUser, function(req, res) {
-	 SPIS_Instance.findAll({raw: true}).then(results => {
-		console.log(results);
-		res.render('spis_instance/list-SPIS.html', {
-			user: req.session.user,
-			instances: results
-		});
-	});
-});
-
 router.get('/check_username/:name', requireSuperUser, function(req, res){
 	var key = req.params.name;
 	console.log(key);
@@ -229,6 +219,84 @@ router.get('/check_username/:name', requireSuperUser, function(req, res){
 		}
 	});
 });
+
+/////////////////////////// ALL SPIS ROUTES ///////////////////////////////////////
+router.get('/spis_list', requireSuperUser, function(req, res){
+
+	SPIS_Instance.findAll({
+		raw: true,
+		order: [
+			['license_no', 'DESC']
+		]
+	}).then(function(results){
+		
+		res.render('spis_instance/list-SPIS.html', {
+			instances: results,
+			user: req.session.user,
+		});
+	});
+
+});
+
+router.get('/spis_edit/:id', requireSuperUser, function(req, res){
+
+	var key = req.params.id;
+
+	SPIS_Instance.findOne({
+		where: {
+			license_no: key
+		},
+		raw: true
+	}). then(function(result){
+		console.log("SPIS EDIT: ");
+		console.log(result)
+		res.json(result);
+
+	});
+
+});
+
+router.post('/instance_add', requireSuperUser, function(req, res){
+
+	// console.log(req.body.desc)
+
+	var description = req.body.description.trim();
+
+	SPIS_Instance.create({
+		description: description
+	}).then(function(result){
+		res.json({"status": "success"});
+	}).catch(function(result){
+		res.json({"status" : "error", "name": req.body.id.trim()});
+	});
+
+
+});
+
+router.post('/instance_edit', requireSuperUser, function(req, res){
+
+	console.log(req.body);
+
+	var description = req.body.description.trim();
+	var status = req.body.status;
+	var key = req.body.id;
+
+	SPIS_Instance.update({
+		description: description,
+		status: status,
+	},
+	{
+		where: {
+			license_no: key,
+		}
+	}).then(function(result){
+		res.json({"status": "success"});
+	}).catch(function(result){
+		res.json({"status" : "error", "name": req.body.id.trim()});
+	});
+
+});
+
 
 // router.get('/check_license_num/:license_num', requireSuperUser, function(req, res){
 // 	var key = req.params.license_num;
