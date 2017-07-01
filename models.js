@@ -2,15 +2,21 @@ const Sequelize = require('sequelize');
 const database = require('./database');
 const bcrypt = require('bcrypt');
 
-const user_types = ['Doctor', 'Secretary', 'Admin'];
-const institution_types = ['Clinic', 'Hospital', 'Laboratory'];
-const spis_instance_types = ['active', 'deactivated'];
+const user_types = ['Doctor', 'Secretary'];
+const institution_types = ['Clinic', 'Hospital', 'Laboratory', 'Others'];
+const spis_instance_types = ['Active', 'Inactive'];
+const title_types = ['Ms.', 'Mr.', 'Mrs.', 'Mx.'];
 
 const User_Account = database.define('user_account', {
 	id: {
 		type: Sequelize.STRING(20),
 		primaryKey: true,
 		allowNull: false
+	},
+	title: {
+		type: Sequelize.ENUM,
+		values: title_types,
+		defaultValue: 'Mx.'
 	},
 	first_name: {
 		type: Sequelize.STRING(30),
@@ -51,8 +57,8 @@ const User_Account = database.define('user_account', {
 	    	this.setDataValue('suffix', val.toUpperCase());
 	    }
 	},
-	contact_number: {
-		type: Sequelize.STRING(20),
+	contact_numbers: {
+		type: Sequelize.ARRAY(Sequelize.STRING),
 		allowNull: false,
 		notEmpty: true
 	},
@@ -64,15 +70,21 @@ const User_Account = database.define('user_account', {
 			notEmpty: true
 		}
 	},
+	user_type: {
+		type: Sequelize.ENUM,
+		values: user_types,
+		allowNull: true
+	},
+	isAdmin: {
+		type: Sequelize.BOOLEAN,
+		defaultValue: false,
+		allowNull: false
+	},
 	password_hash: {
 		type: Sequelize.STRING,
 		allowNull: false,
 		set: function (val) {
-	// 		// Remember to set the data value, otherwise it won't be validated
-			// bcrypt.hash(val, 10, function(err, hash) {
-				this.setDataValue('password_hash', bcrypt.hashSync(val, 10));
-			// });
-			
+			this.setDataValue('password_hash', bcrypt.hashSync(val, 10));
 		},
 		validate: {
 			isLongEnough: function (val) {
@@ -103,7 +115,7 @@ const Superuser = database.define('superuser', {
 		}
 	},
 	contact_number: {
-		type: Sequelize.STRING(20),
+		type: Sequelize.ARRAY(Sequelize.STRING(20)),
 		allowNull: false,
 		notEmpty: true
 	},
@@ -131,7 +143,7 @@ const SPIS_Instance = database.define('spis_instance', {
 	status: {
 		type: Sequelize.ENUM,
 		values: spis_instance_types,
-		defaultValue: 'active'
+		defaultValue: 'Active'
 	}
 });
 
@@ -181,7 +193,7 @@ const Hospital = database.define('hospital', {
 	},
 	contact_numbers: {
 		type: Sequelize.ARRAY(Sequelize.STRING),
-		allowNull: true,
+		allowNull: false,
 	}
 });
 
@@ -190,7 +202,7 @@ const Hospital = database.define('hospital', {
 // Superuser.create({
 // 	id: 'sayunsuperuser',
 // 	password: 's@yun',
-// 	contact_number: '+639062494175',
+// 	contact_number: ['+639062494175'],
 // 	email: 'sales@sayunsolutions.com'
 // }).catch(function(error) {
 // 	console.log(error);

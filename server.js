@@ -230,33 +230,42 @@ app.post('/add_account', requireLoggedIn, requireSuperUser, function(req, res){
 	// console.log(req.body);
 	// res.redirect('/add_account');
 
-	var temp;
-
 	var username = req.body.username;
 	var lastname = req.body.last_name;
 	var firstname = req.body.first_name;
+	var title = req.body.title;
 	var middlename = req.body.middle_name;
 	var suffix = req.body.suffix;
-	var contact_num = req.body.contact_num;
+	var contact_num = [ req.body.contact_num ];
 	var email_add = req.body.email_add;
 	var license_num = req.body.license_num;
 	var ptr_num = req.body.ptr_num;
 	var s2_license_num = req.body.s2_license_num;
 	var password = req.body.password;
+	var user_type = req.body.user_type;
+	var is_admin = req.body.user_type;
 
+	if(is_admin === 'Admin') {
+		is_admin = true;
+	} else {
+		is_admin = false;
+	}
 
 	// database.transaction(function(t) {
 		SPIS_Instance.findOne({ where: {
 			license_no: req.session.spisinstance.license_no
 		}}).then(instance => {
-			temp = {
+			var temp = {
 				id : username,
+				title: title,
 				last_name : lastname,
 				first_name : firstname,
 				middle_name : middlename,
 				suffix : suffix,
-				contact_number : contact_num,
+				contact_numbers : contact_num,
 				email : email_add,
+				user_type: user_type,
+				isAdmin: is_admin,
 				password_hash : password,
 				spisInstanceLicenseNo : instance.license_no
 			}
