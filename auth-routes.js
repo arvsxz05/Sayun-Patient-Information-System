@@ -28,7 +28,8 @@ function logOut(req, res, next) {
 
 router.get('/login', function(req, res, next) {
 		const currentUser = req.session.user; //req.signedCookies.user;
-		if(currentUser) {
+		const spisInstance = req.session.spisinstance;
+		if(currentUser && spisInstance) {
 			return res.redirect('/');
 		}
 		next();
@@ -69,7 +70,7 @@ router.post('/login', function(req, res){
 		if(!spisinstance) {
 			req.flash('statusMessage', "Please select SPIS Instance");
 			req.flash('username', username);
-			return res.redirect('/');
+			return res.redirect('/login');
 		}
 		Superuser.findOne({where: {
 			id: username
@@ -77,9 +78,11 @@ router.post('/login', function(req, res){
 			if(superuserInstance && bcrypt.compareSync(password, superuserInstance.dataValues.password)) {
 				req.session.user = superuserInstance.dataValues;
 				req.session.superuser = true;
+				req.session.spisinstance = spisinstance.dataValues;
 				req.session.admin = null;
 				req.session.doctor = null;
 				req.session.secretary = null;
+				console.log(req.session);
 				return res.redirect('/');
 			} else {
 				req.session.superuser = null
@@ -89,7 +92,7 @@ router.post('/login', function(req, res){
 					if(!single_user) {
 						req.flash('statusMessage', 'Wrong username and/or password.');
 						req.flash('username', username);
-						return res.redirect('/');
+						return res.redirect('/login');
 					}
 					else {
 						if(bcrypt.compareSync(password, single_user.dataValues.password_hash)) {
@@ -108,6 +111,7 @@ router.post('/login', function(req, res){
 										if(adminInstance) {
 											req.session.admin = true;
 										}
+										req.session.spisinstance = spisinstance.dataValues;
 										console.log(req.session);
 										return res.redirect('/');
 									});
@@ -125,13 +129,14 @@ router.post('/login', function(req, res){
 												if(adminInstance) {
 													req.session.admin = true;
 												}
+												req.session.spisinstance = spisinstance.dataValues;
 												console.log(req.session);
 												return res.redirect('/');
 											});
 										} else {
 											req.flash('statusMessage', "Error for unknown reason, please refresh page.");
 											req.flash('username', username);
-											return res.redirect('/');
+											return res.redirect('/login');
 										}
 									});
 								}

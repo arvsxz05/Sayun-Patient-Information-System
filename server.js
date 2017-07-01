@@ -84,7 +84,6 @@ app.get('/account_add', requireLoggedIn, requireSuperUser, function(req, res){
 	res.render('account/add-account.html');
 });
 
-
 app.get('/hcl_add', requireLoggedIn, requireSuperUser, function(req, res){
 	res.render('account/add-hcl.html');
 });
@@ -130,21 +129,20 @@ app.get('/hcl_list', requireLoggedIn, requireSuperAdmin, function(req, res){
 					);
 
 			}
-
-	});
-
-	res.render('hospital/list-hospital.html', {
-		hcls : allHCL,
-		admin : req.session.admin,
-		superuser : req.session.superuser
+			res.render('hospital/list-hospital.html', {
+				hcls : allHCL,
+				admin : req.session.admin,
+				superuser : req.session.superuser
+			});
 	});
 });
 
 app.get('/account_list', requireLoggedIn, requireSuperAdmin, function(req, res){
 	var allAccounts = [];
-
+	// console.log("HERE" + req.session.spisinstance.li);
 	User_Account.findAll(
-		{raw: true}
+		{where: {spisInstanceLicenseNo: req.session.spisinstance.license_no}, 
+		raw: true}
 		).then(function(results){
 			for( var i = 0; i < results.length; i++ ){
 				var result = results[i];
@@ -161,7 +159,8 @@ app.get('/account_list', requireLoggedIn, requireSuperAdmin, function(req, res){
 			console.log("here");
 
 			res.render('account/list-accounts.html', {
-				user_accounts: allAccounts
+				user_accounts: allAccounts,
+				superuser: req.session.superuser
 			});
 		});
 
@@ -247,8 +246,9 @@ app.post('/add_account', requireLoggedIn, requireSuperUser, function(req, res){
 
 
 	// database.transaction(function(t) {
-		SPIS_Instance.findOne({ where: {license_no: 1} }).then(function(instance) {
-			// console.log('here' + instance.description);
+		SPIS_Instance.findOne({ where: {
+			license_no: req.session.spisinstance.license_no
+		}}).then(instance => {
 			temp = {
 				id : username,
 				last_name : lastname,
@@ -366,7 +366,7 @@ app.post('/hcl_add', requireLoggedIn, requireSuperUser, function(req, res){
 
 app.post('/hcl_edit', requireLoggedIn, requireSuperUser, function(req, res){
 
-	console.log(req.body)
+	// console.log(req.body)
 
 	var name = req.body.name.trim();
 	var address = req.body.address.trim();
