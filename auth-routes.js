@@ -212,4 +212,77 @@ router.get('/spis_list', requireSuperUser, function(req, res) {
 	});
 });
 
+router.get('/check_username/:name', requireSuperUser, function(req, res){
+	var key = req.params.name;
+	console.log(key);
+	User_Account.findOne({
+		where: {
+			id: key,
+		},
+		raw: true
+	}).then(function(result){
+		if (!result) {
+			res.json({exists: false});
+		}
+		else {
+			res.json({exists: true});
+		}
+	});
+});
+
+// router.get('/check_license_num/:license_num', requireSuperUser, function(req, res){
+// 	var key = req.params.license_num;
+// 	console.log(key);
+// 	Doctor.findOne({
+// 		where: {
+// 			license_no: key,
+// 		},
+// 		raw: true
+// 	}).then(function(result){
+// 		User_Account.findOne
+// 		if (!result) {
+// 			res.json({exists: false});
+// 		}
+// 		else {
+// 			res.json({exists: true});
+// 		}
+// 	});
+// });
+
+// router.get('/check_ptr_num/:ptr_num', requireSuperUser, function(req, res){
+// 	var key = req.params.ptr_num;
+// 	console.log(key);
+// 	Doctor.findOne({
+// 		where: {
+// 			ptr_no: key,
+// 		},
+// 		raw: true
+// 	}).then(function(result){
+// 		if (!result) {
+// 			res.json({exists: false});
+// 		}
+// 		else {
+// 			res.json({exists: true});
+// 		}
+// 	});
+// });
+
+// router.get('/check_s2_license_num/:s2_num', requireSuperUser, function(req, res){
+// 	var key = req.params.s2_num;
+// 	console.log(key);
+// 	Doctor.findOne({
+// 		where: {
+// 			s2_license_no: key,
+// 		},
+// 		raw: true
+// 	}).then(function(result){
+// 		if (!result) {
+// 			res.json({exists: false});
+// 		}
+// 		else {
+// 			res.json({exists: true});
+// 		}
+// 	});
+// });
+
 module.exports = router;

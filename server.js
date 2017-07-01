@@ -152,7 +152,9 @@ app.get('/account_list', requireLoggedIn, requireSuperAdmin, function(req, res){
 					last_name: result.last_name,
 					middle_name: result.middle_name,
 					first_name: result.first_name,
-					usertype: result.usertype,
+					contact_nums: result.contact_numbers,
+					user_type: result.user_type,
+					is_admin: result.isAdmin,
 				});
 			}
 
@@ -236,19 +238,26 @@ app.post('/add_account', requireLoggedIn, requireSuperUser, function(req, res){
 	var title = req.body.title;
 	var middlename = req.body.middle_name;
 	var suffix = req.body.suffix;
-	var contact_num = [ req.body.contact_num ];
+	var contact_count = req.body.count;
+	var contact_num = [];
 	var email_add = req.body.email_add;
 	var license_num = req.body.license_num;
 	var ptr_num = req.body.ptr_num;
 	var s2_license_num = req.body.s2_license_num;
 	var password = req.body.password;
 	var user_type = req.body.user_type;
-	var is_admin = req.body.user_type;
+	var is_admin = req.body.access_rights;
 
 	if(is_admin === 'Admin') {
 		is_admin = true;
 	} else {
 		is_admin = false;
+	}
+
+	for(var i = 1; i <= contact_count; i++){
+		if( (req.body['field' + i]).trim() != ''){
+			contact_num.push( req.body['field' + i] );
+		}	
 	}
 
 	// database.transaction(function(t) {
@@ -308,7 +317,7 @@ app.post('/add_account', requireLoggedIn, requireSuperUser, function(req, res){
 						});
 					});
 				};
-				res.redirect('/');
+				res.redirect('/account_list');
 			})//.then(function () {
 			// 	t.commit();
 			// })

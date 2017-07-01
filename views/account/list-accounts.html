@@ -59,6 +59,7 @@
 					                <th>Last name</th>
 					                <th>First name</th>
 					                <th>Middle name</th>
+					                <th>Contact Number(s)</th>
 					                <th>User type</th>
 					            </tr>
 					        </thead>
@@ -72,7 +73,11 @@
 				        				<td>{{ user_account.last_name }}</td>
 				        				<td>{{ user_account.first_name }}</td>
 				        				<td>{{ user_account.middle_name }}</td>
-				        				<td>{{ user_account.usertype }}</td>
+				        				<td>
+				        					{{ user_account.contact_nums }}
+				        				</td>
+				        				<td>{% if user_account.is_admin == true %}
+				        				Admin-{% endif %}{{ user_account.user_type }}</td>
 				        			</tr>
 				        		{% endfor %}
 							</tbody>
@@ -108,6 +113,7 @@
             "aaSorting": [[0]],
 		   "aoColumns": [
                 { "bSortable": false },
+                { "bSortable": true },
                 { "bSortable": true },
                 { "bSortable": true },
                 { "bSortable": true },

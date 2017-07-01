@@ -92,6 +92,9 @@
                                         <input type="text" class="form-control" name="username" id="username" required>
                                     </div>
                                 </div>
+                                <div>
+                                    <p id="error-username"></p>
+                                </div>
                                 <div class="form-group">
                                     <label class="col-sm-4 control-label" for="username">User Type*</label>
                                     <div class="col-sm-8">
@@ -142,10 +145,13 @@
                                         <input type="text" class="form-control" name="suffix" id="suffix">
                                     </div>
                                 </div>
-                                <div class="form-group">
-                                    <label class="col-sm-4 control-label" for="contact-num">Contact No.*</label>
-                                    <div class="col-sm-8">
-                                        <input type="text" class="form-control" name="contact_num" id="contact-num" required>
+                                <input type="hidden" name="count" id="count" value="1" />
+                                <div class="form-group control-group" id="fields">
+                                    <label class="control-label col-sm-4" for="field1">Contact #(s)</label>
+                                    <div class="controls col-sm-8" id="contacts"> 
+                                        <div class="input-append" id="contact-list">
+                                            <div id="field"><input autocomplete="off" class="form-control dynamic-field" id="field1" name="field1" type="text" placeholder="contact number" data-items="8" style="width: 85% !important;"/><button id="b1" class="btn btn-success add-more" type="button" title="add another contact" style="width:15% !important;">+</button></div>
+                                        </div>
                                     </div>
                                 </div>
                                 <div class="form-group">
@@ -162,12 +168,14 @@
                                             <input type="text" class="form-control" name="license_num" id="license-num">
                                         </div>
                                     </div>
+                                    <!-- <p id="error-license-no"></p> -->
                                     <div class="form-group">
                                         <label class="col-sm-4 control-label" for="license-num">PTR Number*</label>
                                         <div class="col-sm-8">
                                             <input type="text" class="form-control" name="ptr_num" id="ptr-num">
                                         </div>
                                     </div>
+                                    <!-- <p id="error-ptr-num"></p> -->
                                     <div class="form-group">
                                         <label class="col-sm-4 control-label" for="s2-license-num">S2 License Number*</label>
                                         <div class="col-sm-8">
@@ -175,6 +183,7 @@
                                         </div>
                                     </div>
                                 </div>
+                                <!-- <p id="error-s2-num"></p> -->
                                 <div class="form-group">
                                     <label class="col-sm-4 control-label" for="password">Set Password*</label>
                                     <div class="col-sm-8">
@@ -215,5 +224,121 @@
             $('.doctor-fields input').prop('required', false);
         }
     });
+    $(document).ready(function(){
+        var next = 1;
+        $("#b1").click(function(e){
+            e.preventDefault();
+            var addto = "#field" + next;
+            var addRemove = "#field" + (next);
+            next = next + 1;
+            var newIn = '<input autocomplete="off" class="form-control dynamic-field" id="field' + next + '" name="field' + next + '" type="text" placeholder="contact number" style="width: 85% !important;">';
+            var newInput = $(newIn);
+            var removeBtn = '<button id="remove' + (next - 1) + '" class="btn btn-danger remove-me" title="remove contact" style="width: 15% !important;">-</button></div><div id="field">';
+            var removeButton = $(removeBtn);
+            $(addto).after(newInput);
+            $(addRemove).after(removeButton);
+            $("#field" + next).attr('data-source',$(addto).attr('data-source'));
+            $("#count").val(next);  
+            
+                $('.remove-me').click(function(e){
+                    e.preventDefault();
+                    var fieldNum = this.id.charAt(this.id.length-1);
+                    var fieldID = "#field" + fieldNum;
+                    $(this).remove();
+                    $(fieldID).remove();
+                });
+        }); 
+    });
+
+    $("#username").blur(function() {
+        if($("#username").val().trim() !== "") {
+            $.ajax({
+                type: "GET",
+                url: "/check_username/"+ $("#username").val()
+            }).done(function(data) {
+                console.log($("#username").val());
+                if(data["exists"]) {
+                    $('#error-username').text("This username already exists.");
+                } else {
+                    $('#error-username').text("");
+                }
+            });
+        } else {
+            $('#error-username').text("");
+        }
+        // if username exists
+        // $("#username").addClass(".error-field");
+        // else
+        // $("#username").removeClass(".error-field");
+        // $("#username").addClass(".success-field");
+    });
+
+    // $("#license-num").blur(function() {
+    //     if($("#license-num").val().trim() !== "") {
+    //         $.ajax({
+    //             type: "GET",
+    //             url: "/check_license_num/"+ $("#license-num").val()
+    //         }).done(function(data) {
+    //             if(data["exists"]) {
+    //                 $('#error-license-no').text("This license no. is already taken.");
+    //             } else {
+    //                 $('#error-license-no').text("");
+    //             }
+    //         });
+    //     }
+    //     // if username exists
+    //     // $("#username").addClass(".error-field");
+    //     // else
+    //     // $("#username").removeClass(".error-field");
+    //     // $("#username").addClass(".success-field");
+    // });
+
+    // $("#ptr-num").blur(function() {
+    //     if($("#ptr-num").val().trim() !== "") {
+    //         $.ajax({
+    //             type: "GET",
+    //             url: "/check_ptr_num/"+ $("#ptr-num").val()
+    //         }).done(function(data) {
+    //             if(data["exists"]) {
+    //                 $('#error-ptr-num').text("This PTR no. is already taken.");
+    //             } else {
+    //                 $('#error-ptr-num').text("");
+    //             }
+    //         });
+    //     }
+    //     // if username exists
+    //     // $("#username").addClass(".error-field");
+    //     // else
+    //     // $("#username").removeClass(".error-field");
+    //     // $("#username").addClass(".success-field");
+    // });
+    
+    // $("#s2-license-num").blur(function() {
+    //     if($("#s2-license-num").val().trim() !== "") {
+    //         $.ajax({
+    //             type: "GET",
+    //             url: "/check_s2_license_num/"+ $("#s2-license-num").val()
+    //         }).done(function(data) {
+    //             if(data["exists"]) {
+    //                 $('#error-s2-num').text("This S2 License No. is already taken.");
+    //             } else {
+    //                 $('#error-s2-num').text("");
+    //             }
+    //         });
+    //     }
+    //     // if username exists
+    //     // $("#username").addClass(".error-field");
+    //     // else
+    //     // $("#username").removeClass(".error-field");
+    //     // $("#username").addClass(".success-field");
+    // });
+
+    $( "#add-account-form" ).submit(function( event ) {
+        if( $('#error-username').text() !== "") {
+            alert($('#error-username').text());
+            event.preventDefault();
+        }
+    });
+
 </script>
 </html>
