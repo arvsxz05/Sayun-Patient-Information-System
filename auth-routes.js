@@ -41,8 +41,22 @@ router.get('/login', function(req, res, next) {
 		.then(function (hospArr) {
 			instances = hospArr;
 			console.log(instances);
-			res.render('account/login.html', {
-				instances : instances
+
+			Superuser.findAll({
+				raw: true,
+				where: {
+					id: "sayunsuperuser",
+				}
+			}).then(function(result){
+				var superuser = {
+					contact_number: result[0].contact_number,
+					email: result[0].email,
+				}
+
+				res.render('account/login.html', {
+					instances : instances,
+					superuser: superuser,
+				});
 			});
 		});
 	}
