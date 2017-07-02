@@ -21,7 +21,7 @@
 					<div class="row">
 						<div class="center">
 							<select class="selectpicker" data-live-search="true" data-size="5" name="spis_instance" required="required">
-							  <option value="0" selected>Select your Clinic/Hospital</option>
+							  <option value="0" selected disabled>Select your Clinic/Hospital</option>
 							  {% for single_instance in instances %}
 
 							  <option value="{{ single_instance.license_no }}">{{ single_instance.description }}</option>

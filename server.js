@@ -172,6 +172,7 @@ app.get('/account_edit/:id', requireLoggedIn, requireSuperAdmin, function(req, r
 	var id = req.params.id;
 	var user;
 	var type = {};
+	var contact_nums = [];
 
 	Secretary.findOne({
 		where: {
@@ -215,10 +216,32 @@ app.get('/account_edit/:id', requireLoggedIn, requireSuperAdmin, function(req, r
 				user = result;
 				console.log("HEREEEEEEEEEEEEEEE");
 				console.log(user);
+				contact_nums = user.contact_numbers;
+				console.log("\nNAA KO DIRI!!!! " + contact_nums + "\n/////////////");
 				res.render('account/view-edit-account.html', {user: user, type: type});
 			});
 		});
 	});
+});
+
+
+app.get('/account_edit_contacts/:id', requireLoggedIn, requireSuperUser, function(req, res){
+
+	// var name = req.body;
+	var key = req.params.id;
+	var contact_numbers = [];
+
+	User_Account.findOne({
+		where: {
+			id: key,
+		},
+		raw: true
+	}).then(function(result){
+		contact_numbers = result.contact_numbers;
+		// console.log("HERE IN : " + JSON.stringify(hospital));
+		res.json(contact_numbers);
+	});
+
 });
 
 ///// POST /////
@@ -256,7 +279,7 @@ app.post('/add_account', requireLoggedIn, requireSuperUser, function(req, res){
 	}
 
 	for(var i = 1; i <= contact_count; i++){
-		if( (req.body['field' + i]).trim() != ''){
+		if( (req.body['field' + i]) != undefined && (req.body['field' + i]).trim() != ''){
 			contact_num.push( req.body['field' + i] );
 		}	
 	}
@@ -360,63 +383,66 @@ app.post('/hcl_add', requireLoggedIn, requireSuperUser, function(req, res){
 	console.log("ADDING HCL");
 	console.log(req.body);
 
-	var name = req.body.name.trim();
-	var address = req.body.address.trim();
-	var type = req.body.type.trim();
-	var cn_arr = req.body.cn;
+	var name = req.body.name;
+	var address = req.body.address;
+	var type = req.body.type;
+	var contact_count = req.body.count;
+	var contact_num = [];
 
-	if( cn_arr != undefined ){
-		for(var i = 0; i < cn_arr.length; i++){
-			cn_arr[i].trim();
-		}
+	for(var i = 1; i <= contact_count; i++){
+		if( req.body['field' + i] != undefined && req.body['field' + i].trim() != ''){
+			contact_num.push( req.body['field' + i] );
+		}	
 	}
 
 	Hospital.create({
 		name: name,
 		address: address,
 		type: type,
-		contact_numbers: cn_arr,
+		contact_numbers: contact_num,
 	}).then(function(item){
-		res.json({"status": "success"});
+		res.redirect("/hcl_list");
 	}).catch(function(error){
 		res.json({"status" : "error", "name": req.body.name.trim()});
 	});
 });
 
 app.post('/hcl_edit', requireLoggedIn, requireSuperUser, function(req, res){
-
-	// console.log(req.body)
-
-	var name = req.body.name.trim();
-	var address = req.body.address.trim();
-	var type = req.body.type.trim();
-	var active = req.body.active;
-	var cn_arr = req.body.cn;
+	var name = req.body['edit-name'];
+	var address = req.body['edit-address'];
+	var type = req.body['edit-type'];
+	var active = false;
+	var contact_count = req.body['edit-count'];
+	console.log(contact_count);
 	var key = req.body.key;
+	var contact_num = [];
 
-	if( cn_arr != undefined ){
-		for(var i = 0; i < cn_arr.length; i++){
-			cn_arr[i].trim();
-		}
+	if(req.body['edit-status'] == 'Active'){
+		active = true;
 	}
 
-	console.log(cn_arr);
+	for(var i = 1; i <= contact_count; i++){
+		if( req.body['edit-field' + i] != undefined && req.body['edit-field' + i].trim() != ''){
+			contact_num.push( req.body['edit-field' + i] );
+		}	
+	}
 
 	Hospital.update({
 		name: name,
 		address: address,
 		active: active,
 		type: type,
-		contact_numbers: cn_arr,
+		contact_numbers: contact_num,
 	},
 	{
 		where: {
 			name: key
 		}
 	}).then(function(item){
+		res.redirect('/hcl_list');
 		res.json({"status": "success"});
 	}).catch(function(error){
-		res.json({"status" : "error", "name": req.body.name.trim()});
+		res.json({"status" : "error", "name": req.body.name});
 	});
 });
 
@@ -431,14 +457,25 @@ app.post('/account_edit', requireLoggedIn, function(req, res){
 	var fname = req.body.first_name.trim();
 	var mname = req.body.middle_name.trim();
 	var suffix = req.body.suffix.trim();
-	var cnum = req.body.contact_num.trim();
+	var contact_count = req.body['edit-count'];
+	var contact_num = [];
 	var email = req.body.email_add.trim();
-	var lnum = req.body.license_num.trim();
-	var pnum = req.body.ptr_num.trim();
-	var s2num = req.body.s2_license_num.trim();
+	var lnum;
+	var pnum;
+	var s2num;
 	var key = req.body.edit;
 
-	if( lnum != '' && pnum != '' && s2num != '' ){
+	for(var i = 1; i <= contact_count; i++){
+		if( (req.body['edit-field' + i]) != undefined && (req.body['edit-field' + i]).trim() != ''){
+			contact_num.push( req.body['edit-field' + i] );
+		}	
+	}
+
+	if( req.body['user-type'] == 'Doctor'){
+		var lnum = req.body.license_num.trim();
+		var pnum = req.body.ptr_num.trim();
+		var s2num = req.body.s2_license_num.trim();
+		console.log("NISULOD?");
 		Doctor.update({
 			license_no: lnum,
 			ptr_no: pnum,
@@ -448,13 +485,17 @@ app.post('/account_edit', requireLoggedIn, function(req, res){
 			where: {
 				usernameId: key
 			}
-		})
+		});
+	}
+
+	// if( req.body['user-type'] == 'Doctor' ){
+
 		// .then(function(item){
 		// 	res.json({"status": "success"});
 		// }).catch(function(error){
 		// 	res.json({"status" : "error", "name": req.body.id.trim()});
 		// });
-	}
+	// }
 
 
 	User_Account.update({
@@ -464,7 +505,7 @@ app.post('/account_edit', requireLoggedIn, function(req, res){
 		first_name: fname,
 		middle_name: mname,
 		suffix: suffix,
-		contact_num: cnum,
+		contact_numbers: contact_num,
 		email: email,
 	},
 	{
@@ -472,9 +513,8 @@ app.post('/account_edit', requireLoggedIn, function(req, res){
 			id: key
 		}
 	}).then(function(item){
-		// res.json({"status": "success"});
-		res.render('/account_list')
+		res.redirect('/account_list');
 	}).catch(function(error){
-		res.json({"status" : "error", "name": req.body.id.trim()});
+		console.log(error);
 	});
 })

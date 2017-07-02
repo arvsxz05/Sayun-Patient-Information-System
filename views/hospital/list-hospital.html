@@ -151,13 +151,13 @@
 			                                        <input type="text" class="form-control" name="address" id="address">
 			                                    </div>
 			                                </div>
-			                                <input type="hidden" name="count" value="1" />
+			                                <input type="hidden" name="count" id="count" value="1" />
 									        <div class="form-group control-group" id="fields">
 									            <label class="control-label col-sm-3" for="field1">Contact #(s)</label>
 									            <div class="controls col-sm-9" id="contacts"> 
-									                <form class="input-append" id="contact-list">
-									                    <div id="field"><input autocomplete="off" class="form-control dynamic-field" id="field1" name="contact1" type="text" placeholder="contact number" data-items="8"/><button id="b1" class="btn btn-success add-more" type="button" title="add another contact">+</button></div>
-									                </form>
+									                <div class="input-append" id="contact-list">
+									                    <div id="field"><input autocomplete="off" class="form-control dynamic-field" id="field1" name="field1" type="text" placeholder="contact number" data-items="8"/><button id="b1" class="btn btn-success add-more" type="button" title="add another contact">+</button></div>
+									                </div>
 									            </div>
 									        </div>
 		                                	<div class="form-group">
@@ -175,7 +175,7 @@
 		       							</fieldset>
 		       							<div class="button-group">
 				                            <a href="" class="btn btn-gray pull-right">Cancel</a>
-				                            <button type="submit" class="btn btn-lime pull-right" id="save-hospital">Save</button>    
+				                            <button type="submit" class="btn btn-lime pull-right" id="save-hospital">Save</button>   
 				                        </div>
 		       						</form>
 		       					</div>
@@ -209,10 +209,10 @@
 			                                    </div>
 			                                </div>
 			                                <div class="form-group">
-			                                	<label class="col-sm-3 control-labeluted" for="edit-status">Status*</label>
+			                                	<label class="col-sm-3 control-label" for="edit-status">Status*</label>
 			                                    <div class="col-sm-9">
-			                                        <label class="radio-inline"><input type="radio" name="edit-status" id="edit-status-active">Active</label>
-													<label class="radio-inline"><input type="radio" name="edit-status" id="edit-status-deactived">Deactivated</label>
+			                                        <label class="radio-inline"><input type="radio" name="edit-status" id="edit-status-active" value="Active">Active</label>
+													<label class="radio-inline"><input type="radio" name="edit-status" id="edit-status-deactived" value="Inactive">Inactive</label>
 			                                    </div>
 			                                </div>
 			                                <div class="form-group">
@@ -221,13 +221,14 @@
 			                                        <input type="text" class="form-control" name="edit-address" id="edit-address">
 			                                    </div>
 			                                </div>
-			                                <input type="hidden" name="edit-count" value="1" />
+			                                <input type="hidden" name="key" id="key"/>
+			                                <input type="hidden" name="edit-count" id="edit-count" value="1" />
 									        <div class="form-group control-group" id="edit-fields">
-									            <label class="control-label col-sm-3" for="edit-field1">Contact #(s)</label>
+									            <label class="control-label col-sm-3" for="edit-field">Contact #(s)</label>
 									            <div class="controls col-sm-9" id="edit-contacts"> 
-									                <form class="input-append" id="edit-contact-list">
-									                    <div id="edit-field"><input autocomplete="off" class="form-control dynamic-field" id="edit-field1" name="edit-contact1" type="text" placeholder="contact number" data-items="8"/><button id="edit-b1" class="btn btn-success add-more" type="button" title="add another contact">+</button></div>
-									                </form>
+									                <div class="input-append" id="edit-contact-list">
+									                    <div id="edit-field"><input autocomplete="off" class="form-control dynamic-field" id="edit-field1" name="edit-field1" type="text" placeholder="contact number" data-items="8"/><button id="edit-b1" class="btn btn-success add-more" type="button" title="add another contact">+</button></div>
+									                </div>
 									            </div>
 									        </div>
 		                                	<div class="form-group">
@@ -245,7 +246,7 @@
 		       							</fieldset>
 		       							<div class="button-group">
 				                            <a href="" class="btn btn-gray pull-right">Cancel</a>
-				                            <button type="submit" class="btn btn-lime pull-right" id="edit-hlc-button">Save</button>    
+				                            <button type="submit" class="btn btn-lime pull-right" id="edit-hlc-button">Save</button>
 				                        </div>
 		       						</form>
 		       					</div>
@@ -326,38 +327,38 @@
 	    }); 
 	});
 	// Add Hospital 
-	$("#save-hospital").click(function(e){
-		e.preventDefault();
-		var name = $("#name").val();
-		var address = $("#address").val();
-		var type = $("#type").val();
-		var contacts = [];
-		var j = 1;
+	// $("#save-hospital").click(function(e){
+	// 	e.preventDefault();
+	// 	var name = $("#name").val();
+	// 	var address = $("#address").val();
+	// 	var type = $("#type").val();
+	// 	var contacts = [];
+	// 	var j = 1;
 
-		while(j <= next){
-			if($("#field" + j).val() != undefined && $("#field" + j).val() != "" ){
-				contacts.push($("#field" + j).val());
-			}
-			j++;
-		}
-		console.log(contacts);
+	// 	while(j <= next){
+	// 		if($("#field" + j).val() != undefined && $("#field" + j).val() != "" ){
+	// 			contacts.push($("#field" + j).val());
+	// 		}
+	// 		j++;
+	// 	}
+	// 	console.log(contacts);
 
-		$.post("/hcl_add", 
-		{
-			name: name,
-			address: address,
-			type: type,
-			cn: contacts,			
-		}).done( function (data) {
-			if(data["status"] == "success"){
-				location.reload();
-			}
-			else{
-				alert(data["name"] + " already exists");
-			}
-		});
+	// 	$.post("/hcl_add", 
+	// 	{
+	// 		name: name,
+	// 		address: address,
+	// 		type: type,
+	// 		cn: contacts,			
+	// 	}).done( function (data) {
+	// 		if(data["status"] == "success"){
+	// 			location.reload();
+	// 		}
+	// 		else{
+	// 			alert(data["name"] + " already exists");
+	// 		}
+	// 	});
 		
-	});
+	// });
 
 	// Add data to edit hospital
 	var editModal = $("#edit-hospital");
@@ -365,6 +366,7 @@
 		next = 0;
 		key = $(this).attr("id");
 		console.log("this is key: "+key);
+		$("#key").val(key);
 		$.ajax({
 		    type: "GET",
 		    url: "/hcl_edit/" + key,
@@ -414,46 +416,46 @@
 	});
 
 	// Edit Hospital
-	$("#edit-hlc-button").click(function(e){
-		e.preventDefault();
-		console.log("editing hospital");
-		var name = $("#edit-name").val();
-		var address = $("#edit-address").val();
-		var type = $("#edit-type").val();
+	// $("#edit-hlc-button").click(function(e){
+	// 	e.preventDefault();
+	// 	console.log("editing hospital");
+	// 	var name = $("#edit-name").val();
+	// 	var address = $("#edit-address").val();
+	// 	var type = $("#edit-type").val();
 
-		var active = false;
-		if($('#edit-status-active').is(':checked')){
-			active = true;
-		}
+	// 	var active = false;
+	// 	if($('#edit-status-active').is(':checked')){
+	// 		active = true;
+	// 	}
 
-		var contacts = [];
-		var j = 1;
+	// 	var contacts = [];
+	// 	var j = 1;
 
-		console.log("NEXT: " +next);
+	// 	console.log("NEXT: " +next);
 
-		while(j <= next){
-			if($("#edit-field" + j).val() != undefined && $("#edit-field" + j).val() != "" ){
-				contacts.push($("#edit-field" + j).val());
-			}
-			j++;
-		}
-		console.log(contacts);
-		$.post("/hcl_edit", 
-		{
-			key: key,
-			name: name,
-			address: address,
-			type: type,
-			active: active,
-			cn: contacts,
-		}).done( function (data) {
-			if(data["status"] == "success"){
-				location.reload();
-			}
-			else{
-				alert(data["name"] + " already exists");
-			}
-		});
-	});
+	// 	while(j <= next){
+	// 		if($("#edit-field" + j).val() != undefined && $("#edit-field" + j).val() != "" ){
+	// 			contacts.push($("#edit-field" + j).val());
+	// 		}
+	// 		j++;
+	// 	}
+	// 	console.log(contacts);
+	// 	$.post("/hcl_edit", 
+	// 	{
+	// 		key: key,
+	// 		name: name,
+	// 		address: address,
+	// 		type: type,
+	// 		active: active,
+	// 		cn: contacts,
+	// 	}).done( function (data) {
+	// 		if(data["status"] == "success"){
+	// 			location.reload();
+	// 		}
+	// 		else{
+	// 			alert(data["name"] + " already exists");
+	// 		}
+	// 	});
+	// });
 </script>
 </html>
