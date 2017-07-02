@@ -48,14 +48,20 @@
         <div class="container-fluid">
             <div class="row">
                 <div class="col-sm-8 col-sm-offset-2 form-container">
-                    <form class="form-horizontal" role="form" method="POST" action="/account_edit">
+                    <form id="edit-account-form" class="form-horizontal" role="form" method="POST" action="/account_edit/{{user.id}}">
                         <legend><b>Edit Account</b></legend>
                         <!-- photo and digital signature (if user type==doctor) -->
+                        {% if messages.statusMessage %}
+                        <div class="alert alert-success">
+                            {{ messages.statusMessage }}
+                        </div>
+                        {% endif %}
                         <div class="col-xs-12 col-md-5 col-md-push-7">
                             <div class="col-md-8 col-md-offset-2">
                                 <div class="form-group">
                                     <center><label>Photo:</label></center>
                                     <img id='img-upload' src="../../static/img/user.png" />
+                                    {% if session.user.id == user.id or session.superuser %}
                                     <div class="input-group">
                                         <span class="input-group-btn">
                                             <span class="btn btn-default btn-file">
@@ -64,12 +70,14 @@
                                         </span>
                                         <input type="text" class="form-control" readonly>
                                     </div>
+                                    {% endif %}
                                 </div>
 
                                 <div class="doctor-fields">
                                     <div class="form-group">
                                         <center><label>Digital Signature:</label></center>
                                         <img id='digital-sign-upload'/>
+                                        {% if session.user.id == user.id or session.superuser %}
                                         <div class="input-group">
                                             <span class="input-group-btn">
                                                 <span class="btn btn-default btn-file">
@@ -78,6 +86,7 @@
                                             </span>
                                             <input type="text" class="form-control" readonly>
                                         </div>
+                                        {% endif %}
                                     </div>
                                 </div>
                             </div>
@@ -89,10 +98,16 @@
                                 <div class="form-group">
                                     <label class="col-sm-4 control-label" for="username">Username*</label>
                                     <div class="col-sm-8">
-                                        <input type="text" class="form-control" name="id" id="username" value="{{user.id}}" required>
+                                        <input type="text" class="form-control" name="id" id="username" value="{{user.id}}" required
+                                        {% if session.user.id != user.id and not session.superuser %}
+                                        disabled
+                                        {% endif %}
+                                        >
                                     </div>
                                 </div>
-
+                                <div>
+                                    <p id="error-username"></p>
+                                </div>
                                 <div class="form-group">
                                     <label class="col-sm-4 control-label text-muted" for="user_type">User Type*</label>
                                     <div class="col-sm-8">
@@ -124,7 +139,11 @@
                                 <div class="form-group">
                                     <label class="col-sm-4 control-label" for="title">Title</label>
                                     <div class="col-sm-8">
-                                        <select class="form-control" id="title" name="title" required>
+                                        <select class="form-control" id="title" name="title" required
+                                        {% if session.user.id != user.id and not session.superuser %}
+                                        disabled
+                                        {% endif %}
+                                        >
                                             <option value="" disabled>Select Title</option>
                                             {% if user.title == 'Ms.' %}
                                                 <option value="Ms." selected>Ms.</option>
@@ -153,25 +172,41 @@
                                 <div class="form-group">
                                     <label class="col-sm-4 control-label" for="last-name">Last Name*</label>
                                     <div class="col-sm-8">
-                                        <input type="text" class="form-control" name="last_name" id="last-name" required value="{{user.last_name}}">
+                                        <input type="text" class="form-control" name="last_name" id="last-name" required value="{{user.last_name}}"
+                                        {% if session.user.id != user.id and not session.superuser %}
+                                        disabled
+                                        {% endif %}
+                                        >
                                     </div>
                                 </div>
                                 <div class="form-group">
                                     <label class="col-sm-4 control-label" for="first-name">First Name*</label>
                                     <div class="col-sm-8">
-                                        <input type="text" class="form-control" name="first_name" id="first-name" required value="{{user.first_name}}">
+                                        <input type="text" class="form-control" name="first_name" id="first-name" required value="{{user.first_name}}"
+                                        {% if session.user.id != user.id and not session.superuser %}
+                                        disabled
+                                        {% endif %}
+                                        >
                                     </div>
                                 </div>
                                 <div class="form-group">
                                     <label class="col-sm-4 control-label" for="middle-name">Middle Name*</label>
                                     <div class="col-sm-8">
-                                        <input type="text" class="form-control" name="middle_name" id="middle-name" required value="{{user.middle_name}}">
+                                        <input type="text" class="form-control" name="middle_name" id="middle-name" required value="{{user.middle_name}}"
+                                        {% if session.user.id != user.id and not session.superuser %}
+                                        disabled
+                                        {% endif %}
+                                        >
                                     </div>
                                 </div>
                                 <div class="form-group">
                                     <label class="col-sm-4 control-label" for="suffix">Suffix</label>
                                     <div class="col-sm-8">
-                                        <input type="text" class="form-control" name="suffix" id="suffix" value="{{user.suffix}}">
+                                        <input type="text" class="form-control" name="suffix" id="suffix" value="{{user.suffix}}"
+                                        {% if session.user.id != user.id and not session.superuser %}
+                                        disabled
+                                        {% endif %}
+                                        >
                                     </div>
                                 </div>
                                 <input type="hidden" name="edit-count" id="edit-count" value="{{user.contact_numbers.length}}" />
@@ -179,14 +214,24 @@
                                     <label class="control-label col-sm-4" for="edit-field">Contact #(s)</label>
                                     <div class="controls col-sm-8" id="edit-contacts"> 
                                         <div class="input-append" id="edit-contact-list">
-                                            <div id="edit-field"><input autocomplete="off" class="form-control dynamic-field" id="edit-field1" name="edit-field1" type="text" placeholder="contact number" data-items="8"  style="width: 85% !important;"/><button id="edit-b1" class="btn btn-success add-more" type="button" title="add another contact" style="width: 15% !important;">+</button></div>
+                                            <div id="edit-field"><input autocomplete="off" class="form-control dynamic-field" id="edit-field1" name="edit-field1" type="text" placeholder="contact number" data-items="8"  style="width: 85% !important;" 
+                                                {% if session.user.id != user.id and not session.superuser %}
+                                                disabled/>
+                                                {% else %}
+                                                /><button id="edit-b1" class="btn btn-success add-more" type="button" title="add another contact" style="width: 15% !important;">+</button>
+                                                {% endif %}
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
                                 <div class="form-group">
                                     <label class="col-sm-4 control-label" for="email-add">E-mail Address</label>
                                     <div class="col-sm-8">
-                                        <input type="text" class="form-control" name="email_add" id="email-add" value="{{user.email}}">
+                                        <input type="text" class="form-control" name="email_add" id="email-add" value="{{user.email}}"
+                                        {% if session.user.id != user.id and not session.superuser %}
+                                        disabled
+                                        {% endif %}
+                                        >
                                     </div>
                                 </div>
                                 {% if type.Doctor %}
@@ -195,43 +240,57 @@
                                         <div class="form-group">
                                             <label class="col-sm-4 control-label" for="license-num">License Number*</label>
                                             <div class="col-sm-8">
-                                                <input type="text" class="form-control" name="license_num" id="license-num" required value="{{ type.Doctor.license_no }}">
+                                                <input type="text" class="form-control" name="license_num" id="license-num" required value="{{ type.Doctor.license_no }}"
+                                                {% if session.user.id != user.id and not session.superuser %}
+                                                disabled
+                                                {% endif %}
+                                                >
                                             </div>
                                         </div>
                                         <div class="form-group">
                                             <label class="col-sm-4 control-label" for="ptr-num">PTR Number*</label>
                                             <div class="col-sm-8">
-                                                <input type="text" class="form-control" name="ptr_num" id="ptr-num" required value="{{ type.Doctor.ptr_no }}" >
+                                                <input type="text" class="form-control" name="ptr_num" id="ptr-num" required value="{{ type.Doctor.ptr_no }}"{% if session.user.id != user.id and not session.superuser %}
+                                                disabled
+                                                {% endif %}
+                                                >
                                             </div>
                                         </div>
                                         <div class="form-group">
                                             <label class="col-sm-4 control-label" for="s2-license-num">S2 License Number*</label>
                                             <div class="col-sm-8">
-                                                <input type="text" class="form-control" name="s2_license_num" id="s2-license-num" required value="{{ type.Doctor.s2_license_no }}">
+                                                <input type="text" class="form-control" name="s2_license_num" id="s2-license-num" required value="{{ type.Doctor.s2_license_no }}"
+                                                {% if session.user.id != user.id and not session.superuser %}
+                                                disabled
+                                                {% endif %}
+                                                >
                                             </div>
                                         </div>
                                     </div>
                                 {% else %}
                                     <input class="hidden" name="user-type" value="Secretary"/>
                                 {% endif %}
+                                {% if session.user.id == user.id or session.superuser %}
                                 <div class="form-group">
                                     <div class="col-sm-8 col-sm-offset-4">
                                         <a href="" class="btn btn-primary" data-toggle="modal" data-target="#reset-password-modal">Reset Password</a>
                                     </div>
                                 </div>
+                                {% endif %}
                             </fieldset>
                         </div>
-
+                        {% if session.user.id == user.id or session.superuser %}
                         <div class="button-group">
                             <a href="/account_list" class="btn btn-gray pull-right">Cancel</a>
-                            <button type="submit" name="edit" value="{{ user.id }}" class="btn btn-lime pull-right">Save</button>
+                            <button type="submit" class="btn btn-lime pull-right">Save</button>
                         </div>
+                        {% endif %}
                     </form>
                 </div>
             </div>
         </div>
 
-
+        {% if session.user.id == user.id or session.superuser %}
         <!-- RESET PASSWORD MODAL -->
         <div class="modal fade" id="reset-password-modal" role="dialog">
             <div class="modal-dialog">
@@ -245,24 +304,27 @@
                         <div class="container-fluid">
                             <div class="row">
                                 <div class="col-xs-12">
-                                    <form id="reset-password-form" class="form-horizontal" method="POST" action="">
+                                    <form id="reset-password-form" class="form-horizontal" method="POST" action="/reset_password/{{ user.id }}">
                                         <fieldset>
+                                            {% if not session.superuser %}
                                             <div class="form-group">
                                                 <label class="col-sm-3 control-label" for="old-password">Old Password*</label>
                                                 <div class="col-sm-9">
-                                                    <input type="password" class="form-control" name="old-password" id="old-password" required>
+                                                    <input type="password" class="form-control" name="old_password" id="old-password" required>
                                                 </div>
                                             </div>
+                                            <p id="error-old-password"></p>
+                                            {% endif %}
                                             <div class="form-group">
                                                 <label class="col-sm-3 control-label" for="new-password">New Password*</label>
                                                 <div class="col-sm-9">
-                                                    <input type="password" class="form-control" name="new-password" id="new-password" required>
+                                                    <input type="password" class="form-control" name="new_password" id="new-password" required>
                                                 </div>
                                             </div>
                                              <div class="form-group">
                                                 <label class="col-sm-3 control-label" for="new-password-2">Confirm New Password*</label>
                                                 <div class="col-sm-9">
-                                                    <input type="password" class="form-control" name="new-password-2" id="new-password-2" required>
+                                                    <input type="password" class="form-control" name="new_password_2" id="new-password-2" required>
                                                 </div>
                                             </div>
                                         </fieldset>
@@ -279,21 +341,20 @@
             </div>
         </div>
         <!-- end of RESET PASSWORD MODAL -->
-
+        {% endif %}
 
     </div>
 </body>
 
 <script type="text/javascript">
-    $(document).on("ready",function(){
-        if($('#user-type :selected').text() == 'Doctor'){
+    $(document).on("ready", function() {
+        if($('#user-type :selected').text() == 'Doctor') {
             $('.doctor-fields').show();
         }
     });   
-    $(document).on("ready",function(){
+    $(document).on("ready",function() {
         var next = 0;
         var key = $('#username').val();
-
         $.ajax({
             type: "GET",
             url: "/account_edit_contacts/" + key,
@@ -301,19 +362,19 @@
         }).done(function(data) {
             if(data != null){
                 var j = data.length;
-
                 var contacts = data;
-
                 for (var x = 0; x < j; x++){        
                     var addto = "#edit-field" + next;
                     var addRemove = "#edit-field" + (next);
                     next = next + 1;
-                    var newIn = '<input autocomplete="off" class="form-control dynamic-field" id="edit-field' + next + '" name="edit-field' + next + '" type="text" placeholder="contact number" style="width: 85% !important">';
+                    var newIn = '<input autocomplete="off" class="form-control dynamic-field" id="edit-field' + next + '" name="edit-field' + next + '" type="text" placeholder="contact number" style="width: 85% !important" {% if session.user.id != user.id and not session.superuser %}disabled{% endif %} >';
                     var newInput = $(newIn);
+                    {% if session.user.id == user.id or session.superuser %}
                     var removeBtn = '<button id="edit-remove' + (next - 1) + '" class="btn btn-danger remove-me" title="remove contact" style="width: 15% !important">-</button></div><div id="edit-field">';
                     var removeButton = $(removeBtn);
-                    $(addto).after(newInput);
                     $(addRemove).after(removeButton);
+                    {% endif %}
+                    $(addto).after(newInput);
                     $("#edit-field" + next).attr('data-source',$(addto).attr('data-source'));
                     $("#edit-count").val(next);  
                     
@@ -328,11 +389,9 @@
                 }
             }
         });
-
-
-
-
-        $("#edit-b1").click(function(e){
+        
+        {% if session.user.id == user.id or session.superuser %}
+        $("#edit-b1").click(function (e) {
             if( next == 0 )
                 next = 1;
 
@@ -347,20 +406,77 @@
             $(addto).after(newInput);
             $(addRemove).after(removeButton);
             $("#edit-field" + next).attr('data-source',$(addto).attr('data-source'));
-            $("#edit-count").val(next);  
+            $("#edit-count").val(next);
             
-                $('.remove-me').click(function(e){
-                    e.preventDefault();
-                    var fieldNum = this.id.charAt(this.id.length-1);
-                    var fieldID = "#edit-field" + fieldNum;
-                    $(this).remove();
-                    $(fieldID).remove();
-                });
-        }); 
+            $('.remove-me').click(function (e) {
+                e.preventDefault();
+                var fieldNum = this.id.charAt(this.id.length-1);
+                var fieldID = "#edit-field" + fieldNum;
+                $(this).remove();
+                $(fieldID).remove();
+            });
+        });
+        {% endif %}
+    });
+    
+    $("#username").blur(function () {
+        if($("#username").val().trim() !== "") {
+            $.ajax({
+                type: "GET",
+                url: "/check_username/"+ $("#username").val()
+            }).done(function (data) {
+                if(data["exists"] && data["result"].id != "{{ user.id }}") {
+                    $('#error-username').text("This username is already taken.");
+                } else {
+                    $('#error-username').text("");
+                }
+            });
+        } else {
+            $('#error-username').text("");
+        }
+        // if username exists
+        // $("#username").addClass(".error-field");
+        // else
+        // $("#username").removeClass(".error-field");
+        // $("#username").addClass(".success-field");
+    });
 
+    {% if session.user.id == user.id or session.superuser %}
+    $("#old-password").blur(function () {
+        if($("#old-password").val().trim() !== "") {
+            $.ajax({
+                type: "GET",
+                url: "/check_password/{{ user.id }}/" + $("#old-password").val().trim()
+            }).done(function (data) {
+                // console.log(data)
+                if(!data["match"]) {
+                    $("#error-old-password").html('<div class="alert alert-danger">Wrong old password</div>');
+                } else {
+                    $('#error-old-password').html("");
+                }
+            });
+        } else {
+            $('#error-old-password').html("");
+        }
+    });
+    {% endif %}
 
-    }); 
+    $("#edit-account-form").submit(function (event) {
+        if( $('#error-username').text() !== "") {
+            alert($('#error-username').text());
+            event.preventDefault();
+        }
+    });
 
-
+    $("#reset-password-form").submit(function (event) {
+        if ($("#error-old-password").html() && $("#error-old-password").html() !== "") {
+            alert("Wrong old password!");
+            event.preventDefault();
+        }
+        if( $("#new-password").val() != $("#new-password-2").val() ) {
+            alert("Passwords doesn't match!");
+            event.preventDefault();
+        }
+    });
 </script>
 </html>

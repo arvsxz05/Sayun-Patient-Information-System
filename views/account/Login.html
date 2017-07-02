@@ -20,6 +20,11 @@
 					<div class="logo"><img src="../../static/img/logo.png"></div>
 					<div class="row">
 						<div class="center">
+							{% if messages.statusMessage %}
+	                        <div class="alert alert-danger">
+	                            {{ messages.statusMessage }}
+	                        </div>
+	                        {% endif %}
 							<select class="selectpicker" data-live-search="true" data-size="5" name="spis_instance" required="required">
 							  <option value="0" selected disabled>Select your Clinic/Hospital</option>
 							  {% for single_instance in instances %}
@@ -36,7 +41,6 @@
 					<div class="form-group row" style="">
 						<input type="password" value="" id="password" name="password" placeholder="password" required>
 					</div>
-					<p>{{ messages.statusMessage }}</p>
 					<div class="form-group row">
 						<button type="submit" class="btn-success" id="login">
 							Log in

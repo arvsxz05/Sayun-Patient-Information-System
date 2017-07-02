@@ -42,7 +42,7 @@ app.use(require('./auth-routes'));
 ///// GET /////
 
 function requireLoggedIn(req, res, next) {
-	const currentUser = req.session.user; //req.signedCookies.user;
+	const currentUser = req.session.user;
 	if(!currentUser) {
 		return res.redirect('/login');
 	}
@@ -69,7 +69,7 @@ function requireSuperAdmin(req, res, next) {
 
 app.get('/', requireLoggedIn,
 	function(req, res){
-		const currentUser = req.session.user; //req.signedCookies.user;
+		const currentUser = req.session.user;
 		res.render('account/home.html', {
 			user: currentUser,
 			doctor: req.session.doctor,
@@ -89,8 +89,6 @@ app.get('/hcl_add', requireLoggedIn, requireSuperUser, function(req, res){
 });
 
 app.get('/hcl_edit/:name', requireLoggedIn, requireSuperUser, function(req, res){
-
-	// var name = req.body;
 	var key = req.params.name;
 	var hospital;
 
@@ -101,7 +99,6 @@ app.get('/hcl_edit/:name', requireLoggedIn, requireSuperUser, function(req, res)
 		raw: true
 	}).then(function(result){
 		hospital = result;
-		// console.log("HERE IN : " + JSON.stringify(hospital));
 		res.json(hospital);
 	});
 
@@ -115,7 +112,6 @@ app.get('/hcl_list', requireLoggedIn, requireSuperAdmin, function(req, res){
 			['createdAt', 'DESC'],
 		],
 		}).then(function(results){
-			// console.log(results);
 			for( var i = 0; i < results.length; i++ ){
 				var result = results[i];
 				allHCL.push(
@@ -139,7 +135,6 @@ app.get('/hcl_list', requireLoggedIn, requireSuperAdmin, function(req, res){
 
 app.get('/account_list', requireLoggedIn, requireSuperAdmin, function(req, res){
 	var allAccounts = [];
-	// console.log("HERE" + req.session.spisinstance.li);
 	User_Account.findAll(
 		{where: {spisInstanceLicenseNo: req.session.spisinstance.license_no}, 
 		raw: true}
@@ -168,81 +163,92 @@ app.get('/account_list', requireLoggedIn, requireSuperAdmin, function(req, res){
 
 });
 
-app.get('/account_edit/:id', requireLoggedIn, requireSuperAdmin, function(req, res){
-	var id = req.params.id;
-	var user;
-	var type = {};
-	var contact_nums = [];
+app.get('/account_edit/:id', requireLoggedIn, function (req, res, next) {
+		if (!req.session.superuser && !req.session.admin && req.session.user.id != req.params.id) {
+			return res.redirect('/');
+		}
+		next();
+	}, 
+	function (req, res) {
+		var id = req.params.id;
+		var user;
+		var type = {};
+		var contact_nums = [];
 
-	Secretary.findOne({
-		where: {
-			usernameId: id,
-		},
-		raw: true
-	}).then(result => {
-		type['Secretary'] = false;
-		if( result != null ){
-			type['Secretary'] = true;
-		}
-		else {
-			Doctor.findOne({
-				where: {
-					usernameId: id,
-				},
-				raw: true
-			}).then(result => {
-				type['Secretary'] = false;
-				if( result != null ){
-					type['Doctor'] = result;
-				}
-			});
-		}
-		Admin.findOne({
+		Secretary.findOne({
 			where: {
 				usernameId: id,
 			},
 			raw: true
 		}).then(result => {
-			type['Admin'] = false;
+			type['Secretary'] = false;
 			if( result != null ){
-				type['Admin'] = true;
+				type['Secretary'] = true;
 			}
-			User_Account.findOne({
+			else {
+				Doctor.findOne({
+					where: {
+						usernameId: id,
+					},
+					raw: true
+				}).then(result => {
+					type['Secretary'] = false;
+					if( result != null ){
+						type['Doctor'] = result;
+					}
+				});
+			}
+			Admin.findOne({
 				where: {
-					id: id,
+					usernameId: id,
 				},
 				raw: true
-			}).then(function(result){
-				user = result;
-				console.log("HEREEEEEEEEEEEEEEE");
-				console.log(user);
-				contact_nums = user.contact_numbers;
-				console.log("\nNAA KO DIRI!!!! " + contact_nums + "\n/////////////");
-				res.render('account/view-edit-account.html', {user: user, type: type});
+			}).then(result => {
+				type['Admin'] = false;
+				if( result != null ){
+					type['Admin'] = true;
+				}
+				User_Account.findOne({
+					where: {
+						id: id,
+					},
+					raw: true
+				}).then(function(result){
+					user = result;
+					contact_nums = user.contact_numbers;
+					res.render('account/view-edit-account.html', {
+						user: user,
+						type: type,
+						session: req.session
+					});
+				});
 			});
 		});
-	});
-});
+	}
+);
 
 
-app.get('/account_edit_contacts/:id', requireLoggedIn, requireSuperUser, function(req, res){
+app.get('/account_edit_contacts/:id', requireLoggedIn, 
+	function (req, res, next) {
+		if (!req.session.superuser && !req.session.admin && req.session.user.id != req.params.id) {
+			return res.redirect('/');
+		}
+		next();
+	}, function(req, res){
+		var key = req.params.id;
+		var contact_numbers = [];
 
-	// var name = req.body;
-	var key = req.params.id;
-	var contact_numbers = [];
-
-	User_Account.findOne({
-		where: {
-			id: key,
-		},
-		raw: true
-	}).then(function(result){
-		contact_numbers = result.contact_numbers;
-		// console.log("HERE IN : " + JSON.stringify(hospital));
-		res.json(contact_numbers);
-	});
-
-});
+		User_Account.findOne({
+			where: {
+				id: key,
+			},
+			raw: true
+		}).then(function(result){
+			contact_numbers = result.contact_numbers;
+			res.json(contact_numbers);
+		});
+	}
+);
 
 ///// POST /////
 
@@ -407,7 +413,7 @@ app.post('/hcl_add', requireLoggedIn, requireSuperUser, function(req, res){
 	});
 });
 
-app.post('/hcl_edit', requireLoggedIn, requireSuperUser, function(req, res){
+app.post('/hcl_edit', requireLoggedIn, requireSuperUser, function (req, res) {
 	var name = req.body['edit-name'];
 	var address = req.body['edit-address'];
 	var type = req.body['edit-type'];
@@ -446,75 +452,73 @@ app.post('/hcl_edit', requireLoggedIn, requireSuperUser, function(req, res){
 	});
 });
 
+app.post('/account_edit/:id', requireLoggedIn, 
+	function (req, res, next) {
+		if (!req.session.superuser && req.session.user.id != req.params.id) {
+			return res.redirect('/');
+		}
+		next();
+	},
+	function (req, res) {
+		// console.log(req.body);
+		var id = req.body.id.trim();
+		var title = req.body.title.trim();
+		var lname = req.body.last_name.trim();
+		var fname = req.body.first_name.trim();
+		var mname = req.body.middle_name.trim();
+		var suffix = req.body.suffix.trim();
+		var contact_count = req.body['edit-count'];
+		var contact_num = [];
+		var email = req.body.email_add.trim();
+		var key = req.params.id;
 
-app.post('/account_edit', requireLoggedIn, function(req, res){
-	console.log("IN ACCOUNT EDIT");
-	console.log(req.body);
+		for(var i = 1; i <= contact_count; i++){
+			if( (req.body['edit-field' + i]) != undefined && (req.body['edit-field' + i]).trim() != ''){
+				contact_num.push( req.body['edit-field' + i] );
+			}	
+		}
 
-	var id = req.body.id.trim();
-	var title = req.body.title.trim();
-	var lname = req.body.last_name.trim();
-	var fname = req.body.first_name.trim();
-	var mname = req.body.middle_name.trim();
-	var suffix = req.body.suffix.trim();
-	var contact_count = req.body['edit-count'];
-	var contact_num = [];
-	var email = req.body.email_add.trim();
-	var lnum;
-	var pnum;
-	var s2num;
-	var key = req.body.edit;
-
-	for(var i = 1; i <= contact_count; i++){
-		if( (req.body['edit-field' + i]) != undefined && (req.body['edit-field' + i]).trim() != ''){
-			contact_num.push( req.body['edit-field' + i] );
-		}	
-	}
-
-	if( req.body['user-type'] == 'Doctor'){
-		var lnum = req.body.license_num.trim();
-		var pnum = req.body.ptr_num.trim();
-		var s2num = req.body.s2_license_num.trim();
-		console.log("NISULOD?");
-		Doctor.update({
-			license_no: lnum,
-			ptr_no: pnum,
-			s2_license_no: s2num,
-			usernameId: id,
-		},{
+		User_Account.update({
+			id: id,
+			title: title,
+			last_name: lname,
+			first_name: fname,
+			middle_name: mname,
+			suffix: suffix,
+			contact_numbers: contact_num,
+			email: email,
+		},
+		{
 			where: {
-				usernameId: key
+				id: key
 			}
+		}).then(user_updated => {
+			if (req.session.user.id == req.params.id) {
+				req.session.user.id = id;
+				//////////////////////////BEWARE/////////////////////////
+			}
+			if( req.body['user-type'] == 'Doctor'){
+				var lnum = req.body.license_num.trim();
+				var pnum = req.body.ptr_num.trim();
+				var s2num = req.body.s2_license_num.trim();
+				// console.log("NISULOD?");
+				Doctor.update({
+					license_no: lnum,
+					ptr_no: pnum,
+					s2_license_no: s2num
+				},{ where: {
+					usernameId: user_updated.id
+				}}).then(doctor_updated => {
+					if (req.session.user.id == req.params.id) {
+						req.session.doctor = doctor_updated;
+					}
+					return res.redirect('/account_list');
+				});
+			} else {
+				res.redirect('/account_list');
+			}
+		}).catch(function(error){
+			console.log(error);
 		});
 	}
-
-	// if( req.body['user-type'] == 'Doctor' ){
-
-		// .then(function(item){
-		// 	res.json({"status": "success"});
-		// }).catch(function(error){
-		// 	res.json({"status" : "error", "name": req.body.id.trim()});
-		// });
-	// }
-
-
-	User_Account.update({
-		id: id,
-		title: title,
-		last_name: lname,
-		first_name: fname,
-		middle_name: mname,
-		suffix: suffix,
-		contact_numbers: contact_num,
-		email: email,
-	},
-	{
-		where: {
-			id: key
-		}
-	}).then(function(item){
-		res.redirect('/account_list');
-	}).catch(function(error){
-		console.log(error);
-	});
-})
+);

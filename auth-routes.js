@@ -17,6 +17,14 @@ function requireSuperUser(req, res, next) {
 	next();
 }
 
+function requireLoggedIn(req, res, next) {
+	const currentUser = req.session.user;
+	if(!currentUser) {
+		return res.redirect('/login');
+	}
+	next();
+}
+
 function logOut(req, res, next) {
 	req.session.user = null;
 	req.session.admin = null;
@@ -202,7 +210,7 @@ router.post('/adminlicense', function(req, res) {
 	});
 });
 
-router.get('/check_username/:name', requireSuperUser, function(req, res){
+router.get('/check_username/:name', requireLoggedIn, function(req, res){
 	var key = req.params.name;
 	console.log(key);
 	User_Account.findOne({
@@ -215,7 +223,7 @@ router.get('/check_username/:name', requireSuperUser, function(req, res){
 			res.json({exists: false});
 		}
 		else {
-			res.json({exists: true});
+			res.json({exists: true, result: result});
 		}
 	});
 });
@@ -296,6 +304,49 @@ router.post('/instance_edit', requireSuperUser, function(req, res){
 	});
 
 });
+
+router.post('/reset_password/:id', requireLoggedIn, function (req, res, next) {
+		if (!req.session.superuser && req.session.user.id != req.params.id) {
+			// console.log("Rejectedddd!!!");
+			return res.redirect('/');
+		}
+		next();
+	}, function(req, res) {
+		// console.log(req.body);
+		User_Account.update({
+			password_hash: req.body.new_password
+		}, { where: {
+			id: req.params.id
+		}}).then(user_updated => {
+			req.flash('statusMessage', "Password updated successfully.");
+			res.redirect('/account_edit/' + req.params.id);
+		});
+	}
+);
+
+router.get('/check_password/:id/:old_password', requireLoggedIn, function (req, res, next) {
+		if (req.session.user.id != req.params.id) {
+			return res.redirect('/');
+		}
+		next();
+	}, function (req, res) {
+		console.log(req.params);
+		var id = req.params.id;
+		User_Account.findOne({ where: {
+			id: id
+		}}).then(user_instance => {
+			if(user_instance != null) {
+				if(bcrypt.compareSync(req.params.old_password, user_instance.dataValues.password_hash)) {
+					res.json({match: true});
+				} else {
+					res.json({match: false});
+				}
+			} else {
+				return res.redirect('/');
+			}
+		});
+	}
+);
 
 
 // router.get('/check_license_num/:license_num', requireSuperUser, function(req, res){
