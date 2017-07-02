@@ -168,62 +168,57 @@ app.get('/account_list', requireLoggedIn, requireSuperAdmin, function(req, res){
 
 });
 
-app.get('/account_edit/:id', requireLoggedIn, requireSuperUser, function(req, res){
+app.get('/account_edit/:id', requireLoggedIn, requireSuperAdmin, function(req, res){
 	var id = req.params.id;
-	var user, type;
+	var user;
+	var type = {};
 
 	Secretary.findOne({
 		where: {
 			usernameId: id,
 		},
 		raw: true
-	}).then(function(result){
-		// console.log(result);
+	}).then(result => {
+		type['Secretary'] = false;
 		if( result != null ){
-			type = result;
+			type['Secretary'] = true;
 		}
-		console.log("Secretary");
-	});
-
-	Doctor.findOne({
-		where: {
-			usernameId: id,
-		},
-		raw: true
-	}).then(function(result){
-		// console.log(result);
-		if( result != null ){
-			type = result;
+		else {
+			Doctor.findOne({
+				where: {
+					usernameId: id,
+				},
+				raw: true
+			}).then(result => {
+				type['Secretary'] = false;
+				if( result != null ){
+					type['Doctor'] = result;
+				}
+			});
 		}
-		console.log("Doctor");
+		Admin.findOne({
+			where: {
+				usernameId: id,
+			},
+			raw: true
+		}).then(result => {
+			type['Admin'] = false;
+			if( result != null ){
+				type['Admin'] = true;
+			}
+			User_Account.findOne({
+				where: {
+					id: id,
+				},
+				raw: true
+			}).then(function(result){
+				user = result;
+				console.log("HEREEEEEEEEEEEEEEE");
+				console.log(user);
+				res.render('account/view-edit-account.html', {user: user, type: type});
+			});
+		});
 	});
-
-	Admin.findOne({
-		where: {
-			usernameId: id,
-		},
-		raw: true
-	}).then(function(result){
-		// console.log(result);
-		if( result != null ){
-			type = result;
-		}
-		console.log("Admin");
-	});
-
-
-	User_Account.findOne({
-		where: {
-			id: id,
-		},
-		raw: true
-	}).then(function(result){
-		user = result;
-		console.log(user);
-		console.log(type);
-		res.render('account/view-edit-account.html', {user: user, type: type});
-	});
-
 });
 
 ///// POST /////
@@ -232,21 +227,27 @@ app.post('/add_account', requireLoggedIn, requireSuperUser, function(req, res){
 	// console.log(req.body);
 	// res.redirect('/add_account');
 
-	var username = req.body.username;
-	var lastname = req.body.last_name;
-	var firstname = req.body.first_name;
-	var title = req.body.title;
-	var middlename = req.body.middle_name;
-	var suffix = req.body.suffix;
-	var contact_count = req.body.count;
+	var username = req.body.username.trim();
+	var lastname = req.body.last_name.trim();
+	var firstname = req.body.first_name.trim();
+	var title = req.body.title.trim();
+	var middlename = req.body.middle_name.trim();
+	var suffix = req.body.suffix.trim();
+	var contact_count = req.body.count.trim();
 	var contact_num = [];
-	var email_add = req.body.email_add;
-	var license_num = req.body.license_num;
-	var ptr_num = req.body.ptr_num;
-	var s2_license_num = req.body.s2_license_num;
-	var password = req.body.password;
-	var user_type = req.body.user_type;
-	var is_admin = req.body.access_rights;
+	var email_add = req.body.email_add.trim();
+	var license_num = req.body.license_num.trim();
+	var ptr_num = req.body.ptr_num.trim();
+	var s2_license_num = req.body.s2_license_num.trim();
+	var password = req.body.password.trim();
+	var user_type = req.body.user_type.trim();
+	var is_admin = req.body.access_rights.trim();
+
+	if(email_add === "")
+		email_add = null;
+
+	if(suffix === "")
+		suffix = null;
 
 	if(is_admin === 'Admin') {
 		is_admin = true;

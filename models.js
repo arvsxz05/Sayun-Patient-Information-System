@@ -54,7 +54,9 @@ const User_Account = database.define('user_account', {
 		type: Sequelize.STRING(30),
 		allowNull: true,
 		set(val) {
-	    	this.setDataValue('suffix', val.toUpperCase());
+			if (val) {
+	    		this.setDataValue('suffix', val.toUpperCase());
+	    	}
 	    }
 	},
 	contact_numbers: {
@@ -64,16 +66,21 @@ const User_Account = database.define('user_account', {
 	},
 	email: {
 		type: Sequelize.STRING(50),
-		allowNull: false,
+		allowNull: true,
 		validate: {
-			isEmail: true,
-			notEmpty: true
+			isValidEmail: function (val) {
+				if (val) {
+					var re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+					return re.test(val);
+				}
+			}
 		}
 	},
 	user_type: {
 		type: Sequelize.ENUM,
 		values: user_types,
-		allowNull: true
+		allowNull: false,
+		defaultValue: 'Secretary'
 	},
 	isAdmin: {
 		type: Sequelize.BOOLEAN,
