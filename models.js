@@ -25,7 +25,6 @@ const User_Account = database.define('user_account', {
 	    	this.setDataValue('first_name', val.toUpperCase());
 	    },
 		validate: {
-			is: /^[a-zA-Z\s]+$/i,
 			notEmpty: true
 		}
 	},
@@ -34,10 +33,7 @@ const User_Account = database.define('user_account', {
 		allowNull: false,
 		set(val) {
 	    	this.setDataValue('middle_name', val.toUpperCase());
-	    },
-	    validate: {
-			is: /^[a-zA-Z\s]+$/i,
-		}
+	    }
 	},
 	last_name: {
 		type: Sequelize.STRING(30),
@@ -46,7 +42,6 @@ const User_Account = database.define('user_account', {
 	    	this.setDataValue('last_name', val.toUpperCase());
 	    },
 	    validate: {
-			is: /^[a-zA-Z\s]+$/i,
 			notEmpty: true
 		}
 	},
