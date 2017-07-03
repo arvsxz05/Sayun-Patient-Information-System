@@ -14,6 +14,8 @@ const session = require('express-session');
 const flash = require('express-flash');
 
 const multer = require('multer');
+const avatar = multer({dest: './uploads/avatars'});
+const signature = multer({dest: './uploads/signatures'});
 
 const upload = multer({
 	storage: multer.diskStorage({
@@ -63,6 +65,8 @@ app.listen(port, function(){
 
 app.set('views', __dirname + '/views');
 app.use('/static', express.static(__dirname + '/static'));
+app.use('/uploads/avatars', express.static(__dirname + '/uploads/avatars'));
+app.use('/uploads/signatures', express.static(__dirname + '/uploads/signatures'));
 app.engine('html', consolidate.nunjucks);
 
 app.use(bodyParser.json());
@@ -197,6 +201,9 @@ app.get('/account_list', requireLoggedIn, requireSuperAdmin, function (req, res)
 });
 
 app.get('/account_edit/:id', requireLoggedIn, 
+	upload.fields([{
+		name: 'photo', maxCount: 1}, {
+		name: 'signature', maxCount: 1}]),
 	function (req, res, next) {
 		if (!req.session.superuser && !req.session.admin && req.session.user.id != req.params.id) {
 			return res.redirect('/');
