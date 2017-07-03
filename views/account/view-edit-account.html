@@ -49,7 +49,7 @@
         <div class="container-fluid">
             <div class="row">
                 <div class="col-sm-8 col-sm-offset-2 form-container">
-                    <form id="edit-account-form" class="form-horizontal" role="form" method="POST" action="/account_edit/{{user.id}}">
+                    <form id="edit-account-form" class="form-horizontal" role="form" method="POST" action="/account_edit/{{user.id}}" enctype="multipart/form-data">
                         <legend><b>Edit Account</b></legend>
                         <!-- photo and digital signature (if user type==doctor) -->
                         {% if messages.statusMessage %}
@@ -61,12 +61,12 @@
                             <div class="col-md-8 col-md-offset-2">
                                 <div class="form-group">
                                     <center><label>Photo:</label></center>
-                                    <img id='img-upload' src="../../static/img/user.png" />
+                                    <img id='img-upload' src="{{user.photo}}" />
                                     {% if session.user.id == user.id or session.superuser %}
                                     <div class="input-group">
                                         <span class="input-group-btn">
                                             <span class="btn btn-default btn-file">
-                                                Browse… <input type="file" id="imgInp">
+                                                Browse… <input type="file" id="imgInp" name="photo">
                                             </span>
                                         </span>
                                         <input type="text" class="form-control" readonly>
@@ -77,12 +77,12 @@
                                 <div class="doctor-fields">
                                     <div class="form-group">
                                         <center><label>Digital Signature:</label></center>
-                                        <img id='digital-sign-upload'/>
+                                        <img id='digital-sign-upload'/ src="{{type.signature}}">
                                         {% if session.user.id == user.id or session.superuser %}
                                         <div class="input-group">
                                             <span class="input-group-btn">
                                                 <span class="btn btn-default btn-file">
-                                                    Browse… <input type="file" id="digitalSignInp">
+                                                    Browse… <input type="file" id="digitalSignInp" name="signature">
                                                 </span>
                                             </span>
                                             <input type="text" class="form-control" readonly>

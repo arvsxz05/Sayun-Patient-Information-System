@@ -13,6 +13,42 @@ const database = require('./database');
 const session = require('express-session');
 const flash = require('express-flash');
 
+const multer = require('multer');
+
+const upload = multer({
+	storage: multer.diskStorage({
+		destination: function(req, file, cb){
+
+			if(file.fieldname == 'photo'){
+				var path = './uploads/avatars';
+				cb(null, path);
+			}
+
+			if(file.fieldname == 'signature'){
+				var path = './uploads/signatures';
+				cb(null, path);
+			}
+		},
+		filename: function(req, file, cb){
+
+			require('crypto').pseudoRandomBytes(16, function(err, raw){
+				if (req.fileValidationError){
+					return cb(err);
+				}
+
+				cb(null, raw.toString('hex')+Date.now()+'.'+require('mime').extension(file.mimetype));
+			});
+		}
+	}),
+	fileFilter: function(req, file, cb){
+		if( !file.mimetype.includes('image') ){
+			req.fileValidationError = 'not the right mimetype';
+			return cb(null, false, new Error('goes wrong on the mimetype'));
+		}
+		cb(null, true);
+	}
+});
+
 //Database Set-up
 
 //end of Module Dependencies
@@ -35,7 +71,7 @@ app.use(cookieParser('secret-cookie'));
 app.use(session({ secret: 'secret-cookie' }));
 app.use(flash());
 
-app.use(require('./auth-routes'));
+app.use(require('./user-routes'));
 
 ///////////// ROUTES ///////////////////
 
@@ -67,28 +103,26 @@ function requireSuperAdmin(req, res, next) {
 	next();
 }
 
-app.get('/', requireLoggedIn,
-	function(req, res){
-		const currentUser = req.session.user;
-		res.render('account/home.html', {
-			user: currentUser,
-			doctor: req.session.doctor,
-			secretary: req.session.secretary,
-			admin : req.session.admin,
-			superuser: req.session.superuser
-		});
-	}
-);
+app.get('/', requireLoggedIn, function (req, res){
+	const currentUser = req.session.user;
+	res.render('account/home.html', {
+		user: currentUser,
+		doctor: req.session.doctor,
+		secretary: req.session.secretary,
+		admin : req.session.admin,
+		superuser: req.session.superuser
+	});
+});
 
-app.get('/account_add', requireLoggedIn, requireSuperUser, function(req, res){
+app.get('/account_add', requireLoggedIn, requireSuperUser, function (req, res){
 	res.render('account/add-account.html');
 });
 
-app.get('/hcl_add', requireLoggedIn, requireSuperUser, function(req, res){
+app.get('/hcl_add', requireLoggedIn, requireSuperUser, function (req, res){
 	res.render('account/add-hcl.html');
 });
 
-app.get('/hcl_edit/:name', requireLoggedIn, requireSuperUser, function(req, res){
+app.get('/hcl_edit/:name', requireLoggedIn, requireSuperUser, function (req, res){
 	var key = req.params.name;
 	var hospital;
 
@@ -104,7 +138,7 @@ app.get('/hcl_edit/:name', requireLoggedIn, requireSuperUser, function(req, res)
 
 });
 
-app.get('/hcl_list', requireLoggedIn, requireSuperAdmin, function(req, res){
+app.get('/hcl_list', requireLoggedIn, requireSuperAdmin, function (req, res){
 	var allHCL = [];
 	Hospital.findAll({	
 		raw: true,
@@ -133,7 +167,7 @@ app.get('/hcl_list', requireLoggedIn, requireSuperAdmin, function(req, res){
 	});
 });
 
-app.get('/account_list', requireLoggedIn, requireSuperAdmin, function(req, res){
+app.get('/account_list', requireLoggedIn, requireSuperAdmin, function (req, res){
 	var allAccounts = [];
 	User_Account.findAll(
 		{where: {spisInstanceLicenseNo: req.session.spisinstance.license_no}, 
@@ -160,10 +194,10 @@ app.get('/account_list', requireLoggedIn, requireSuperAdmin, function(req, res){
 				superuser: req.session.superuser
 			});
 		});
-
 });
 
-app.get('/account_edit/:id', requireLoggedIn, function (req, res, next) {
+app.get('/account_edit/:id', requireLoggedIn, 
+	function (req, res, next) {
 		if (!req.session.superuser && !req.session.admin && req.session.user.id != req.params.id) {
 			return res.redirect('/');
 		}
@@ -215,6 +249,9 @@ app.get('/account_edit/:id', requireLoggedIn, function (req, res, next) {
 					raw: true
 				}).then(function(result){
 					user = result;
+
+					console.log("IN HERE RESULT FOR EDIT ACCOUNT: "+result.photo);
+
 					contact_nums = user.contact_numbers;
 					res.render('account/view-edit-account.html', {
 						user: user,
@@ -226,7 +263,6 @@ app.get('/account_edit/:id', requireLoggedIn, function (req, res, next) {
 		});
 	}
 );
-
 
 app.get('/account_edit_contacts/:id', requireLoggedIn, 
 	function (req, res, next) {
@@ -252,7 +288,13 @@ app.get('/account_edit_contacts/:id', requireLoggedIn,
 
 ///// POST /////
 
-app.post('/add_account', requireLoggedIn, requireSuperUser, function(req, res){
+app.post('/add_account', 
+	requireLoggedIn, 
+	requireSuperUser, 
+	upload.fields([{
+		name: 'photo', maxCount: 1}, {
+		name: 'signature', maxCount: 1}]), 
+	function (req, res){
 	// console.log(req.body);
 	// res.redirect('/add_account');
 
@@ -271,6 +313,14 @@ app.post('/add_account', requireLoggedIn, requireSuperUser, function(req, res){
 	var password = req.body.password.trim();
 	var user_type = req.body.user_type.trim();
 	var is_admin = req.body.access_rights.trim();
+
+	if(req.files['photo'] != undefined){
+			photo = "/uploads/avatars/"+req.files['photo'][0].filename;	
+		}
+		
+		if(req.files['signature'] != undefined){
+			sign = "/uploads/signature/"+req.files['signature'][0].filename;	
+		}
 
 	if(email_add === "")
 		email_add = null;
@@ -306,7 +356,8 @@ app.post('/add_account', requireLoggedIn, requireSuperUser, function(req, res){
 				user_type: user_type,
 				isAdmin: is_admin,
 				password_hash : password,
-				spisInstanceLicenseNo : instance.license_no
+				spisInstanceLicenseNo : instance.license_no,
+				photo: photo,
 			}
 			// console.log(temp);
 			User_Account.create(temp).then(account => {
@@ -316,7 +367,8 @@ app.post('/add_account', requireLoggedIn, requireSuperUser, function(req, res){
 						license_no : license_num,
 						ptr_no : ptr_num,
 						s2_license_no : s2_license_num,
-						usernameId: account.dataValues.id
+						usernameId: account.dataValues.id,
+						signature: sign,
 					})
 					.catch(function(error) {
 						console.log(error);
@@ -361,9 +413,7 @@ app.post('/add_account', requireLoggedIn, requireSuperUser, function(req, res){
 	});
 });
 
-
-
-app.post('/account_delete', requireLoggedIn, requireSuperUser, function(req, res){
+app.post('/account_delete', requireLoggedIn, requireSuperUser, function (req, res){
 	var results = req.body;
 
 	for(result in results){
@@ -385,7 +435,7 @@ app.post('/account_delete', requireLoggedIn, requireSuperUser, function(req, res
 
 /////////////////// HCL ///////////////////
 
-app.post('/hcl_add', requireLoggedIn, requireSuperUser, function(req, res){
+app.post('/hcl_add', requireLoggedIn, requireSuperUser, function (req, res){
 	console.log("ADDING HCL");
 	console.log(req.body);
 
@@ -452,7 +502,11 @@ app.post('/hcl_edit', requireLoggedIn, requireSuperUser, function (req, res) {
 	});
 });
 
-app.post('/account_edit/:id', requireLoggedIn, 
+app.post('/account_edit/:id', 
+	requireLoggedIn, 
+	upload.fields([{
+		name: 'photo', maxCount: 1}, {
+		name: 'signature', maxCount: 1}]), 
 	function (req, res, next) {
 		if (!req.session.superuser && req.session.user.id != req.params.id) {
 			return res.redirect('/');
@@ -471,6 +525,14 @@ app.post('/account_edit/:id', requireLoggedIn,
 		var contact_num = [];
 		var email = req.body.email_add.trim();
 		var key = req.params.id;
+		var photo, sign;
+		if(req.files['photo'] != undefined){
+			photo = "/uploads/avatars/"+req.files['photo'][0].filename;	
+		}
+		
+		if(req.files['signature'] != undefined){
+			sign = "/uploads/signature/"+req.files['signature'][0].filename;	
+		}
 
 		for(var i = 1; i <= contact_count; i++){
 			if( (req.body['edit-field' + i]) != undefined && (req.body['edit-field' + i]).trim() != ''){
@@ -487,6 +549,7 @@ app.post('/account_edit/:id', requireLoggedIn,
 			suffix: suffix,
 			contact_numbers: contact_num,
 			email: email,
+			photo: photo,
 		},
 		{
 			where: {
@@ -505,7 +568,8 @@ app.post('/account_edit/:id', requireLoggedIn,
 				Doctor.update({
 					license_no: lnum,
 					ptr_no: pnum,
-					s2_license_no: s2num
+					s2_license_no: s2num,
+					signature: sign,
 				},{ where: {
 					usernameId: user_updated.id
 				}}).then(doctor_updated => {

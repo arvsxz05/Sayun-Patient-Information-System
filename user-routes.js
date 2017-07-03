@@ -34,7 +34,8 @@ function logOut(req, res, next) {
 	next();
 }
 
-router.get('/login', function(req, res, next) {
+router.get('/login', 
+	function (req, res, next) {
 		const currentUser = req.session.user; //req.signedCookies.user;
 		const spisInstance = req.session.spisinstance;
 		if(currentUser && spisInstance) {
@@ -42,7 +43,7 @@ router.get('/login', function(req, res, next) {
 		}
 		next();
 	},
-	function(req, res){
+	function (req, res){
 		var instances;
 
 		instances = SPIS_Instance.findAll({ attributes: ['description', 'license_no'], raw: true })
@@ -70,7 +71,7 @@ router.get('/login', function(req, res, next) {
 	}
 );
 
-router.get('/logout', function(req, res) {
+router.get('/logout', function (req, res) {
 	req.session.user = null;
 	req.session.admin = null;
 	req.session.doctor = null;
@@ -79,7 +80,7 @@ router.get('/logout', function(req, res) {
 	res.redirect('/login');
 });
 
-router.post('/login', function(req, res){
+router.post('/login', function (req, res) {
 	console.log(req.body);
 	var username = req.body.username;
 	var password = req.body.password;
@@ -176,11 +177,11 @@ router.post('/login', function(req, res){
 	});
 });
 
-router.get('/adminlicense', logOut, function(req, res) {
+router.get('/adminlicense', logOut, function (req, res) {
 	res.render('spis_instance/su-login.html');
 });
 
-router.post('/adminlicense', function(req, res) {
+router.post('/adminlicense', function (req, res) {
 	var username = req.body.username;
 	var password = req.body.password;
 
@@ -210,7 +211,7 @@ router.post('/adminlicense', function(req, res) {
 	});
 });
 
-router.get('/check_username/:name', requireLoggedIn, function(req, res){
+router.get('/check_username/:name', requireLoggedIn, function (req, res){
 	var key = req.params.name;
 	console.log(key);
 	User_Account.findOne({
@@ -218,7 +219,7 @@ router.get('/check_username/:name', requireLoggedIn, function(req, res){
 			id: key,
 		},
 		raw: true
-	}).then(function(result){
+	}).then(function (result) {
 		if (!result) {
 			res.json({exists: false});
 		}
@@ -229,25 +230,22 @@ router.get('/check_username/:name', requireLoggedIn, function(req, res){
 });
 
 /////////////////////////// ALL SPIS ROUTES ///////////////////////////////////////
-router.get('/spis_list', requireSuperUser, function(req, res){
-
+router.get('/spis_list', requireSuperUser, function (req, res){
 	SPIS_Instance.findAll({
 		raw: true,
 		order: [
 			['license_no', 'DESC']
 		]
-	}).then(function(results){
+	}).then(function (results) {
 		
 		res.render('spis_instance/list-SPIS.html', {
 			instances: results,
 			user: req.session.user,
 		});
 	});
-
 });
 
-router.get('/spis_edit/:id', requireSuperUser, function(req, res){
-
+router.get('/spis_edit/:id', requireSuperUser, function (req, res) {
 	var key = req.params.id;
 
 	SPIS_Instance.findOne({
@@ -264,7 +262,7 @@ router.get('/spis_edit/:id', requireSuperUser, function(req, res){
 
 });
 
-router.post('/instance_add', requireSuperUser, function(req, res){
+router.post('/instance_add', requireSuperUser, function (req, res) {
 
 	// console.log(req.body.desc)
 
@@ -272,16 +270,16 @@ router.post('/instance_add', requireSuperUser, function(req, res){
 
 	SPIS_Instance.create({
 		description: description
-	}).then(function(result){
+	}).then(function (result) {
 		res.json({"status": "success"});
-	}).catch(function(result){
+	}).catch(function (result) {
 		res.json({"status" : "error", "name": req.body.id.trim()});
 	});
 
 
 });
 
-router.post('/instance_edit', requireSuperUser, function(req, res){
+router.post('/instance_edit', requireSuperUser, function (req, res) {
 
 	console.log(req.body);
 
@@ -297,21 +295,22 @@ router.post('/instance_edit', requireSuperUser, function(req, res){
 		where: {
 			license_no: key,
 		}
-	}).then(function(result){
+	}).then(function (result) {
 		res.json({"status": "success"});
-	}).catch(function(result){
+	}).catch(function (result) {
 		res.json({"status" : "error", "name": req.body.id.trim()});
 	});
 
 });
 
-router.post('/reset_password/:id', requireLoggedIn, function (req, res, next) {
+router.post('/reset_password/:id', requireLoggedIn, 
+	function (req, res, next) {
 		if (!req.session.superuser && req.session.user.id != req.params.id) {
 			// console.log("Rejectedddd!!!");
 			return res.redirect('/');
 		}
 		next();
-	}, function(req, res) {
+	}, function (req, res) {
 		// console.log(req.body);
 		User_Account.update({
 			password_hash: req.body.new_password
@@ -324,7 +323,8 @@ router.post('/reset_password/:id', requireLoggedIn, function (req, res, next) {
 	}
 );
 
-router.get('/check_password/:id/:old_password', requireLoggedIn, function (req, res, next) {
+router.get('/check_password/:id/:old_password', requireLoggedIn, 
+	function (req, res, next) {
 		if (req.session.user.id != req.params.id) {
 			return res.redirect('/');
 		}

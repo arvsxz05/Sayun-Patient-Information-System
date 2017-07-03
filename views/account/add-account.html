@@ -49,7 +49,7 @@
         <div class="container-fluid">
             <div class="row">
                 <div class="col-sm-8 col-sm-offset-2 form-container">
-                    <form id="add-account-form" class="form-horizontal" role="form" method="POST" action="/add_account">
+                    <form id="add-account-form" class="form-horizontal" role="form" method="POST" action="/add_account" enctype="multipart/form-data">
                         <legend><b>Add Account</b></legend>
                         <!-- photo and digital signature (if user type==doctor) -->
                         <div class="col-xs-12 col-md-5 col-md-push-7">
@@ -60,7 +60,7 @@
                                     <div class="input-group">
                                         <span class="input-group-btn">
                                             <span class="btn btn-default btn-file">
-                                                Browse… <input type="file" id="imgInp">
+                                                Browse… <input type="file" id="imgInp" name="photo">
                                             </span>
                                         </span>
                                         <input type="text" class="form-control" readonly>
@@ -74,7 +74,7 @@
                                         <div class="input-group">
                                             <span class="input-group-btn">
                                                 <span class="btn btn-default btn-file">
-                                                    Browse… <input type="file" id="digitalSignInp">
+                                                    Browse… <input type="file" id="digitalSignInp" name="signature">
                                                 </span>
                                             </span>
                                             <input type="text" class="form-control" readonly>

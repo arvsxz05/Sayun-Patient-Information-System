@@ -163,6 +163,9 @@ const Doctor = database.define('doctor', {
 	s2_license_no: {
 		type: Sequelize.STRING(15),
 		allowNull: false
+	},
+	signature: {
+		type: Sequelize.STRING
 	}
 });
 
