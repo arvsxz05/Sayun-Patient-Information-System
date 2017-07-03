@@ -450,7 +450,6 @@
 
     var wrongOld = false;
 
-    {% if session.user.id == user.id or session.superuser %}
     $("#old-password").blur(function () {
         if($("#old-password").val().trim() !== "") {
             $.ajax({
@@ -468,7 +467,6 @@
             wrongOld = true;
         }
     });
-    {% endif %}
 
     $("#reset-password-form").submit(function (event) {
         if( $("#new-password").val() != $("#new-password-2").val() ) {
