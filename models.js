@@ -6,6 +6,10 @@ const user_types = ['Doctor', 'Secretary'];
 const institution_types = ['Clinic', 'Hospital', 'Laboratory', 'Others'];
 const spis_instance_types = ['Active', 'Inactive'];
 const title_types = ['Ms.', 'Mr.', 'Mrs.', 'Dr.'];
+const sex_types = ['Female', 'Male', 'Others'];
+const check_up_types = ['Consultation', 'In-Patient-Treatment', 'Out-Patient-Treatment']
+const inpatient_status_types = ['Confined', 'Discharged'];
+const medication_types = ['Maintainance', 'Non-Mainainance'];
 
 const User_Account = database.define('user_account', {
 	id: {
@@ -204,15 +208,309 @@ const Hospital = database.define('hospital', {
 
 Hospital.belongsTo(SPIS_Instance);
 
+const Patient = database.define('patient', {
+	id: {
+		type: Sequelize.INTEGER,
+        autoIncrement: true,
+        primaryKey: true 	
+		// defaultValue: id_generator
+	},
+	reg_date: {
+		type: Sequelize.DATE,
+		defaultValue: Sequelize.NOW,
+	},
+	first_name: {
+		type: Sequelize.STRING(30),
+		allowNull: false,
+		set(val) {
+	    	this.setDataValue('first_name', val.toUpperCase());
+	    },
+		validate: {
+			notEmpty: true
+		}
+	},
+	middle_name: {
+		type: Sequelize.STRING(30),
+		allowNull: false,
+		set(val) {
+	    	this.setDataValue('middle_name', val.toUpperCase());
+	    }
+	},
+	last_name: {
+		type: Sequelize.STRING(30),
+		allowNull: false,
+		set(val) {
+	    	this.setDataValue('last_name', val.toUpperCase());
+	    },
+	    validate: {
+			notEmpty: true
+		}
+	},
+	suffix: {
+		type: Sequelize.STRING(10),
+		allowNull: true
+	},
+	sex: {
+		type: Sequelize.ENUM,
+		values: sex_types,
+		allowNull: false,
+		defaultValue: 'Others',
+	},
+	birthdate: {
+		type: Sequelize.DATE,
+		allowNull: false,
+	},
+	nationality: {
+		type: Sequelize.STRING,
+		allowNull: true,
+	},
+	address: {
+		type: Sequelize.STRING,
+		allowNull: false,
+	}, 
+	email: {
+		type: Sequelize.STRING(50),
+		allowNull: true,
+		validate: {
+			isValidEmail: function (val) {
+				if (val) {
+					var re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+					return re.test(val);
+				}
+			}
+		}
+	},
+	phone_number: {
+		type: Sequelize.STRING(20),
+		allowNull: true,
+	}, 
+	alt_cn: { // ALTERNATIVE CONTACT NUMBER
+ 		type: Sequelize.STRING(20),
+		allowNull: true,
+	},
+	em_cp: { // EMERGENCY CONTACT PERSON
+		type: Sequelize.STRING(30),
+		allowNull: true,
+	},
+	rel_emcp: { // RELATIONSHIP OF EMERGENCY PERSON
+		type: Sequelize.STRING(20),
+		allowNull: true,
+	},
+	emc_n: { // EMERGENCY CONTACT NUMBER
+		type: Sequelize.STRING(20),
+		allowNull: true,
+	},
+	f_allergies: { // ALLERGIES TO FOOD
+		type: Sequelize.TEXT,
+		allowNull: true,
+	},
+	m_allergies: { // ALLERGIES TO MEDS
+		type: Sequelize.TEXT,
+		allowNull: true,
+	},
+	pers_hh: { // PERSONAL HEALTH HISTORY
+		type: Sequelize.TEXT,
+		allowNull: true,
+	},
+	imm_fam_hh: { // IMMEDIATE FAMILY HEALTH HISTORY
+		type: Sequelize.TEXT,
+		allowNull: true,
+	},
+	prev_medproc: { // PREVIOUS MEDICAL PROCEDURE
+		type: Sequelize.TEXT,
+		allowNull: true,
+	},
+	photo: {
+		type: Sequelize.STRING
+	},
+	gen_notes: {
+		type: Sequelize.TEXT,
+		allowNull: true,
+	},
+	referred_by: {
+		type: Sequelize.TEXT,
+		allowNull: true
+	}
+});
+
+Patient.belongsTo(SPIS_Instance);
+
+function id_generator() {
+	var date = new Date();
+	var partial_id;
+	var month = date.getMonth() + 1, year = date.getFullYear() + "";
+	month += "";
+	if (month.length === 1) { month = "0" + month; }
+	partial_id = year + "_" + month;
+	var temp = ["id like ?", partial_id + '%']
+	Patient.findAll({
+		where: {temp}, 
+		limit: 1,
+		order: [['id', 'DESC']]
+	}).success(function (single_patient) {
+		console.log(single_patient[0]);
+	});
+	return partial_id;
+}
+
+const Check_Up = database.define('check_up', {
+	id: {
+		type: Sequelize.INTEGER,
+        autoIncrement: true,
+        primaryKey: true
+	},
+	check_up_type: {
+		type: Sequelize.ENUM,
+		values: sex_types,
+		allowNull: false,
+	}
+});
+
+const InPatient_Treatment = database.define('inpatient_treatment', {
+	conf_date: { // CONFINEMENT DATE
+		type: Sequelize.DATE,
+		allowNull: false,
+	},
+	discharge_date: { 
+		type: Sequelize.DATE,
+		allowNull: true,
+	},
+	sum_of_diag: { // Summary of Diagnosis
+		type: Sequelize.TEXT,
+		allowNull: true,
+	},
+	detailed_diag: { // Detailed Diagnosis
+		type: Sequelize.TEXT,
+		allowNull: true,
+	},
+	notes: { // Detailed Diagnosis
+		type: Sequelize.TEXT,
+		allowNull: true,
+	},
+	attachments: {
+		type: Sequelize.ARRAY(Sequelize.STRING),
+		allowNull: true,
+	},
+	status: {
+		type: Sequelize.ENUM,
+		values: inpatient_status_types,
+		defaultValue: 'Confined'
+	}
+});
+
+InPatient_Treatment.belongsTo(Check_Up);
+
+
+Hospital.hasMany(Check_Up);
+Doctor.hasMany(Check_Up);
+Patient.hasMany(Check_Up);
+
+const Medication = database.define('medication', {
+	name: {
+		type: Sequelize.STRING,
+		allowNull: false,
+	},
+	dosage: {
+		type: Sequelize.STRING,
+		allowNull: false,
+	},
+	frequency: {
+		type: Sequelize.STRING,
+		allowNull: false,
+	},
+	notes: {
+		type: Sequelize.TEXT,
+		allowNull: true,
+	},
+	type: {
+		type: Sequelize.ENUM,
+		values: medication_types,
+		allowNull: false,
+	}
+});
+
+Check_Up.hasMany(Medication);
+
+
+const Medical_Procedure = database.define('medical_procedures', {
+	date: {
+		type: Sequelize.DATE,
+		allowNull: false,
+	},
+	description: {
+		type: Sequelize.STRING,
+		allowNull: false,
+	},
+	details: {
+		type: Sequelize.TEXT,
+		allowNull: false,
+	},
+	attachments: {
+		type: Sequelize.ARRAY(Sequelize.STRING),
+		allowNull: true,
+	}
+});
+
+Check_Up.hasMany(Medical_Procedure);
+
+const OutPatient_Treatment = database.define('outpatient_treatment', {
+	date: {
+		type: Sequelize.DATE,
+		allowNull: false,
+	},
+	sum_of_diag: { // Summary of Diagnosis
+		type: Sequelize.TEXT,
+		allowNull: true,
+	},
+	detailed_diag: {
+		type: Sequelize.TEXT,
+		allowNull: true,
+	},
+	notes: {
+		type: Sequelize.TEXT,
+		allowNull: true,
+	},
+	attachments: {
+		type: Sequelize.ARRAY(Sequelize.STRING),
+		allowNull: true,
+	}
+});
+
+OutPatient_Treatment.belongsTo(Check_Up);
+
+
+const Laboratory = database.define('laboratory', {
+	date: {
+		type: Sequelize.DATE,
+		allowNull: false
+	},
+	description: {
+		type: Sequelize.STRING,
+		allowNull: true
+	},
+	notes: {
+		type: Sequelize.TEXT,
+		allowNull: true
+	},
+	attachments: {
+		type: Sequelize.ARRAY(Sequelize.STRING),
+		allowNull: false
+	}
+});
+
 // database.sync();
 
-// Superuser.create({
-// 	id: 'sayunsuperuser',
-// 	password: 's@yun',
-// 	contact_number: ['+639062494175'],
-// 	email: 'sales@sayunsolutions.com'
-// }).catch(function(error) {
-// 	console.log(error);
+// Superuser.sync({ force: true }).then(function () {
+// 	Superuser.create({
+// 		id: 'sayunsuperuser',
+// 		password: 's@yun',
+// 		contact_number: ['+639062494175'],
+// 		email: 'sales@sayunsolutions.com'
+// 	}).then(superuser => {
+// 		console.log("Super User Added Successfully.")
+// 	}).catch(function(error) {
+// 		console.log(error);
+// 	});
 // });
 
 module.exports.Hospital = Hospital
