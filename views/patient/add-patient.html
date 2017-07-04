@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Add Patient</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet"  type="text/css"         href="../../static/css/bootstrap.css">
+    <link rel="stylesheet"  type="text/css"         href="../../static/css/bootstrap.min.css">
+    <link rel="stylesheet"  type="text/css"         href="../../static/css/styles.css">
+    <script                 type="text/javascript"  src="../../static/js/jquery.js"></script>
+    <script                 type="text/javascript"  src="../../static/js/bootstrap.min.js"></script>
+    <script                 type="text/javascript"  src="../../static/js/upload-image.js"></script>
+    <script                 type="text/javascript"  src="../../static/js/jquery.date-dropdowns.js"></script>
+    <style>
+        .date-div select {
+            background: #ffffff;
+            border: 1px solid #CCCCCC;
+            border-radius: 3px;
+            margin: 0;
+            width: 32% !important;
+            float: left;
+        }
+
+        .date-div select:nth-child(3){
+            margin: 0 2%;
+        }
+
+        .date-div select.invalid {
+            color: #E9403C;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- NAVIGATION -->
+    <nav class="navbar navbar-inverse">
+      <div class="container-fluid">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>                        
+          </button>
+          <a class="navbar-brand" href="#">SPIS LOGO HERE</a>
+        </div>
+        <div class="collapse navbar-collapse" id="navbar">
+          <ul class="nav navbar-nav">
+            <li class="active"><a href="#">Home</a></li>
+          </ul>
+          <ul class="nav navbar-nav navbar-right">
+            <li><a href="#">NAME OF USER HERE</a></li>
+            <li><a href="#"><span class="glyphicon glyphicon-log-out"></span> Log out</a></li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+    <!-- END OF NAVIGATION -->
+
+    <div class="container-fluid main-container">
+        <!-- BREADCRUMBS -->
+        <ol class="breadcrumb">
+          <li><a href="#">Home</a></li>
+          <li><a href="#">Patients List</a></li>
+          <li class="active">Add Patient</li>
+        </ol>
+        <!-- END OF BREADCRUMBS -->
+
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-sm-8 col-sm-offset-2 form-container">
+                    <ul class="nav nav-tabs">
+                        <li class="active"><a data-toggle="tab" href="#patient-info">Patient Information</a></li>
+                    </ul>
+                    <div class="tab-content">
+                        <div id="patient-info" class="tab-pane fade in active" style="padding: 8px;">
+                            <h3>Patient Information</h3>
+
+                            <form id="add-patient-form" class="form-horizontal" role="form" method="POST" action="" enctype="multipart/form-data">
+                                
+                            <!-- UPLOAD PHOTO -->
+                                <div class="col-md-4 col-md-push-8">
+                                    <div class="col-md-8 col-md-offset-1">
+                                        <div class="form-group">
+                                            <center><label>Photo:</label></center>
+                                            <img id='img-upload' src="../../static/img/user.png" />
+                                            <div class="input-group">
+                                                <span class="input-group-btn">
+                                                    <span class="btn btn-default btn-file">
+                                                        Browse… <input type="file" id="imgInp" name="photo">
+                                                    </span>
+                                                </span>
+                                                <input type="text" class="form-control" readonly>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- END OF UPLOAD PHOTO -->
+
+                                <!-- PATIENT INFO DIVS -->
+                                <div class="col-md-8 col-md-pull-4" style="padding-top: 30px">
+                                    <fieldset>
+                                        <div class="form-group">
+                                            <label class="col-sm-3 control-label" for="last-name">Last Name*</label>
+                                            <div class="col-sm-8">
+                                                <input type="text" class="form-control" name="last_name" id="last-name" required>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="col-sm-3 control-label" for="first-name">First Name*</label>
+                                            <div class="col-sm-8">
+                                                <input type="text" class="form-control" name="first_name" id="first-name" required>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="col-sm-3 control-label" for="middle-name">Middle Name*</label>
+                                            <div class="col-sm-8">
+                                                <input type="text" class="form-control" name="middle_name" id="middle-name" required>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="col-sm-3 control-label" for="middle-name">Sex*</label>
+                                            <div class="col-sm-8">
+                                                <select class="form-control" id="sex" name="sex" required>
+                                                  <option value="" selected disabled>Select Sex</option>
+                                                  <option value="Male">Male</option>
+                                                  <option value="Female">Female</option>
+                                                  <option value="Others">Others</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="col-sm-3 control-label" for="birthday">Birth date*</label>
+                                            <div class="col-sm-8 date-div">
+                                                <input type="hidden" id="example1">
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="col-sm-3 control-label" for="civil_status">Civil Status</label>
+                                            <div class="col-sm-8">
+                                                <select class="form-control" id="civil_status" name="civil_status">
+                                                  <option value="" selected>Select Civil Status</option>
+                                                  <option value="Single">Single</option>
+                                                  <option value="Married">Married</option>
+                                                  <option value="Divorced">Divorced</option>
+                                                  <option value="Separated">Separated</option>
+                                                  <option value="Widowed">Widowed</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="col-sm-3 control-label" for="nationality">Nationality</label>
+                                            <div class="col-sm-8">
+                                                <input type="text" class="form-control" name="nationality" id="nationality">
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <div class="col-sm-8 col-sm-offset-3">
+                                                <div class="radio">
+                                                    <label style="padding-top: 0;">
+                                                        <input type="radio" name="referral" value="walk-in" checked>Walk-in Patient
+                                                    </label>
+                                                </div>
+                                                <div class="radio">
+                                                    <label>
+                                                        <input type="radio" name="referral" value="referred">Referred
+                                                    </label>   
+                                                </div>
+                                                <input type="text" class="form-control" name="referrer" id="referrer" placeholder="Referred by" style="display: none; margin-top: 10px"> 
+                                            </div>
+                                        </div> 
+                                        
+                                    </fieldset> 
+                                </div>
+
+                                <div class="col-xs-12" style="padding: 0">
+                                    <label class="col-sm-3 col-md-2 control-label" for="insurance">Insurance</label>
+                                    <div class="col-sm-8 col-md-9">
+                                        <textarea class="form-control" name="insurance" id="insurance" rows="5"></textarea>
+                                    </div>
+                                </div>
+    
+                                <div class="col-xs-12"><br></div>
+
+                                <div class="col-xs-12" style="padding: 0">
+                                    <label class="col-sm-3 col-md-2 control-label" for="surgeries">Prior Surgeries</label>
+                                    <div class="col-sm-8 col-md-9">
+                                        <textarea class="form-control" name="surgeries" id="surgeries" rows="5"></textarea>
+                                    </div>
+                                </div>
+
+
+                                <div class="col-xs-12">
+                                    <br><hr>
+                                    <h3>Contact Information</h3>
+                                    <br>
+                                </div>
+                                    
+                                <div class="col-xs-12" style="padding: 0">
+                                    <label class="col-sm-3 col-md-2 control-label" for="address">Address</label>
+                                    <div class="col-sm-8 col-md-9">
+                                        <textarea class="form-control" name="address" id="address" rows="5"></textarea>
+                                    </div>
+                                </div>
+
+                                <div class="col-xs-12"><br></div>
+
+                                <div class="col-xs-12 col-md-5">
+                                    <fieldset>
+                                        <div class="form-group">
+                                            <label class="col-sm-5 control-label" for="e-mail">E-mail</label>
+                                            <div class="col-sm-7">
+                                                <input type="text" class="form-control" name="email" id="email">
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="col-sm-5 control-label" for="contact1">Contact No.*</label>
+                                            <div class="col-sm-7">
+                                                <input type="text" class="form-control" name="contact1" id="contact1" required>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="col-sm-5 control-label" for="contact2">Alt. Contact No.</label>
+                                            <div class="col-sm-7">
+                                                <input type="text" class="form-control" name="contact2" id="contact2">
+                                            </div>
+                                        </div>
+                                    </fieldset>
+                                </div>
+
+                                <div class="col-xs-12 col-md-6">
+                                    <fieldset>
+                                        <div class="form-group">
+                                            <label class="col-sm-5 control-label" for="emergency_person">Emergency Contact Person*</label>
+                                            <div class="col-sm-7">
+                                                <input type="text" class="form-control" name="emergency_person" id="emergency_person">
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="col-sm-5 control-label" for="emergency_contact">Emergency Contact No.*</label>
+                                            <div class="col-sm-7">
+                                                <input type="text" class="form-control" name="emergency_contact" id="emergency_contact" required>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="col-sm-5 control-label" for="contact_person_rel">Relationship*</label>
+                                            <div class="col-sm-7">
+                                                <input type="text" class="form-control" name="contact_person_rel" id="contact_person_rel" required>
+                                            </div>
+                                        </div>
+                                    </fieldset>
+                                </div>
+                                <!-- END OF PATIENT INFO DIVS -->
+
+                                <!-- BUTTONS -->
+                                <div class="col-md-6 col-md-offset-6 button-group" style="margin-top:30px">
+                                    <div class="col-sm-7 col-sm-offset-5">     
+                                        <button type="submit" class="btn btn-lime" id="save-btn">Save</button>    
+                                        <a href="/account_list" class="btn btn-gray">Cancel</a>
+                                    </div>
+                                </div>
+                                <!-- END OF BUTTONS -->
+                                
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+<script type="text/javascript">
+    $(document).ready(function(){
+        $("#example1").dateDropdowns({
+            displayFormat: "mdy"
+        });
+
+        $(".date-div select").addClass("form-control");
+        $(".date-div select").prop("required", true);
+        $("select[name='date_[month]'] option").first().prop("disabled", true);
+        $("select[name='date_[day]'] option").first().prop("disabled", true);
+        $("select[name='date_[year]'] option").first().prop("disabled", true);
+
+        $('input[type=radio][name=referral]').change(function() {
+            if (this.value == 'walk-in') {
+                $('#referrer').slideUp(200);
+                $('#referrer').prop('required', false);
+            }
+            else if (this.value == 'referred') {
+                $('#referrer').slideDown(200);
+                $('#referrer').prop('required', true);
+                $('#referrer').focus();
+            }
+        });
+
+    });
+
+</script>
+</html>

@@ -90,11 +90,11 @@
                                 <div class="form-group">
                                     <label class="col-sm-4 control-label" for="username">Username*</label>
                                     <div class="col-sm-8">
-                                        <input type="text" class="form-control" name="username" id="username" required>
+                                        <input type="text" class="form-control" name="username" id="username" maxlength="20" required>
                                     </div>
                                 </div>
                                 <div>
-                                    <p id="error-username"></p>
+                                    <p class="text-danger" id="error-username"></p>
                                 </div>
                                 <div class="form-group">
                                     <label class="col-sm-4 control-label" for="username">User Type*</label>
@@ -130,13 +130,13 @@
                                 <div class="form-group">
                                     <label class="col-sm-4 control-label" for="last-name">Last Name*</label>
                                     <div class="col-sm-8">
-                                        <input type="text" class="form-control" name="last_name" id="last-name" required>
+                                        <input type="text" class="form-control" name="last_name" id="last-name" maxlength="30" required>
                                     </div>
                                 </div>
                                 <div class="form-group">
                                     <label class="col-sm-4 control-label" for="first-name">First Name*</label>
                                     <div class="col-sm-8">
-                                        <input type="text" class="form-control" name="first_name" id="first-name" required>
+                                        <input type="text" class="form-control" name="first_name" id="first-name" maxlength="50" required>
                                     </div>
                                 </div>
                                 <div class="form-group">
@@ -148,7 +148,7 @@
                                 <div class="form-group">
                                     <label class="col-sm-4 control-label" for="suffix">Suffix</label>
                                     <div class="col-sm-8">
-                                        <input type="text" class="form-control" name="suffix" id="suffix">
+                                        <input type="text" class="form-control" name="suffix" maxlength="30" id="suffix">
                                     </div>
                                 </div>
                                 <input type="hidden" name="count" id="count" value="1" />
@@ -163,10 +163,12 @@
                                 <div class="form-group">
                                     <label class="col-sm-4 control-label" for="email-add">E-mail Address</label>
                                     <div class="col-sm-8">
-                                        <input type="text" class="form-control" name="email_add" id="email-add">
+                                        <input type="text" class="form-control" name="email_add" maxlength="50" id="email-add">
                                     </div>
                                 </div>
-
+                                <div>
+                                    <p class="text-danger" id="error-email"></p>
+                                </div>
                                 <div class="doctor-fields">
                                     <div class="form-group">
                                         <label class="col-sm-4 control-label" for="license-num">License Number*</label>
@@ -174,14 +176,14 @@
                                             <input type="text" class="form-control" name="license_num" id="license-num">
                                         </div>
                                     </div>
-                                    <!-- <p id="error-license-no"></p> -->
+                                    <!-- <p class="text-danger" id="error-license-no"></p> -->
                                     <div class="form-group">
                                         <label class="col-sm-4 control-label" for="license-num">PTR Number*</label>
                                         <div class="col-sm-8">
                                             <input type="text" class="form-control" name="ptr_num" id="ptr-num">
                                         </div>
                                     </div>
-                                    <!-- <p id="error-ptr-num"></p> -->
+                                    <!-- <p class="text-danger" id="error-ptr-num"></p> -->
                                     <div class="form-group">
                                         <label class="col-sm-4 control-label" for="s2-license-num">S2 License Number*</label>
                                         <div class="col-sm-8">
@@ -189,7 +191,7 @@
                                         </div>
                                     </div>
                                 </div>
-                                <!-- <p id="error-s2-num"></p> -->
+                                <!-- <p class="text-danger" id="error-s2-num"></p> -->
                                 <div class="form-group">
                                     <label class="col-sm-4 control-label" for="password">Set Password*</label>
                                     <div class="col-sm-8">
@@ -197,7 +199,7 @@
                                     </div>
                                 </div>
                                 <div>
-                                    <p id="error-password-length"></p>
+                                    <p class="text-danger" id="error-password-length"></p>
                                 </div>
                                 <div class="form-group">
                                     <label class="col-sm-4 control-label" for="password2">Retype Password*</label>
@@ -206,7 +208,7 @@
                                     </div>
                                 </div>
                                 <div>
-                                    <p id="error-password"></p>
+                                    <p class="text-danger" id="error-password"></p>
                                 </div>
                             </fieldset>
                         </div>
@@ -282,8 +284,20 @@
         }
     });
 
+    $("#email-add").blur(function() {
+        if($("#email-add").val().trim() !== "") {
+            var re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+            if (!re.test($("#email-add").val().trim())) {
+                $('#error-email').text("Invalid Email");
+                $('#save-btn').prop('disabled', true);
+            } else {
+                $('#error-email').text("");
+                $('#save-btn').prop('disabled', false);
+            }
+        }
+    });
 
-    $("#password").blur(function(){
+    $("#password").blur(function() {
         if($("#password").val().length < 7){
             $('#error-password-length').text("Password should be at least 7 characters long.");
             $('#save-btn').prop('disabled', true);
@@ -368,16 +382,16 @@
             event.preventDefault();
         }
 
-        if($("#password").val().length < 7){
+        if ($("#password").val().length < 7) {
             $('#error-password-length').text("Password should be at least 7 characters long.");
             $('#save-btn').prop('disabled', true);
             event.preventDefault();
         }
-        else{
+        else {
             $('#error-password-length').text("");
             $('#save-btn').prop('disabled', false);
 
-            if($("#password").val() != $("#password2").val()){
+            if ($("#password").val() != $("#password2").val()) {
                 $('#error-password').text("Passwords do not match.");
                 $('#save-btn').prop('disabled', true);
                 event.preventDefault();

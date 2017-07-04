@@ -10,6 +10,7 @@ const sex_types = ['Female', 'Male', 'Others'];
 const check_up_types = ['Consultation', 'In-Patient-Treatment', 'Out-Patient-Treatment']
 const inpatient_status_types = ['Confined', 'Discharged'];
 const medication_types = ['Maintainance', 'Non-Mainainance'];
+const billing_status_types = ['Fully Paid', 'Partially Paid', 'Deferred', 'Waived'];
 
 const User_Account = database.define('user_account', {
 	id: {
@@ -23,7 +24,7 @@ const User_Account = database.define('user_account', {
 		defaultValue: 'Mr.'
 	},
 	first_name: {
-		type: Sequelize.STRING(30),
+		type: Sequelize.STRING(50),
 		allowNull: false,
 		set(val) {
 	    	this.setDataValue('first_name', val.toUpperCase());
@@ -70,7 +71,9 @@ const User_Account = database.define('user_account', {
 			isValidEmail: function (val) {
 				if (val) {
 					var re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-					return re.test(val);
+					if (!re.test(val)) {
+						throw new Error("Invalid Email");
+					}
 				}
 			}
 		}
@@ -95,7 +98,7 @@ const User_Account = database.define('user_account', {
 		validate: {
 			isLongEnough: function (val) {
 				if (val.length < 7) {
-					throw new Error("Please choose a longer password")
+					throw new Error("Please choose a longer password");
 				}
 			}
 		}
@@ -157,15 +160,15 @@ User_Account.belongsTo(SPIS_Instance);
 
 const Doctor = database.define('doctor', {
 	license_no: {
-		type: Sequelize.STRING(15),
+		type: Sequelize.STRING(20),
 		allowNull: false
 	},
 	ptr_no: {
-		type: Sequelize.STRING(15),
+		type: Sequelize.STRING(20),
 		allowNull: false
 	},
 	s2_license_no: {
-		type: Sequelize.STRING(15),
+		type: Sequelize.STRING(20),
 		allowNull: false
 	},
 	signature: {
@@ -497,6 +500,28 @@ const Laboratory = database.define('laboratory', {
 		allowNull: false
 	}
 });
+
+const Billing_Item = database.define('billing_item', {
+	description: {
+		type: Sequelize.STRING,
+		allowNull: false
+	},
+	amount: {
+		type: Sequelize.FLOAT,
+		allowNull: false
+	}
+});
+
+const Billing = database.define('billing', {
+	billing_status: {
+		type: Sequelize.ENUM,
+		values: billing_status_types,
+		allowNull: false,
+	}
+});
+
+Billing.hasMany(Billing_Item);
+Billing.belongsTo(Check_Up)
 
 // database.sync();
 
