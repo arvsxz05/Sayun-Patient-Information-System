@@ -33,7 +33,7 @@ router.get('/login',
 	function (req, res){
 		var instances;
 
-		instances = SPIS_Instance.findAll({ attributes: ['description', 'license_no'], raw: true })
+		instances = SPIS_Instance.findAll({ where: {status: 'Active'}, attributes: ['description', 'license_no'], raw: true })
 		.then(function (hospArr) {
 			instances = hospArr;
 			console.log(instances);
