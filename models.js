@@ -5,7 +5,7 @@ const bcrypt = require('bcrypt');
 const user_types = ['Doctor', 'Secretary'];
 const institution_types = ['Clinic', 'Hospital', 'Laboratory', 'Others'];
 const spis_instance_types = ['Active', 'Inactive'];
-const title_types = ['Ms.', 'Mr.', 'Mrs.', 'Mx.'];
+const title_types = ['Ms.', 'Mr.', 'Mrs.', 'Dr.'];
 
 const User_Account = database.define('user_account', {
 	id: {
@@ -16,7 +16,7 @@ const User_Account = database.define('user_account', {
 	title: {
 		type: Sequelize.ENUM,
 		values: title_types,
-		defaultValue: 'Mx.'
+		defaultValue: 'Mr.'
 	},
 	first_name: {
 		type: Sequelize.STRING(30),
@@ -202,6 +202,8 @@ const Hospital = database.define('hospital', {
 	}
 });
 
+Hospital.belongsTo(SPIS_Instance);
+
 // database.sync();
 
 // Superuser.create({
@@ -220,3 +222,4 @@ module.exports.Admin = Admin;
 module.exports.Secretary = Secretary;
 module.exports.Superuser = Superuser;
 module.exports.SPIS_Instance = SPIS_Instance;
+module.exports.title_types = title_types;

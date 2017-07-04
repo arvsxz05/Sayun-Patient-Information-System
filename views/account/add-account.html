@@ -121,10 +121,9 @@
                                     <div class="col-sm-8">
                                         <select class="form-control" id="title" name="title" required>
                                           <option value="" selected disabled>Select Title</option>
-                                          <option value="Ms.">Ms.</option>
-                                          <option value="Mrs.">Mrs.</option>
-                                          <option value="Mr.">Mr.</option>
-                                          <option value="Mx.">Mx.</option>
+                                          {% for title in title_types %}
+                                          <option value="{{ title }}">{{ title }}</option>
+                                          {% endfor %}
                                         </select>
                                     </div>
                                 </div>

@@ -146,27 +146,13 @@
                                         {% endif %}
                                         >
                                             <option value="" disabled>Select Title</option>
-                                            {% if user.title == 'Ms.' %}
-                                                <option value="Ms." selected>Ms.</option>
-                                                <option value="Mrs.">Mrs.</option>
-                                                <option value="Mr.">Mr.</option>
-                                                <option value="Mx.">Mx.</option>
-                                            {% elseif user.title == 'Mrs.' %}
-                                                <option value="Ms.">Ms.</option>
-                                                <option value="Mrs." selected>Mrs.</option>
-                                                <option value="Mr.">Mr.</option>
-                                                <option value="Mx.">Mx.</option>
-                                            {% elseif user.title == 'Mr.' %}
-                                                <option value="Ms.">Ms.</option>
-                                                <option value="Mrs.">Mrs.</option>
-                                                <option value="Mr." selected>Mr.</option>
-                                                <option value="Mx.">Mx.</option>
+                                            {% for title in title_types %}
+                                            {% if user.title == title %}
+                                                <option value="{{ title }}" selected>{{ title }}</option>
                                             {% else %}
-                                                <option value="Ms.">Ms.</option>
-                                                <option value="Mrs.">Mrs.</option>
-                                                <option value="Mr.">Mr.</option>
-                                                <option value="Mx." selected>Mx.</option>
+                                                <option value="{{ title }}">{{ title }}</option>
                                             {% endif %}
+                                            {% endfor %}
                                         </select>
                                     </div>
                                 </div>

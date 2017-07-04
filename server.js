@@ -44,14 +44,21 @@ function requireLoggedIn(req, res, next) {
 }
 
 
-app.get('/', requireLoggedIn, function (req, res){
-	const currentUser = req.session.user;
-	res.render('account/home.html', {
-		user: currentUser,
-		doctor: req.session.doctor,
-		secretary: req.session.secretary,
-		admin : req.session.admin,
-		superuser: req.session.superuser
-	});
-});
-
+app.get('/', requireLoggedIn, 
+	function (req, res, next) {
+		if (req.session.superuser) {
+			return res.redirect('/account_list');
+		}
+		next();
+	},
+	function (req, res) {
+		const currentUser = req.session.user;
+		res.render('account/home.html', {
+			user: currentUser,
+			doctor: req.session.doctor,
+			secretary: req.session.secretary,
+			admin : req.session.admin,
+			superuser: req.session.superuser
+		});
+	}
+);

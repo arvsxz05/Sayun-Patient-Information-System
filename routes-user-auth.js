@@ -11,8 +11,9 @@ const Superuser = require('./models').Superuser;
 ///////////////////// MIDDLEWARES ////////////////////////
 
 function requireLoggedIn(req, res, next) {
+	const currentInstance = req.session.spisinstance;
 	const currentUser = req.session.user;
-	if(!currentUser) {
+	if(!currentUser || !currentInstance) {
 		return res.redirect('/login');
 	}
 	next();

@@ -10,11 +10,14 @@ const multer = require('multer');
 const avatar = multer({dest: './uploads/avatars'});
 const signature = multer({dest: './uploads/signatures'});
 
+const title_types = require('./models').title_types;
+
 ///////////////////// MIDDLEWARES ////////////////////////
 
 function requireLoggedIn(req, res, next) {
+	const currentInstance = req.session.spisinstance;
 	const currentUser = req.session.user;
-	if(!currentUser) {
+	if(!currentUser || !currentInstance) {
 		return res.redirect('/login');
 	}
 	next();
@@ -75,7 +78,9 @@ const upload = multer({
 /////////////////////// GET //////////////////////////
 
 router.get('/account_add', requireLoggedIn, requireSuperUser, function (req, res) {
-	res.render('account/add-account.html');
+	res.render('account/add-account.html', {
+		title_types: title_types
+	});
 });
 
 router.get('/account_list', requireLoggedIn, requireSuperAdmin, function (req, res) {
@@ -167,7 +172,8 @@ router.get('/account_edit/:id', requireLoggedIn,
 					res.render('account/view-edit-account.html', {
 						user: result,
 						type: type,
-						session: req.session
+						session: req.session,
+						title_types: title_types
 					});
 				});
 			});
@@ -220,6 +226,7 @@ router.post('/add_account', requireLoggedIn, requireSuperUser,
 		var password = req.body.password.trim();
 		var user_type = req.body.user_type.trim();
 		var is_admin = req.body.access_rights.trim();
+		var photo = null, sign = null;
 
 		if(req.files['photo'] != undefined) {
 			photo = "/uploads/avatars/"+req.files['photo'][0].filename;	
@@ -241,8 +248,10 @@ router.post('/add_account', requireLoggedIn, requireSuperUser,
 		for(var i = 1; i <= contact_count; i++) {
 			if( (req.body['field' + i]) != undefined && (req.body['field' + i]).trim() != '') {
 				contact_num.push(req.body['field' + i]);
-			}	
+			}
 		}
+
+		console.log(req.body.user_type)
 
 		// database.transaction(function(t) {
 			SPIS_Instance.findOne({ where: {
@@ -274,7 +283,7 @@ router.post('/add_account', requireLoggedIn, requireSuperUser,
 							signature: sign,
 						})
 						.catch(function(error) {
-							// console.log(error);
+							console.log(error);
 							res.render('account/add-account.html', {
 								error: error
 							});
@@ -285,7 +294,7 @@ router.post('/add_account', requireLoggedIn, requireSuperUser,
 							usernameId: account.dataValues.id
 						})
 						.catch(function(error) {
-							// console.log(error);
+							console.log(error);
 							res.render('account/add-account.html', {
 								error: error
 							});
@@ -296,7 +305,7 @@ router.post('/add_account', requireLoggedIn, requireSuperUser,
 							usernameId: account.dataValues.id
 						})
 						.catch(function(error) {
-							// console.log(error);
+							console.log(error);
 							res.render('account/add-account.html', {
 								error: error
 							});

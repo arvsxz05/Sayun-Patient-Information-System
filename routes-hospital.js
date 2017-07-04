@@ -5,8 +5,9 @@ const Hospital = require('./models').Hospital;
 ///////////////////// MIDDLEWARES ////////////////////////
 
 function requireLoggedIn(req, res, next) {
+	const currentInstance = req.session.spisinstance;
 	const currentUser = req.session.user;
-	if(!currentUser) {
+	if(!currentUser || !currentInstance) {
 		return res.redirect('/login');
 	}
 	next();
@@ -30,13 +31,21 @@ function requireSuperAdmin(req, res, next) {
 	next();
 }
 
+function requireAdmin(req, res, next) {
+	const admin = req.session.admin;
+	if(!admin) {
+		return res.redirect('/login');
+	}
+	next();
+}
+
 /////////////////////// GET //////////////////////////
 
-router.get('/hcl_add', requireLoggedIn, requireSuperUser, function (req, res) {
+router.get('/hcl_add', requireLoggedIn, requireAdmin, function (req, res) {
 	res.render('account/add-hcl.html');
 });
 
-router.get('/hcl_edit/:name', requireLoggedIn, requireSuperUser, function (req, res) {
+router.get('/hcl_edit/:name', requireLoggedIn, requireAdmin, function (req, res) {
 	var key = req.params.name;
 	var hospital;
 
@@ -51,10 +60,13 @@ router.get('/hcl_edit/:name', requireLoggedIn, requireSuperUser, function (req, 
 	});
 });
 
-router.get('/hcl_list', requireLoggedIn, requireSuperAdmin, function (req, res) {
+router.get('/hcl_list', requireLoggedIn, requireAdmin, function (req, res) {
 	var allHCL = [];
 	Hospital.findAll({	
 		raw: true,
+		where: {
+			spisInstanceLicenseNo: req.session.spisinstance.license_no
+		},
 		order: [
 			['createdAt', 'DESC'],
 		],
@@ -79,8 +91,8 @@ router.get('/hcl_list', requireLoggedIn, requireSuperAdmin, function (req, res) 
 
 /////////////////////// POST //////////////////////////
 
-router.post('/hcl_add', requireLoggedIn, requireSuperUser, function (req, res) {
-	console.log("ADDING HCL");
+router.post('/hcl_add', requireLoggedIn, requireAdmin, function (req, res) {
+	// console.log("ADDING HCL");
 	console.log(req.body);
 
 	var name = req.body.name;
@@ -99,6 +111,7 @@ router.post('/hcl_add', requireLoggedIn, requireSuperUser, function (req, res) {
 		address: address,
 		type: type,
 		contact_numbers: contact_num,
+		spisInstanceLicenseNo: req.session.spisinstance.license_no
 	}).then(function (item) {
 		res.redirect("/hcl_list");
 	}).catch(function (error) {
@@ -106,7 +119,7 @@ router.post('/hcl_add', requireLoggedIn, requireSuperUser, function (req, res) {
 	});
 });
 
-router.post('/hcl_edit', requireLoggedIn, requireSuperUser, function (req, res) {
+router.post('/hcl_edit', requireLoggedIn, requireAdmin, function (req, res) {
 	var name = req.body['edit-name'];
 	var address = req.body['edit-address'];
 	var type = req.body['edit-type'];
