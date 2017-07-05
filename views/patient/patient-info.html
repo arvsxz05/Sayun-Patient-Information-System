@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Patient</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet"  type="text/css"         href="../../static/css/bootstrap.css">
+    <link rel="stylesheet"  type="text/css"         href="../../static/css/bootstrap.min.css">
+    <link rel="stylesheet"  type="text/css"         href="../../static/css/styles.css">
+    <script                 type="text/javascript"  src="../../static/js/jquery.js"></script>
+    <script                 type="text/javascript"  src="../../static/js/bootstrap.min.js"></script>
+    <script                 type="text/javascript"  src="../../static/js/upload-image.js"></script>
+    <script                 type="text/javascript"  src="../../static/js/jquery.date-dropdowns.js"></script>
+    <script                 type="text/javascript"  src="../../static/js/responsive-tabs.js"></script>
+    <link rel="stylesheet"  type="text/css"         href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <link rel="stylesheet"  type="text/css"         href="https://cdn.datatables.net/1.10.15/css/dataTables.bootstrap.min.css">
+    <script                 type="text/javascript"  src="https://cdn.datatables.net/1.10.15/js/jquery.dataTables.min.js"></script>
+    <script                 type="text/javascript"  src="https://cdn.datatables.net/1.10.15/js/dataTables.bootstrap.min.js"></script>
+
+    <style>
+        .date-div select {
+            background: #ffffff;
+            border: 1px solid #CCCCCC;
+            border-radius: 3px;
+            margin: 0;
+            width: 32% !important;
+            float: left;
+        }
+
+        .date-div select:nth-child(3){
+            margin: 0 2%;
+        }
+
+        .date-div select.invalid {
+            color: #E9403C;
+        }
+    </style>
+</head>
+<body>
+    <!-- NAVIGATION -->
+    <nav class="navbar navbar-inverse">
+      <div class="container-fluid">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>                        
+          </button>
+          <a class="navbar-brand" href="#">SPIS LOGO HERE</a>
+        </div>
+        <div class="collapse navbar-collapse" id="navbar">
+          <ul class="nav navbar-nav">
+            <li class="active"><a href="#">Home</a></li>
+          </ul>
+          <ul class="nav navbar-nav navbar-right">
+            <li><a href="#">NAME OF USER HERE</a></li>
+            <li><a href="#"><span class="glyphicon glyphicon-log-out"></span> Log out</a></li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+    <!-- END OF NAVIGATION -->
+
+    <div class="container-fluid main-container">
+        <!-- BREADCRUMBS -->
+        <ol class="breadcrumb">
+          <li><a href="#">Home</a></li>
+          <li><a href="#">Patients List</a></li>
+          <li class="active">Patient Name here</li>
+        </ol>
+        <!-- END OF BREADCRUMBS -->
+
+        <div class="container-fluid">
+            <div class="row">
+                <div class="form-container">
+                    <ul class="nav nav-tabs responsive" id="myTab">
+                        <li><a href="#patient-info" data-target="#patient-info">Patient Information</a></li>
+                        <li><a href="#notes">Notes</a></li>
+                        <li><a href="#consultations">Clinic Consultations</a></li>
+                        <li><a href="#treatments">Treatments</a></li>
+                        <li><a href="#laboratories">Lab Results</a></li>
+                        <li><a href="#diagnoses">Diagnoses</a></li>
+                        <li><a href="#medication">Medications</a></li>
+                        <li><a href="#billing">Billings</a></li>
+                    </ul>
+
+                    <div class="tab-content responsive">
+                        <!-- PATIENT INFO -->
+                        <div class="tab-pane active" id="patient-info">
+                            <div class="col-xs-12">
+                                <div class="col-md-10 col-md-offset-1">
+                                    <h3>Patient Information</h3>
+                                    <form id="add-patient-form" class="form-horizontal" role="form" method="POST" action="" enctype="multipart/form-data">
+                                    <!-- UPLOAD PHOTO -->   
+                                        <div class="col-md-4 col-md-push-8">
+                                            <div class="col-md-8 col-md-offset-1">
+                                                <div class="form-group">
+                                                    <center><label>Photo:</label></center>
+                                                    <img id='img-upload' src="{{patient.photo}}" />
+                                                    <div class="input-group">
+                                                        <span class="input-group-btn">
+                                                            <span class="btn btn-default btn-file">
+                                                                Browse… <input type="file" id="imgInp" name="photo">
+                                                            </span>
+                                                        </span>
+                                                        <input type="text" class="form-control" readonly>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <!-- END OF UPLOAD PHOTO -->
+
+                                        <!-- PATIENT INFO DIVS -->
+                                        <div class="col-md-8 col-md-pull-4" style="padding-top: 30px">
+                                            <div class="form-group">
+                                                <label class="col-sm-3 control-label" for="last_name">Last Name*</label>
+                                                <div class="col-sm-9 col-md-8">
+                                                    <input type="text" class="form-control" name="last_name" id="last_name" value="{{patient.last_name}}">
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="col-sm-3 control-label" for="first_name">First Name*</label>
+                                                <div class="col-sm-9 col-md-8">
+                                                    <input type="text" class="form-control" name="first_name" id="first_name" value="{{patient.first_name}}">
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="col-sm-3 control-label" for="middle_name">Middle Name*</label>
+                                                <div class="col-sm-9 col-md-8">
+                                                    <input type="text" class="form-control" name="middle_name" id="middle_name" value="{{patient.middle_name}}">
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="col-sm-3 control-label" for="suffix">Suffix</label>
+                                                <div class="col-sm-9 col-md-8">
+                                                    <input type="text" class="form-control" name="suffix" id="suffix" value="{{patient.suffix}}">
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="col-sm-3 control-label" for="birthday">Birth date*</label>
+                                                <div class="col-sm-9 col-md-8 date-div">
+                                                    <input type="hidden" id="example1">
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="col-sm-3 control-label" for="middle-name">Sex*</label>
+                                                <div class="col-sm-9 col-md-8">
+                                                    <select class="form-control" id="sex" name="sex" required>
+                                                      <option value="" selected disabled>Select Sex</option>
+                                                      <option value="Male">Male</option>
+                                                      <option value="Female">Female</option>
+                                                      <option value="Others">Others</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="col-sm-3 control-label" for="civil_status">Civil Status</label>
+                                                <div class="col-sm-9 col-md-8">
+                                                    <select class="form-control" id="civil_status" name="civil_status">
+                                                      <option value="" selected>Select Civil Status</option>
+                                                      <option value="Single">Single</option>
+                                                      <option value="Married">Married</option>
+                                                      <option value="Divorced">Divorced</option>
+                                                      <option value="Separated">Separated</option>
+                                                      <option value="Widowed">Widowed</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="col-sm-3 control-label" for="nationality">Nationality</label>
+                                                <div class="col-sm-9 col-md-8">
+                                                    <input type="text" class="form-control" name="nationality" id="nationality" value="{{patient.nationality}}">
+                                                </div>
+                                            </div> 
+                                        </div>
+
+                                        <!-- <div class="col-xs-12" style="padding: 0"> -->
+                                            <label class="col-sm-3 col-md-2 control-label" for="insurance">Insurance</label>
+                                            <div class="col-sm-9 col-md-9">
+                                                <textarea class="form-control" name="insurance" id="insurance" rows="5">{{patient.insurance}}</textarea>
+                                            </div>
+                                        <!-- </div> -->
+            
+                                        <div class="col-xs-12"><br></div>
+
+                                        <!-- <div class="col-xs-12" style="padding: 0"> -->
+                                            <label class="col-sm-3 col-md-2 control-label" for="surgeries">Prior Surgeries</label>
+                                            <div class="col-sm-9 col-md-9">
+                                                <textarea class="form-control" name="surgeries" id="surgeries" rows="5"> {{patient.surgeries}} </textarea>
+                                            </div>
+                                        <!-- </div> -->
+
+                                        <div class="col-md-8" style="margin-top: 25px">
+                                            <div class="form-group">
+                                                <div class="col-sm-9 col-md-8 col-sm-offset-3">
+                                                    <div class="radio">
+                                                        <label style="padding-top: 0;">
+                                                            <input type="radio" name="referral" value="walk-in" checked>Walk-in Patient
+                                                        </label>
+                                                    </div>
+                                                    <div class="radio">
+                                                        <label>
+                                                            <input type="radio" name="referral" value="referred">Referred
+                                                        </label>   
+                                                    </div>
+                                                    <input type="text" class="form-control" name="referrer" id="referrer" placeholder="Referred by" style="display: none; margin-top: 10px"> 
+                                                </div>
+                                            </div> 
+                                        </div>
+
+                                        <div class="col-xs-12">
+                                            <br><hr>
+                                            <h3>Contact Information</h3>
+                                            <br>
+                                        </div>
+                                            
+                                        <!-- <div class="col-xs-12" style="padding: 0"> -->
+                                            <label class="col-sm-3 col-md-2 control-label" for="address">Address</label>
+                                            <div class="col-sm-9 col-md-9">
+                                                <textarea class="form-control" name="address" id="address" rows="5">{{patient.address}}</textarea>
+                                            </div>
+                                        <!-- </div> -->
+
+                                        <div class="col-xs-12"><br></div>
+
+                                        <div class="col-md-5">
+                                                <div class="form-group">
+                                                    <label class="col-sm-5 control-label" for="e-mail">E-mail</label>
+                                                    <div class="col-sm-7">
+                                                        <input type="text" class="form-control" name="email" id="email" value="{{patient.email}}">
+                                                    </div>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label class="col-sm-5 control-label" for="contact1">Contact No.*</label>
+                                                    <div class="col-sm-7">
+                                                        <input type="text" class="form-control" name="contact1" id="contact1" value="{{patient.phone_number}}">
+                                                    </div>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label class="col-sm-5 control-label" for="contact2">Alt. Contact No.</label>
+                                                    <div class="col-sm-7">
+                                                        <input type="text" class="form-control" name="contact2" id="contact2" value="{{patient.alt_cn}}">
+                                                    </div>
+                                                </div>
+                                        </div>
+
+                                        <div class="col-md-6">
+
+                                                <div class="form-group">
+                                                    <label class="col-sm-5 control-label" for="emergency_person">Emergency Contact Person*</label>
+                                                    <div class="col-sm-7">
+                                                        <input type="text" class="form-control" name="emergency_person" id="emergency_person" value="{{patient.em_cp}}">
+                                                    </div>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label class="col-sm-5 control-label" for="emergency_contact">Emergency Contact No.*</label>
+                                                    <div class="col-sm-7">
+                                                        <input type="text" class="form-control" name="emergency_contact" id="emergency_contact" value="{{patient.emc_n}}">
+                                                    </div>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label class="col-sm-5 control-label" for="contact_person_rel">Relationship*</label>
+                                                    <div class="col-sm-7">
+                                                        <input type="text" class="form-control" name="contact_person_rel" id="contact_person_rel" value="{{patient.rel_emcp}}">
+                                                    </div>
+                                                </div>
+                                            
+                                        </div>
+                                        <!-- END OF PATIENT INFO DIVS -->
+                                        <!-- BUTTONS -->
+                                        <div class="col-md-6 col-md-offset-6 button-group" style="margin-top:30px">
+                                            <div class="col-sm-7 col-sm-offset-5">     
+                                                <button type="submit" class="btn btn-lime" id="save-btn">Save</button>    
+                                                <a href="/account_list" class="btn btn-gray">Cancel</a>
+                                            </div>
+                                        </div>
+                                        <!-- END OF BUTTONS -->
+                                        
+                                    </form>
+                                </div> 
+                            </div>
+                        </div>
+                        <!-- END OF PATIENT INFO -->
+                        <!-- <div class="col-md-1"></div> -->
+                        <!-- NOTES -->
+                        <div class="tab-pane" id="notes">
+                        </div>
+                        <!-- END OF NOTES -->
+
+                        <!-- CONSULTATIONS -->
+                        <div class="tab-pane" id="consultations">
+                            Tab 3 ... Quisque et neque nec velit tincidunt fringilla. Morbi eget nisi molestie, egestas turpis non, pharetra orci. Donec mattis sem ipsum, eu dapibus lacus rutrum in. Fusce blandit mi leo, non feugiat nunc tempus vitae. Mauris hendrerit, leo sit amet mollis bibendum, lacus augue auctor turpis, sed placerat augue libero quis massa.
+                        </div>
+                        <!-- END OF CONSULTATIONS -->
+
+                        <!-- TREATMENTS -->
+                        <div class="tab-pane" id="treatments">
+                           
+                        </div>
+                        <!-- END OF TREATMENTS -->
+
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+<script type="text/javascript">
+    (function($) {
+      fakewaffle.responsiveTabs(['xs', 'sm']);
+    })(jQuery);
+
+      $( '#myTab a' ).click( function ( e ) {
+        e.preventDefault();
+        $( this ).tab( 'show' );
+      } );
+
+    $(document).ready(function(){
+        $( '#myTab li' ).first().addClass('active');
+        $( '#collapse-patient-info').addClass('in');
+        $("#example1").dateDropdowns({
+            displayFormat: "mdy"
+        });
+
+        $(".date-div select").addClass("form-control");
+        $(".date-div select").prop("required", true);
+        $("select[name='date_[month]'] option").first().prop("disabled", true);
+        $("select[name='date_[day]'] option").first().prop("disabled", true);
+        $("select[name='date_[year]'] option").first().prop("disabled", true);
+
+        $('input[type=radio][name=referral]').change(function() {
+            if (this.value == 'walk-in') {
+                $('#referrer').slideUp(200);
+                $('#referrer').prop('required', false);
+            }
+            else if (this.value == 'referred') {
+                $('#referrer').slideDown(200);
+                $('#referrer').prop('required', true);
+                $('#referrer').focus();
+            }
+        });
+
+        // $('#civil_status').val("{{patient.civil_status}}");
+        // $('#sex').val("{{patient.sex}}");
+        // $('#type').val(data["type"]);
+
+        
+
+    });
+
+</script>
+</script>
+</html>

@@ -121,6 +121,30 @@ router.get('/patient_add', requireLoggedIn, function(req, res){
 
 router.get('/patient_edit/:id', requireLoggedIn, function(req, res){
 
+	var key = req.params.id;
+
+	Patient.findOne({
+		where: {
+			id: key,
+		},
+		raw: true,
+	}).then(function(result){
+		console.log("PATIENT_ID");
+		console.log(result);
+		var date = result.birthdate.split("-");
+
+		res.render('patient/patient-info.html', {
+			patient: result,
+			year: date[0],
+			month: date[1],
+			day: date[2],
+			user: req.session.user,
+		});
+
+	}).catch(function(error){
+
+	});
+
 });
 
 
@@ -133,6 +157,9 @@ router.post('/patient_add', requireLoggedIn, upload.single('photo'), function(re
 	if(req.body['photo'] != undefined){
 		photo = req.body['photo'];
 	}
+
+	console.log("PATIENT ADD");
+	console.log(req.body);
 
 	var lname = req.body['last_name'];
 	var fname = req.body['first_name'];
@@ -154,7 +181,11 @@ router.post('/patient_add', requireLoggedIn, upload.single('photo'), function(re
 	var emcont_rel = req.body['contact_person_rel'];
 	var suffix = req.body['suffix'];
 	var referrer = req.body['referrer'];
-	console.log(birthday);
+	var hmo = req.body['hmo'];
+	var hmo_no = req.body['hmo-no'];
+	var company_name = req.body['company'];
+	var membership = req.body['membership'];
+	var expiration = req.body['expiration'];
 
 	Patient.create({
 		last_name: lname,
@@ -175,6 +206,11 @@ router.post('/patient_add', requireLoggedIn, upload.single('photo'), function(re
 		civil_status: cstatus,
 		spisInstanceLicenseNo: req.session.spisinstance.license_no,
 		photo: photo,
+		hmo: hmo,
+		hmo_no: hmo_no,
+		membership: membership,
+		expiration: expiration,
+		company_name: company_name,
 	}).then(function (item) {
 		res.redirect("/patient_list");
 	}).catch(function (error) {
@@ -192,7 +228,9 @@ router.post('/patient_edit/:id', requireLoggedIn, upload.single('photo'), functi
 	if(req.body['photo'] != undefined){
 		photo = req.body['photo'];
 	}
-	
+
+	console.log(req.body);
+
 	var lname = req.body['last_name'];
 	var fname = req.body['first_name'];
 	var mname = req.body['middle_name'];
@@ -213,7 +251,9 @@ router.post('/patient_edit/:id', requireLoggedIn, upload.single('photo'), functi
 	var emcont_rel = req.body['contact_person_rel'];
 	var suffix = req.body['suffix'];
 	var referrer = req.body['referrer'];
-	console.log(birthday);
+	var hmo = req.body['hmo'];
+	var hmo_no = req.body['hmo_no'];
+	var company_name = req.body['company'];
 
 	Patient.update({
 		last_name: lname,
@@ -233,6 +273,11 @@ router.post('/patient_edit/:id', requireLoggedIn, upload.single('photo'), functi
 		referred_by: referrer,
 		civil_status: cstatus,
 		photo: photo,
+		hmo: hmo,
+		hmo_no: hmo_no,
+		membership: membership,
+		expiration: expiration,
+		company_name: company_name,
 	},
 	{
 		where: {

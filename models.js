@@ -340,7 +340,27 @@ const Patient = database.define('patient', {
 		type: Sequelize.ENUM,
 		values: civil_status_types,
 		defaultValue: 'Single',
-	}
+	},
+	hmo: {
+		type: Sequelize.STRING,
+		allowNull: true,
+	},
+	hmo_no: {
+		type: Sequelize.STRING,
+		allowNull: true,
+	},
+	membership: {
+		type: Sequelize.DATEONLY,
+		allowNull: true,
+	},
+	expiration: {
+		type: Sequelize.DATEONLY,
+		allowNull: true,
+	},
+	company_name: {
+		type: Sequelize.STRING,
+		allowNull: true,
+	},
 });
 
 Patient.belongsTo(SPIS_Instance);
@@ -446,6 +466,7 @@ const Medical_Procedure = database.define('medical_procedures', {
 Check_Up.hasMany(Medical_Procedure);
 
 const OutPatient_Treatment = database.define('outpatient_treatment', {
+
 	date: {
 		type: Sequelize.DATE,
 		allowNull: false,
