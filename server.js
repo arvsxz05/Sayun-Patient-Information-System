@@ -34,6 +34,9 @@ app.use(require('./routes-accounts'));
 app.use(require('./routes-hospital'));
 app.use(require('./routes-spis-instance'));
 app.use(require('./routes-patient'));
+app.use(require('./routes-inpatient-treatment'));
+app.use(require('./routes-outpatient-treatment'));
+app.use(require('./routes-laboratories'));
 
 ///////////////////// MIDDLEWARES ////////////////////////
 

@@ -127,8 +127,13 @@ router.get('/patient_edit/:id', requireLoggedIn, function(req, res){
 //////////////////////// POST ////////////////////////////////////
 
 router.post('/patient_add', requireLoggedIn, upload.single('photo'), function(req, res){
+	
+	var photo;
 
-	var photo = req.body['photo'];
+	if(req.body['photo'] != undefined){
+		photo = req.body['photo'];
+	}
+
 	var lname = req.body['last_name'];
 	var fname = req.body['first_name'];
 	var mname = req.body['middle_name'];
@@ -168,7 +173,8 @@ router.post('/patient_add', requireLoggedIn, upload.single('photo'), function(re
 		emc_n: emcont,
 		referred_by: referrer,
 		civil_status: cstatus,
-		spisInstanceLicenseNo: req.session.spisinstance.license_no, 
+		spisInstanceLicenseNo: req.session.spisinstance.license_no,
+		photo: photo,
 	}).then(function (item) {
 		res.redirect("/patient_list");
 	}).catch(function (error) {
@@ -178,5 +184,68 @@ router.post('/patient_add', requireLoggedIn, upload.single('photo'), function(re
 
 
 });
+
+router.post('/patient_edit/:id', requireLoggedIn, upload.single('photo'), function(req, res){
+	var photo = null;
+	var key = req.params.id;
+
+	if(req.body['photo'] != undefined){
+		photo = req.body['photo'];
+	}
+	
+	var lname = req.body['last_name'];
+	var fname = req.body['first_name'];
+	var mname = req.body['middle_name'];
+	var bday = req.body['date'];
+	var birthday = req.body['date_'].month+"-"+req.body['date_'].day+"-"+req.body['date_'].year;
+	var sex = req.body['sex'];
+	var cstatus = req.body['civil_status'];
+	var nationality = req.body['nationality'];
+	var referral = req.body['referral'];
+	var insurance = req.body['insurance'];
+	var surguries = req.body['surgeries'];
+	var address = req.body['address'];
+	var email = req.body['email'];
+	var contact1 = req.body['contact1'];
+	var contact2 = req.body['contact2'];
+	var empers = req.body['emergency_person'];
+	var emcont = req.body['emergency_contact'];
+	var emcont_rel = req.body['contact_person_rel'];
+	var suffix = req.body['suffix'];
+	var referrer = req.body['referrer'];
+	console.log(birthday);
+
+	Patient.update({
+		last_name: lname,
+		middle_name: mname,
+		first_name: fname,
+		suffix: suffix,
+		sex: sex,
+		birthdate: bday,
+		nationality: nationality,
+		address: address,
+		email: email,
+		phone_number: contact1,
+		alt_cn: contact2,
+		em_cp: empers,
+		rel_emcp: emcont_rel,
+		emc_n: emcont,
+		referred_by: referrer,
+		civil_status: cstatus,
+		photo: photo,
+	},
+	{
+		where: {
+			id: key,
+			spisInstanceLicenseNo: req.session.spisinstance.license_no, 
+		}
+	}).then(function (item) {
+		res.redirect("/patient_list");
+	}).catch(function (error) {
+		console.log(error);
+		res.json({"status" : "error"});
+	});
+});
+
 
 module.exports = router;

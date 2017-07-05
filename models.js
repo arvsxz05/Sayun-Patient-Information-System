@@ -535,4 +535,7 @@ module.exports.Secretary = Secretary;
 module.exports.Superuser = Superuser;
 module.exports.SPIS_Instance = SPIS_Instance;
 module.exports.Patient = Patient;
+module.exports.InPatient_Treatment = InPatient_Treatment;
+module.exports.OutPatient_Treatment = OutPatient_Treatment;
+module.exports.Laboratory = Laboratory;
 module.exports.title_types = title_types;
