@@ -504,10 +504,6 @@ const Laboratory = database.define('laboratory', {
 	notes: {
 		type: Sequelize.TEXT,
 		allowNull: true
-	},
-	attachments: {
-		type: Sequelize.ARRAY(Sequelize.STRING),
-		allowNull: false
 	}
 });
 
@@ -531,7 +527,24 @@ const Billing = database.define('billing', {
 });
 
 Billing.hasMany(Billing_Item);
-Billing.belongsTo(Check_Up)
+Billing.belongsTo(Check_Up);
+
+const Attachment = database.define('attachment', {
+	name: {
+		type: Sequelize.STRING,
+	},
+
+});
+
+Check_Up.hasMany(Attachment);
+
+const Lab_Attachment = database.define('lab_attachment',{
+	name: {
+		type: Sequelize.STRING,
+	}
+});
+
+Laboratory.hasMany(Lab_Attachment);
 
 // database.sync();
 
