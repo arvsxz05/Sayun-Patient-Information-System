@@ -504,6 +504,10 @@ const Laboratory = database.define('laboratory', {
 	notes: {
 		type: Sequelize.TEXT,
 		allowNull: true
+	},
+	attachments: {
+		type: Sequelize.ARRAY(Sequelize.STRING),
+		allowNull: false
 	}
 });
 
