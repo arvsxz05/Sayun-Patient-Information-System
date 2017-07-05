@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Add an Account</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet"  type="text/css"         href="../../static/css/bootstrap.css">
+    <link rel="stylesheet"  type="text/css"         href="../../static/css/bootstrap.min.css">
+    <link rel="stylesheet"  type="text/css"         href="../../static/css/styles.css">
+    <link rel="stylesheet"  type="text/css"         href="../../static/css/font-awesome.min.css">
+    <link rel="stylesheet"  type="text/css"         href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <link rel="stylesheet"  type="text/css"         href="https://cdn.datatables.net/1.10.15/css/dataTables.bootstrap.min.css">
+    <script                 type="text/javascript"  src="../../static/js/jquery.js"></script>
+    <script                 type="text/javascript"  src="../../static/js/bootstrap.min.js"></script>
+    <script                 type="text/javascript"  src="https://cdn.datatables.net/1.10.15/js/jquery.dataTables.min.js"></script>
+    <script                 type="text/javascript"  src="https://cdn.datatables.net/1.10.15/js/dataTables.bootstrap.min.js"></script>
+</head>
+
+<body>
+    <!-- NAVIGATION -->
+    <nav class="navbar navbar-inverse">
+      <div class="container-fluid">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>                        
+          </button>
+          <a class="navbar-brand" href="#">SPIS LOGO HERE</a>
+        </div>
+        <div class="collapse navbar-collapse" id="navbar">
+          <ul class="nav navbar-nav">
+            <li class="active"><a href="#">Home</a></li>
+          </ul>
+          <ul class="nav navbar-nav navbar-right">
+            <li><a href="#">NAME OF USER HERE</a></li>
+            <li><a href="#"><span class="glyphicon glyphicon-log-out"></span> Log out</a></li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+    <!-- END OF NAVIGATION -->
+
+    <div class="container-fluid main-container">
+        <!-- BREADCRUMBS -->
+        <ol class="breadcrumb">
+          <li><a href="#">Home</a></li>
+          <li><a href="#">Patient List</a></li>
+          <li><a href="#">Patient Name</a></li>
+          <li class="active">Add In-Patient Treatment</li>
+        </ol>
+        <!-- END OF BREADCRUMBS -->
+
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-sm-8 col-sm-offset-2 form-container">
+                    <form id="add-account-form" class="form-horizontal" role="form" method="POST" action="/add_account" enctype="multipart/form-data">
+                        <br>
+                        <div class="col-xs-12">
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label" for="patient-id">Patient ID</label>
+                                <div class="col-sm-8">
+                                    <input type="text" class="form-control"id="patient-id" value="247263" disabled>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label" for="patient-id">Patient Name</label>
+                                <div class="col-sm-8">
+                                    <input type="text" class="form-control"id="patient-id" value="ARVIN SALE ARBUIS" disabled>
+                                </div>
+                            </div>
+                            <br>
+                        </div>
+
+                        <legend><b>Add In-Patient Treatment</b></legend>
+                        <!-- photo and digital signature (if user type==doctor) -->
+
+                        <!-- user account info -->
+                        <div class="col-xs-12">
+                            <fieldset>
+                                <div class="form-group">
+                                    <label class="col-sm-4 control-label" for="confinement-date">Confinement Date*</label>
+                                    <div class="col-sm-8">
+                                        <input type="date" class="form-control" name="confinement-date" id="confinement-date" required>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-4 control-label" for="discharge-date">Discharge Date</label>
+                                    <div class="col-sm-8">
+                                        <input type="date" class="form-control" name="discharge-date" id="discharge-date">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-4 control-label" for="username">Hospital/Clinic*</label>
+                                    <div class="col-sm-8">
+                                        <select class="form-control" id="hospital" name="hospital" required>
+                                          <option value="" selected disabled>Select Hospital/Clinic</option>
+                                          <option value="">Chong Hua Hospital</option>
+                                          <option value="">Perpetual Succour Hospital</option>
+                                          <option value="">Cebu Doctor's University Hospital</option>
+                                          <option value="">Vicente Sotto Memorial Medical Center</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-4 control-label" for="summary">Summary of Diagnosis*</label>
+                                    <div class="col-sm-8">
+                                        <input type="text" class="form-control" name="summary" id="summary" required>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                  <label class="col-sm-4 control-label" for="detailed-diagnosis">Detailed Diagnosis*</label>
+                                  <div class="col-sm-8">
+                                      <textarea class="form-control" rows="5" name="detailed-diagnosis" id="detailed-diagnosis"></textarea>
+                                  </div>
+                                </div>
+                                <div class="form-group">
+                                  <label class="col-sm-4 control-label" for="notes">Notes</label>
+                                  <div class="col-sm-8">
+                                      <textarea class="form-control" rows="5" name="notes" id="notes"></textarea>
+                                  </div>
+                                </div>
+
+                        <div class="button-group">
+                            <a href="/account_list" class="btn btn-gray pull-right">Cancel</a>
+                            <button type="submit" class="btn btn-lime pull-right" id="save-btn">Save</button>    
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-sm-8 col-sm-offset-2 form-container">
+                    <hr>
+                    <legend><b>Medication List</b></legend>
+                    <form method="POST" action="/delete_medication">
+                        <div class="table-responsive">
+                            <table id="list-medication" class="table table-striped table-bordered" cellspacing="0" width="100%">
+                                <thead>
+                                    <tr>
+                                        <th><input type="checkbox" aria-label="..." id="select-all"/></th>
+                                        <th>Name</th>
+                                        <th>Dosage</th>
+                                        <th>Frequency</th>
+                                        <th>Type</th>
+                                        <th>Instruction</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><input type="checkbox" aria-label="..." id="" name="{{ hcl.name }}" value="{{ hcl.name }}"/></td>
+                                        <td>Amoxycillin</td>
+                                        <td>500 mg</td>
+                                        <td>2 Times a day</td>
+                                        <td>Maintainance</td>
+                                        <td>Ayaw palabii dzae kay maadik ka.</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="button-group">
+                            <button class="btn btn-red pull-right" type="submit" name="delete" value="true" id="delete">Delete</button>
+                            <a href class="btn btn-lime pull-right" id="add-hlc-button" data-toggle="modal" data-target="#add-medication">Add</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- MODAL ADD MEDICATION -->
+        <div class="modal fade" id="add-medication" role="dialog">
+            <div class="modal-dialog">
+              <!-- Modal content-->
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" style="color: black">&times;</button>
+                        <h4 class="modal-title" style="float:left"><strong>Add Medication</strong></h4>
+                    </div>
+                    <div class="modal-body">
+                        <div class="container-fluid">
+                            <div class="row">
+                                <div class="col-xs-12">
+                                    <form id="edit-form" class="form-horizontal" method="POST" action="/add_medication">
+                                        <fieldset>
+                                            <div class="form-group">
+                                                <label class="col-sm-3 control-label" for="add-med-name">Name*</label>
+                                                <div class="col-sm-9">
+                                                    <input type="text" class="form-control" name="add-med-name" id="add-med-name" required>
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="col-sm-3 control-label" for="add-med-dosage">Dosage*</label>
+                                                <div class="col-sm-9">
+                                                    <input type="text" class="form-control" name="add-med-dosage" id="add-med-dosage" required>
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="col-sm-3 control-label" for="add-med-frequency">Frequency*</label>
+                                                <div class="col-sm-9">
+                                                    <input type="text" class="form-control" name="add-med-frequency" id="add-med-frequency" required>
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="col-sm-3 control-label">Type*</label>
+                                                <div class="col-sm-9">
+                                                    <select class="form-control" name="edit-type" id="edit-type" required>
+                                                      <option value="" disabled>----</option>
+                                                      <option value="Maintenance">Maintenance</option>
+                                                      <option value="Non-Maintenance">Non-Maintenance</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="col-sm-3 control-label" for="add-med-instructions">Instructions</label>
+                                                <div class="col-sm-9">
+                                                    <textarea rows="5" class="form-control" name="add-med-instructions" id="add-med-instructions"></textarea>
+                                                </div>
+                                            </div>
+                                        </fieldset>
+                                        <div class="button-group">
+                                            <a href="" class="btn btn-gray pull-right">Cancel</a>
+                                            <button type="submit" class="btn btn-lime pull-right" id="edit-hlc-button">Save</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- END MODAL ADD MEDICATION -->
+    </div>
+</body>
+
+<script type="text/javascript">
+    var key;
+    $(window).ready(function() {
+        var cw = $('.feature-icon').width();
+        $('.feature-icon').css({'height':cw+'px'});
+        $('.feature-icon .fa').css({'font-size':(cw*0.46)+'px'});
+        $('.feature-icon .fa').css({'margin-top':(cw*0.27)+'px'});
+    });
+    $(window).resize(function() {
+        var cw = $('.feature-icon').width();
+        $('.feature-icon').css({'height':cw+'px'});
+        $('.feature-icon .fa').css({'font-size':(cw*0.46)+'px'});
+        $('.feature-icon .fa').css({'margin-top':(cw*0.27)+'px'});
+    });
+    $(document).ready(function() {
+        $('#list-medication').DataTable({
+            "bSort": true, 
+            "aaSorting": [[0]],
+           "aoColumns": [
+                { "bSortable": false },
+                { "bSortable": true },
+                { "bSortable": true },
+                { "bSortable": true },
+                { "bSortable": true },
+                { "bSortable": true }
+            ]    
+        });
+    });
+
+</script>
+</html>

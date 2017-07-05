@@ -146,6 +146,8 @@ router.get('/account_edit/:id', requireLoggedIn,
 					type['Secretary'] = false;
 					if( result != null ){
 						type['Doctor'] = result;
+						console.log("DOCTOR");
+						console.log(type['Doctor']);
 					}
 				});
 			}
@@ -169,6 +171,7 @@ router.get('/account_edit/:id', requireLoggedIn,
 					// console.log(req.params.id);
 					// console.log("HEREEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE")
 					contact_nums = result.contact_numbers;
+					console.log(req.session);
 					res.render('account/view-edit-account.html', {
 						user: result,
 						type: type,
@@ -232,7 +235,7 @@ router.post('/add_account', requireLoggedIn, requireSuperUser,
 			photo = "/uploads/avatars/"+req.files['photo'][0].filename;	
 		}
 		if(req.files['signature'] != undefined) {
-			sign = "/uploads/signature/"+req.files['signature'][0].filename;	
+			sign = "/uploads/signatures/"+req.files['signature'][0].filename;	
 		}
 
 		if(email_add === "") { email_add = null; }
@@ -274,7 +277,7 @@ router.post('/add_account', requireLoggedIn, requireSuperUser,
 				}
 				User_Account.create(temp).then(account => {
 					if (req.body.user_type == "Doctor") {
-						// console.log(account);
+						console.log(sign);
 						Doctor.create({
 							license_no : license_num,
 							ptr_no : ptr_num,
@@ -369,7 +372,8 @@ router.post('/account_edit/:id', requireLoggedIn,
 		}
 		
 		if(req.files['signature'] != undefined) {
-			sign = "/uploads/signature/"+req.files['signature'][0].filename;	
+			sign = "/uploads/signatures/"+req.files['signature'][0].filename;	
+			console.log("IN HERE SIGNATURE");
 		}
 
 		for(var i = 1; i <= contact_count; i++) {
@@ -396,6 +400,7 @@ router.post('/account_edit/:id', requireLoggedIn,
 				//////////////////////////BEWARE/////////////////////////
 			}
 			if( req.body['user-type'] == 'Doctor'){
+				console.log(sign);
 				var lnum = req.body.license_num.trim();
 				var pnum = req.body.ptr_num.trim();
 				var s2num = req.body.s2_license_num.trim();
@@ -405,7 +410,7 @@ router.post('/account_edit/:id', requireLoggedIn,
 					s2_license_no: s2num,
 					signature: sign,
 				},{ where: {
-					usernameId: user_updated.id
+					usernameId: id
 				}}).then(doctor_updated => {
 					if (req.session.user.id == req.params.id) {
 						req.session.doctor = doctor_updated;

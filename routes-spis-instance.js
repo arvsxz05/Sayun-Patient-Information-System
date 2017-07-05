@@ -40,7 +40,7 @@ router.get('/spis_list', requireSuperUser, function (req, res){
 		
 		res.render('spis_instance/list-SPIS.html', {
 			instances: results,
-			user: req.session.user,
+			user: req.session.user
 		});
 	});
 });

@@ -77,7 +77,7 @@
                                 <div class="doctor-fields">
                                     <div class="form-group">
                                         <center><label>Digital Signature:</label></center>
-                                        <img id='digital-sign-upload'/ src="{{type.signature}}">
+                                        <img id='digital-sign-upload' src="{{type.Doctor.signature}}" />
                                         {% if session.user.id == user.id or session.superuser %}
                                         <div class="input-group">
                                             <span class="input-group-btn">

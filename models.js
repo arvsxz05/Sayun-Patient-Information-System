@@ -9,8 +9,9 @@ const title_types = ['Ms.', 'Mr.', 'Mrs.', 'Dr.'];
 const sex_types = ['Female', 'Male', 'Others'];
 const check_up_types = ['Consultation', 'In-Patient-Treatment', 'Out-Patient-Treatment']
 const inpatient_status_types = ['Confined', 'Discharged'];
-const medication_types = ['Maintainance', 'Non-Mainainance'];
+const medication_types = ['Maintenance', 'Non-Maintenance'];
 const billing_status_types = ['Fully Paid', 'Partially Paid', 'Deferred', 'Waived'];
+const civil_status_types = ['Single', 'Married', 'Divorced', 'Separated', 'Widowed'];
 
 const User_Account = database.define('user_account', {
 	id: {
@@ -215,8 +216,7 @@ const Patient = database.define('patient', {
 	id: {
 		type: Sequelize.INTEGER,
         autoIncrement: true,
-        primaryKey: true 	
-		// defaultValue: id_generator
+        primaryKey: true
 	},
 	reg_date: {
 		type: Sequelize.DATE,
@@ -257,11 +257,11 @@ const Patient = database.define('patient', {
 		type: Sequelize.ENUM,
 		values: sex_types,
 		allowNull: false,
-		defaultValue: 'Others',
+		defaultValue: 'Others'
 	},
 	birthdate: {
-		type: Sequelize.DATE,
-		allowNull: false,
+		type: Sequelize.DATEONLY,
+		allowNull: false
 	},
 	nationality: {
 		type: Sequelize.STRING,
@@ -278,7 +278,9 @@ const Patient = database.define('patient', {
 			isValidEmail: function (val) {
 				if (val) {
 					var re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-					return re.test(val);
+					if (!re.test(val)) {
+						throw new Error("Invalid Email");
+					}
 				}
 			}
 		}
@@ -333,28 +335,15 @@ const Patient = database.define('patient', {
 	referred_by: {
 		type: Sequelize.TEXT,
 		allowNull: true
+	},
+	civil_status: {
+		type: Sequelize.ENUM,
+		values: civil_status_types,
+		defaultValue: 'Single',
 	}
 });
 
 Patient.belongsTo(SPIS_Instance);
-
-function id_generator() {
-	var date = new Date();
-	var partial_id;
-	var month = date.getMonth() + 1, year = date.getFullYear() + "";
-	month += "";
-	if (month.length === 1) { month = "0" + month; }
-	partial_id = year + "_" + month;
-	var temp = ["id like ?", partial_id + '%']
-	Patient.findAll({
-		where: {temp}, 
-		limit: 1,
-		order: [['id', 'DESC']]
-	}).success(function (single_patient) {
-		console.log(single_patient[0]);
-	});
-	return partial_id;
-}
 
 const Check_Up = database.define('check_up', {
 	id: {
@@ -545,4 +534,5 @@ module.exports.Admin = Admin;
 module.exports.Secretary = Secretary;
 module.exports.Superuser = Superuser;
 module.exports.SPIS_Instance = SPIS_Instance;
+module.exports.Patient = Patient;
 module.exports.title_types = title_types;

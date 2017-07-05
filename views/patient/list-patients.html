@@ -65,28 +65,28 @@
 					            </tr>
 					        </thead>
 					        <tbody>
-					        	<!-- {% for user_account in user_accounts %} -->
+					        	{% for patient in patients %}
 				        			<tr>
 				        				<td><input type="checkbox" aria-label="..." id="" name="" value=""/></td>
 				        				<td> 
 				        					<a href="" class="edit-click" id="">
-				        						12345678
+				        						{{patient.id}}
 				        					</a>
 				        				</td>
-				        				<td>ARBUIS</td>
-				        				<td>ARVIN</td>
-				        				<td>SALE</td>
-				        				<td>ES A GIRL
+				        				<td>{{patient.last_name}}</td>
+				        				<td>{{patient.first_name}}</td>
+				        				<td>{{patient.middle_name}}</td>
+				        				<td>{{patient.sex}}
 				        				</td>
-				        				<td>19</td>
+				        				<td>{{patient.age}}</td>
 				        			</tr>
-				        		<!-- {% endfor %} -->
+				        		{% endfor %}
 							</tbody>
 					    </table>
 					</div>
 					<div class="button-group">
 						<a class="btn btn-gray pull-right" href="">Cancel</a>
-                        <a class="btn btn-lime pull-right" type="button" href="">Add</a>    
+                        <a class="btn btn-lime pull-right" type="button" href="/patient_add">Add</a>    
                     </div>
 		        </div>
 		    </div>

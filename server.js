@@ -18,6 +18,7 @@ app.set('views', __dirname + '/views');
 app.use('/static', express.static(__dirname + '/static'));
 app.use('/uploads/avatars', express.static(__dirname + '/uploads/avatars'));
 app.use('/uploads/signatures', express.static(__dirname + '/uploads/signatures'));
+app.use('/uploads/patients', express.static(__dirname + '/uploads/patients'));
 app.engine('html', consolidate.nunjucks);
 
 app.use(bodyParser.json());
@@ -32,6 +33,7 @@ app.use(require('./routes-user-auth'));
 app.use(require('./routes-accounts'));
 app.use(require('./routes-hospital'));
 app.use(require('./routes-spis-instance'));
+app.use(require('./routes-patient'));
 
 ///////////////////// MIDDLEWARES ////////////////////////
 
