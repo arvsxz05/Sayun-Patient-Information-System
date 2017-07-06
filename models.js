@@ -361,6 +361,15 @@ const Patient = database.define('patient', {
 		type: Sequelize.STRING,
 		allowNull: true,
 	},
+	insurance: {
+		type: Sequelize.TEXT,
+		allowNull: true,
+	},
+	prior_surgeries: {
+		type: Sequelize.TEXT,
+		allowNull: true,
+	}
+
 });
 
 Patient.belongsTo(SPIS_Instance);
