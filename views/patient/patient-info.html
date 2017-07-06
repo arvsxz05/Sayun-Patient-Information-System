@@ -90,7 +90,7 @@
                             <div class="col-xs-12">
                                 <div class="col-md-10 col-md-offset-1">
                                     <h3>Patient Information</h3>
-                                    <form id="add-patient-form" class="form-horizontal" role="form" method="POST" action="" enctype="multipart/form-data">
+                                    <form id="add-patient-form" class="form-horizontal" role="form" method="POST" action="/patient_edit/{{patient.id}}" enctype="multipart/form-data">
                                     <!-- UPLOAD PHOTO -->   
                                         <div class="col-md-4 col-md-push-8">
                                             <div class="col-md-8 col-md-offset-1">
@@ -112,6 +112,12 @@
 
                                         <!-- PATIENT INFO DIVS -->
                                         <div class="col-md-8 col-md-pull-4" style="padding-top: 30px">
+                                            <div class="form-group">
+                                                <label class="col-sm-3 control-label" for="id">Patient Id*</label>
+                                                <div class="col-sm-9 col-md-8">
+                                                    <input type="text" class="form-control" name="id" id="id" value="{{patient.id}}" disabled>
+                                                </div>
+                                            </div>
                                             <div class="form-group">
                                                 <label class="col-sm-3 control-label" for="last_name">Last Name*</label>
                                                 <div class="col-sm-9 col-md-8">
@@ -203,7 +209,7 @@
                                                             <input type="radio" name="referral" value="referred">Referred
                                                         </label>   
                                                     </div>
-                                                    <input type="text" class="form-control" name="referrer" id="referrer" placeholder="Referred by" style="display: none; margin-top: 10px"> 
+                                                    <input type="text" class="form-control" name="referrer" id="referrer" placeholder="Referred by" value="{{patient.referrer}}" style="display: none; margin-top: 10px"> 
                                                 </div>
                                             </div> 
                                         </div>
@@ -229,6 +235,9 @@
                                                     <div class="col-sm-7">
                                                         <input type="text" class="form-control" name="email" id="email" value="{{patient.email}}">
                                                     </div>
+                                                </div>
+                                                <div>
+                                                    <p id="error-email"></p>
                                                 </div>
                                                 <div class="form-group">
                                                     <label class="col-sm-5 control-label" for="contact1">Contact No.*</label>
@@ -319,11 +328,10 @@
     $(document).ready(function(){
         $( '#myTab li' ).first().addClass('active');
         $( '#collapse-patient-info').addClass('in');
-        $("#example1").dateDropdowns({
-            displayFormat: "mdy"
-        });
 
-        // console.log("{{patient}}");
+        $("#example1").dateDropdowns({
+            displayFormat: "mdy",
+        });
 
         $(".date-div select").addClass("form-control");
         $(".date-div select").prop("required", true);
@@ -343,11 +351,57 @@
             }
         });
 
-        // $('#civil_status').val("{{patient.civil_status}}");
-        // $('#sex').val("{{patient.sex}}");
-        // $('#type').val(data["type"]);
+        $.ajax({
+            type: "GET",
+            url: "/patient_edit_json/{{patient.id}}",
+        }).done(function(data) {
+            if(data != null){
+                var date = data.birthdate.split("-");
+                $("select[name='date_[month]']").val(date[1]);
+                $("select[name='date_[day]']").val(date[2]);
+                $("select[name='date_[year]']").val(date[0]);
 
+                if(data.referred_by != "" && data.referred_by != null){
+                    $("input[name=referral][value=referred]").attr('checked', 'checked');
+                } else{
+                    $("input[name=referral][value=walk-in]").attr('checked', 'checked');
+                }
+
+                if(data.sex == "Male"){
+                    $('#sex option[value="Male"]').attr('selected', true);
+                } else if(data.sex == "Female"){
+                    $('#sex option[value="Female"]').attr('selected', true);
+                } else{
+                    $('#sex option[value="Others"]').attr('selected', true)
+                }
+
+                if(data.civil_status == "Single"){
+                    $('#civil_status option[value="Single"]').attr('selected', true);
+                } else if(data.civil_status == "Married"){
+                    $('#civil_status option[value="Married"]').attr('selected', true);
+                } else if(data.civil_status == "Divorced"){
+                    $('#civil_status option[value="Divorced"]').attr('selected', true)
+                } else if(data.civil_status == "Separated"){
+                    $('#civil_status option[value="Separated"]').attr('selected', true);
+                } else if(data.civil_status == "Widowed"){
+                    $('#civil_status option[value="Widowed"]').attr('selected', true)
+                }
+
+            }
+        });
         
+        $("#email").blur(function() {
+        if($("#email").val().trim() !== "") {
+            var re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+            if (!re.test($("#email").val().trim())) {
+                $('#error-email').text("Invalid Email");
+                $('#save-btn').prop('disabled', true);
+            } else {
+                $('#error-email').text("");
+                $('#save-btn').prop('disabled', false);
+            }
+        }
+    });
 
     });
 

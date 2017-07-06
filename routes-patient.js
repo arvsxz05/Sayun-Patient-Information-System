@@ -129,8 +129,7 @@ router.get('/patient_edit/:id', requireLoggedIn, function(req, res){
 		},
 		raw: true,
 	}).then(function(result){
-		console.log("PATIENT_ID");
-		console.log(result);
+		console.log("went here");
 		var date = result.birthdate.split("-");
 
 		res.render('patient/patient-info.html', {
@@ -147,12 +146,33 @@ router.get('/patient_edit/:id', requireLoggedIn, function(req, res){
 
 });
 
+router.get('/patient_edit_json/:id', requireLoggedIn, function(req, res){
+
+	var key = req.params.id;
+
+	Patient.findOne({
+		where: {
+			id: key,
+		},
+		raw: true,
+	}).then(function(result){
+		console.log("went here");
+		var date = result.birthdate.split("-");
+
+		res.json(result);
+
+	}).catch(function(error){
+
+	});
+
+});
+
 
 //////////////////////// POST ////////////////////////////////////
 
 router.post('/patient_add', requireLoggedIn, upload.single('photo'), function(req, res){
 	
-	var photo;
+	var photo = null;
 
 	if(req.body['photo'] != undefined){
 		photo = req.body['photo'];
@@ -171,7 +191,7 @@ router.post('/patient_add', requireLoggedIn, upload.single('photo'), function(re
 	var nationality = req.body['nationality'];
 	var referral = req.body['referral'];
 	var insurance = req.body['insurance'];
-	var surguries = req.body['surgeries'];
+	var surgeries = req.body['surgeries'];
 	var address = req.body['address'];
 	var email = req.body['email'];
 	var contact1 = req.body['contact1'];
@@ -211,6 +231,8 @@ router.post('/patient_add', requireLoggedIn, upload.single('photo'), function(re
 		membership: membership,
 		expiration: expiration,
 		company_name: company_name,
+		insurance: insurance,
+		prior_surgeries: surgeries
 	}).then(function (item) {
 		res.redirect("/patient_list");
 	}).catch(function (error) {
@@ -235,13 +257,12 @@ router.post('/patient_edit/:id', requireLoggedIn, upload.single('photo'), functi
 	var fname = req.body['first_name'];
 	var mname = req.body['middle_name'];
 	var bday = req.body['date'];
-	var birthday = req.body['date_'].month+"-"+req.body['date_'].day+"-"+req.body['date_'].year;
 	var sex = req.body['sex'];
 	var cstatus = req.body['civil_status'];
 	var nationality = req.body['nationality'];
 	var referral = req.body['referral'];
 	var insurance = req.body['insurance'];
-	var surguries = req.body['surgeries'];
+	var surgeries = req.body['surgeries'];
 	var address = req.body['address'];
 	var email = req.body['email'];
 	var contact1 = req.body['contact1'];
@@ -254,6 +275,8 @@ router.post('/patient_edit/:id', requireLoggedIn, upload.single('photo'), functi
 	var hmo = req.body['hmo'];
 	var hmo_no = req.body['hmo_no'];
 	var company_name = req.body['company'];
+	var membership = req.body['membership'];
+	var expiration = req.body['expiration'];
 
 	Patient.update({
 		last_name: lname,
@@ -278,6 +301,8 @@ router.post('/patient_edit/:id', requireLoggedIn, upload.single('photo'), functi
 		membership: membership,
 		expiration: expiration,
 		company_name: company_name,
+		insurance: insurance,
+		prior_surgeries: surgeries
 	},
 	{
 		where: {
