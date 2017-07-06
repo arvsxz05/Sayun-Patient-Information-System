@@ -56,7 +56,7 @@
          * Initialise the plugin
          */
         init: function () {
-            this.checkForDuplicateElement();
+            // this.checkForDuplicateElement();
             this.setInternalVariables();
             this.setupMarkup();
             this.buildDropdowns();

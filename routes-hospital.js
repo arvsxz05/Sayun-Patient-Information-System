@@ -92,7 +92,7 @@ router.get('/hcl_list', requireLoggedIn, requireAdmin, function (req, res) {
 /////////////////////// POST //////////////////////////
 
 router.post('/hcl_add', requireLoggedIn, requireAdmin, function (req, res) {
-	// console.log("ADDING HCL");
+	console.log("ADDING HCL");
 	console.log(req.body);
 
 	var name = req.body.name;

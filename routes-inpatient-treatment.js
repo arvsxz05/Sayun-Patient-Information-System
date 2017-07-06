@@ -21,17 +21,50 @@ function requireDoctor(req, res, next) {
 	next();
 }
 
-//////////////////////// GET ////////////////////////////////////
+//////////////////////////// GET ////////////////////////////////////
 
-router.get('/inpatient_treatment_list', function(req, res){
-	
-});
-
-router.get('/inpatient_treatment_add', function(req, res){
+router.get('/ipt_edit/:id', function(req, res){
 
 });
 
-router.get('/inpatient_treatment_edit/:id', function(req, res){
+/////////////////////////// POST ////////////////////////////////////
+
+router.post('/ipt_add', function(req, res){
+
+	console.log("at inpatient treatment add");
+	console.log(req.body);
+
+	var confine = null, discharge = null;
+
+	if(req.body['date_']['year'][0] != '' && req.body['date_']['month'][0] != '' && req.body['date_']['day'][0] != ''){
+		confine = req.body["date_"]["year"][0]+"-"+req.body["date_"]["month"][0]+"-"+req.body["date_"]["day"][0];
+	}
+
+	console.log("confine: "+confine);
+
+	if(req.body['date_']['year'][1] != '' && req.body['date_']['month'][1] != '' && req.body['date_']['day'][1] != ''){
+		discharge = req.body["date_"]["year"][1]+"-"+req.body["date_"]["month"][1]+"-"+req.body["date_"]["day"][1];
+	}
+
+	console.log("discharge: "+discharge);
+
+	var hospital = req.body['hospital'];
+	var summary = req.body['summary'];
+	var details = req.body['detailed-diagnosis'];
+	var notes = req.body['notes'];
+
+	InPatient_Treatment.create({
+		conf_date: confine,
+		discharge_date: discharge,
+		sum_of_diag: summary,
+		detailed_diag: details,
+		notes: notes,
+	}).then(function(item){
+		res.send({"status": "success"});
+	}).catch(function(item){
+		res.send({"error": "error"})
+	})
+
 
 });
 

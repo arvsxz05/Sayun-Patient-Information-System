@@ -74,10 +74,11 @@
             <div class="row">
                 <div class="form-container">
                     <ul class="nav nav-tabs responsive" id="myTab">
-                        <li><a href="#patient-info" data-target="#patient-info">Patient Information</a></li>
+                        <li><a href="#patient-info">Patient Information</a></li>
                         <li><a href="#notes">Notes</a></li>
                         <li><a href="#consultations">Clinic Consultations</a></li>
-                        <li><a href="#treatments">Treatments</a></li>
+                        <li><a href="#ip-treatments">In-Patient Treatments</a></li>
+                        <li><a href="#op-treatments">Out-Patient Treatments</a></li>
                         <li><a href="#laboratories">Lab Results</a></li>
                         <li><a href="#diagnoses">Diagnoses</a></li>
                         <li><a href="#medication">Medications</a></li>
@@ -113,7 +114,7 @@
                                         <!-- PATIENT INFO DIVS -->
                                         <div class="col-md-8 col-md-pull-4" style="padding-top: 30px">
                                             <div class="form-group">
-                                                <label class="col-sm-3 control-label" for="id">Patient Id*</label>
+                                                <label class="col-sm-3 control-label" for="id">Patient ID*</label>
                                                 <div class="col-sm-9 col-md-8">
                                                     <input type="text" class="form-control" name="id" id="id" value="{{patient.id}}" disabled>
                                                 </div>
@@ -144,8 +145,8 @@
                                             </div>
                                             <div class="form-group">
                                                 <label class="col-sm-3 control-label" for="birthday">Birth date*</label>
-                                                <div class="col-sm-9 col-md-8 date-div">
-                                                    <input type="hidden" id="example1">
+                                                <div class="col-sm-9 col-md-8 date-div" id="birthday">
+                                                    <input type="hidden" id="bday">
                                                 </div>
                                             </div>
                                             <div class="form-group">
@@ -180,12 +181,42 @@
                                             </div> 
                                         </div>
 
-                                        <!-- <div class="col-xs-12" style="padding: 0"> -->
-                                            <label class="col-sm-3 col-md-2 control-label" for="insurance">Insurance</label>
-                                            <div class="col-sm-9 col-md-9">
-                                                <textarea class="form-control" name="insurance" id="insurance" rows="5">{{patient.insurance}}</textarea>
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label class="col-sm-3 col-md-4 control-label" for="hmo">HMO</label>
+                                                <div class="col-sm-9 col-md-8">
+                                                    <input type="text" class="form-control" name="hmo" id="hmo">
+                                                </div>
                                             </div>
-                                        <!-- </div> -->
+                                            <div class="form-group">
+                                                <label class="col-sm-3 col-md-4 control-label" for="hmo-no">HMO No.</label>
+                                                <div class="col-sm-9 col-md-8">
+                                                    <input type="text" class="form-control" name="hmo-no" id="hmo-no">
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="col-sm-3 col-md-4 control-label" for="company">Company Name</label>
+                                                <div class="col-sm-9 col-md-8">
+                                                    <input type="text" class="form-control" name="company" id="company">
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-md-5">
+                                            <div class="form-group">
+                                                <label class="col-sm-3 col-md-4 control-label" for="membership">Date of Membership</label>
+                                                <div class="col-sm-9 col-md-8 date-div" id="membership">
+                                                    <input type="hidden" id="membership-date">
+                                                </div>
+                                            </div>
+
+                                            <div class="form-group">
+                                                <label class="col-sm-3 col-md-4 control-label" for="expiration">Date of Expiration</label>
+                                                <div class="col-sm-9 col-md-8 date-div" id="expiration">
+                                                    <input type="hidden" id="expiration-date">
+                                                </div>
+                                            </div>
+                                        </div>
             
                                         <div class="col-xs-12"><br></div>
 
@@ -302,11 +333,180 @@
                         </div>
                         <!-- END OF CONSULTATIONS -->
 
-                        <!-- TREATMENTS -->
-                        <div class="tab-pane" id="treatments">
-                           
+                        <!-- IP-TREATMENTS -->
+                        <div class="tab-pane" id="ip-treatments">
+                            <div class="row">
+                                <div class="col-xs-12 col-md-10 col-md-offset-1">
+                                    
+                                    <!-- BASIC PATIENT INFO -->
+                                    <div class="row" style="margin-top: 40px">
+                                        <div class="col-md-6">
+                                            <div class="row form-group">
+                                                <label class="col-sm-3 control-label" for="patient-id">Patient ID</label>
+                                                <div class="col-sm-6">
+                                                    <input type="text" class="form-control" id="patient-id" value="247263" disabled>
+                                                </div>
+                                            </div>                                       
+                                            <div class="row form-group">
+                                                <label class="col-sm-3 control-label" for="patient-id">Patient Name</label>
+                                                <div class="col-sm-6">
+                                                    <input type="text" class="form-control" id="patient-id" value="ARVIN SALE ARBUIS" disabled>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <a id="list-ipt-view-link" onclick="view_IPT()">Back to In-Patient Treatment List</a>
+
+                                    <hr>
+
+                                    <!-- END OF BASIC PATIENT INFO -->
+
+                                    <!-- IPT TABLE -->
+                                    <div class="row" id="list-ipt-view">
+                                        <div class="table-responsive">
+                                            <h3>In-Patient Treatment List</h3>
+                                            <table id="ipt-list" class="table table-striped table-bordered" cellspacing="0" width="100%">
+                                                <thead>
+                                                    <tr>
+                                                        <th><input type="checkbox" aria-label="..." id="select-all"/></th>
+                                                        <th>Confinement ID</th>
+                                                        <th>Discharge Date</th>
+                                                        <th>Hospital</th>
+                                                        <th>Hospital Address</th>
+                                                        <th>Doctor</th>
+                                                        <th></th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                </tbody>
+                                            </table>
+                                        </div>
+
+                                        <div class="button-group">
+                                            <a class="btn btn-lime pull-right" type="button" onclick="add_IPT()">Add</a>    
+                                        </div>
+                                    </div>
+                                    <!-- END OF IPT TABLE -->
+
+
+
+                                    <!-- ADD NEW IPT RECORD -->
+                                    <div class="form-container col-md-8" style="padding: 20px" id="add-ipt-view">
+                                        <form id="add-ipt-form" class="form-horizontal" role="form" method="POST" action="/ipt_add">
+                                            <legend><b>Add In-Patient Treatment</b></legend>
+                                            <div class="form-group">
+                                                <label class="col-sm-4 control-label" for="confinement-date">Confinement Date*</label>
+                                                <div class="col-sm-8 date-div" id="confinement-date-div">
+                                                    <input type="hidden" name="confinement-date" id="confinement-date">
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="col-sm-4 control-label" for="discharge-date">Discharge Date</label>
+                                                <div class="col-sm-8 date-div" id="discharge-date-div">
+                                                    <input type="hidden" name="discharge-date" id="discharge-date">
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="col-sm-4 control-label" for="hospital">Hospital/Clinic*</label>
+                                                <div class="col-sm-8">
+                                                    <select class="form-control" id="hospital" name="hospital" required>
+                                                      <option value="" selected disabled>Select Hospital/Clinic</option>
+
+                                                        {% for hospital in hospitals %}
+                                                            <option value="{{hospital.id}}">{{hospital.id}}</option>
+                                                        {% endfor %}
+
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="col-sm-4 control-label" for="summary">Summary of Diagnosis*</label>
+                                                <div class="col-sm-8">
+                                                    <input type="text" class="form-control" name="summary" id="summary" required>
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                              <label class="col-sm-4 control-label" for="detailed-diagnosis">Detailed Diagnosis*</label>
+                                              <div class="col-sm-8">
+                                                  <textarea class="form-control" rows="5" name="detailed-diagnosis" id="detailed-diagnosis"></textarea>
+                                              </div>
+                                            </div>
+                                            <div class="form-group">
+                                              <label class="col-sm-4 control-label" for="notes">Notes</label>
+                                              <div class="col-sm-8">
+                                                  <textarea class="form-control" rows="5" name="notes" id="notes"></textarea>
+                                              </div>
+                                            </div>
+
+                                            <div class="button-group">
+                                                <a href="/account_list" class="btn btn-gray pull-right">Cancel</a>
+                                                <button type="submit" class="btn btn-lime pull-right" id="save-btn">Save</button>    
+                                            </div>
+                                        </form>
+
+                                        <!-- MEDICATION LIST FOR IPT -->
+                                        <form method="POST" action="/delete_medication">
+                                            <legend><b>Medications</b></legend>
+                                            <div class="table-responsive">
+                                                <table id="list-medication" class="table table-striped table-bordered" cellspacing="0" width="100%">
+                                                    <thead>
+                                                        <tr>
+                                                            <th><input type="checkbox" aria-label="..." id="select-all"/></th>
+                                                            <th>Name</th>
+                                                            <th>Dosage</th>
+                                                            <th>Frequency</th>
+                                                            <th>Type</th>
+                                                            <th>Instruction</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                            <div class="button-group">
+                                                <button class="btn btn-red pull-right" type="submit" name="delete" value="true" id="delete">Delete</button>
+                                                <a href class="btn btn-lime pull-right" id="add-hlc-button" data-toggle="modal" data-target="#add-medication-modal">Add</a>
+                                            </div>
+                                        </form>
+                                        <!-- END OF MEDICATION LIST FOR IPT -->
+
+
+                                        <!-- MEDICAL PROCEDURES LIST FOR IPT -->
+                                        <form method="POST" action="/delete_medication">
+                                            <legend><b>Medical Procedures</b></legend>
+                                            <div class="table-responsive">
+                                                <table id="list-med-procedure" class="table table-striped table-bordered" cellspacing="0" width="100%">
+                                                    <thead>
+                                                        <tr>
+                                                            <th><input type="checkbox" aria-label="..." id="select-all"/></th>
+                                                            <th>Date</th>
+                                                            <th>Description</th>
+                                                            <th>Details</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                            <div class="button-group">
+                                                <button class="btn btn-red pull-right" type="submit" name="delete" value="true" id="">Delete</button>
+                                                <a href class="btn btn-lime pull-right" id="add-med-procedure-button" data-toggle="modal" data-target="#add-med-procedure-modal">Add</a>
+                                            </div>
+                                        </form>
+                                        <!-- END OF MEDICAL PROCEDURES LIST FOR IPT -->
+
+                                    </div>
+                                    <!-- END OF ADDING NEW IPT RECORD -->
+
+
+                                    <!-- BILLING FOR IPT -->
+                                    <div class="col-md-4"></div>
+                                    <!-- END OF BILLING FOR IPT -->
+                                </div>
+                            </div>
                         </div>
-                        <!-- END OF TREATMENTS -->
+                        <!-- END OF IP-TREATMENTS -->
 
 
                     </div>
@@ -314,7 +514,75 @@
             </div>
         </div>
     </div>
+
+
+<!-- MODALSSSS -->
+    <!-- MODAL ADD MEDICATION -->
+    <div class="modal fade" id="add-medication-modal" role="dialog">
+        <div class="modal-dialog">
+          <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" style="color: black">&times;</button>
+                    <h4 class="modal-title" style="float:left"><strong>Add Medication</strong></h4>
+                </div>
+                <div class="modal-body">
+                    <div class="container-fluid">
+                        <div class="row">
+                            <div class="col-xs-12">
+                                <form id="add-med-form" class="form-horizontal" method="POST" action="">
+                                    <fieldset>
+                                        <div class="form-group">
+                                            <label class="col-sm-3 control-label" for="add-med-name">Name*</label>
+                                            <div class="col-sm-9">
+                                                <input type="text" class="form-control" name="add-med-name" id="add-med-name" required>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="col-sm-3 control-label" for="add-med-dosage">Dosage*</label>
+                                            <div class="col-sm-9">
+                                                <input type="text" class="form-control" name="add-med-dosage" id="add-med-dosage" required>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="col-sm-3 control-label" for="add-med-frequency">Frequency*</label>
+                                            <div class="col-sm-9">
+                                                <input type="text" class="form-control" name="add-med-frequency" id="add-med-frequency" required>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="col-sm-3 control-label">Type*</label>
+                                            <div class="col-sm-9">
+                                                <select class="form-control" name="add-med-type" id="add-med-type" required>
+                                                  <option value="" selected disabled>----</option>
+                                                  <option value="Maintenance">Maintenance</option>
+                                                  <option value="Non-Maintenance">Non-Maintenance</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="col-sm-3 control-label" for="add-med-instructions">Instructions</label>
+                                            <div class="col-sm-9">
+                                                <textarea rows="5" class="form-control" name="add-med-instructions" id="add-med-instructions"></textarea>
+                                            </div>
+                                        </div>
+                                    </fieldset>
+                                    <div class="button-group">
+                                        <a class="btn btn-gray pull-right" data-dismiss="modal">Cancel</a>
+                                        <button type="submit" class="btn btn-lime pull-right" id="add-med-btn">Save</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- END MODAL ADD MEDICATION -->
+<!-- END OF MODAAAALLSSS -->
 </body>
+
 <script type="text/javascript">
     (function($) {
       fakewaffle.responsiveTabs(['xs', 'sm']);
@@ -329,12 +597,32 @@
         $( '#myTab li' ).first().addClass('active');
         $( '#collapse-patient-info').addClass('in');
 
-        $("#example1").dateDropdowns({
-            displayFormat: "mdy",
+        $("#confinement-date").dateDropdowns({
+            displayFormat: "mdy"
         });
 
+        $("#discharge-date").dateDropdowns({
+            displayFormat: "mdy"
+        });
+
+        $("#membership-date").dateDropdowns({
+            displayFormat: "mdy"
+        });
+        
+        $("#bday").dateDropdowns({
+            displayFormat: "mdy"
+        });
+
+        $("#expiration-date").dateDropdowns({
+            displayFormat: "mdy"
+        });
+
+
+        $('#list-ipt-view-link').hide();
+        $('#add-ipt-view').hide();
+
         $(".date-div select").addClass("form-control");
-        $(".date-div select").prop("required", true);
+        $("#birthday select").prop("required", true);
         $("select[name='date_[month]'] option").first().prop("disabled", true);
         $("select[name='date_[day]'] option").first().prop("disabled", true);
         $("select[name='date_[year]'] option").first().prop("disabled", true);
@@ -343,6 +631,7 @@
             if (this.value == 'walk-in') {
                 $('#referrer').slideUp(200);
                 $('#referrer').prop('required', false);
+                $('#referrer').val('');
             }
             else if (this.value == 'referred') {
                 $('#referrer').slideDown(200);
@@ -357,12 +646,31 @@
         }).done(function(data) {
             if(data != null){
                 var date = data.birthdate.split("-");
-                $("select[name='date_[month]']").val(date[1]);
-                $("select[name='date_[day]']").val(date[2]);
-                $("select[name='date_[year]']").val(date[0]);
+                $("#birthday select[name='date_[month]']").val(date[1]);
+                $("#birthday select[name='date_[day]']").val(date[2]);
+                $("#birthday select[name='date_[year]']").val(date[0]);
+
+
+                if(data.membership != null){
+                    date = data.membership.split("-");
+                    $("#membership select[name='date_[month]']").val(date[1]);
+                    $("#membership select[name='date_[day]']").val(date[2]);
+                    $("#membership select[name='date_[year]']").val(date[0]);
+                }
+                
+
+                if(data.expiration != null){
+                    date = data.expiration.split("-");
+                    $("#expiration select[name='date_[month]']").val(date[1]);
+                    $("#expiration select[name='date_[day]']").val(date[2]);
+                    $("#expiration select[name='date_[year]']").val(date[0]);
+                }
 
                 if(data.referred_by != "" && data.referred_by != null){
                     $("input[name=referral][value=referred]").attr('checked', 'checked');
+                    $('#referrer').slideDown(200);
+                    $('#referrer').prop('required', true);
+                    $('#referrer').val(data.referred_by);
                 } else{
                     $("input[name=referral][value=walk-in]").attr('checked', 'checked');
                 }
@@ -391,20 +699,112 @@
         });
         
         $("#email").blur(function() {
-        if($("#email").val().trim() !== "") {
-            var re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-            if (!re.test($("#email").val().trim())) {
-                $('#error-email').text("Invalid Email");
-                $('#save-btn').prop('disabled', true);
-            } else {
-                $('#error-email').text("");
-                $('#save-btn').prop('disabled', false);
+            if($("#email").val().trim() !== "") {
+                var re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+                if (!re.test($("#email").val().trim())) {
+                    $('#error-email').text("Invalid Email");
+                    $('#save-btn').prop('disabled', true);
+                } else {
+                    $('#error-email').text("");
+                    $('#save-btn').prop('disabled', false);
+                }
             }
-        }
-    });
+        });
+
+        $('#ipt-list').DataTable({
+            "bSort": true, 
+            "aaSorting": [[0]],
+            "aoColumns": [
+                { "bSortable": false },
+                { "bSortable": true },
+                { "bSortable": true },
+                { "bSortable": true },
+                { "bSortable": true },
+                { "bSortable": true },
+                { "bSortable": true }
+            ]    
+        });
+
+        $('#opt-list').DataTable({
+            "bSort": true, 
+            "aaSorting": [[0]],
+            "aoColumns": [
+                { "bSortable": false },
+                { "bSortable": true },
+                { "bSortable": true },
+                { "bSortable": true },
+                { "bSortable": true },
+                { "bSortable": true },
+                { "bSortable": true }
+            ]    
+        });
 
     });
 
+</script>
+
+
+<script type="text/javascript">
+
+    var meds;
+    var med_procedures;
+    var billing;
+
+    function view_IPT() {
+        $('#list-ipt-view').show();
+        $('#add-ipt-view').hide();
+        $('#list-ipt-view-link').hide();
+        meds.destroy();
+        med_procedures.destroy();
+    }
+    function add_IPT() {
+        $('#list-ipt-view').hide();
+        $('#add-ipt-view').show();
+        $('#list-ipt-view-link').show();
+        // dapat on-Submit nani sa ADD IPT Record//
+        meds = $('#list-medication').DataTable({
+            "bSort": true, 
+            "aaSorting": [[0]],
+            "aoColumns": [
+                { "bSortable": false },
+                { "bSortable": true },
+                { "bSortable": true },
+                { "bSortable": true },
+                { "bSortable": true },
+                { "bSortable": true }
+            ]    
+        });
+
+        med_procedures = $('#list-med-procedure').DataTable({
+            "bSort": true, 
+            "aaSorting": [[0]],
+            "aoColumns": [
+                { "bSortable": false },
+                { "bSortable": true },
+                { "bSortable": true },
+                { "bSortable": true }
+            ]    
+        });
+        // 
+    }
+     $('#add-med-form').submit(function(e){
+        e.preventDefault();
+         meds.row.add([
+                '<input type="checkbox" id="" name=""></input>', //idk UNSAON ANG NAME AND ID ANI FOR DELETION
+                $('#add-med-name').val(),
+                $('#add-med-dosage').val(),
+                $('#add-med-frequency').val(),
+                $('#add-med-type').val(),
+                $('#add-med-instructions').val()
+            ]).draw();
+         
+
+         $('#add-medication-modal').modal('toggle');
+         $('#add-medication-modal input').val("");
+         $('#add-medication-modal select').val("");
+         $('#add-medication-modal textarea').val("");
+
+    });
 </script>
 </script>
 </html>

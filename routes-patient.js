@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const Patient = require('./models').Patient;
+const Hospital = require('./models').Hospital;
 const multer = require('multer');
 const Sequelize = require('sequelize');
 
@@ -39,7 +40,6 @@ const upload = multer({
 		destination: function (req, file, cb) {
 
 			if(file.fieldname == 'photo'){
-				console.log("IN HERE")
 				var path = './uploads/patients';
 				cb(null, path);
 			}
@@ -74,7 +74,6 @@ const upload = multer({
 
 router.get('/patient_list', requireLoggedIn, function(req, res){
 	var allPatients = [];
-	console.log("IN HERE PATIENT LIST");
 	Patient.findAll({
 		where: {
 			spisInstanceLicenseNo: req.session.spisinstance.license_no
@@ -89,7 +88,6 @@ router.get('/patient_list', requireLoggedIn, function(req, res){
 			result = results[i];
 
 			age = get_age( new Date(result.birthdate), new Date());
-			console.log("IN HERE LOOP RESULTS");
 			allPatients.push({
 				id: result.id,
 				last_name: result.last_name,
@@ -100,8 +98,6 @@ router.get('/patient_list', requireLoggedIn, function(req, res){
 			});
 
 		}
-
-		console.log(allPatients);
 
 		res.render('patient/list-patients.html', {
 			patients: allPatients,
@@ -122,6 +118,25 @@ router.get('/patient_add', requireLoggedIn, function(req, res){
 router.get('/patient_edit/:id', requireLoggedIn, function(req, res){
 
 	var key = req.params.id;
+	var hospitals = [], result;
+
+	Hospital.findAll({
+		where: {
+			spisInstanceLicenseNo: req.session.spisinstance.license_no,
+			type: "Hospital",
+			active: "t",
+		},
+		raw: true
+	}).then(function(results){
+		for(var i = 0; i < results.length; i++){
+			result = results[i];
+
+			hospitals.push({
+				id: result.name,
+			});
+		}
+		
+	});
 
 	Patient.findOne({
 		where: {
@@ -129,15 +144,22 @@ router.get('/patient_edit/:id', requireLoggedIn, function(req, res){
 		},
 		raw: true,
 	}).then(function(result){
-		console.log("went here");
 		var date = result.birthdate.split("-");
+
+		console.log(hospitals)
 
 		res.render('patient/patient-info.html', {
 			patient: result,
-			year: date[0],
-			month: date[1],
-			day: date[2],
 			user: req.session.user,
+			hospitals: hospitals,
+			// in patient treatment list
+			// out patient treatment list
+			// notes
+			// clinic consultation
+			// lab results
+			// diagnoses 
+			// medication
+			// billings
 		});
 
 	}).catch(function(error){
@@ -184,8 +206,7 @@ router.post('/patient_add', requireLoggedIn, upload.single('photo'), function(re
 	var lname = req.body['last_name'];
 	var fname = req.body['first_name'];
 	var mname = req.body['middle_name'];
-	var bday = req.body['date'];
-	var birthday = req.body['date_'].month+"-"+req.body['date_'].day+"-"+req.body['date_'].year;
+	var bday = req.body['date_']['year'][0] + "-" + req.body['date_']['month'][0] + "-" + req.body['date_']['day'][0];;
 	var sex = req.body['sex'];
 	var cstatus = req.body['civil_status'];
 	var nationality = req.body['nationality'];
@@ -204,8 +225,17 @@ router.post('/patient_add', requireLoggedIn, upload.single('photo'), function(re
 	var hmo = req.body['hmo'];
 	var hmo_no = req.body['hmo-no'];
 	var company_name = req.body['company'];
-	var membership = req.body['membership'];
-	var expiration = req.body['expiration'];
+	var membership;
+	var expiration;
+
+
+	if(req.body['date_']['year'][1] != '' && req.body['date_']['month'][1] != '' && req.body['date_']['day'][1] != ''){
+		membership = req.body['date_']['year'][1] + "-" + req.body['date_']['month'][1] + "-" + req.body['date_']['day'][1];
+	}
+
+	if(req.body['date_']['year'][2] != '' && req.body['date_']['month'][2] != '' && req.body['date_']['day'][2] != ''){
+		expiration = req.body['date_']['year'][2] + "-" + req.body['date_']['month'][2] + "-" + req.body['date_']['day'][2];
+	}
 
 	Patient.create({
 		last_name: lname,
@@ -256,7 +286,7 @@ router.post('/patient_edit/:id', requireLoggedIn, upload.single('photo'), functi
 	var lname = req.body['last_name'];
 	var fname = req.body['first_name'];
 	var mname = req.body['middle_name'];
-	var bday = req.body['date'];
+	var bday = req.body['date_']['year'][0] + "-" + req.body['date_']['month'][0] + "-" + req.body['date_']['day'][0];
 	var sex = req.body['sex'];
 	var cstatus = req.body['civil_status'];
 	var nationality = req.body['nationality'];
@@ -275,8 +305,18 @@ router.post('/patient_edit/:id', requireLoggedIn, upload.single('photo'), functi
 	var hmo = req.body['hmo'];
 	var hmo_no = req.body['hmo_no'];
 	var company_name = req.body['company'];
-	var membership = req.body['membership'];
-	var expiration = req.body['expiration'];
+	var membership = null;
+	var expiration = null;
+
+
+	if(req.body['date_']['year'][1] != '' && req.body['date_']['month'][1] != '' && req.body['date_']['day'][1] != ''){
+		membership = req.body['date_']['year'][1] + "-" + req.body['date_']['month'][1] + "-" + req.body['date_']['day'][1];
+	}
+
+	if(req.body['date_']['year'][2] != '' && req.body['date_']['month'][2] != '' && req.body['date_']['day'][2] != ''){
+		expiration = req.body['date_']['year'][2] + "-" + req.body['date_']['month'][2] + "-" + req.body['date_']['day'][2];
+	}
+
 
 	Patient.update({
 		last_name: lname,
@@ -310,7 +350,9 @@ router.post('/patient_edit/:id', requireLoggedIn, upload.single('photo'), functi
 			spisInstanceLicenseNo: req.session.spisinstance.license_no, 
 		}
 	}).then(function (item) {
-		res.redirect("/patient_list");
+		res.redirect("/patient_list", {
+			// lots of data
+		});
 	}).catch(function (error) {
 		console.log(error);
 		res.json({"status" : "error"});
