@@ -89,7 +89,8 @@ router.get('/ipt_edit_json/:ipt_id/:patient_id', function(req, res){
 				attachments: result.attachments,
 				status: result.status,
 				doctorId: result['check_up.doctorId'],
-				hospital: result['check_up.hospitalName']
+				hospital: result['check_up.hospitalName'],
+				check_upId: result['check_up.id'],
 			}
 
 			res.json({
@@ -164,8 +165,11 @@ router.post('/ipt_add', function(req, res){
 	});
 });
 
-router.post('/ipt_edit/:id', function(req, res){
-	var key = req.params.id;
+router.post('/ipt_edit/:ipt_id/:cu_id', function(req, res){
+	var key = req.params.ipt_id;
+	var cu_id = req.params.cu_id;
+
+	console.log(key, cu_id);
 
 	var confine = null, discharge = null;
 
@@ -191,8 +195,26 @@ router.post('/ipt_edit/:id', function(req, res){
 		sum_of_diag: summary,
 		detailed_diag: details,
 		notes: notes,
-		// hospitalName
+	},{
+		where:{
+			id: key,
+		}
 	}).then(function(result){
+
+		Check_Up.update({
+			hospitalName: hospital,
+			doctorId: doc,
+		}, {
+			where: {
+				id: cu_id,
+			}
+		}).then(function(){
+			res.json({"status": "successfully updated!"});
+		}).then(function(error){
+			console.log("in here edit ipt");
+			console.log(error);
+			res.send({"status": "error"});
+		})
 
 	}).catch(function(error){
 		console.log(error);

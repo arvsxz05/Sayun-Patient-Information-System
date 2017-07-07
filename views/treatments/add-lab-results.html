@@ -96,22 +96,23 @@
         if(files.length != 0) {
             $(".unique-name-hehe").click();
             event.preventDefault();
+        } else {
+            event.preventDefault();
+            $.ajax({
+                type: "POST",
+                url: "/laboratory_add",
+                data: {
+                    date: $("#date").val(),
+                    hospital: $("#hospital").val(),
+                    description: $("#description").val(),
+                    notes: $("#notes").val(),
+                    patient_id: $("#patient-id").val(),
+                }
+            }).done(function(data) {
+                $('#list-lab').show();
+                $('#add-lab').hide();
+            });
         }
-        event.preventDefault();
-        $.ajax({
-            type: "POST",
-            url: "/laboratory_add",
-            data: {
-                date: $("#date").val(),
-                hospital: $("#hospital").val(),
-                description: $("#description").val(),
-                notes: $("#notes").val(),
-                patient_id: $("#patient-id").val(),
-            }
-        }).done(function(data) {
-            $('#list-lab').show();
-            $('#add-lab').hide();
-        });
     });
 
     $('#attachments').on('filebatchuploadcomplete', function(event, files, extra) {

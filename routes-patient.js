@@ -147,7 +147,6 @@ router.get('/patient_add', requireLoggedIn, function(req, res){
 
 router.get('/patient_edit/:id', requireLoggedIn, 
 	function (req, res, next) {
-		console.log("TAWAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAGGGGGGGGGGGG");
 		var fileId = Date.now() + "" + Math.floor(Math.random()*10);
 		res.cookie('fileId', fileId, { signed: true });
 		fileQueue[fileId] = {filesArr: []};
@@ -193,6 +192,7 @@ router.get('/patient_edit/:id', requireLoggedIn,
 						discharge_date: result.discharge_date,
 						hospital : result['check_up.hospitalName'],
 						doctorId : result['check_up.doctorId'],
+						check_upId: result['check_up.id'],
 					});
 				}
 
@@ -440,9 +440,7 @@ router.post('/patient_edit/:id', requireLoggedIn, upload.fields([
 			spisInstanceLicenseNo: req.session.spisinstance.license_no, 
 		}
 	}).then(function (item) {
-		res.redirect("/patient_list", {
-			// lots of data
-		});
+		res.redirect('/patient_edit/'+key);
 	}).catch(function (error) {
 		console.log(error);
 		res.json({"status" : "error"});
@@ -450,10 +448,8 @@ router.post('/patient_edit/:id', requireLoggedIn, upload.fields([
 });
 
 router.post('/laboratory_add', requireLoggedIn, upload_file.array('attachments[]'), function (req, res) {
-	console.log(req.body);
 	var fileId = req.signedCookies.fileId;
 	if (req.body.notes.trim() === "") { req.body.notes = null; }
-	console.log(fileQueue);
 	Laboratory.create({
 		date: req.body.date,
 		description: req.body.description,
@@ -472,11 +468,41 @@ router.post('/upload_files_lab_results', requireLoggedIn, function (req, res) {
 		if (err) {
 			return res.json({error: "Your upload failed. Please try again later."});
 		}
-		// console.log(fileQueue);
-		console.log("=====================================");
 		var fileId = req.signedCookies.fileId;
 		fileQueue[fileId].filesArr.push(req.files[0].path);
 		res.json({});
+	});
+});
+
+router.post('/patient_edit_notes/:id', requireLoggedIn, function(req, res){
+	console.log("IN EDIT NOTES PATIENT");
+
+	var key = req.params.id;
+
+	var f_allergies = req.body['allergies-food'];
+	var m_allergies = req.body['allergies-med'];
+	var pers_hh = req.body['personal-hh'];
+	var imm_fam_hh = req.body['immediate-family-hh'];
+	var prev_medproc = req.body['prev-med-proc'];
+	var gen_notes = req.body['general-notes'];
+
+	Patient.update({
+		f_allergies: f_allergies,
+		m_allergies: m_allergies,
+		pers_hh: pers_hh,
+		imm_fam_hh: imm_fam_hh,
+		prev_medproc: prev_medproc,
+		gen_notes: gen_notes,
+	}, {
+		where: {
+			id: key,
+		}
+	}).then(function(result){
+		res.redirect('/patient_edit/'+key);
+	}).catch(function(error){
+		console.log("patient edit notes error");
+		console.log(error);
+		res.json({"status": "error"});
 	});
 });
 

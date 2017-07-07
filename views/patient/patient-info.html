@@ -228,7 +228,7 @@
                                         <!-- <div class="col-xs-12" style="padding: 0"> -->
                                             <label class="col-sm-3 col-md-2 control-label" for="surgeries">Prior Surgeries</label>
                                             <div class="col-sm-9 col-md-9">
-                                                <textarea class="form-control" name="surgeries" id="surgeries" rows="5"> {{patient.surgeries}} </textarea>
+                                                <textarea class="form-control" name="surgeries" id="surgeries" rows="5"> {{patient.prior_surgeries}} </textarea>
                                             </div>
                                         <!-- </div> -->
 
@@ -329,6 +329,9 @@
                         <!-- <div class="col-md-1"></div> -->
                         <!-- NOTES -->
                         <div class="tab-pane" id="notes">
+
+                            {% include "../patient/edit-patient-notes.html" %}
+
                         </div>
                         <!-- END OF NOTES -->
 
@@ -855,6 +858,11 @@
             $('#edit-summary').val(data['ipt']['sum_of_diag']);
             $('#edit-detailed-diagnosis').val(data['ipt']['detailed_diag']);
             $('#edit-notes').val(data['ipt']['notes']);
+            $('#edit-hospital option[value="' + data['ipt']['hospital'] + '"]').prop('selected', 'true');
+
+            console.log(data);
+
+            $('#edit-ipt-form').attr('action', '/ipt_edit/'+data['ipt']['id']+"/"+data['ipt']['check_upId']);
             
         })
 

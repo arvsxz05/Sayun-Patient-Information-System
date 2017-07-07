@@ -1,7 +1,7 @@
 
 <div class="row" id="edit-ipt-view">
     <div class="form-container col-md-8" style="padding: 20px">
-        <form id="edit-ipt-form" class="form-horizontal" role="form" method="POST" action="/ipt_edit/{{ipt.id}}">
+        <form id="edit-ipt-form" class="form-horizontal" role="form" method="POST" action="/ipt_edit/{{ipt.id}}/{{ipt.check_upId}}">
             <input type="hidden" name="edit-p-id" id="edit-p-id" value="{{ipt.id}}">
             <legend><b>Edit In-Patient Treatment</b></legend>
             <div class="form-group">
@@ -39,14 +39,16 @@
             <div class="form-group">
                 <label class="col-sm-4 control-label" for="edit-hospital">Hospital/Clinic*</label>
                 <div class="col-sm-8">
+
                     <select class="form-control" id="edit-hospital" name="edit-hospital" required>
                       <option value="" disabled>Select Hospital/Clinic</option>
 
                         {% for hospital in hospitals %}
+
                             {% if ipt.hospital == hospital.id %}
-                                <option value="{{hospital.id}}" selected>{{hospital.id}}</option>
+                                <option name="{{hospital.id}}" value="{{hospital.id}}">{{hospital.id}}</option>
                             {% else %}
-                                <option value="{{hospital.id}}">{{hospital.id}}</option>
+                                <option name="{{hospital.id}}" value="{{hospital.id}}">{{hospital.id}}</option>
                             {% endif %}
                         {% endfor %}
 
@@ -136,3 +138,8 @@
     </div>
     <!-- END OF BILLING FOR IPT -->
 </div>
+
+<script type="text/javascript">
+
+
+</script>
