@@ -6,8 +6,34 @@ const InPatient_Treatment = require('./models').InPatient_Treatment;
 const Doctor = require('./models').Doctor;
 const User_Account = require('./models').User_Account;
 const Check_Up = require('./models').Check_Up;
+const Laboratory = require('./models').Laboratory;
 const multer = require('multer');
 const Sequelize = require('sequelize');
+
+var fileQueue = {};
+
+const upload_file = multer({
+	storage: multer.diskStorage({
+		destination: function (req, file, cb) {
+			if(file.fieldname == 'attachments[]'){
+				var path = './uploads/lab_results';
+				cb(null, path);
+			}
+		},
+		filename: function (req, file, cb) {
+
+			// require('crypto').pseudoRandomBytes(16, function (err, raw) {
+			// 	if (req.fileValidationError){
+			// 		return cb(err);
+			// 	}
+
+				cb(null, Date.now()+file.originalname);//'.'+require('mime').extension(file.mimetype));
+			// });
+		}
+	}),
+});
+
+var upload_success = upload_file.array('attachments[]');
 
 ///////////////////// MIDDLEWARES ////////////////////////
 
@@ -119,110 +145,114 @@ router.get('/patient_add', requireLoggedIn, function(req, res){
 	res.render('patient/add-patient.html');
 });
 
-router.get('/patient_edit/:id', requireLoggedIn, function(req, res){
+router.get('/patient_edit/:id', requireLoggedIn, 
+	function (req, res, next) {
+		console.log("TAWAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAGGGGGGGGGGGG");
+		var fileId = Date.now() + "" + Math.floor(Math.random()*10);
+		res.cookie('fileId', fileId, { signed: true });
+		fileQueue[fileId] = {filesArr: []};
+		next();
+	},
+	function(req, res) {
 
-	var key = req.params.id;
-	var hospitals = [], result, patient;
-	var ipts = [], doctors = [];
-	//Hospital Query
-	Hospital.findAll({
-		where: {
-			spisInstanceLicenseNo: req.session.spisinstance.license_no,
-			active: "t",
-		},
-		raw: true
-	}).then(function(results){
-		for(var i = 0; i < results.length; i++){
-			result = results[i];
-
-			hospitals.push({
-				id: result.name,
-				type: result.type,
-			});
-		}
-		//InPatient_Treatment Query
-		InPatient_Treatment.findAll({
-			raw: true,
-			include: [{
-		        model: Check_Up,
-		        where: {
-					patientId: key,
-				},
-		    }],
+		var key = req.params.id;
+		var hospitals = [], result, patient;
+		var ipts = [], doctors = [];
+		//Hospital Query
+		Hospital.findAll({
+			where: {
+				spisInstanceLicenseNo: req.session.spisinstance.license_no,
+				active: "t",
+			},
+			raw: true
 		}).then(function(results){
 			for(var i = 0; i < results.length; i++){
 				result = results[i];
 
-				ipts.push({
-					id: result.id,
-					conf_date: result.conf_date,
-					discharge_date: result.discharge_date,
-					hospital : result['check_up.hospitalName'],
-					doctorId : result['check_up.doctorId'],
+				hospitals.push({
+					id: result.name,
+					type: result.type,
 				});
 			}
-
-			//Patient Query
-			Patient.findOne({
-				where: {
-					id: key,
-				},
+			//InPatient_Treatment Query
+			InPatient_Treatment.findAll({
 				raw: true,
-			}).then(function(result){
-				var date = result.birthdate.split("-");
-				patient = result;
-				//Doctor Query
-				Doctor.findAll({
-					include: [{
-				        model: User_Account,
-				        where: {
-							spisInstanceLicenseNo: req.session.spisinstance.license_no,
-						},
-				        as: 'username',
-				    }],
-				    raw: true,
-				}).then(function(results){
+				include: [{
+			        model: Check_Up,
+			        where: {
+						patientId: key,
+					},
+			    }],
+			}).then(function(results){
+				for(var i = 0; i < results.length; i++){
+					result = results[i];
 
-					for(var i = 0; i < results.length; i++){
-						result = results[i];
-						doctors.push({
-							id: result.id,
-							first_name: result['username.first_name'],
-							middle_name: result['username.middle_name'],
-							last_name: result['username.last_name'],
-						});
-					}
-
-					console.log(hospitals);
-
-					res.render('patient/patient-info.html', {
-						patient: patient,
-						user: req.session.user,
-						doctor: req.session.doctor,
-						doctors: doctors,
-						hospitals: hospitals,
-						ipts: ipts,
-						// in patient treatment list
-						// out patient treatment list
-						// notes
-						// clinic consultation
-						// lab results
-						// diagnoses 
-						// medication
-						// billings
+					ipts.push({
+						id: result.id,
+						conf_date: result.conf_date,
+						discharge_date: result.discharge_date,
+						hospital : result['check_up.hospitalName'],
+						doctorId : result['check_up.doctorId'],
 					});
+				}
+
+				//Patient Query
+				Patient.findOne({
+					where: {
+						id: key,
+					},
+					raw: true,
+				}).then(function(result){
+					var date = result.birthdate.split("-");
+					patient = result;
+					//Doctor Query
+					Doctor.findAll({
+						include: [{
+					        model: User_Account,
+					        where: {
+								spisInstanceLicenseNo: req.session.spisinstance.license_no,
+							},
+					        as: 'username',
+					    }],
+					    raw: true,
+					}).then(function(results){
+
+						for(var i = 0; i < results.length; i++){
+							result = results[i];
+							doctors.push({
+								id: result.id,
+								first_name: result['username.first_name'],
+								middle_name: result['username.middle_name'],
+								last_name: result['username.last_name'],
+							});
+						}
+
+						console.log(hospitals);
+
+						res.render('patient/patient-info.html', {
+							patient: patient,
+							user: req.session.user,
+							doctor: req.session.doctor,
+							doctors: doctors,
+							hospitals: hospitals,
+							ipts: ipts,
+							// in patient treatment list
+							// out patient treatment list
+							// notes
+							// clinic consultation
+							// lab results
+							// diagnoses 
+							// medication
+							// billings
+						});
+					});
+				}).catch(function(error){
 
 				});
-
-			}).catch(function(error){
-
-			});
-
-		}) // inpatient treatment then;
-		
-	}); // hospital then
-
-});
+			}) // inpatient treatment then;
+		}); // hospital then
+	}
+);
 
 router.get('/patient_edit_json/:id', requireLoggedIn, function(req, res){
 
@@ -419,5 +449,35 @@ router.post('/patient_edit/:id', requireLoggedIn, upload.fields([
 	});
 });
 
+router.post('/laboratory_add', requireLoggedIn, upload_file.array('attachments[]'), function (req, res) {
+	console.log(req.body);
+	var fileId = req.signedCookies.fileId;
+	if (req.body.notes.trim() === "") { req.body.notes = null; }
+	console.log(fileQueue);
+	Laboratory.create({
+		date: req.body.date,
+		description: req.body.description,
+		hospital: req.body.hospital,
+		notes: req.body.notes,
+		attachments: fileQueue[fileId].filesArr
+	}).then(lab_instance => {
+		fileQueue[fileId] = {};
+		res.json({});
+	});
+	
+});
+
+router.post('/upload_files_lab_results', requireLoggedIn, function (req, res) {
+	upload_success (req, res, function (err) {
+		if (err) {
+			return res.json({error: "Your upload failed. Please try again later."});
+		}
+		// console.log(fileQueue);
+		console.log("=====================================");
+		var fileId = req.signedCookies.fileId;
+		fileQueue[fileId].filesArr.push(req.files[0].path);
+		res.json({});
+	});
+});
 
 module.exports = router;

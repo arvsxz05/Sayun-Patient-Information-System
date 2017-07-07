@@ -17,6 +17,11 @@
     <script                 type="text/javascript"  src="https://cdn.datatables.net/1.10.15/js/jquery.dataTables.min.js"></script>
     <script                 type="text/javascript"  src="https://cdn.datatables.net/1.10.15/js/dataTables.bootstrap.min.js"></script>
 
+    <script type="text/javascript" src="../../static/js/fileinput.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="../../static/css/fileinput.min.css">
+    <link rel="stylesheet" type="text/css" href="../../static/css/fileinput-rtl.min.css">
+
+
     <style>
         .date-div select {
             background: #ffffff;
@@ -400,8 +405,6 @@
                                     </div>
                                     <!-- END OF IPT TABLE -->
 
-
-
                                     <!-- ADD NEW IPT RECORD -->
                                     <div class="row"  id="add-ipt-view">
                                     <div class="form-container col-md-8" style="padding: 20px">
@@ -533,17 +536,23 @@
 
                                     <!-- END OF ADDING NEW IPT RECORD -->
 
-
-
                                     <!-- VIEW IPT RECORD -->
                                     {% include "../patient/edit-patient-ipt.html" %}
-                                    <!--  -->
-                                    
+                                    <!--  -->                                   
                                 </div>
                             </div>
                         </div>
                         <!-- END OF IP-TREATMENTS -->
 
+                        <div class="tab-pane" id="laboratories">
+                            <div class="row" id="list-lab">
+                                {% include "../treatments/lab-results-list.html" %}
+                            </div>
+
+                            <div class="row" id="add-lab">
+                                {% include "../treatments/add-lab-results.html" %}
+                            </div>
+                        </div>  
 
                     </div>
                 </div>
@@ -665,6 +674,7 @@
         $('#list-ipt-view-link').hide();
         $('#add-ipt-view').hide();
         $('#edit-ipt-view').hide();
+        $('#add-lab').hide();
 
         $(".date-div select").addClass("form-control");
         $("#birthday select").prop("required", true);
@@ -760,8 +770,6 @@
             "bSort": true, 
             "aaSorting": [[0]],
             "aoColumns": [
-                { "bSortable": false },
-                { "bSortable": true },
                 { "bSortable": true },
                 { "bSortable": true },
                 { "bSortable": true },
@@ -769,19 +777,7 @@
             ]    
         });
 
-        $('#opt-list').DataTable({
-            "bSort": true, 
-            "aaSorting": [[0]],
-            "aoColumns": [
-                { "bSortable": false },
-                { "bSortable": true },
-                { "bSortable": true },
-                { "bSortable": true },
-                { "bSortable": true },
-                { "bSortable": true },
-                { "bSortable": true }
-            ]    
-        });
+        
 
     });
 

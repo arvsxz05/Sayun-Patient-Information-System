@@ -194,10 +194,10 @@ router.post('/ipt_edit/:id', function(req, res){
 		// hospitalName
 	}).then(function(result){
 
-	}).catch(function(error)){
+	}).catch(function(error){
 		console.log(error);
 		res.send({"status": "error"});
-	}
+	});
 });
 
 module.exports = router;

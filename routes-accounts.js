@@ -135,6 +135,37 @@ router.get('/account_edit/:id', requireLoggedIn,
 			type['Secretary'] = false;
 			if( result != null ){
 				type['Secretary'] = true;
+				Admin.findOne({
+					where: {
+						usernameId: id,
+					},
+					raw: true
+				}).then(result => {
+					type['Admin'] = false;
+					if( result != null ){
+						type['Admin'] = true;
+					}
+					User_Account.findOne({
+						where: {
+							id: id,
+						},
+						raw: true
+					}).then(function (result) {
+						if(result) {
+							contact_nums = result.contact_numbers;
+							console.log(req.session);
+							res.render('account/view-edit-account.html', {
+								user: result,
+								type: type,
+								session: req.session,
+								title_types: title_types
+							});
+						}
+						else {
+							res.redirect('/');
+						}
+					});
+				});
 			}
 			else {
 				Doctor.findOne({
