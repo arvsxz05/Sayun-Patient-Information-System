@@ -149,37 +149,39 @@ router.get('/account_edit/:id', requireLoggedIn,
 						console.log("DOCTOR");
 						console.log(type['Doctor']);
 					}
-				});
-			}
-			Admin.findOne({
-				where: {
-					usernameId: id,
-				},
-				raw: true
-			}).then(result => {
-				type['Admin'] = false;
-				if( result != null ){
-					type['Admin'] = true;
-				}
-				User_Account.findOne({
-					where: {
-						id: id,
-					},
-					raw: true
-				}).then(function (result) {
-					// console.log(result);
-					// console.log(req.params.id);
-					// console.log("HEREEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE")
-					contact_nums = result.contact_numbers;
-					console.log(req.session);
-					res.render('account/view-edit-account.html', {
-						user: result,
-						type: type,
-						session: req.session,
-						title_types: title_types
+					Admin.findOne({
+						where: {
+							usernameId: id,
+						},
+						raw: true
+					}).then(result => {
+						type['Admin'] = false;
+						if( result != null ){
+							type['Admin'] = true;
+						}
+						User_Account.findOne({
+							where: {
+								id: id,
+							},
+							raw: true
+						}).then(function (result) {
+							if(result) {
+								contact_nums = result.contact_numbers;
+								console.log(req.session);
+								res.render('account/view-edit-account.html', {
+									user: result,
+									type: type,
+									session: req.session,
+									title_types: title_types
+								});
+							}
+							else {
+								res.redirect('/');
+							}
+						});
 					});
 				});
-			});
+			}
 		});
 	}
 );

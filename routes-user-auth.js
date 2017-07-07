@@ -185,7 +185,10 @@ router.post('/login', function (req, res) {
 											req.session.admin = true;
 										}
 										req.session.spisinstance = spisinstance.dataValues;
-										console.log(req.session);
+										req.session.lab_results_attachment = [];
+										req.session.inpatient_attachment = [];
+										req.session.outpatient_attachment = [];
+										// console.log(req.session);
 										return res.redirect('/');
 									});
 								} else {

@@ -57,7 +57,7 @@
         <div class="container-fluid">
             <div class="row">
                 <div class="col-sm-8 col-sm-offset-2 form-container">
-                    <form id="add-account-form" class="form-horizontal" role="form" method="POST" action="/laboratory_add" enctype="multipart/form-data">
+                    <form id="add-lab-form" class="form-horizontal" role="form" method="POST" action="/laboratory_add" enctype="multipart/form-data">
                         <br>
                         <div class="col-xs-12">
                             <div class="form-group">
@@ -76,9 +76,7 @@
                         </div>
 
                         <legend><b>Add Laboratory Results</b></legend>
-                        <!-- photo and digital signature (if user type==doctor) -->
 
-                        <!-- user account info -->
                         <div class="col-xs-12">
                             <fieldset>
                                 <div class="form-group">
@@ -92,10 +90,10 @@
                                     <div class="col-sm-8">
                                         <select class="form-control" id="hospital" name="hospital" required>
                                             <option value="" selected disabled>Select Hospital/Clinic</option>
-                                            <option value="">Chong Hua Hospital</option>
-                                            <option value="">Perpetual Succour Hospital</option>
-                                            <option value="">Cebu Doctor's University Hospital</option>
-                                            <option value="">Vicente Sotto Memorial Medical Center</option>
+                                            {% for hospital in hospitals %}
+                                                <option value="{{ hospital.name }}">{{ hospital.name }}</option>
+                                            {% endfor %}
+                                            <option value="edc">chohjds</option>
                                         </select>
                                     </div>
                                 </div>
@@ -132,27 +130,33 @@
 <script>
     $(document).on('ready', function() {
         $("#attachments").fileinput({
-            showUpload: false,
-            uploadUrl: '/file-upload-batch/2',
+            // showUpload: false,
+            uploadUrl: '/upload_files_lab_results',
+            browseOnZoneClick: true,
             layoutTemplates: {
-                main1: "{preview}\n" +
-                "<div class=\'input-group {class}\'>\n" +
-                "   <div class=\'input-group-btn\'>\n" +
-                "       {browse}\n" +
-                "       {upload}\n" +
-                "       {remove}\n" +
-                "   </div>\n" +
-                "   {caption}\n" +
-                "</div>",
                 actions: '<div class="file-actions">\n' +
                 '    <div class="file-footer-buttons">\n' +
                 '        {delete} {zoom} {other}' +
                 '    </div>\n' +
                 '    {drag}\n' +
                 '    <div class="clearfix"></div>\n' +
-                '</div>',
-            }
+                '</div>'
+            },
+            uploadClass: 'btn btn-xs btn-default unique-name-hehe hidden'
         });
+    });
+
+    $( "#add-lab-form" ).submit(function( event ) {
+        var files = $('#attachments').fileinput('getFileStack');
+        if(files.length != 0) {
+            $(".unique-name-hehe").click();
+            event.preventDefault();
+        }
+    });
+
+    $('#attachments').on('filebatchuploadcomplete', function(event, files, extra) {
+        console.log('File batch upload complete');
+        $("#add-lab-form").submit();
     });
 </script>
 </html>

@@ -24,7 +24,7 @@ app.engine('html', consolidate.nunjucks);
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser('secret-cookie'));
-app.use(session({ secret: 'secret-cookie' }));
+app.use(session({ secret: 'secret-cookie', cookie: { httpOnly: false } }));
 app.use(flash());
 
 ///////////////////// MODULE ROUTES ////////////////////////
@@ -41,8 +41,9 @@ app.use(require('./routes-laboratories'));
 ///////////////////// MIDDLEWARES ////////////////////////
 
 function requireLoggedIn(req, res, next) {
+	const currentInstance = req.session.spisinstance;
 	const currentUser = req.session.user;
-	if(!currentUser) {
+	if(!currentUser || !currentInstance) {
 		return res.redirect('/login');
 	}
 	next();
