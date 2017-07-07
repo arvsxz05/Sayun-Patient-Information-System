@@ -382,18 +382,18 @@ const Check_Up = database.define('check_up', {
 	},
 	check_up_type: {
 		type: Sequelize.ENUM,
-		values: sex_types,
+		values: check_up_types,
 		allowNull: false,
 	}
 });
 
 const InPatient_Treatment = database.define('inpatient_treatment', {
 	conf_date: { // CONFINEMENT DATE
-		type: Sequelize.DATE,
+		type: Sequelize.DATEONLY,
 		allowNull: false,
 	},
 	discharge_date: { 
-		type: Sequelize.DATE,
+		type: Sequelize.DATEONLY,
 		allowNull: true,
 	},
 	sum_of_diag: { // Summary of Diagnosis
@@ -455,7 +455,7 @@ Check_Up.hasMany(Medication);
 
 const Medical_Procedure = database.define('medical_procedures', {
 	date: {
-		type: Sequelize.DATE,
+		type: Sequelize.DATEONLY,
 		allowNull: false,
 	},
 	description: {
@@ -477,7 +477,7 @@ Check_Up.hasMany(Medical_Procedure);
 const OutPatient_Treatment = database.define('outpatient_treatment', {
 
 	date: {
-		type: Sequelize.DATE,
+		type: Sequelize.DATEONLY,
 		allowNull: false,
 	},
 	sum_of_diag: { // Summary of Diagnosis
@@ -503,7 +503,7 @@ OutPatient_Treatment.belongsTo(Check_Up);
 
 const Laboratory = database.define('laboratory', {
 	date: {
-		type: Sequelize.DATE,
+		type: Sequelize.DATEONLY,
 		allowNull: false
 	},
 	description: {
@@ -519,6 +519,9 @@ const Laboratory = database.define('laboratory', {
 		allowNull: false
 	}
 });
+
+Patient.hasMany(Laboratory);
+Hospital.hasMany(Laboratory);
 
 const Billing_Item = database.define('billing_item', {
 	description: {
@@ -541,23 +544,6 @@ const Billing = database.define('billing', {
 
 Billing.hasMany(Billing_Item);
 Billing.belongsTo(Check_Up);
-
-const Attachment = database.define('attachment', {
-	name: {
-		type: Sequelize.STRING,
-	},
-
-});
-
-Check_Up.hasMany(Attachment);
-
-const Lab_Attachment = database.define('lab_attachment',{
-	name: {
-		type: Sequelize.STRING,
-	}
-});
-
-Laboratory.hasMany(Lab_Attachment);
 
 // database.sync();
 
@@ -585,4 +571,5 @@ module.exports.Patient = Patient;
 module.exports.InPatient_Treatment = InPatient_Treatment;
 module.exports.OutPatient_Treatment = OutPatient_Treatment;
 module.exports.Laboratory = Laboratory;
+module.exports.Check_Up = Check_Up;
 module.exports.title_types = title_types;

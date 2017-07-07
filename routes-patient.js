@@ -192,16 +192,18 @@ router.get('/patient_edit_json/:id', requireLoggedIn, function(req, res){
 
 //////////////////////// POST ////////////////////////////////////
 
-router.post('/patient_add', requireLoggedIn, upload.single('photo'), function(req, res){
+router.post('/patient_add', requireLoggedIn, upload.fields([
+		{name: 'photo', maxCount: 1}
+	]), function (req, res) {
 	
 	var photo = null;
 
-	if(req.body['photo'] != undefined){
-		photo = req.body['photo'];
+	if(req.files['photo'] != undefined){
+		photo = "/uploads/patients/"+req.files['photo'][0].filename;	
 	}
 
-	console.log("PATIENT ADD");
-	console.log(req.body);
+	// console.log("PATIENT ADD");
+	// console.log(req.body);
 
 	var lname = req.body['last_name'];
 	var fname = req.body['first_name'];
@@ -273,12 +275,14 @@ router.post('/patient_add', requireLoggedIn, upload.single('photo'), function(re
 
 });
 
-router.post('/patient_edit/:id', requireLoggedIn, upload.single('photo'), function(req, res){
+router.post('/patient_edit/:id', requireLoggedIn, upload.fields([
+		{name: 'photo', maxCount: 1}
+	]), function (req, res) {
 	var photo = null;
 	var key = req.params.id;
 
-	if(req.body['photo'] != undefined){
-		photo = req.body['photo'];
+	if(req.files['photo'] != undefined){
+		photo = "/uploads/patients/"+req.files['photo'][0].filename;	
 	}
 
 	console.log(req.body);
@@ -317,7 +321,6 @@ router.post('/patient_edit/:id', requireLoggedIn, upload.single('photo'), functi
 		expiration = req.body['date_']['year'][2] + "-" + req.body['date_']['month'][2] + "-" + req.body['date_']['day'][2];
 	}
 
-
 	Patient.update({
 		last_name: lname,
 		middle_name: mname,
@@ -350,9 +353,7 @@ router.post('/patient_edit/:id', requireLoggedIn, upload.single('photo'), functi
 			spisInstanceLicenseNo: req.session.spisinstance.license_no, 
 		}
 	}).then(function (item) {
-		res.redirect("/patient_list", {
-			// lots of data
-		});
+		res.redirect("/patient_list");
 	}).catch(function (error) {
 		console.log(error);
 		res.json({"status" : "error"});
