@@ -6,6 +6,7 @@ const consolidate = require('consolidate');
 const database = require('./database');
 const session = require('express-session');
 const flash = require('express-flash');
+const nunjucks = require('nunjucks');
 
 const port = 8000;
 const app = express();
@@ -20,6 +21,13 @@ app.use('/uploads/avatars', express.static(__dirname + '/uploads/avatars'));
 app.use('/uploads/signatures', express.static(__dirname + '/uploads/signatures'));
 app.use('/uploads/patients', express.static(__dirname + '/uploads/patients'));
 app.engine('html', consolidate.nunjucks);
+
+nunjucks.configure(app.get('views'), {
+    autoescape: true,
+    noCache: true,
+    watch: true,
+    express: app
+});
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
