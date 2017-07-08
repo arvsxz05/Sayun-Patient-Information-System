@@ -1,0 +1,139 @@
+<!-- IPT TABLE -->
+<div class="row" id="list-ipt-view">
+    <div class="table-responsive">
+        <h3>In-Patient Treatment List</h3>
+        <table id="ipt-list" class="table table-striped table-bordered" cellspacing="0" width="100%">
+            <thead>
+                <tr>
+                    <!-- <th><input type="checkbox" aria-label="..." id="select-all"/></th> -->
+                    <th>Confinement ID</th>
+                    <th>Discharge Date</th>
+                    <th>Hospital</th>
+                    <th>Doctor</th>
+                    <!-- <th></th> -->
+                </tr>
+            </thead>
+            <tbody>
+                {% for ipt in ipts %}
+                    <tr>
+                        <td><a onclick="edit_IPT()" value="{{ipt.id}}" id="edit_ipt">{{ipt.conf_date}}</a></td>
+                        <td> {{ipt.discharge_date}} </td>
+                        <td> {{ipt.hospital}} </td>
+                        {% for doctor in doctors %}
+                            {% if doctor.id == ipt.doctorId %}
+                                <td> {{doctor.first_name}} {{doctor.middle_name}} {{doctor.last_name}} </td>   
+                            {% endif %}
+                        {% endfor %}
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="button-group">
+        <a class="btn btn-lime pull-right" type="button" onclick="add_IPT()">Add</a>    
+    </div>
+</div>
+<!-- END OF IPT TABLE -->
+
+
+<script type="text/javascript">
+    function add_IPT() {
+        $('#list-ipt-view').hide();
+        $('#add-ipt-view').show();
+        $('#edit-ipt-view').hide();
+        $('#list-ipt-view-link').show();
+        // dapat on-Submit nani sa ADD IPT Record//
+        meds = $('#list-medication').DataTable({
+            "bSort": true, 
+            "aaSorting": [[0]],
+            "aoColumns": [
+                { "bSortable": false },
+                { "bSortable": true },
+                { "bSortable": true },
+                { "bSortable": true },
+                { "bSortable": true },
+                { "bSortable": true }
+            ]    
+        });
+
+        med_procedures = $('#list-med-procedure').DataTable({
+            "bSort": true, 
+            "aaSorting": [[0]],
+            "aoColumns": [
+                { "bSortable": false },
+                { "bSortable": true },
+                { "bSortable": true },
+                { "bSortable": true }
+            ]    
+        });
+        // 
+    }
+
+    function edit_IPT(){
+        $('#list-ipt-view').hide();
+        $('#add-ipt-view').hide();
+        $('#edit-ipt-view').show();
+        $('#list-ipt-view-link').show();
+
+        meds = $('#edit-list-medication').DataTable({
+            "bSort": true, 
+            "aaSorting": [[0]],
+            "aoColumns": [
+                { "bSortable": false },
+                { "bSortable": true },
+                { "bSortable": true },
+                { "bSortable": true },
+                { "bSortable": true },
+                { "bSortable": true }
+            ]    
+        });
+
+        med_procedures = $('#edit-list-med-procedure').DataTable({
+            "bSort": true, 
+            "aaSorting": [[0]],
+            "aoColumns": [
+                { "bSortable": false },
+                { "bSortable": true },
+                { "bSortable": true },
+                { "bSortable": true }
+            ]    
+        });
+
+        var key = $("#edit_ipt").attr('value');
+        console.log(key);
+        $.ajax({
+            type: "GET",
+            url: "/ipt_edit_json/"+key+"/"+"{{patient.id}}",
+        }).done(function(data){
+            console.log("IN HERE DONE AJAX")
+            console.log(data);
+            var date;
+            $('#edit-p-id').val(key);
+
+            if(data['ipt']['conf_date'] != null){
+                date = data['ipt']['conf_date'].split("-");
+                $("#edit-confinement-date-div select[name='date_[month]']").val(date[1]);
+                $("#edit-confinement-date-div select[name='date_[day]']").val(date[2]);
+                $("#edit-confinement-date-div select[name='date_[year]']").val(date[0]);
+            }
+            if(data['ipt']['discharge_date'] != null){
+                date = data['ipt']['discharge_date'].split("-");
+                $("#edit-discharge-date-div select[name='date_[month]']").val(date[1]);
+                $("#edit-discharge-date-div select[name='date_[day]']").val(date[2]);
+                $("#edit-discharge-date-div select[name='date_[year]']").val(date[0]);
+            }
+
+            $('#edit-summary').val(data['ipt']['sum_of_diag']);
+            $('#edit-detailed-diagnosis').val(data['ipt']['detailed_diag']);
+            $('#edit-notes').val(data['ipt']['notes']);
+            $('#edit-hospital option[value="' + data['ipt']['hospital'] + '"]').prop('selected', 'true');
+
+            console.log(data);
+
+            $('#edit-ipt-form').attr('action', '/ipt_edit/'+data['ipt']['id']+"/"+data['ipt']['check_upId']);
+            
+        })
+
+    }
+</script>

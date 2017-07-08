@@ -344,8 +344,7 @@
                         <!-- IP-TREATMENTS -->
                         <div class="tab-pane" id="ip-treatments">
                             <div class="row">
-                                <div class="col-xs-12 col-md-10 col-md-offset-1">
-                                    
+                                <div class="col-xs-12 col-md-10 col-md-offset-1">   
                                     <!-- BASIC PATIENT INFO -->
                                     <div class="row" style="margin-top: 40px">
                                         <div class="col-md-6">
@@ -364,179 +363,17 @@
                                         </div>
                                     </div>
 
-                                    <a id="list-ipt-view-link" onclick="view_IPT()">Back to In-Patient Treatment List</a>
-
-                                    <hr>
-
+                                    <a id="list-ipt-view-link" onclick="view_IPT()">Back to In-Patient Treatment List</a><hr>
                                     <!-- END OF BASIC PATIENT INFO -->
 
-                                    <!-- IPT TABLE -->
-                                    <div class="row" id="list-ipt-view">
-                                        <div class="table-responsive">
-                                            <h3>In-Patient Treatment List</h3>
-                                            <table id="ipt-list" class="table table-striped table-bordered" cellspacing="0" width="100%">
-                                                <thead>
-                                                    <tr>
-                                                        <!-- <th><input type="checkbox" aria-label="..." id="select-all"/></th> -->
-                                                        <th>Confinement ID</th>
-                                                        <th>Discharge Date</th>
-                                                        <th>Hospital</th>
-                                                        <th>Doctor</th>
-                                                        <!-- <th></th> -->
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    {% for ipt in ipts %}
-                                                        <tr>
-                                                            <td><a onclick="edit_IPT()" value="{{ipt.id}}" id="edit_ipt">{{ipt.conf_date}}</a></td>
-                                                            <td> {{ipt.discharge_date}} </td>
-                                                            <td> {{ipt.hospital}} </td>
-                                                            {% for doctor in doctors %}
-                                                                {% if doctor.id == ipt.doctorId %}
-                                                                    <td> {{doctor.first_name}} {{doctor.middle_name}} {{doctor.last_name}} </td>   
-                                                                {% endif %}
-                                                            {% endfor %}
-                                                        </tr>
-                                                    {% endfor %}
-                                                </tbody>
-                                            </table>
-                                        </div>
 
-                                        <div class="button-group">
-                                            <a class="btn btn-lime pull-right" type="button" onclick="add_IPT()">Add</a>    
-                                        </div>
-                                    </div>
+                                    <!-- IPT TABLE -->
+                                        {% include "../patient/list-patient-ipt.html" %}
                                     <!-- END OF IPT TABLE -->
 
+
                                     <!-- ADD NEW IPT RECORD -->
-                                    <div class="row"  id="add-ipt-view">
-                                    <div class="form-container col-md-8" style="padding: 20px">
-                                        <form id="add-ipt-form" class="form-horizontal" role="form" method="POST" action="/ipt_add">
-                                            <input type="hidden" name="p-id" id="p-id" value="{{patient.id}}">
-                                            <legend><b>Add In-Patient Treatment</b></legend>
-                                            <div class="form-group">
-                                                <label class="col-sm-4 control-label" for="confinement-date">Confinement Date*</label>
-                                                <div class="col-sm-8 date-div" id="confinement-date-div">
-                                                    <input type="hidden" name="confinement-date" id="confinement-date">
-                                                </div>
-                                            </div>
-                                            <div class="form-group">
-                                                <label class="col-sm-4 control-label" for="discharge-date">Discharge Date</label>
-                                                <div class="col-sm-8 date-div" id="discharge-date-div">
-                                                    <input type="hidden" name="discharge-date" id="discharge-date">
-                                                </div>
-                                            </div>
-                                            <div class="form-group">
-                                                <label class="col-sm-4 control-label" for="doctor">Doctor*</label>
-                                                <div class="col-sm-8">
-                                                    {% if doctor == null %}
-                                                    <select class="form-control" id="doctor" name="doctor" required>
-                                                      <option value="" selected disabled>Select Doctor</option>
-                                                        {% for doctor in doctors %}
-                                                            <option value="{{doctor.id}}">{{doctor.first_name}} {{doctor.middle_name}} {{doctor.last_name}}</option>
-                                                        {% endfor %}
-
-                                                    </select>
-                                                    {% else %}
-                                                        <input type="text" class="form-control" name="doctor" id="doctor" value="{{user.first_name}} {{user.middle_name}} {{user.last_name}}" disabled>
-                                                    {% endif %}
-                                                </div>
-                                            </div>
-                                            <div class="form-group">
-                                                <label class="col-sm-4 control-label" for="hospital">Hospital/Clinic*</label>
-                                                <div class="col-sm-8">
-                                                    <select class="form-control" id="hospital" name="hospital" required>
-                                                      <option value="" selected disabled>Select Hospital/Clinic</option>
-
-                                                        {% for hospital in hospitals %}
-                                                            <option value="{{hospital.id}}">{{hospital.id}}</option>
-                                                        {% endfor %}
-
-                                                    </select>
-                                                </div>
-                                            </div>
-                                            <div class="form-group">
-                                                <label class="col-sm-4 control-label" for="summary">Summary of Diagnosis*</label>
-                                                <div class="col-sm-8">
-                                                    <input type="text" class="form-control" name="summary" id="summary" required>
-                                                </div>
-                                            </div>
-                                            <div class="form-group">
-                                              <label class="col-sm-4 control-label" for="detailed-diagnosis">Detailed Diagnosis*</label>
-                                              <div class="col-sm-8">
-                                                  <textarea class="form-control" rows="5" name="detailed-diagnosis" id="detailed-diagnosis"></textarea>
-                                              </div>
-                                            </div>
-                                            <div class="form-group">
-                                              <label class="col-sm-4 control-label" for="notes">Notes</label>
-                                              <div class="col-sm-8">
-                                                  <textarea class="form-control" rows="5" name="notes" id="notes"></textarea>
-                                              </div>
-                                            </div>
-
-                                            <div class="button-group">
-                                                <a href="/account_list" class="btn btn-gray pull-right">Cancel</a>
-                                                <button type="submit" class="btn btn-lime pull-right" id="save-btn">Save</button>    
-                                            </div>
-                                        </form>
-
-                                        <!-- MEDICATION LIST FOR IPT -->
-                                        <form method="POST" action="/delete_medication">
-                                            <legend><b>Medications</b></legend>
-                                            <div class="table-responsive">
-                                                <table id="list-medication" class="table table-striped table-bordered" cellspacing="0" width="100%">
-                                                    <thead>
-                                                        <tr>
-                                                            <th><input type="checkbox" aria-label="..." id="select-all"/></th>
-                                                            <th>Name</th>
-                                                            <th>Dosage</th>
-                                                            <th>Frequency</th>
-                                                            <th>Type</th>
-                                                            <th>Instruction</th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody>
-                                                    </tbody>
-                                                </table>
-                                            </div>
-                                            <div class="button-group">
-                                                <button class="btn btn-red pull-right" type="submit" name="delete" value="true" id="delete">Delete</button>
-                                                <a href class="btn btn-lime pull-right" id="add-hlc-button" data-toggle="modal" data-target="#add-medication-modal">Add</a>
-                                            </div>
-                                        </form>
-                                        <!-- END OF MEDICATION LIST FOR IPT -->
-
-
-                                        <!-- MEDICAL PROCEDURES LIST FOR IPT -->
-                                        <form method="POST" action="/delete_medication">
-                                            <legend><b>Medical Procedures</b></legend>
-                                            <div class="table-responsive">
-                                                <table id="list-med-procedure" class="table table-striped table-bordered" cellspacing="0" width="100%">
-                                                    <thead>
-                                                        <tr>
-                                                            <th><input type="checkbox" aria-label="..." id="select-all"/></th>
-                                                            <th>Date</th>
-                                                            <th>Description</th>
-                                                            <th>Details</th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody>
-                                                    </tbody>
-                                                </table>
-                                            </div>
-                                            <div class="button-group">
-                                                <button class="btn btn-red pull-right" type="submit" name="delete" value="true" id="">Delete</button>
-                                                <a href class="btn btn-lime pull-right" id="add-med-procedure-button" data-toggle="modal" data-target="#add-med-procedure-modal">Add</a>
-                                            </div>
-                                        </form>
-                                        <!-- END OF MEDICAL PROCEDURES LIST FOR IPT -->
-
-                                    </div>
-                                    <!-- BILLING FOR IPT -->
-                                    <div class="col-md-4"></div>
-                                    </div>
-                                    <!-- END OF BILLING FOR IPT -->
-
+                                        {% include "../patient/add-patient-ipt.html" %}
                                     <!-- END OF ADDING NEW IPT RECORD -->
 
                                     <!-- VIEW IPT RECORD -->
@@ -547,6 +384,53 @@
                         </div>
                         <!-- END OF IP-TREATMENTS -->
 
+
+                        <!-- OP-TREATMENTS -->
+                        <div class="tab-pane" id="op-treatments">
+                            <div class="row">
+                                <div class="col-xs-12 col-md-10 col-md-offset-1">
+                                    <!-- BASIC PATIENT INFO -->
+                                    <div class="row" style="margin-top: 40px">
+                                        <div class="col-md-6">
+                                            <div class="row form-group">
+                                                <label class="col-sm-3 control-label" for="patient-id">Patient ID</label>
+                                                <div class="col-sm-6">
+                                                    <input type="text" class="form-control" id="patient-id" value="{{patient.id}}" disabled>
+                                                </div>
+                                            </div>                                       
+                                            <div class="row form-group">
+                                                <label class="col-sm-3 control-label" for="patient-id">Patient Name</label>
+                                                <div class="col-sm-6">
+                                                    <input type="text" class="form-control" id="patient-id" value="{{patient.first_name}} {{patient.middle_name}} {{patient.last_name}}" disabled>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <a id="list-opt-view-link" onclick="view_OPT()">Back to Out-Patient Treatment List</a>
+                                    <hr>
+
+
+                                    <!-- OPT TABLE -->
+                                        {% include "../patient/list-patient-opt.html" %}
+                                    <!-- END OF OPT TABLE -->
+
+                                    <!-- ADD NEW OPT RECORD -->
+                                        {% include "../patient/add-patient-opt.html" %}
+                                    <!-- END OF ADDING NEW OPT RECORD -->
+
+                                    <!-- VIEW OPT RECORD -->
+                                   
+                                    <!-- END OF VIEW OPT RECORD -->                                   
+
+                                </div>
+                            </div>
+                        </div>
+                        <!-- END OF OP TREATMENTS -->
+
+
+
+                        <!-- LABORATORY RESULTS -->
                         <div class="tab-pane" id="laboratories">
                             <div class="row" id="list-lab">
                                 {% include "../treatments/lab-results-list.html" %}
@@ -556,6 +440,8 @@
                                 {% include "../treatments/add-lab-results.html" %}
                             </div>
                         </div>  
+                        <!-- END OF LABORATORY RESULTS -->
+
 
                     </div>
                 </div>
@@ -629,6 +515,7 @@
     </div>
     <!-- END MODAL ADD MEDICATION -->
 <!-- END OF MODAAAALLSSS -->
+
 </body>
 
 <script type="text/javascript">
@@ -677,7 +564,15 @@
         $('#list-ipt-view-link').hide();
         $('#add-ipt-view').hide();
         $('#edit-ipt-view').hide();
+
+
+        $('#list-ipt-view-link').hide();
+        $('#add-opt-view').hide();
+        $('#edit-opt-view').hide();
+
+
         $('#add-lab').hide();
+
 
         $(".date-div select").addClass("form-control");
         $("#birthday select").prop("required", true);
@@ -779,9 +674,6 @@
                 { "bSortable": true }
             ]    
         });
-
-        
-
     });
 
 </script>
@@ -801,106 +693,19 @@
         meds.destroy();
         med_procedures.destroy();
     }
-    function edit_IPT(){
-        $('#list-ipt-view').hide();
-        $('#add-ipt-view').hide();
-        $('#edit-ipt-view').show();
-        $('#list-ipt-view-link').show();
+    
 
-        meds = $('#edit-list-medication').DataTable({
-            "bSort": true, 
-            "aaSorting": [[0]],
-            "aoColumns": [
-                { "bSortable": false },
-                { "bSortable": true },
-                { "bSortable": true },
-                { "bSortable": true },
-                { "bSortable": true },
-                { "bSortable": true }
-            ]    
-        });
-
-        med_procedures = $('#edit-list-med-procedure').DataTable({
-            "bSort": true, 
-            "aaSorting": [[0]],
-            "aoColumns": [
-                { "bSortable": false },
-                { "bSortable": true },
-                { "bSortable": true },
-                { "bSortable": true }
-            ]    
-        });
-
-        var key = $("#edit_ipt").attr('value');
-        console.log(key);
-        $.ajax({
-            type: "GET",
-            url: "/ipt_edit_json/"+key+"/"+"{{patient.id}}",
-        }).done(function(data){
-            console.log("IN HERE DONE AJAX")
-            console.log(data);
-            var date;
-            $('#edit-p-id').val(key);
-
-            if(data['ipt']['conf_date'] != null){
-                date = data['ipt']['conf_date'].split("-");
-                $("#edit-confinement-date-div select[name='date_[month]']").val(date[1]);
-                $("#edit-confinement-date-div select[name='date_[day]']").val(date[2]);
-                $("#edit-confinement-date-div select[name='date_[year]']").val(date[0]);
-            }
-            if(data['ipt']['discharge_date'] != null){
-                date = data['ipt']['discharge_date'].split("-");
-                $("#edit-discharge-date-div select[name='date_[month]']").val(date[1]);
-                $("#edit-discharge-date-div select[name='date_[day]']").val(date[2]);
-                $("#edit-discharge-date-div select[name='date_[year]']").val(date[0]);
-            }
-
-            $('#edit-summary').val(data['ipt']['sum_of_diag']);
-            $('#edit-detailed-diagnosis').val(data['ipt']['detailed_diag']);
-            $('#edit-notes').val(data['ipt']['notes']);
-            $('#edit-hospital option[value="' + data['ipt']['hospital'] + '"]').prop('selected', 'true');
-
-            console.log(data);
-
-            $('#edit-ipt-form').attr('action', '/ipt_edit/'+data['ipt']['id']+"/"+data['ipt']['check_upId']);
-            
-        })
-
+    function view_OPT() {
+        $('#list-opt-view').show();
+        $('#add-opt-view').hide();
+        $('#edit-opt-view').hide();
+        $('#list-ipt-view-link').hide();
+        meds.destroy();
+        med_procedures.destroy();
     }
+    
 
-
-    function add_IPT() {
-            $('#list-ipt-view').hide();
-            $('#add-ipt-view').show();
-            $('#edit-ipt-view').hide();
-            $('#list-ipt-view-link').show();
-        // dapat on-Submit nani sa ADD IPT Record//
-        meds = $('#list-medication').DataTable({
-            "bSort": true, 
-            "aaSorting": [[0]],
-            "aoColumns": [
-                { "bSortable": false },
-                { "bSortable": true },
-                { "bSortable": true },
-                { "bSortable": true },
-                { "bSortable": true },
-                { "bSortable": true }
-            ]    
-        });
-
-        med_procedures = $('#list-med-procedure').DataTable({
-            "bSort": true, 
-            "aaSorting": [[0]],
-            "aoColumns": [
-                { "bSortable": false },
-                { "bSortable": true },
-                { "bSortable": true },
-                { "bSortable": true }
-            ]    
-        });
-        // 
-    }
-     $('#add-med-form').submit(function(e){
+    $('#add-med-form').submit(function(e){
         e.preventDefault();
          meds.row.add([
                 '<input type="checkbox" id="" name=""></input>', //idk UNSAON ANG NAME AND ID ANI FOR DELETION
