@@ -188,7 +188,7 @@
                                     <!-- END OF ADDING NEW OPT RECORD -->
 
                                     <!-- VIEW OPT RECORD -->
-                                   
+                                        {% include "../patient/edit-patient-opt.html" %}
                                     <!-- END OF VIEW OPT RECORD -->                                   
 
                                 </div>
@@ -289,6 +289,7 @@
 <script type="text/javascript">
 
     var IPT_List_Table;
+    var OPT_List_Table;
 
     (function($) {
       fakewaffle.responsiveTabs(['xs', 'sm']);
@@ -331,13 +332,22 @@
             displayFormat: "mdy"
         });
 
+        $("#opt-date").dateDropdowns({
+            displayFormat: "mdy"
+        });
+
+        $("#edit-opt-date").dateDropdowns({
+            displayFormat: "mdy"
+        });
+
+
 
         $('#list-ipt-view-link').hide();
         $('#add-ipt-view').hide();
         $('#edit-ipt-view').hide();
 
 
-        $('#list-ipt-view-link').hide();
+        $('#list-opt-view-link').hide();
         $('#add-opt-view').hide();
         $('#edit-opt-view').hide();
 
@@ -438,6 +448,16 @@
                 { "bSortable": true }
             ]    
         });
+
+        OPT_List_Table = $('#opt-list').DataTable({
+            "bSort": true, 
+            "aaSorting": [[0]],
+            "aoColumns": [
+                { "bSortable": true },
+                { "bSortable": true },
+                { "bSortable": true }
+            ]    
+        });
     });
 
     // var meds;
@@ -458,7 +478,7 @@
         $('#list-opt-view').show();
         $('#add-opt-view').hide();
         $('#edit-opt-view').hide();
-        $('#list-ipt-view-link').hide();
+        $('#list-opt-view-link').hide();
         meds.destroy();
         med_procedures.destroy();
     }
@@ -493,6 +513,7 @@
       });
     })(jQuery);
 
+    ///////// UPDATE LIST IPT ROWS
     $("#list-ipt-view").on('show', function() {
         $.ajax({
             type: "GET",
@@ -500,17 +521,42 @@
         }).done(updateIPTListRows);
     });
     // var temp_hehe = 1;
+
     function updateIPTListRows (data) {
+        console.log("WHY HERE BESHIE")
         IPT_List_Table = IPT_List_Table.rows().remove().draw();
         for (var i = data.ipt_list.length - 1; i >= 0; i--) {
             IPT_List_Table.row.add([
-                '<a onclick="edit_IPT()" value="' + data.ipt_list[i].id + '" id="edit_ipt">' + data.ipt_list[i].conf_date + '</a>',
+                '<a onclick="edit_IPT()" value="' + data.ipt_list[i].id + '" id="ipt-data'+data.ipt_list[i].id+'">' + data.ipt_list[i].conf_date + '</a>',
                 data.ipt_list[i].discharge_date,
                 data.ipt_list[i]['parent_record.hospitalName'],
                 data.ipt_list[i]['parent_record.doctor.username.first_name'] + " " + data.ipt_list[i]['parent_record.doctor.username.middle_name'] + " " + data.ipt_list[i]['parent_record.doctor.username.last_name']
             ]).draw();
         };
-    }
+    } 
+    // end of LIST IPT ROWS
+
+    //////// UPDATE LIST OPT ROWS
+    $("#list-opt-view").on('show', function() {
+        $.ajax({
+            type: "GET",
+            url: "/opt_list/{{patient.id}}",
+        }).done(updateOPTListRows);
+    });
+
+    function updateOPTListRows (data) {
+        console.log("UPDATE OPT LIST ROWS");
+        console.log(data);
+        OPT_List_Table = OPT_List_Table.rows().remove().draw();
+        for (var i = data.opt_list.length - 1; i >= 0; i--) {
+            OPT_List_Table.row.add([
+                '<a onclick="edit_OPT()" value="' + data.opt_list[i].id + '" id="opt-data-'+data.opt_list[i].id+'">' + data.opt_list[i].date + '</a>',
+                data.opt_list[i]['parent_record.hospitalName'],
+                data.opt_list[i]['parent_record.doctor.username.first_name'] + " " + data.opt_list[i]['parent_record.doctor.username.middle_name'] + " " + data.opt_list[i]['parent_record.doctor.username.last_name']
+            ]).draw();
+        };
+    } 
+    // end of LIST OPT ROWS
 
     $("#tab-consultations").click(function (e) {
 
@@ -524,7 +570,10 @@
     });
 
     $("#tab-outpatient").click(function (e) {
-
+        $.ajax({
+            type: "GET",
+            url: "/opt_list/{{patient.id}}",
+        }).done(updateOPTListRows);
     });
 
     $("#tab-labs").click(function (e) {

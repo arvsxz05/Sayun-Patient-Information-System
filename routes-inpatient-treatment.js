@@ -43,16 +43,7 @@ router.get('/ipt_list/:patient_id', function (req, res) {
 			}]
 	    }]
 	}).then(ipt_list => {
-		// console.log(ipt_list);
-		// Doctor.findOne({
-		// 	raw: true,
-		// 	where: {
-		// 		id: ipt_list['check_up.doctorId']
-		// 	}
-		// }).then(ipt_doctor => {
-		// 	console.log(ipt_doctor);
-			res.json({ipt_list: ipt_list});
-		// });
+		res.json({ipt_list: ipt_list});
 	});
 });
 
@@ -128,6 +119,10 @@ router.get('/ipt_edit_json/:ipt_id/:patient_id', function (req, res) {
 /////////////////////////// POST ////////////////////////////////////
 
 router.post('/ipt_add', function(req, res){
+
+	console.log("IN IPT ADD");
+	console.log(req.body);
+
 	var confine = req.body['confinement-date'];
 	var hospital = req.body['hospital'];
 	var summary = req.body['summary'].trim();

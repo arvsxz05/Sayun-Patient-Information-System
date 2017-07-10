@@ -155,8 +155,7 @@ router.get('/patient_edit/:id', requireLoggedIn,
 	function (req, res) {
 
 		var key = req.params.id;
-		// var result, patient;
-		// var ipts = [], doctors = [];
+
 		//Hospital Query
 		Hospital.findAll({
 			where: {
@@ -166,91 +165,47 @@ router.get('/patient_edit/:id', requireLoggedIn,
 			attributes: ['name', 'type'],
 			raw: true
 		}).then(function (hospitals) {
-			// for(var i = 0; i < results.length; i++){
-			// 	result = results[i];
-
-			// 	hospitals.push({
-			// 		id: result.name,
-			// 		type: result.type,
-			// 	});
-			// }
-			// //InPatient_Treatment Query
-			// InPatient_Treatment.findAll({
-			// 	raw: true,
-			// 	include: [{
-			//         model: Check_Up,
-			//         where: {
-			// 			patientId: key,
-			// 		},
-			//     }],
-			// }).then(function(results){
-			// 	for(var i = 0; i < results.length; i++){
-			// 		result = results[i];
-
-			// 		ipts.push({
-			// 			id: result.id,
-			// 			conf_date: result.conf_date,
-			// 			discharge_date: result.discharge_date,
-			// 			hospital : result['check_up.hospitalName'],
-			// 			doctorId : result['check_up.doctorId'],
-			// 			check_upId: result['check_up.id'],
-			// 		});
-			// 	}
-
 				//Patient Query
-				Patient.findOne({
-					where: {
-						id: key,
-					},
-					raw: true,
-				}).then(function (result) {
-					var date = result.birthdate.split("-");
-					patient = result;
-					//Doctor Query
-					Doctor.findAll({
-						include: [{
-					        model: User_Account,
-					        where: {
-								spisInstanceLicenseNo: req.session.spisinstance.license_no,
-							},
-							attributes: ['id', 'first_name', 'middle_name', 'last_name'],
-					        as: 'username',
-					    }],
-					    raw: true,
-					}).then(function (doctors) {
-
-						// for(var i = 0; i < results.length; i++){
-						// 	result = results[i];
-						// 	doctors.push({
-						// 		id: result.id,
-						// 		first_name: result['username.first_name'],
-						// 		middle_name: result['username.middle_name'],
-						// 		last_name: result['username.last_name'],
-						// 	});
-						// }
+			Patient.findOne({
+				where: {
+					id: key,
+				},
+				raw: true,
+			}).then(function (result) {
+				var date = result.birthdate.split("-");
+				patient = result;
+				//Doctor Query
+				Doctor.findAll({
+					include: [{
+				        model: User_Account,
+				        where: {
+							spisInstanceLicenseNo: req.session.spisinstance.license_no,
+						},
+						attributes: ['id', 'first_name', 'middle_name', 'last_name'],
+				        as: 'username',
+				    }],
+				    raw: true,
+				}).then(function (doctors) {
 
 						// console.log(hospitals);
 
-						res.render('patient/patient-info.html', {
-							patient: patient,
-							user: req.session.user,
-							doctor: req.session.doctor,
-							doctors: doctors,
-							hospitals: hospitals,
-							// ipts: ipts,
-							// in patient treatment list
-							// out patient treatment list
-							// notes
-							// clinic consultation
-							// lab results
-							// diagnoses 
-							// medication
-							// billings
-						});
+					res.render('patient/patient-info.html', {
+						patient: patient,
+						user: req.session.user,
+						doctor: req.session.doctor,
+						doctors: doctors,
+						hospitals: hospitals,
+						// ipts: ipts,
+						// in patient treatment list
+						// out patient treatment list
+						// notes
+						// clinic consultation
+						// lab results
+						// diagnoses 
+						// medication
+						// billings
 					});
-				// }).catch(function(error){
-
-				// });
+				});
 			}); // inpatient treatment then;
 		}); // hospital then
 	}

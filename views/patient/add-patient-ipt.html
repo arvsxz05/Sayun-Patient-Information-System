@@ -22,7 +22,7 @@
                 <label class="col-sm-4 control-label" for="doctor">Doctor*</label>
                 <div class="col-sm-8">
                     {% if doctor == null %}
-                    <select class="form-control" id="doctor" name="doctor" required>
+                    <select class="form-control" id="hidden-doctor" name="doctor" required>
                       <option value="" selected disabled>Select Doctor</option>
                         {% for doctor in doctors %}
                             <option value="{{doctor.id}}">{{doctor['username.first_name']}} {{doctor['username.middle_name']}} {{doctor['username.last_name']}}</option>

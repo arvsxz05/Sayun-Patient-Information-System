@@ -4,25 +4,12 @@
         <table id="opt-list" class="table table-striped table-bordered" cellspacing="0" width="100%">
             <thead>
                 <tr>
-                    <th>Confinement ID</th>
-                    <th>Discharge Date</th>
+                    <th>Date</th>
                     <th>Hospital</th>
                     <th>Doctor</th>
                 </tr>
             </thead>
             <tbody>
-                <!-- {% for ipt in ipts %} -->
-                    <tr>
-                        <td><a onclick="edit_OPT()" value="{{ipt.id}}" id="edit_ipt">{{ipt.conf_date}}</a></td>
-                        <td> {{ipt.discharge_date}} </td>
-                        <td> {{ipt.hospital}} </td>
-                        {% for doctor in doctors %}
-                            {% if doctor.id == ipt.doctorId %}
-                                <td> {{doctor.first_name}} {{doctor.middle_name}} {{doctor.last_name}} </td>   
-                            {% endif %}
-                        {% endfor %}
-                    </tr>
-                <!-- {% endfor %} -->
             </tbody>
         </table>
     </div>
@@ -39,6 +26,40 @@
         $('#add-opt-view').hide();
         $('#edit-opt-view').show();
         $('#list-opt-view-link').show();
+
+        var key = $("#edit_opt").attr('value');
+        console.log(key);
+        $.ajax({
+            type: "GET",
+            url: "/opt_edit_json/"+key+"/"+"{{patient.id}}",
+        }).done(function(data){
+            console.log("IN HERE DONE OPT EDIT AJAX");
+            console.log(data);
+            var date;
+            // $('#edit-p-id').val(key);
+
+            if(data['opt']['date'] != null){
+                date = data['opt']['date'].split("-");
+                $("#edit-opt-date-div select[name='date_[month]']").val(date[1]);
+                $("#edit-opt-date-div select[name='date_[day]']").val(date[2]);
+                $("#edit-opt-date-div select[name='date_[year]']").val(date[0]);
+            }
+
+            $('#edit-opt-hospital option[value="' + data['opt']['parent_record.hospitalName'] + '"]').prop('selected', 'true');
+            $('#edit-opt-doctor option[value="' + data['opt']['parent_record.doctor.id'] + '"]').prop('selected', 'true');
+
+            $('#edit-opt-summary').val(data['opt']['sum_of_diag']);
+            $('#edit-opt-detailed-diagnosis').val(data['opt']['detailed_diag']);
+            $('#edit-opt-notes').val(data['opt']['notes']);
+            $('#edit-opt-hospital option[value="' + data['opt']['hospital'] + '"]').prop('selected', 'true');
+
+            // console.log(data);
+
+            $('#edit-opt-form').attr('action', '/opt_edit/'+data['opt']['id']+"/"+data['opt']['parent_record.id']);
+            
+        });
+
+
     }
 
     function add_OPT() {
@@ -47,7 +68,7 @@
             $('#edit-opt-view').hide();
             $('#list-opt-view-link').show();
         // dapat on-Submit nani sa ADD IPT Record//
-        meds = $('#opt-list-medication').DataTable({
+        meds = $('#list-medication').DataTable({
             "bSort": true, 
             "aaSorting": [[0]],
             "aoColumns": [
@@ -60,7 +81,7 @@
             ]    
         });
 
-        med_procedures = $('#opt-list-med-procedure').DataTable({
+        med_procedures = $('#list-med-procedure').DataTable({
             "bSort": true, 
             "aaSorting": [[0]],
             "aoColumns": [
@@ -72,4 +93,5 @@
         });
         // 
     }
+
 </script>

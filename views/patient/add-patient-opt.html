@@ -1,8 +1,11 @@
 <div class="row"  id="add-opt-view">
     <div class="form-container col-md-8" style="padding: 20px">
-        <form id="add-ipt-form" class="form-horizontal" role="form" method="POST" action="">
+        <form id="add-opt-form" class="form-horizontal" role="form" method="POST" action="">
             <input type="hidden" name="p-id" id="p-id" value="{{patient.id}}">
             <legend><b>Add Out-Patient Treatment</b></legend>
+            <div>
+                <p class="text-danger" id="opt-error-response"></p>
+            </div>
             <div class="form-group">
                 <label class="col-sm-4 control-label" for="date">Date</label>
                 <div class="col-sm-8 date-div" id="opt-date-div">
@@ -16,12 +19,13 @@
                     <select class="form-control" id="opt-doctor" name="opt-doctor" required>
                       <option value="" selected disabled>Select Doctor</option>
                         {% for doctor in doctors %}
-                            <option value="{{doctor.id}}">{{doctor.first_name}} {{doctor.middle_name}} {{doctor.last_name}}</option>
+                            <option value="{{doctor.id}}">{{doctor['username.first_name']}} {{doctor['username.middle_name']}} {{doctor['username.last_name']}}</option>
                         {% endfor %}
 
                     </select>
                     {% else %}
                         <input type="text" class="form-control" name="opt-doctor" id="opt-doctor" value="{{user.first_name}} {{user.middle_name}} {{user.last_name}}" disabled>
+                        <input type="hidden" id="opt-doctor" name="opt-doctor" value="{{doctor.id}}">
                     {% endif %}
                 </div>
             </div>
@@ -32,7 +36,7 @@
                       <option value="" selected disabled>Select Hospital/Clinic</option>
 
                         {% for hospital in hospitals %}
-                            <option value="{{hospital.id}}">{{hospital.id}}</option>
+                            <option value="{{hospital.name}}">{{hospital.name}}</option>
                         {% endfor %}
 
                     </select>
@@ -119,3 +123,28 @@
     <div class="col-md-4"></div>
     <!-- END OF BILLING FOR OPT -->
 </div>
+<script type="text/javascript">
+    $("#add-opt-form").submit(function (event) {
+        event.preventDefault();
+        $.ajax({
+            type: "POST",
+            url: "/opt_add",
+            data: {
+                'opt-date': $("#opt-date").val(),
+                'hospital': $("#opt-hospital").val(),
+                'summary': $("#opt-summary").val(),
+                'detailed-diagnosis': $("#opt-detailed-diagnosis").val(),
+                'notes': $("#opt-notes").val(),
+                'doctor': $("#opt-doctor").val(),
+                'p-id': $("#p-id").val()
+            }
+        }).done(function (data) {
+            if(data.success) {
+                $('#list-opt-view').show();
+                $('#add-opt-view').hide();
+            } else {
+                $("#opt-error-response").text(data.error);
+            }
+        });
+    });
+</script>
