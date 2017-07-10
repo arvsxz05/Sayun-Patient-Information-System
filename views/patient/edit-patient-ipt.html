@@ -1,8 +1,8 @@
 
 <div class="row" id="edit-ipt-view">
     <div class="form-container col-md-8" style="padding: 20px">
-        <form id="edit-ipt-form" class="form-horizontal" role="form" method="POST" action="/ipt_edit/{{ipt.id}}/{{ipt.check_upId}}">
-            <input type="hidden" name="edit-p-id" id="edit-p-id" value="{{ipt.id}}">
+        <form id="edit-ipt-form" class="form-horizontal" role="form" method="POST">
+            <input type="hidden" name="edit-p-id" id="edit-p-id">
             <legend><b>Edit In-Patient Treatment</b></legend>
             <div class="form-group">
                 <label class="col-sm-4 control-label" for="edit-confinement-date">Confinement Date*</label>
@@ -23,11 +23,7 @@
                     <select class="form-control" id="edit-doctor" name="edit-doctor" required>
                       <option value="" disabled>Select Doctor</option>
                         {% for doctor in doctors %}
-                            {% if ipt.doctorId == doctor.id %}
-                                <option value="{{doctor.id}}" selected>{{doctor.first_name}} {{doctor.middle_name}} {{doctor.last_name}}</option>
-                            {% else %}
-                                <option value="{{doctor.id}}">{{doctor.first_name}} {{doctor.middle_name}} {{doctor.last_name}}</option>
-                            {% endif %}
+                            <option value="{{doctor.id}}">{{doctor.first_name}} {{doctor.middle_name}} {{doctor.last_name}}</option>
                         {% endfor %}
 
                     </select>
@@ -44,12 +40,7 @@
                       <option value="" disabled>Select Hospital/Clinic</option>
 
                         {% for hospital in hospitals %}
-
-                            {% if ipt.hospital == hospital.id %}
-                                <option name="{{hospital.id}}" value="{{hospital.id}}">{{hospital.id}}</option>
-                            {% else %}
-                                <option name="{{hospital.id}}" value="{{hospital.id}}">{{hospital.id}}</option>
-                            {% endif %}
+                            <option name="{{hospital.name}}" value="{{hospital.name}}">{{hospital.name}}</option>
                         {% endfor %}
 
                     </select>

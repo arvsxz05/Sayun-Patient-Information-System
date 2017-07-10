@@ -26,16 +26,38 @@ function requireDoctor(req, res, next) {
 
 //////////////////////////// GET ////////////////////////////////////
 
-router.get('/ipt_list', function(req, res){
-	// InPatient_Treatment.findAll({
-	// 	where: {
+router.get('/ipt_list/:patient_id', function (req, res) {
+	var patient_id = req.params.patient_id;
 
-	// 	}
-	// })
+	InPatient_Treatment.findAll({
+		raw: true,
+		include: [{
+	        model: Check_Up,
+	        where: {
+				patientId: patient_id,
+			},
+			as: 'parent_record',
+			include: [{ 
+				model: Doctor,
+				include: [{ model: User_Account, as: 'username'}]
+			}]
+	    }]
+	}).then(ipt_list => {
+		// console.log(ipt_list);
+		// Doctor.findOne({
+		// 	raw: true,
+		// 	where: {
+		// 		id: ipt_list['check_up.doctorId']
+		// 	}
+		// }).then(ipt_doctor => {
+		// 	console.log(ipt_doctor);
+			res.json({ipt_list: ipt_list});
+		// });
+	});
 });
 
 
-router.get('/ipt_edit_json/:ipt_id/:patient_id', function(req, res){
+router.get('/ipt_edit_json/:ipt_id/:patient_id', function (req, res) {
 
 	console.log("IPT EDIT JSON");
 	console.log(req.params);
@@ -73,6 +95,7 @@ router.get('/ipt_edit_json/:ipt_id/:patient_id', function(req, res){
 		        where: {
 					patientId: pkey,
 				},
+				as: 'parent_record'
 		    }],
 		    where: {
 		    	id: key,
@@ -88,9 +111,9 @@ router.get('/ipt_edit_json/:ipt_id/:patient_id', function(req, res){
 				notes: result.notes,
 				attachments: result.attachments,
 				status: result.status,
-				doctorId: result['check_up.doctorId'],
-				hospital: result['check_up.hospitalName'],
-				check_upId: result['check_up.id'],
+				doctorId: result['parent_record.doctorId'],
+				hospital: result['parent_record.hospitalName'],
+				check_upId: result['parent_record.id'],
 			}
 
 			res.json({
@@ -105,63 +128,38 @@ router.get('/ipt_edit_json/:ipt_id/:patient_id', function(req, res){
 /////////////////////////// POST ////////////////////////////////////
 
 router.post('/ipt_add', function(req, res){
-
-	var confine = null, discharge = null;
-
-	if(req.body['date_']['year'][0] != '' && req.body['date_']['month'][0] != '' && req.body['date_']['day'][0] != ''){
-		confine = req.body["date_"]["year"][0]+"-"+req.body["date_"]["month"][0]+"-"+req.body["date_"]["day"][0];
-	}
-
-	if(req.body['date_']['year'][1] != '' && req.body['date_']['month'][1] != '' && req.body['date_']['day'][1] != ''){
-		discharge = req.body["date_"]["year"][1]+"-"+req.body["date_"]["month"][1]+"-"+req.body["date_"]["day"][1];
-	}
-
+	var confine = req.body['confinement-date'];
 	var hospital = req.body['hospital'];
-	var summary = req.body['summary'];
-	var details = req.body['detailed-diagnosis'];
-	var notes = req.body['notes'];
+	var summary = req.body['summary'].trim();
+	var details = req.body['detailed-diagnosis'].trim();
+	var notes = req.body['notes'].trim();
 	var p_id = req.body['p-id'];
 	var doc = req.body['doctor'];
+	var discharge = null;
 
-	var checkup_id;
+	if(!req.body['discharge-date'] && req.body['discharge-date'].trim() !== "") {
+		discharge = req.body['discharge-date'];
+	};
 
-	Check_Up.create({
-		check_up_type: "In-Patient-Treatment",
-		hospitalName: hospital,
-		patientId: p_id,
-		doctorId: doc,
-	}).then(function(item){
-
-		Check_Up.findAll({
-			limit: 1,
-			raw: true,
-			where:{
-				check_up_type: "In-Patient-Treatment",
-				patientId: p_id,
-			},
-			order: [ [ 'createdAt', 'DESC' ]]
-		}).then(function(last){
-
-			console.log("last");
-			console.log(last);
-			checkup_id = last[0].id;
-
-			InPatient_Treatment.create({
-				conf_date: confine,
-				discharge_date: discharge,
-				sum_of_diag: summary,
-				detailed_diag: details,
-				notes: notes,
-				checkUpId: checkup_id,
-			}).then(function(item){
-
-			}).catch(function(error){
-
-				res.send({"error": "error"})
-			})
-
-		});
-
+	InPatient_Treatment.create({
+		conf_date: confine,
+		discharge_date: discharge,
+		sum_of_diag: summary,
+		detailed_diag: details,
+		notes: notes,
+		parent_record: {
+			check_up_type: "In-Patient-Treatment",
+			hospitalName: hospital,
+			patientId: p_id,
+			doctorId: doc
+		}
+	}, {
+		include: [{
+			model: Check_Up,
+			as: 'parent_record'
+		}]
+	}).then(checkUp_data => {
+		res.json({success: true});
 	});
 });
 

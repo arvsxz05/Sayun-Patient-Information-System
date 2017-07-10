@@ -419,12 +419,14 @@ const InPatient_Treatment = database.define('inpatient_treatment', {
 	}
 });
 
-InPatient_Treatment.belongsTo(Check_Up);
-
+InPatient_Treatment.belongsTo(Check_Up, {as: 'parent_record'});
 
 Hospital.hasMany(Check_Up);
+Check_Up.belongsTo(Hospital);
 Doctor.hasMany(Check_Up);
+Check_Up.belongsTo(Doctor);
 Patient.hasMany(Check_Up);
+Check_Up.belongsTo(Patient);
 
 const Medication = database.define('medication', {
 	name: {
@@ -451,6 +453,7 @@ const Medication = database.define('medication', {
 });
 
 Check_Up.hasMany(Medication);
+Medication.belongsTo(Check_Up);
 
 
 const Medical_Procedure = database.define('medical_procedures', {
@@ -473,6 +476,7 @@ const Medical_Procedure = database.define('medical_procedures', {
 });
 
 Check_Up.hasMany(Medical_Procedure);
+Medical_Procedure.belongsTo(Check_Up);
 
 const OutPatient_Treatment = database.define('outpatient_treatment', {
 
@@ -498,8 +502,7 @@ const OutPatient_Treatment = database.define('outpatient_treatment', {
 	}
 });
 
-OutPatient_Treatment.belongsTo(Check_Up);
-
+OutPatient_Treatment.belongsTo(Check_Up, {as: 'parent_record'});
 
 const Laboratory = database.define('laboratory', {
 	date: {
@@ -516,7 +519,7 @@ const Laboratory = database.define('laboratory', {
 	},
 	attachments: {
 		type: Sequelize.ARRAY(Sequelize.STRING),
-		allowNull: false
+		allowNull: true
 	}
 });
 

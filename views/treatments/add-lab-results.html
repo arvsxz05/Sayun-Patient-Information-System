@@ -91,7 +91,7 @@
         });
     });
 
-    $( "#add-lab-form" ).submit(function( event ) {
+    $( "#add-lab-form" ).submit(function (event) {
         var files = $('#attachments').fileinput('getFileStack');
         if(files.length != 0) {
             $(".unique-name-hehe").click();
@@ -108,7 +108,7 @@
                     notes: $("#notes").val(),
                     patient_id: $("#patient-id").val(),
                 }
-            }).done(function(data) {
+            }).done(function (data) {
                 $('#list-lab').show();
                 $('#add-lab').hide();
             });

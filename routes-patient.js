@@ -152,49 +152,50 @@ router.get('/patient_edit/:id', requireLoggedIn,
 		fileQueue[fileId] = {filesArr: []};
 		next();
 	},
-	function(req, res) {
+	function (req, res) {
 
 		var key = req.params.id;
-		var hospitals = [], result, patient;
-		var ipts = [], doctors = [];
+		// var result, patient;
+		// var ipts = [], doctors = [];
 		//Hospital Query
 		Hospital.findAll({
 			where: {
 				spisInstanceLicenseNo: req.session.spisinstance.license_no,
 				active: "t",
 			},
+			attributes: ['name', 'type'],
 			raw: true
-		}).then(function(results){
-			for(var i = 0; i < results.length; i++){
-				result = results[i];
+		}).then(function (hospitals) {
+			// for(var i = 0; i < results.length; i++){
+			// 	result = results[i];
 
-				hospitals.push({
-					id: result.name,
-					type: result.type,
-				});
-			}
-			//InPatient_Treatment Query
-			InPatient_Treatment.findAll({
-				raw: true,
-				include: [{
-			        model: Check_Up,
-			        where: {
-						patientId: key,
-					},
-			    }],
-			}).then(function(results){
-				for(var i = 0; i < results.length; i++){
-					result = results[i];
+			// 	hospitals.push({
+			// 		id: result.name,
+			// 		type: result.type,
+			// 	});
+			// }
+			// //InPatient_Treatment Query
+			// InPatient_Treatment.findAll({
+			// 	raw: true,
+			// 	include: [{
+			//         model: Check_Up,
+			//         where: {
+			// 			patientId: key,
+			// 		},
+			//     }],
+			// }).then(function(results){
+			// 	for(var i = 0; i < results.length; i++){
+			// 		result = results[i];
 
-					ipts.push({
-						id: result.id,
-						conf_date: result.conf_date,
-						discharge_date: result.discharge_date,
-						hospital : result['check_up.hospitalName'],
-						doctorId : result['check_up.doctorId'],
-						check_upId: result['check_up.id'],
-					});
-				}
+			// 		ipts.push({
+			// 			id: result.id,
+			// 			conf_date: result.conf_date,
+			// 			discharge_date: result.discharge_date,
+			// 			hospital : result['check_up.hospitalName'],
+			// 			doctorId : result['check_up.doctorId'],
+			// 			check_upId: result['check_up.id'],
+			// 		});
+			// 	}
 
 				//Patient Query
 				Patient.findOne({
@@ -202,7 +203,7 @@ router.get('/patient_edit/:id', requireLoggedIn,
 						id: key,
 					},
 					raw: true,
-				}).then(function(result){
+				}).then(function (result) {
 					var date = result.birthdate.split("-");
 					patient = result;
 					//Doctor Query
@@ -212,22 +213,23 @@ router.get('/patient_edit/:id', requireLoggedIn,
 					        where: {
 								spisInstanceLicenseNo: req.session.spisinstance.license_no,
 							},
+							attributes: ['id', 'first_name', 'middle_name', 'last_name'],
 					        as: 'username',
 					    }],
 					    raw: true,
-					}).then(function(results){
+					}).then(function (doctors) {
 
-						for(var i = 0; i < results.length; i++){
-							result = results[i];
-							doctors.push({
-								id: result.id,
-								first_name: result['username.first_name'],
-								middle_name: result['username.middle_name'],
-								last_name: result['username.last_name'],
-							});
-						}
+						// for(var i = 0; i < results.length; i++){
+						// 	result = results[i];
+						// 	doctors.push({
+						// 		id: result.id,
+						// 		first_name: result['username.first_name'],
+						// 		middle_name: result['username.middle_name'],
+						// 		last_name: result['username.last_name'],
+						// 	});
+						// }
 
-						console.log(hospitals);
+						// console.log(hospitals);
 
 						res.render('patient/patient-info.html', {
 							patient: patient,
@@ -235,7 +237,7 @@ router.get('/patient_edit/:id', requireLoggedIn,
 							doctor: req.session.doctor,
 							doctors: doctors,
 							hospitals: hospitals,
-							ipts: ipts,
+							// ipts: ipts,
 							// in patient treatment list
 							// out patient treatment list
 							// notes
@@ -246,41 +248,17 @@ router.get('/patient_edit/:id', requireLoggedIn,
 							// billings
 						});
 					});
-				}).catch(function(error){
+				// }).catch(function(error){
 
-				});
-			}) // inpatient treatment then;
+				// });
+			}); // inpatient treatment then;
 		}); // hospital then
 	}
 );
 
-router.get('/patient_edit_json/:id', requireLoggedIn, function(req, res){
-
-	var key = req.params.id;
-
-	Patient.findOne({
-		where: {
-			id: key,
-		},
-		raw: true,
-	}).then(function(result){
-		console.log("went here");
-		var date = result.birthdate.split("-");
-
-		res.json(result);
-
-	}).catch(function(error){
-
-	});
-
-});
-
-
 //////////////////////// POST ////////////////////////////////////
 
-router.post('/patient_add', requireLoggedIn, upload.fields([
-		{name: 'photo', maxCount: 1}
-	]), function(req, res){
+router.post('/patient_add', requireLoggedIn, upload.fields([{name: 'photo', maxCount: 1}]), function (req, res) {
 	
 	var photo = null;
 
@@ -361,40 +339,16 @@ router.post('/patient_add', requireLoggedIn, upload.fields([
 
 });
 
-router.post('/patient_edit/:id', requireLoggedIn, upload.fields([
-		{name: 'photo', maxCount: 1}
-	]), function(req, res){
+router.post('/patient_edit/:id', requireLoggedIn, upload.fields([{name: 'photo', maxCount: 1}]), function (req, res) {
+
 	var photo = null;
 	var key = req.params.id;
 
-	if(req.files['photo'] != undefined){
+	if(req.files['photo'] !== undefined){
 		photo = "/uploads/patients/"+req.files['photo'][0].filename;	
 	}
 
-	console.log(req.body);
-
-	var lname = req.body['last_name'];
-	var fname = req.body['first_name'];
-	var mname = req.body['middle_name'];
-	var bday = req.body['date_']['year'][0] + "-" + req.body['date_']['month'][0] + "-" + req.body['date_']['day'][0];
-	var sex = req.body['sex'];
-	var cstatus = req.body['civil_status'];
-	var nationality = req.body['nationality'];
-	var referral = req.body['referral'];
-	var insurance = req.body['insurance'];
-	var surgeries = req.body['surgeries'];
-	var address = req.body['address'];
-	var email = req.body['email'];
-	var contact1 = req.body['contact1'];
-	var contact2 = req.body['contact2'];
-	var empers = req.body['emergency_person'];
-	var emcont = req.body['emergency_contact'];
-	var emcont_rel = req.body['contact_person_rel'];
-	var suffix = req.body['suffix'];
-	var referrer = req.body['referrer'];
-	var hmo = req.body['hmo'];
-	var hmo_no = req.body['hmo_no'];
-	var company_name = req.body['company'];
+	var patient_obj;
 	var membership = null;
 	var expiration = null;
 
@@ -407,34 +361,63 @@ router.post('/patient_edit/:id', requireLoggedIn, upload.fields([
 		expiration = req.body['date_']['year'][2] + "-" + req.body['date_']['month'][2] + "-" + req.body['date_']['day'][2];
 	}
 
+	if(photo === null) {
+		patient_obj = {
+			last_name: req.body['last_name'].trim(),
+			middle_name: req.body['middle_name'].trim(),
+			first_name: req.body['first_name'].trim(),
+			suffix: req.body['suffix'].trim(),
+			sex: req.body['sex'],
+			birthdate: req.body['date_']['year'][0] + "-" + req.body['date_']['month'][0] + "-" + req.body['date_']['day'][0],
+			nationality: req.body['nationality'].trim(),
+			address: req.body['address'].trim(),
+			email: req.body['email'].trim(),
+			phone_number: req.body['contact1'].trim(),
+			alt_cn: req.body['contact2'].trim(),
+			em_cp: req.body['emergency_person'].trim(),
+			rel_emcp: req.body['contact_person_rel'].trim(),
+			emc_n: req.body['emergency_contact'].trim(),
+			referred_by: req.body['referrer'].trim(),
+			civil_status: req.body['civil_status'],
+			hmo: req.body['hmo'].trim(),
+			hmo_no: req.body['hmo-no'].trim(),
+			membership: membership,
+			expiration: expiration,
+			company_name: req.body['company'].trim(),
+			// insurance: req.body['insurance'].trim(),
+			prior_surgeries: req.body['surgeries'].trim()
+		};
+	} else {
+		patient_obj = {
+			last_name: req.body['last_name'].trim(),
+			middle_name: req.body['middle_name'].trim(),
+			first_name: req.body['first_name'].trim(),
+			suffix: req.body['suffix'].trim(),
+			sex: req.body['sex'],
+			birthdate: req.body['date_']['year'][0] + "-" + req.body['date_']['month'][0] + "-" + req.body['date_']['day'][0],
+			nationality: req.body['nationality'].trim(),
+			address: req.body['address'].trim(),
+			email: req.body['email'].trim(),
+			phone_number: req.body['contact1'].trim(),
+			alt_cn: req.body['contact2'].trim(),
+			em_cp: req.body['emergency_person'].trim(),
+			rel_emcp: req.body['contact_person_rel'].trim(),
+			emc_n: req.body['emergency_contact'].trim(),
+			referred_by: req.body['referrer'].trim(),
+			civil_status: req.body['civil_status'],
+			hmo: req.body['hmo'].trim(),
+			hmo_no: req.body['hmo-no'].trim(),
+			membership: membership,
+			expiration: expiration,
+			company_name: req.body['company'].trim(),
+			// insurance: req.body['insurance'].trim(),
+			prior_surgeries: req.body['surgeries'].trim(),
+			photo: photo
+		};
+	}
 
-	Patient.update({
-		last_name: lname,
-		middle_name: mname,
-		first_name: fname,
-		suffix: suffix,
-		sex: sex,
-		birthdate: bday,
-		nationality: nationality,
-		address: address,
-		email: email,
-		phone_number: contact1,
-		alt_cn: contact2,
-		em_cp: empers,
-		rel_emcp: emcont_rel,
-		emc_n: emcont,
-		referred_by: referrer,
-		civil_status: cstatus,
-		photo: photo,
-		hmo: hmo,
-		hmo_no: hmo_no,
-		membership: membership,
-		expiration: expiration,
-		company_name: company_name,
-		insurance: insurance,
-		prior_surgeries: surgeries
-	},
-	{
+
+	Patient.update(patient_obj, {
 		where: {
 			id: key,
 			spisInstanceLicenseNo: req.session.spisinstance.license_no, 

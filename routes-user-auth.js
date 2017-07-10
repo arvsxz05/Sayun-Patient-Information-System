@@ -188,7 +188,7 @@ router.post('/login', function (req, res) {
 										req.session.lab_results_attachment = [];
 										req.session.inpatient_attachment = [];
 										req.session.outpatient_attachment = [];
-										// console.log(req.session);
+										console.log(req.session);
 										return res.redirect('/');
 									});
 								} else {

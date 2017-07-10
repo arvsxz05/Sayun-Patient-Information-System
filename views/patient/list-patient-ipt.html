@@ -6,7 +6,7 @@
             <thead>
                 <tr>
                     <!-- <th><input type="checkbox" aria-label="..." id="select-all"/></th> -->
-                    <th>Confinement ID</th>
+                    <th>Confinement Date</th>
                     <th>Discharge Date</th>
                     <th>Hospital</th>
                     <th>Doctor</th>
@@ -14,18 +14,6 @@
                 </tr>
             </thead>
             <tbody>
-                {% for ipt in ipts %}
-                    <tr>
-                        <td><a onclick="edit_IPT()" value="{{ipt.id}}" id="edit_ipt">{{ipt.conf_date}}</a></td>
-                        <td> {{ipt.discharge_date}} </td>
-                        <td> {{ipt.hospital}} </td>
-                        {% for doctor in doctors %}
-                            {% if doctor.id == ipt.doctorId %}
-                                <td> {{doctor.first_name}} {{doctor.middle_name}} {{doctor.last_name}} </td>   
-                            {% endif %}
-                        {% endfor %}
-                    </tr>
-                {% endfor %}
             </tbody>
         </table>
     </div>
@@ -134,6 +122,5 @@
             $('#edit-ipt-form').attr('action', '/ipt_edit/'+data['ipt']['id']+"/"+data['ipt']['check_upId']);
             
         })
-
     }
 </script>
