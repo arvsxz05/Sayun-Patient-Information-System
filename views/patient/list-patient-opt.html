@@ -84,6 +84,17 @@
                     { "bSortable": true },
                     { "bSortable": true }
                 ]    
+            }).on('click', 'tbody tr', function () {
+                var data = meds.row(this).data();
+                // console.log($(this));
+                edit_med_caller = $(this);
+
+                $('#edit-medication-modal').modal('toggle');
+                $('#edit-med-name').val(data[1].substring(3, data[1].length-4));
+                $('#edit-med-dosage').val(data[2]);
+                $('#edit-med-frequency').val(data[3]);
+                $('#edit-med-type').val(data[4]);
+                $('#edit-med-instructions').val(data[5]);
             });
 
             med_procedures = $('#opt-list-med-procedure').DataTable({
@@ -95,6 +106,17 @@
                     { "bSortable": true },
                     { "bSortable": true }
                 ]    
+            }).on('click', 'tbody tr', function () {
+                var data = med_procedures.row(this).data();
+                // console.log($(this));
+                edit_med_procedure_caller = $(this);
+                
+                $('#edit-med-procedure-modal').modal('toggle');
+                $('#edit-med-procedure-date select[name="date_[month]"').val(data[1].substring(3, data[1].length-4).substring(5, 7));
+                $('#edit-med-procedure-date select[name="date_[day]"').val(data[1].substring(3, data[1].length-4).substring(8, 10));
+                $('#edit-med-procedure-date select[name="date_[year]"').val(data[1].substring(3, data[1].length-4).substring(0, 4));
+                $('#edit-med-procedure-description').val(data[2]);
+                $('#edit-med-procedure-details').val(data[3]);
             });
             // 
         }

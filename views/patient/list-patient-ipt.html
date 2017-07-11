@@ -26,6 +26,10 @@
 
 
 <script type="text/javascript">
+
+    var edit_med_caller;
+    var edit_med_procedure_caller;
+
     function add_IPT() {
         $('#list-ipt-view').hide();
         $('#add-ipt-view').show();
@@ -43,7 +47,29 @@
             med_procedures.rows().remove();
         }
         else{
-            meds = $('#list-medication').DataTable();
+            meds = $('#list-medication').DataTable({
+                "bSort": true, 
+                "aaSorting": [],
+                "aoColumns": [
+                    { "bSortable": false },
+                    { "bSortable": true },
+                    { "bSortable": true },
+                    { "bSortable": true },
+                    { "bSortable": true },
+                    { "bSortable": true }
+                ]    
+            }).on('click', 'tbody tr', function () {
+                var data = meds.row(this).data();
+                // console.log($(this));
+                edit_med_caller = $(this);
+
+                $('#edit-medication-modal').modal('toggle');
+                $('#edit-med-name').val(data[1].substring(3, data[1].length-4));
+                $('#edit-med-dosage').val(data[2]);
+                $('#edit-med-frequency').val(data[3]);
+                $('#edit-med-type').val(data[4]);
+                $('#edit-med-instructions').val(data[5]);
+            });
 
             med_procedures = $('#list-med-procedure').DataTable({
                 "bSort": true, 
@@ -54,25 +80,17 @@
                     { "bSortable": true },
                     { "bSortable": true }
                 ]    
+            }).on('click', 'tbody tr', function () {
+                var data = med_procedures.row(this).data();
+                // console.log($(this));
+                edit_med_procedure_caller = $(this);
+                
+                $('#edit-med-procedure-modal').modal('toggle');
+                $('#edited-med-procedure-date').val(data[1].substring(3, data[1].length-4));
+                $('#edit-med-procedure-description').val(data[2]);
+                $('#edit-med-procedure-details').val(data[3]);
             });
 
-
-            meds.on('click', 'tbody tr', function () {
-                var data = meds.row(this).data();
-                meds.row(this).edit( {
-                    buttons: [
-                        { label: 'Cancel', fn: function () { this.close(); } },
-                        'Edit'
-                    ]
-                } );
-                // $('#edit-medication-modal').modal('show');
-                // $('#edit-med-name').val(data[1]);
-                // $('#edit-med-dosage').val(data[2]);
-                // $('#edit-med-frequency').val(data[3]);
-                // $('#edit-med-type').val(data[4]);
-                // $('#edit-med-instructions').val(data[5]);
-            });
-            // 
         }
         
     }

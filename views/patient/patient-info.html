@@ -354,6 +354,7 @@
                             <div class="col-xs-12">
                                 <form id="edit-med-form" class="form-horizontal" method="POST" action="">
                                     <fieldset>
+                                        <input type="hidden" id="caller-element"/>
                                         <div class="form-group">
                                             <label class="col-sm-3 control-label" for="edit-med-name">Name*</label>
                                             <div class="col-sm-9">
@@ -403,6 +404,58 @@
     </div>
     <!-- END MODAL EDIT MEDICATION -->
 
+
+
+    <!-- MODAL FOR EDIT MEDICAL PROCEDURES -->
+     <div class="modal fade" id="edit-med-procedure-modal" role="dialog">
+        <div class="modal-dialog">
+          <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" style="color: black">&times;</button>
+                    <h4 class="modal-title" style="float:left"><strong>Edit Medical Procedure</strong></h4>
+                </div>
+                <div class="modal-body">
+                    <div class="container-fluid">
+                        <div class="row">
+                            <div class="col-xs-12">
+                                <form id="edit-med-procedure-form" class="form-horizontal" method="POST" action="">
+                                    <fieldset>
+                                        <div class="form-group">
+                                            <label class="col-sm-3 control-label" for="edit-med-procedure-date">Date*</label>
+                                            <div class="col-sm-9 col-md-8 date-div" id="edit-med-procedure-date">
+                                                <input type="hidden" id="edited-med-procedure-date">
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="col-sm-3 control-label" for="edit-med-procedure-description">Description</label>
+                                            <div class="col-sm-9">
+                                                <textarea rows="5" class="form-control" name="edit-med-procedure-description" id="edit-med-procedure-description"></textarea>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="col-sm-3 control-label" for="edit-med-procedure-details">Details</label>
+                                            <div class="col-sm-9">
+                                                <textarea rows="5" class="form-control" name="edit-med-procedure-details" id="edit-med-procedure-details"></textarea>
+                                            </div>
+                                        </div>
+                                    </fieldset>
+                                    <div class="button-group">
+                                        <a class="btn btn-gray pull-right" data-dismiss="modal">Cancel</a>
+                                        <button type="submit" class="btn btn-lime pull-right" id="edit-med-procedure-btn">Save</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- END OF EDIT MEDICAL PROCEDURES MODAL -->
+
+
+
 <!-- END OF MODAAAALLSSS -->
 
 </body>
@@ -417,7 +470,7 @@
     })(jQuery);
 
       $( '#myTab a' ).click( function ( e ) {
-        e.preventDefault();
+        // e.preventDefault();
         $( this ).tab( 'show' );
       } );
 
@@ -461,7 +514,11 @@
             displayFormat: "mdy"
         });
 
-        $("#add-med-procedure-date").dateDropdowns({
+        $("#med-procedure-date").dateDropdowns({
+            displayFormat: "mdy"
+        });
+
+        $("#edited-med-procedure-date").dateDropdowns({
             displayFormat: "mdy"
         });
 
@@ -642,7 +699,7 @@
         e.preventDefault();
          meds.row.add([
             '<input type="checkbox" id="" name=""></input>', //idk UNSAON ANG NAME AND ID ANI FOR DELETION
-            '<a onclick="">' + $('#add-med-name').val() + '</a>',
+            '<a>' + $('#add-med-name').val() + '</a>',
             $('#add-med-dosage').val(),
             $('#add-med-frequency').val(),
             $('#add-med-type').val(),
@@ -661,9 +718,9 @@
         e.preventDefault();
          med_procedures.row.add([
             '<input type="checkbox" id="" name=""></input>', //idk UNSAON ANG NAME AND ID ANI FOR DELETION
-            $("#add-med-procedure-date select[name='date_[year]']").val() + '-' + 
+            '<a>' + $("#add-med-procedure-date select[name='date_[year]']").val() + '-' + 
             $("#add-med-procedure-date select[name='date_[month]']").val() + '-' +
-            $("#add-med-procedure-date select[name='date_[day]']").val(),
+            $("#add-med-procedure-date select[name='date_[day]']").val() + '</a>',
             $('#add-med-procedure-description').val(),
             $('#add-med-procedure-details').val()
         ]).draw();
@@ -676,19 +733,43 @@
 
     });
 
-    //  $('#edit-med-form').submit(function(e){
-    //     e.preventDefault();
-    //      // meds.row(this).edit();
+     $('#edit-med-form').submit(function(e){
+        e.preventDefault();
+
+        meds.row(edit_med_caller).data([
+            '<input type="checkbox" id="" name=""></input>', //idk UNSAON ANG NAME AND ID ANI FOR DELETION
+            '<a>' + $('#edit-med-name').val() + '</a>',
+            $('#edit-med-dosage').val(),
+            $('#edit-med-frequency').val(),
+            $('#edit-med-type').val(),
+            $('#edit-med-instructions').val()
+        ]).draw();
+
+        $('#edit-medication-modal').modal('toggle');
+        $('#edit-medication-modal input').val("");
+        $('#edit-medication-modal select').val("");
+        $('#edit-medication-modal textarea').val("");
+
+    });
+
+     $('#edit-med-procedure-form').submit(function(e){
+        e.preventDefault();
+
+        med_procedures.row(edit_med_procedure_caller).data([
+            '<input type="checkbox" id="" name=""></input>', //idk UNSAON ANG NAME AND ID ANI FOR DELETION
+            '<a>' + $("#edit-med-procedure-date select[name='date_[year]']").val() + '-' + 
+            $("#edit-med-procedure-date select[name='date_[month]']").val() + '-' +
+            $("#edit-med-procedure-date select[name='date_[day]']").val() + '</a>',
+            $('#edit-med-procedure-description').val(),
+            $('#edit-med-procedure-details').val()
+        ]).draw();
          
+        $('#edit-med-procedure-modal').modal('toggle');
+        $('#edit-med-procedure-modal input').val("");
+        $('#edit-med-procedure-modal select').val("");
+        $('#edit-med-procedure-modal textarea').val("");
 
-    //      $('#edit-medication-modal').modal('toggle');
-    //      $('#edit-medication-modal input').val("");
-    //      $('#edit-medication-modal select').val("");
-    //      $('#edit-medication-modal textarea').val("");
-
-    // });
-
-
+    });
 
 
     (function ($) {
