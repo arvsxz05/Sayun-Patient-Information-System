@@ -10,31 +10,6 @@ const Laboratory = require('./models').Laboratory;
 const multer = require('multer');
 const Sequelize = require('sequelize');
 
-var fileQueue = {};
-
-const upload_file = multer({
-	storage: multer.diskStorage({
-		destination: function (req, file, cb) {
-			if(file.fieldname == 'attachments[]'){
-				var path = './uploads/lab_results';
-				cb(null, path);
-			}
-		},
-		filename: function (req, file, cb) {
-
-			// require('crypto').pseudoRandomBytes(16, function (err, raw) {
-			// 	if (req.fileValidationError){
-			// 		return cb(err);
-			// 	}
-
-				cb(null, Date.now()+file.originalname);//'.'+require('mime').extension(file.mimetype));
-			// });
-		}
-	}),
-});
-
-var upload_success = upload_file.array('attachments[]');
-
 ///////////////////// MIDDLEWARES ////////////////////////
 
 function get_age(born, now) {
@@ -59,7 +34,6 @@ function requireLoggedIn(req, res, next) {
 function requireDoctor(req, res, next) {
 	const currentUser = req.session.doctor;
 	if(!currentUser) {
-		// return res.redirect('/login');
 		return res.send("You are not authorized to access this page");
 	}
 	next();
@@ -70,7 +44,7 @@ const upload = multer({
 		destination: function (req, file, cb) {
 
 			if(file.fieldname == 'photo'){
-				var path = './uploads/patients';
+				var path = './static/uploads/patients';
 				cb(null, path);
 			}
 		},
@@ -102,7 +76,7 @@ const upload = multer({
 
 //////////////////////// GET ////////////////////////////////////
 
-router.get('/patient_list', requireLoggedIn, function(req, res){
+router.get('/patient_list', requireLoggedIn, function (req, res) {
 	var allPatients = [];
 	Patient.findAll({
 		where: {
@@ -141,75 +115,53 @@ router.get('/patient_list', requireLoggedIn, function(req, res){
 
 });
 
-router.get('/patient_add', requireLoggedIn, function(req, res){
+router.get('/patient_add', requireLoggedIn, function (req, res) {
 	res.render('patient/add-patient.html');
 });
 
-router.get('/patient_edit/:id', requireLoggedIn, 
-	function (req, res, next) {
-		var fileId = Date.now() + "" + Math.floor(Math.random()*10);
-		res.cookie('fileId', fileId, { signed: true });
-		fileQueue[fileId] = {filesArr: []};
-		next();
-	},
-	function (req, res) {
+router.get('/patient_edit/:id', requireLoggedIn, function (req, res) {
+	var key = req.params.id;
 
-		var key = req.params.id;
-
-		//Hospital Query
-		Hospital.findAll({
+	Hospital.findAll({
+		where: {
+			spisInstanceLicenseNo: req.session.spisinstance.license_no,
+			active: "t",
+		},
+		attributes: ['name', 'type'],
+		raw: true
+	}).then(function (hospitals) {
+		Patient.findOne({
 			where: {
-				spisInstanceLicenseNo: req.session.spisinstance.license_no,
-				active: "t",
+				id: key,
 			},
-			attributes: ['name', 'type'],
 			raw: true
-		}).then(function (hospitals) {
-				//Patient Query
-			Patient.findOne({
-				where: {
-					id: key,
-				},
-				raw: true,
-			}).then(function (result) {
-				var date = result.birthdate.split("-");
-				patient = result;
-				//Doctor Query
-				Doctor.findAll({
-					include: [{
-				        model: User_Account,
-				        where: {
-							spisInstanceLicenseNo: req.session.spisinstance.license_no,
-						},
-						attributes: ['id', 'first_name', 'middle_name', 'last_name'],
-				        as: 'username',
-				    }],
-				    raw: true,
-				}).then(function (doctors) {
+		}).then(function (result) {
+			var date = result.birthdate.split("-");
+			patient = result;
+			//Doctor Query
+			Doctor.findAll({
+				include: [{
+			        model: User_Account,
+			        where: {
+						spisInstanceLicenseNo: req.session.spisinstance.license_no,
+					},
+					attributes: ['id', 'first_name', 'middle_name', 'last_name'],
+			        as: 'username'
+			    }],
+			    raw: true,
+			}).then(function (doctors) {
 
-						// console.log(hospitals);
-
-					res.render('patient/patient-info.html', {
-						patient: patient,
-						user: req.session.user,
-						doctor: req.session.doctor,
-						doctors: doctors,
-						hospitals: hospitals,
-						// ipts: ipts,
-						// in patient treatment list
-						// out patient treatment list
-						// notes
-						// clinic consultation
-						// lab results
-						// diagnoses 
-						// medication
-						// billings
-					});
+				res.render('patient/patient-info.html', {
+					patient: patient,
+					user: req.session.user,
+					doctor: req.session.doctor,
+					doctors: doctors,
+					hospitals: hospitals
 				});
-			}); // inpatient treatment then;
-		}); // hospital then
-	}
-);
+			});
+		});
+	});
+});
 
 //////////////////////// POST ////////////////////////////////////
 
@@ -218,7 +170,7 @@ router.post('/patient_add', requireLoggedIn, upload.fields([{name: 'photo', maxC
 	var photo = null;
 
 	if(req.files['photo'] != undefined){
-		photo = "/uploads/patients/"+req.files['photo'][0].filename;	
+		photo = "/static/uploads/patients/"+req.files['photo'][0].filename;	
 	}
 
 	console.log("PATIENT ADD");
@@ -300,7 +252,7 @@ router.post('/patient_edit/:id', requireLoggedIn, upload.fields([{name: 'photo',
 	var key = req.params.id;
 
 	if(req.files['photo'] !== undefined){
-		photo = "/uploads/patients/"+req.files['photo'][0].filename;	
+		photo = "/static/uploads/patients/"+req.files['photo'][0].filename;	
 	}
 
 	var patient_obj;
@@ -385,35 +337,7 @@ router.post('/patient_edit/:id', requireLoggedIn, upload.fields([{name: 'photo',
 	});
 });
 
-router.post('/laboratory_add', requireLoggedIn, upload_file.array('attachments[]'), function (req, res) {
-	var fileId = req.signedCookies.fileId;
-	if (req.body.notes.trim() === "") { req.body.notes = null; }
-	Laboratory.create({
-		date: req.body.date,
-		description: req.body.description,
-		hospital: req.body.hospital,
-		notes: req.body.notes,
-		attachments: fileQueue[fileId].filesArr
-	}).then(lab_instance => {
-		fileQueue[fileId] = {};
-		res.json({});
-	});
-	
-});
-
-router.post('/upload_files_lab_results', requireLoggedIn, function (req, res) {
-	upload_success (req, res, function (err) {
-		if (err) {
-			return res.json({error: "Your upload failed. Please try again later."});
-		}
-		var fileId = req.signedCookies.fileId;
-		fileQueue[fileId].filesArr.push(req.files[0].path);
-		res.json({});
-	});
-});
-
-router.post('/patient_edit_notes/:id', requireLoggedIn, function(req, res){
-	console.log("IN EDIT NOTES PATIENT");
+router.post('/patient_edit_notes/:id', requireLoggedIn, function (req, res) {
 
 	var key = req.params.id;
 

@@ -1,0 +1,116 @@
+
+    <div class="container-fluid main-container">
+
+        <div class="container-fluid" >
+            <div class="row">
+                <div class="col-sm-10 col-sm-offset-1" style="margin-top:20px">
+                    <form id="edit-lab-form" class="form-horizontal" role="form" method="POST" enctype="multipart/form-data">
+                        <br>
+                        <div class="col-xs-12">
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label" for="lab-edit-patient-id">Patient ID</label>
+                                <div class="col-sm-8">
+                                    <input type="text" class="form-control" id="lab-edit-patient-id" name="patient" value="{{patient.id}}" disabled>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label" for="patient-name">Patient Name</label>
+                                <div class="col-sm-8">
+                                    <input type="text" class="form-control" id="patient-name" value="{{patient.first_name}} {{patient.middle_name}} {{patient.last_name}}" disabled>
+                                </div>
+                            </div>
+                            <br>
+                        </div>
+
+                        <legend><b>Edit Laboratory Results</b></legend>
+
+                        <div class="col-xs-12">
+                            <fieldset>
+                                <input type="hidden" id="lab-edit-id">
+                                <div class="form-group">
+                                    <label class="col-sm-4 control-label" for="lab-edit-date">Date*</label>
+                                    <div class="col-sm-8">
+                                        <input type="date" class="form-control" name="date" id="lab-edit-date" required>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-4 control-label" for="lab-hospital">Hospital/Clinic*</label>
+                                    <div class="col-sm-8">
+                                        <select class="form-control" id="lab-edit-hospital" name="hospital" required>
+                                            <option value="" selected disabled>Select Hospital/Clinic</option>
+                                            {% for hospital in hospitals %}
+                                                <option value="{{ hospital.name }}">{{ hospital.name }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-4 control-label" for="lab-edit-description">Description*</label>
+                                    <div class="col-sm-8">
+                                        <textarea class="form-control" rows="5" name="description" id="lab-edit-description"></textarea>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-4 control-label" for="lab-edit-notes">Notes</label>
+                                    <div class="col-sm-8">
+                                        <textarea class="form-control" rows="5" name="notes" id="lab-edit-notes"></textarea>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-4 control-label" for="lab-edit-attachments">Select File</label>
+                                    <div class="col-sm-8">
+                                        <input id="lab-edit-attachments" name="lab-edit-attachments[]" type="file" multiple class="file-loading">
+                                    </div>
+                                </div>
+                                <div class="button-group">
+                                    <a href="/account_list" class="btn btn-gray pull-right">Cancel</a>
+                                    <button type="submit" class="btn btn-lime pull-right">Save</button>
+                                </div>
+                            </fieldset>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="text/javascript">
+        
+        $( "#edit-lab-form" ).submit(function (event) {
+            var files = $('#lab-edit-attachments').fileinput('getFileStack');
+            if(files.length != 0) {
+                $(".unique-name-edit-lab").click();
+                event.preventDefault();
+            } else {
+                event.preventDefault();
+                $.ajax({
+                    type: "POST",
+                    url: "/laboratory_edit/" + $("$lab-edit-id").val(),
+                    data: {
+                        date: $("#lab-edit-date").val(),
+                        hospital: $("#lab-edit-hospital").val(),
+                        description: $("#lab-edit-description").val(),
+                        notes: $("#lab-edit-notes").val(),
+                        patient_id: $("#lab-edit-patient-id").val(),
+                    }
+                }).done(function (data) {
+                    $('#list-lab-view').show();
+                    $('#add-lab-view').hide();
+                    $('#edit-lab-view').hide();
+                });
+            }
+        });
+
+        $('#lab-edit-attachments').on('filebatchuploadcomplete', function (event, files, extra) {
+            console.log('File batch upload complete');
+            $("#edit-lab-form").submit();
+        });
+
+        $("#lab-edit-attachments").on("filepredelete", function(jqXHR) {
+            var abort = true;
+            if (confirm("Are you sure you want to delete this file?")) {
+                abort = false;
+            }
+            return abort;
+        });
+    </script>

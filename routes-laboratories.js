@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const Laboratory = require('./models').Laboratory;
 const Hospital = require('./models').Hospital;
+const fs = require('fs');
 
 const multer = require('multer');
 
@@ -25,37 +26,113 @@ function requireDoctor(req, res, next) {
 	next();
 }
 
+var addLabfileQueue = {};
 
+const upload_file = multer({
+	storage: multer.diskStorage({
+		destination: function (req, file, cb) {
+			if(file.fieldname == 'add-lab-attachments[]'){
+				var path = './static/uploads/lab_results';
+				cb(null, path);
+			}
+		},
+		filename: function (req, file, cb) {
+			cb(null, Date.now()+file.originalname);
+		}
+	}),
+});
+
+var upload_success = upload_file.array('add-lab-attachments[]');
 
 //////////////////////// GET ////////////////////////////////////
 
-router.get('/laboratory_list', requireLoggedIn, function (req, res) {
-	Laboratory.findAll({raw: true}).then(result => {
-		res.render('treatments/lab-results-list.html', {results: result});
+router.get('/lab_results_list/:patient_id', requireLoggedIn, 
+	function (req, res, next) {
+		var fileId = Date.now() + "" + Math.floor(Math.random()*10);
+		res.cookie('fileId', fileId, { signed: true });
+		addLabfileQueue[fileId] = {filesArr: []};
+		next();
+	},
+	function (req, res) {
+		var patient_id = req.params.patient_id;
+		Laboratory.findAll({
+			raw: true,
+			where: {
+				patientId: patient_id
+			}
+		}).then(lab_results_list => {
+			console.log(lab_results_list);
+			res.json({lab_results_list: lab_results_list});
+		});
+	}
+);
+
+router.post('/laboratory_add', requireLoggedIn, upload_file.array('add-lab-attachments[]'), function (req, res) {
+	var fileId = req.signedCookies.fileId;
+	console.log(req.body);
+	if (req.body.notes.trim() === "") { req.body.notes = null; }
+	Laboratory.create({
+		date: req.body.date,
+		description: req.body.description,
+		hospitalName: req.body.hospital,
+		notes: req.body.notes,
+		attachments: addLabfileQueue[fileId].filesArr,
+		patientId: req.body.patient_id
+	}).then(lab_instance => {
+		addLabfileQueue[fileId] = null;
+		res.json({});
+	});
+	
+});
+
+router.post('/upload_files_lab_results', requireLoggedIn, function (req, res) {
+	upload_success (req, res, function (err) {
+		if (err) {
+			return res.json({error: "Your upload failed. Please try again later."});
+		}
+		var fileId = req.signedCookies.fileId;
+		addLabfileQueue[fileId].filesArr.push(req.files[0].path);
+		res.json({});
 	});
 });
 
-// router.get('/laboratory_add', requireLoggedIn,
-// 	function (req, res, next) {
-// 		var fileId = Date.now() + "" + Math.floor(Math.random()*10);
-// 		res.cookie('fileId', fileId, { signed: true });
-// 		fileQueue[fileId] = {filesArr: []};
-// 		next();
-// 	},
-// 	function (req, res) {
-// 		Hospital.findAll({ where: {
-// 			active: true, 
-// 			spisInstanceLicenseNo: req.session.spisinstance.license_no
-// 		}, raw: true }).then (hospitals => {
-// 			res.render('treatments/add-lab-results.html', {
-// 				hospitals: hospitals
-// 			});
-// 		});
-// 	}
-// );
+router.get('/laboratory_edit/:lab_id', requireLoggedIn, function (req, res){
+	var lab_id = req.params.lab_id;
 
-router.get('/laboratory_edit/:id', requireLoggedIn, function(req, res){
+	Laboratory.findOne({
+		raw: true,
+		where: {
+			id: lab_id
+		}
+	}).then(lab_result => {
+		console.log(lab_result);
+		res.json({lab_result: lab_result});
+	});
+});
 
+router.post('/delete_files_lab/:lab_id', requireLoggedIn, function (req, res) {
+	var lab_id = req.params.lab_id;
+	console.log(req.body.key);
+	if (fs.existsSync(req.body.key)) {
+		fs.unlink(req.body.key);
+	}
+	Laboratory.findOne({
+		where: {
+			id: lab_id
+		}
+	}).then(lab_instance => {
+		// console.log(lab_instance);
+		if(lab_instance) {
+			var clone_arr_attachments = lab_instance.attachments.slice(0);
+			var index_to_remove = clone_arr_attachments.indexOf(req.body.key);
+			if (index_to_remove > -1) {
+			    clone_arr_attachments.splice(index_to_remove, 1);
+			}
+			lab_instance.update({ attachments: clone_arr_attachments }).then(() => { return res.json({}); });
+		} else {
+			res.json({});
+		}
+	});
 });
 
 

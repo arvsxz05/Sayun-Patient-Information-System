@@ -12,6 +12,7 @@
     <script                 type="text/javascript"  src="../../static/js/upload-image.js"></script>
     <script                 type="text/javascript"  src="../../static/js/jquery.date-dropdowns.js"></script>
     <script                 type="text/javascript"  src="../../static/js/responsive-tabs.js"></script>
+    <script                 type="text/javascript"  src="../../static/js/mimes.js"></script>
     <link rel="stylesheet"  type="text/css"         href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
     <link rel="stylesheet"  type="text/css"         href="https://cdn.datatables.net/1.10.15/css/dataTables.bootstrap.min.css">
     <script                 type="text/javascript"  src="https://cdn.datatables.net/1.10.15/js/jquery.dataTables.min.js"></script>
@@ -200,14 +201,17 @@
 
                         <!-- LABORATORY RESULTS -->
                         <div class="tab-pane" id="laboratories">
-                            <div class="row" id="list-lab">
-                                {% include "../treatments/lab-results-list.html" %}
+                            <div class="row" id="list-lab-view">
+                                {% include "../treatments/list-lab-results.html" %}
                             </div>
 
-                            <div class="row" id="add-lab">
+                            <div class="row" id="add-lab-view">
                                 {% include "../treatments/add-lab-results.html" %}
                             </div>
-                        </div>  
+                            <div class="row" id="edit-lab-view">
+                                {% include "../treatments/edit-lab-results.html" %}
+                            </div>
+                        </div>
                         <!-- END OF LABORATORY RESULTS -->
 
 
@@ -472,7 +476,8 @@
         $('#edit-opt-view').hide();
 
 
-        $('#add-lab').hide();
+        $('#add-lab-view').hide();
+        $('#edit-lab-view').hide();
 
 
         $(".date-div select").addClass("form-control");
@@ -573,6 +578,17 @@
             "bSort": true, 
             "aaSorting": [[0]],
             "aoColumns": [
+                { "bSortable": true },
+                { "bSortable": true },
+                { "bSortable": true }
+            ]    
+        });
+
+        Lab_List_Table = $('#list-lab-result').DataTable({
+            "bSort": true, 
+            "aaSorting": [],
+            "aoColumns": [
+                { "bSortable": true },
                 { "bSortable": true },
                 { "bSortable": true },
                 { "bSortable": true }
@@ -692,6 +708,20 @@
             url: "/ipt_list/{{patient.id}}",
         }).done(updateIPTListRows);
     });
+
+    $("#list-opt-view").on('show', function() {
+        $.ajax({
+            type: "GET",
+            url: "/opt_list/{{patient.id}}",
+        }).done(updateOPTListRows);
+    });
+
+    $("#list-lab-view").on('show', function() {
+        $.ajax({
+            type: "GET",
+            url: "/lab_results_list/{{patient.id}}",
+        }).done(updateLabListRows);
+    });
     // var temp_hehe = 1;
 
     function updateIPTListRows (data) {
@@ -709,12 +739,6 @@
     // end of LIST IPT ROWS
 
     //////// UPDATE LIST OPT ROWS
-    $("#list-opt-view").on('show', function() {
-        $.ajax({
-            type: "GET",
-            url: "/opt_list/{{patient.id}}",
-        }).done(updateOPTListRows);
-    });
 
     function updateOPTListRows (data) {
         console.log("UPDATE OPT LIST ROWS");
@@ -727,8 +751,20 @@
                 data.opt_list[i]['parent_record.doctor.username.first_name'] + " " + data.opt_list[i]['parent_record.doctor.username.middle_name'] + " " + data.opt_list[i]['parent_record.doctor.username.last_name']
             ]).draw();
         };
-    } 
+    }
     // end of LIST OPT ROWS
+
+    function updateLabListRows (data) {
+        Lab_List_Table = Lab_List_Table.rows().remove().draw();
+        for (var i = data.lab_results_list.length - 1; i >= 0; i--) {
+            Lab_List_Table.row.add([
+                '<a onclick="edit_Lab(\'lab-data-' + data.lab_results_list[i].id + '\')" value="' + data.lab_results_list[i].id + '" id="lab-data-' + data.lab_results_list[i].id + '">' + data.lab_results_list[i].date + '</a>',
+                data.lab_results_list[i].hospitalName,
+                data.lab_results_list[i].description,
+                data.lab_results_list[i].notes
+            ]).draw();
+        };
+    }
 
     $("#tab-consultations").click(function (e) {
 
@@ -749,7 +785,10 @@
     });
 
     $("#tab-labs").click(function (e) {
-
+        $.ajax({
+            type: "GET",
+            url: "/lab_results_list/{{patient.id}}",
+        }).done(updateLabListRows);
     });
 
     $("#tab-diagnoses").click(function (e) {

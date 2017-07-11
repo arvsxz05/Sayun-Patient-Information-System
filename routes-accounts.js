@@ -7,8 +7,8 @@ const Secretary = require('./models').Secretary;
 const Admin = require('./models').Admin;
 const SPIS_Instance = require('./models').SPIS_Instance;
 const multer = require('multer');
-const avatar = multer({dest: './uploads/avatars'});
-const signature = multer({dest: './uploads/signatures'});
+const avatar = multer({dest: './static/uploads/avatars'});
+const signature = multer({dest: './static/uploads/signatures'});
 
 const title_types = require('./models').title_types;
 
@@ -46,12 +46,12 @@ const upload = multer({
 		destination: function (req, file, cb) {
 
 			if(file.fieldname == 'photo'){
-				var path = './uploads/avatars';
+				var path = './static/uploads/avatars';
 				cb(null, path);
 			}
 
 			if(file.fieldname == 'signature') {
-				var path = './uploads/signatures';
+				var path = './static/uploads/signatures';
 				cb(null, path);
 			}
 		},
@@ -265,10 +265,10 @@ router.post('/add_account', requireLoggedIn, requireSuperUser,
 		var photo = null, sign = null;
 
 		if(req.files['photo'] != undefined) {
-			photo = "/uploads/avatars/"+req.files['photo'][0].filename;	
+			photo = "/static/uploads/avatars/"+req.files['photo'][0].filename;	
 		}
 		if(req.files['signature'] != undefined) {
-			sign = "/uploads/signatures/"+req.files['signature'][0].filename;	
+			sign = "/static/uploads/signatures/"+req.files['signature'][0].filename;	
 		}
 
 		if(email_add === "") { email_add = null; }
@@ -401,11 +401,11 @@ router.post('/account_edit/:id', requireLoggedIn,
 		var key = req.params.id;
 		var photo, sign;
 		if(req.files['photo'] != undefined) {
-			photo = "/uploads/avatars/"+req.files['photo'][0].filename;	
+			photo = "/static/uploads/avatars/"+req.files['photo'][0].filename;	
 		}
 		
 		if(req.files['signature'] != undefined) {
-			sign = "/uploads/signatures/"+req.files['signature'][0].filename;	
+			sign = "/static/uploads/signatures/"+req.files['signature'][0].filename;	
 			console.log("IN HERE SIGNATURE");
 		}
 

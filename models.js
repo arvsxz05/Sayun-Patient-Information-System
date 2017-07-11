@@ -545,8 +545,9 @@ const Billing = database.define('billing', {
 	}
 });
 
-Billing.hasMany(Billing_Item);
+Billing.hasMany(Billing_Item, {as: 'billing_items'});
 Billing.belongsTo(Check_Up);
+Check_Up.hasOne(Billing, {as: 'receipt'});
 
 // database.sync();
 
