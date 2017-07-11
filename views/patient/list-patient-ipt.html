@@ -32,33 +32,47 @@
         $('#edit-ipt-view').hide();
         $('#list-ipt-view-link').show();
         // dapat on-Submit nani sa ADD IPT Record//
-        meds = $('#list-medication').DataTable({
-            "bSort": true, 
-            "aaSorting": [[0]],
-            "aoColumns": [
-                { "bSortable": false },
-                { "bSortable": true },
-                { "bSortable": true },
-                { "bSortable": true },
-                { "bSortable": true },
-                { "bSortable": true }
-            ]    
-        });
 
-        med_procedures = $('#list-med-procedure').DataTable({
-            "bSort": true, 
-            "aaSorting": [[0]],
-            "aoColumns": [
-                { "bSortable": false },
-                { "bSortable": true },
-                { "bSortable": true },
-                { "bSortable": true }
-            ]    
-        });
-        // 
+
+        $('#add-ipt-view select').val("");
+        $('#add-ipt-view input').not('#doctor').not('#hidden-doctor').not('#p-id').val("");
+        $('#add-ipt-view textarea').val("");
+
+
+        if( $.fn.dataTable.isDataTable('#list-medication') ){
+            meds.rows().remove();
+            med_procedures.rows().remove();
+        }
+        else{
+            meds = $('#list-medication').DataTable({
+                "bSort": true, 
+                "aaSorting": [[0]],
+                "aoColumns": [
+                    { "bSortable": false },
+                    { "bSortable": true },
+                    { "bSortable": true },
+                    { "bSortable": true },
+                    { "bSortable": true },
+                    { "bSortable": true }
+                ]    
+            });
+
+            med_procedures = $('#list-med-procedure').DataTable({
+                "bSort": true, 
+                "aaSorting": [[0]],
+                "aoColumns": [
+                    { "bSortable": false },
+                    { "bSortable": true },
+                    { "bSortable": true },
+                    { "bSortable": true }
+                ]    
+            });
+            // 
+        }
+        
     }
 
-    function edit_IPT(){
+    function edit_IPT(key){
         $('#list-ipt-view').hide();
         $('#add-ipt-view').hide();
         $('#edit-ipt-view').show();
@@ -88,8 +102,8 @@
             ]    
         });
 
-        var key = $("#edit_ipt").attr('value');
-        console.log(key);
+        // var key = $("#edit_ipt").attr('value');
+        // console.log(key);
         $.ajax({
             type: "GET",
             url: "/ipt_edit_json/"+key+"/"+"{{patient.id}}",
@@ -115,11 +129,17 @@
             $('#edit-summary').val(data['ipt']['sum_of_diag']);
             $('#edit-detailed-diagnosis').val(data['ipt']['detailed_diag']);
             $('#edit-notes').val(data['ipt']['notes']);
-            $('#edit-hospital option[value="' + data['ipt']['hospital'] + '"]').prop('selected', 'true');
+            $('#edit-hospital option[value="' + data['ipt']['parent_record.hospitalName'] + '"]').prop('selected', 'true');
+            $('#edit-doctor option[value="' + data['ipt']['parent_record.doctor.id'] + '"]').prop('selected', 'true');
 
-            console.log(data);
 
-            $('#edit-ipt-form').attr('action', '/ipt_edit/'+data['ipt']['id']+"/"+data['ipt']['check_upId']);
+
+            $('#edit-p-id').val(data['ipt']['id']);
+            $('#edit-c-id').val(data['ipt']['parent_record.id']);
+
+            // console.log(data);
+
+            // $('#edit-ipt-form').attr('action', '/ipt_edit/'+data['ipt']['id']+"/"+data['ipt']['check_upId']);
             
         })
     }

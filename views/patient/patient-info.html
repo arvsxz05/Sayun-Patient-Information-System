@@ -357,9 +357,9 @@
 
         $(".date-div select").addClass("form-control");
         $("#birthday select").prop("required", true);
-        $("select[name='date_[month]'] option").first().prop("disabled", true);
-        $("select[name='date_[day]'] option").first().prop("disabled", true);
-        $("select[name='date_[year]'] option").first().prop("disabled", true);
+        $("select option[value='']:selected").attr('disabled',"disabled");
+        // $("select[name='date_[day]'] option").first().prop("disabled", true);
+        // $("select[name='date_[year]'] option").first().prop("disabled", true);
 
         $('input[type=radio][name=referral]').change(function() {
             if (this.value == 'walk-in') {
@@ -460,6 +460,21 @@
         });
     });
 
+
+    // FOR ACCORDION; ONCLICK LISTENER FOR IPT DIV//
+    $('#collapse-ip-treatments').parent().children('div.panel-heading').on('click', function(){
+
+        if($('#collapse-ip-treatments').hasClass('in') == false){
+            $.ajax({
+                type: "GET",
+                url: "/ipt_list/{{patient.id}}",
+            }).done(updateIPTListRows);
+        }
+
+    });
+
+    // /////// //
+
     // var meds;
     var med_procedures;
     var billing;
@@ -527,7 +542,7 @@
         IPT_List_Table = IPT_List_Table.rows().remove().draw();
         for (var i = data.ipt_list.length - 1; i >= 0; i--) {
             IPT_List_Table.row.add([
-                '<a onclick="edit_IPT()" value="' + data.ipt_list[i].id + '" id="ipt-data'+data.ipt_list[i].id+'">' + data.ipt_list[i].conf_date + '</a>',
+                '<a onclick="edit_IPT('+ data.ipt_list[i].id +')" value="' + data.ipt_list[i].id + '" id="ipt-data'+data.ipt_list[i].id+'">' + data.ipt_list[i].conf_date + '</a>',
                 data.ipt_list[i].discharge_date,
                 data.ipt_list[i]['parent_record.hospitalName'],
                 data.ipt_list[i]['parent_record.doctor.username.first_name'] + " " + data.ipt_list[i]['parent_record.doctor.username.middle_name'] + " " + data.ipt_list[i]['parent_record.doctor.username.last_name']
@@ -550,7 +565,7 @@
         OPT_List_Table = OPT_List_Table.rows().remove().draw();
         for (var i = data.opt_list.length - 1; i >= 0; i--) {
             OPT_List_Table.row.add([
-                '<a onclick="edit_OPT()" value="' + data.opt_list[i].id + '" id="opt-data-'+data.opt_list[i].id+'">' + data.opt_list[i].date + '</a>',
+                '<a onclick="edit_OPT('+ data.opt_list[i].id +')" value="' + data.opt_list[i].id + '" id="opt-data-'+data.opt_list[i].id+'">' + data.opt_list[i].date + '</a>',
                 data.opt_list[i]['parent_record.hospitalName'],
                 data.opt_list[i]['parent_record.doctor.username.first_name'] + " " + data.opt_list[i]['parent_record.doctor.username.middle_name'] + " " + data.opt_list[i]['parent_record.doctor.username.last_name']
             ]).draw();

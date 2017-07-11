@@ -1,8 +1,9 @@
-
 <div class="row" id="edit-ipt-view">
     <div class="form-container col-md-8" style="padding: 20px">
         <form id="edit-ipt-form" class="form-horizontal" role="form" method="POST">
             <input type="hidden" name="edit-p-id" id="edit-p-id">
+            <input type="hidden" name="edit-c-id" id="edit-c-id">
+
             <legend><b>Edit In-Patient Treatment</b></legend>
             <div class="form-group">
                 <label class="col-sm-4 control-label" for="edit-confinement-date">Confinement Date*</label>
@@ -23,7 +24,7 @@
                     <select class="form-control" id="edit-doctor" name="edit-doctor" required>
                       <option value="" disabled>Select Doctor</option>
                         {% for doctor in doctors %}
-                            <option value="{{doctor.id}}">{{doctor.first_name}} {{doctor.middle_name}} {{doctor.last_name}}</option>
+                            <option value="{{doctor.id}}">{{doctor['username.first_name']}} {{doctor['username.middle_name']}} {{doctor['username.last_name']}}</option>
                         {% endfor %}
 
                     </select>
@@ -132,5 +133,36 @@
 
 <script type="text/javascript">
 
+    $("#edit-ipt-form").submit(function (event) {
+        var key = $("#edit-p-id").val();
+        var cu = $("#edit-c-id").val();
+        console.log("IN EDIT IPT FORM AJAX");
+        event.preventDefault();
+        $.ajax({
+            type: "POST",
+            url: "/ipt_edit/"+ key +"/"+cu,
+            data: {                
+                'confinement-date': $("#edit-confinement-date-div select[name='date_[year]']").val() + '-' + $("#edit-confinement-date-div select[name='date_[month]']").val() + '-' +
+                $("#edit-confinement-date-div select[name='date_[day]']").val(),
+                
+                'discharge-date': $("#edit-discharge-date-div select[name='date_[year]']").val() + '-' + $("#edit-discharge-date-div select[name='date_[month]']").val() + '-' +
+                $("#edit-discharge-date-div select[name='date_[day]']").val(),
+                
+                'hospital': $("#edit-hospital").val(),
+                'summary': $("#edit-summary").val(),
+                'detailed-diagnosis': $("#edit-detailed-diagnosis").val(),
+                'notes': $("#edit-notes").val(),
+                'doctor': $("#edit-doctor").val(),
+            }
+        }).done(function (data) {
+            if(data.success) {
+                $('#list-ipt-view').show();
+                $('#edit-ipt-view').hide();
+            } else {
+                $("#opt-error-response").text(data.error);
+                alert(data.error);
+            }
+        });
+    });
 
 </script>

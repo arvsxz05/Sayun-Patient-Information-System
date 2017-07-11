@@ -21,24 +21,20 @@
 
 
 <script type="text/javascript">
-    function edit_OPT(){
+    function edit_OPT(key){
         $('#list-opt-view').hide();
         $('#add-opt-view').hide();
         $('#edit-opt-view').show();
         $('#list-opt-view-link').show();
 
-        var key = $("#edit_opt").attr('value');
-        console.log(key);
         $.ajax({
             type: "GET",
             url: "/opt_edit_json/"+key+"/"+"{{patient.id}}",
         }).done(function(data){
-            console.log("IN HERE DONE OPT EDIT AJAX");
-            console.log(data);
             var date;
-            // $('#edit-p-id').val(key);
 
             if(data['opt']['date'] != null){
+                console.log("IN HERE EDIT OPT DATE");
                 date = data['opt']['date'].split("-");
                 $("#edit-opt-date-div select[name='date_[month]']").val(date[1]);
                 $("#edit-opt-date-div select[name='date_[day]']").val(date[2]);
@@ -46,16 +42,15 @@
             }
 
             $('#edit-opt-hospital option[value="' + data['opt']['parent_record.hospitalName'] + '"]').prop('selected', 'true');
+
             $('#edit-opt-doctor option[value="' + data['opt']['parent_record.doctor.id'] + '"]').prop('selected', 'true');
 
             $('#edit-opt-summary').val(data['opt']['sum_of_diag']);
             $('#edit-opt-detailed-diagnosis').val(data['opt']['detailed_diag']);
             $('#edit-opt-notes').val(data['opt']['notes']);
-            $('#edit-opt-hospital option[value="' + data['opt']['hospital'] + '"]').prop('selected', 'true');
 
-            // console.log(data);
-
-            $('#edit-opt-form').attr('action', '/opt_edit/'+data['opt']['id']+"/"+data['opt']['parent_record.id']);
+            $('#edit-p-id').val(data['opt']['id']);
+            $('#edit-c-id').val(data['opt']['parent_record.id']);
             
         });
 

@@ -1,8 +1,9 @@
 
 <div class="row" id="edit-opt-view">
     <div class="form-container col-md-8" style="padding: 20px">
-        <form id="edit-opt-form" class="form-horizontal" role="form" method="POST" action="/opt_edit/{{opt.id}}/{{opt.check_upId}}">
-            <input type="hidden" name="edit-p-id" id="edit-p-id" value="{{opt.id}}">
+        <form id="edit-opt-form" class="form-horizontal" role="form" method="POST">
+            <input type="hidden" name="edit-p-id" id="edit-p-id">
+            <input type="hidden" name="edit-c-id" id="edit-c-id">
             <legend><b>Edit Out-Patient Treatment</b></legend>
             <div class="form-group">
                 <label class="col-sm-4 control-label" for="edit-opt-date">Date</label>
@@ -125,7 +126,33 @@
     <!-- END OF BILLING FOR opt -->
 </div>
 
-<scropt type="text/javascropt">
+<script type="text/javascript">
+    $("#edit-opt-form").submit(function (event) {
+        var key = $("#edit-p-id").val();
+        var cu = $("#edit-c-id").val();
+        event.preventDefault();
+        $.ajax({
+            type: "POST",
+            url: "/opt_edit/"+ key +"/"+cu,
+            data: {                
+                'date':  $("#edit-opt-date-div select[name='date_[year]']").val() + '-' + $("#edit-opt-date-div select[name='date_[month]']").val() + '-' +
+                $("#edit-opt-date-div select[name='date_[day]']").val(),
+                'hospital': $("#edit-opt-hospital").val(),
+                'summary': $("#edit-opt-summary").val(),
+                'detailed-diagnosis': $("#edit-opt-detailed-diagnosis").val(),
+                'notes': $("#edit-opt-notes").val(),
+                'doctor': $("#edit-opt-doctor").val(),
 
+            }
+        }).done(function (data) {
+            if(data.success) {
+                $('#list-opt-view').show();
+                $('#edit-opt-view').hide();
+            } 
+            else {
+                $("#opt-error-response").text(data.error);
+            }
+        });
+    });
 
-</scropt>
+</script>

@@ -1,7 +1,8 @@
 <div class="row"  id="add-opt-view">
     <div class="form-container col-md-8" style="padding: 20px">
         <form id="add-opt-form" class="form-horizontal" role="form" method="POST" action="">
-            <input type="hidden" name="p-id" id="p-id" value="{{patient.id}}">
+            <input type="hidden" name="p-id" id="p-id">
+            <input type="hidden" name="c-id" id="c-id">
             <legend><b>Add Out-Patient Treatment</b></legend>
             <div>
                 <p class="text-danger" id="opt-error-response"></p>
