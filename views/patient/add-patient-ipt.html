@@ -94,7 +94,7 @@
             </div>
             <div class="button-group">
                 <button class="btn btn-red pull-right" type="submit" name="delete" value="true" id="delete">Delete</button>
-                <a href class="btn btn-lime pull-right" id="add-hlc-button" data-toggle="modal" data-target="#add-medication-modal">Add</a>
+                <a class="btn btn-lime pull-right" id="ipt-add-med" data-toggle="modal" data-target="#add-medication-modal">Add</a>
             </div>
         </form>
         <!-- END OF MEDICATION LIST FOR IPT -->
@@ -133,6 +133,30 @@
 <script type="text/javascript">
     $("#add-ipt-form").submit(function (event) {
         event.preventDefault();
+        console.log("whayYYYY:" + meds.rows().data()[0][1]);
+
+        var medication = [], med_procedure = [];
+
+        for(var i = 0; i < meds.rows().data().length; i++){
+            medication.push({
+                name: meds.rows().data()[i][1],
+                dosage: meds.rows().data()[i][2],
+                frequency: meds.rows().data()[i][3],
+                type: meds.rows().data()[i][4],
+                instruction: meds.rows().data()[i][5],
+            });
+        }
+
+        for(var i = 0; i < med_procedures.rows().data().length; i++){
+            med_procedure.push({
+                date: med_procedures.rows().data()[i][1],
+                description: med_procedures.rows().data()[i][2],
+                details: med_procedures.rows().data()[i][3],
+            });
+        }
+
+        // console.log(medication);
+
         $.ajax({
             type: "POST",
             url: "/ipt_add",
@@ -144,7 +168,9 @@
                 'detailed-diagnosis': $("#detailed-diagnosis").val(),
                 'notes': $("#ipt-notes").val(),
                 'doctor': $("#hidden-doctor").val(),
-                'p-id': $("#p-id").val()
+                'p-id': $("#p-id").val(),
+                'meds':  medication,
+                'med_procedures': med_procedure,
             }
         }).done(function (data) {
             if(data.success) {

@@ -4,6 +4,8 @@ const OutPatient_Treatment = require('./models').OutPatient_Treatment;
 const Check_Up = require('./models').Check_Up;
 const Doctor = require('./models').Doctor;
 const User_Account = require('./models').User_Account;
+const Medication = require('./models').Medication;
+const Medical_Procedure = require('./models').Medical_Procedure;
 
 ///////////////////// MIDDLEWARES ////////////////////////
 
@@ -102,6 +104,9 @@ router.post('/opt_add', function(req, res){
 	var doc = req.body['doctor'];
 	var discharge = null;
 
+	var medication = req.body['meds'];
+	var medical_procedure = req.body['med_procedures'];
+
 	OutPatient_Treatment.create({
 		date: date,
 		sum_of_diag: summary,
@@ -111,12 +116,22 @@ router.post('/opt_add', function(req, res){
 			check_up_type: "Out-Patient-Treatment",
 			hospitalName: hospital,
 			patientId: p_id,
-			doctorId: doc
+			doctorId: doc,
+			medication: medication,
+			medical_procedure: medical_procedure,
 		}
 	}, {
 		include: [{
 			model: Check_Up,
-			as: 'parent_record'
+			as: 'parent_record',
+			include: [{
+				model: Medication,
+				as: 'medication'
+			}],
+			include: [{
+				model: Medical_Procedure,
+				as: 'medical_procedure',
+			}]
 		}]
 	}).then(checkUp_data => {
 		res.json({success: true});

@@ -452,11 +452,11 @@ const Medication = database.define('medication', {
 	}
 });
 
-Check_Up.hasMany(Medication);
+Check_Up.hasMany(Medication, {as: "medication"});
 Medication.belongsTo(Check_Up);
 
 
-const Medical_Procedure = database.define('medical_procedures', {
+const Medical_Procedure = database.define('medical_procedure', {
 	date: {
 		type: Sequelize.DATEONLY,
 		allowNull: false,
@@ -475,7 +475,7 @@ const Medical_Procedure = database.define('medical_procedures', {
 	}
 });
 
-Check_Up.hasMany(Medical_Procedure);
+Check_Up.hasMany(Medical_Procedure, {as: "medical_procedure"});
 Medical_Procedure.belongsTo(Check_Up);
 
 const OutPatient_Treatment = database.define('outpatient_treatment', {
@@ -575,4 +575,6 @@ module.exports.InPatient_Treatment = InPatient_Treatment;
 module.exports.OutPatient_Treatment = OutPatient_Treatment;
 module.exports.Laboratory = Laboratory;
 module.exports.Check_Up = Check_Up;
+module.exports.Medication = Medication;
+module.exports.Medical_Procedure = Medical_Procedure;
 module.exports.title_types = title_types;

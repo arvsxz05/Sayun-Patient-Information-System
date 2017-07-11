@@ -4,6 +4,8 @@ const InPatient_Treatment = require('./models').InPatient_Treatment;
 const Check_Up = require('./models').Check_Up;
 const Doctor = require('./models').Doctor;
 const User_Account = require('./models').User_Account;
+const Medication = require('./models').Medication;
+const Medical_Procedure = require('./models').Medical_Procedure;
 
 ///////////////////// MIDDLEWARES ////////////////////////
 
@@ -102,6 +104,9 @@ router.post('/ipt_add', function(req, res){
 		discharge = req.body['discharge-date'];
 	};
 
+	var medication = req.body['meds'];
+	var medical_procedure = req.body['med_procedures'];
+
 	InPatient_Treatment.create({
 		conf_date: confine,
 		discharge_date: discharge,
@@ -112,12 +117,22 @@ router.post('/ipt_add', function(req, res){
 			check_up_type: "In-Patient-Treatment",
 			hospitalName: hospital,
 			patientId: p_id,
-			doctorId: doc
+			doctorId: doc,
+			medication: medication,
+			medical_procedure: medical_procedure,
 		}
 	}, {
 		include: [{
 			model: Check_Up,
-			as: 'parent_record'
+			as: 'parent_record',
+			include: [{
+				model: Medication,
+				as: 'medication'
+			}],
+			include: [{
+				model: Medical_Procedure,
+				as: 'medical_procedure',
+			}]
 		}]
 	}).then(checkUp_data => {
 		res.json({success: true});

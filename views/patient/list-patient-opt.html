@@ -58,35 +58,46 @@
     }
 
     function add_OPT() {
-            $('#list-opt-view').hide();
-            $('#add-opt-view').show();
-            $('#edit-opt-view').hide();
-            $('#list-opt-view-link').show();
+        $('#list-opt-view').hide();
+        $('#add-opt-view').show();
+        $('#edit-opt-view').hide();
+        $('#list-opt-view-link').show();
         // dapat on-Submit nani sa ADD IPT Record//
-        meds = $('#list-medication').DataTable({
-            "bSort": true, 
-            "aaSorting": [[0]],
-            "aoColumns": [
-                { "bSortable": false },
-                { "bSortable": true },
-                { "bSortable": true },
-                { "bSortable": true },
-                { "bSortable": true },
-                { "bSortable": true }
-            ]    
-        });
+        $('#add-opt-view select').val("");
+        $('#add-opt-view input').not('#opt-doctor').not('#p-id').val("");
+        $('#add-opt-view textarea').val("");
 
-        med_procedures = $('#list-med-procedure').DataTable({
-            "bSort": true, 
-            "aaSorting": [[0]],
-            "aoColumns": [
-                { "bSortable": false },
-                { "bSortable": true },
-                { "bSortable": true },
-                { "bSortable": true }
-            ]    
-        });
-        // 
+
+        if( $.fn.dataTable.isDataTable('#opt-list-medication') ){
+            meds.rows().remove();
+            med_procedures.rows().remove();
+        }
+        else{
+            meds = $('#opt-list-medication').DataTable({
+                "bSort": true, 
+                "aaSorting": [[0]],
+                "aoColumns": [
+                    { "bSortable": false },
+                    { "bSortable": true },
+                    { "bSortable": true },
+                    { "bSortable": true },
+                    { "bSortable": true },
+                    { "bSortable": true }
+                ]    
+            });
+
+            med_procedures = $('#opt-list-med-procedure').DataTable({
+                "bSort": true, 
+                "aaSorting": [[0]],
+                "aoColumns": [
+                    { "bSortable": false },
+                    { "bSortable": true },
+                    { "bSortable": true },
+                    { "bSortable": true }
+                ]    
+            });
+            // 
+        }
     }
 
 </script>

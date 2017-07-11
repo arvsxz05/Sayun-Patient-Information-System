@@ -282,6 +282,123 @@
         </div>
     </div>
     <!-- END MODAL ADD MEDICATION -->
+
+
+
+    <!-- MODAL FOR ADD MEDICAL PROCEDURES -->
+     <div class="modal fade" id="add-med-procedure-modal" role="dialog">
+        <div class="modal-dialog">
+          <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" style="color: black">&times;</button>
+                    <h4 class="modal-title" style="float:left"><strong>Add Medical Procedure</strong></h4>
+                </div>
+                <div class="modal-body">
+                    <div class="container-fluid">
+                        <div class="row">
+                            <div class="col-xs-12">
+                                <form id="add-med-procedure-form" class="form-horizontal" method="POST" action="">
+                                    <fieldset>
+                                        <div class="form-group">
+                                            <label class="col-sm-3 control-label" for="add-med-procedure-date">Date*</label>
+                                            <div class="col-sm-9 col-md-8 date-div" id="add-med-procedure-date">
+                                                <input type="hidden" id="med-procedure-date">
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="col-sm-3 control-label" for="add-med-procedure-description">Description</label>
+                                            <div class="col-sm-9">
+                                                <textarea rows="5" class="form-control" name="add-med-procedure-description" id="add-med-procedure-description"></textarea>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="col-sm-3 control-label" for="add-med-procedure-details">Details</label>
+                                            <div class="col-sm-9">
+                                                <textarea rows="5" class="form-control" name="add-med-procedure-details" id="add-med-procedure-details"></textarea>
+                                            </div>
+                                        </div>
+                                    </fieldset>
+                                    <div class="button-group">
+                                        <a class="btn btn-gray pull-right" data-dismiss="modal">Cancel</a>
+                                        <button type="submit" class="btn btn-lime pull-right" id="add-med-procedure-btn">Save</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- END OF MEDICAL PROCEDURES MODAL -->
+
+
+
+    <!-- MODAL EDIT MEDICATION -->
+    <div class="modal fade" id="edit-medication-modal" role="dialog">
+        <div class="modal-dialog">
+          <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" style="color: black">&times;</button>
+                    <h4 class="modal-title" style="float:left"><strong>Edit Medication</strong></h4>
+                </div>
+                <div class="modal-body">
+                    <div class="container-fluid">
+                        <div class="row">
+                            <div class="col-xs-12">
+                                <form id="edit-med-form" class="form-horizontal" method="POST" action="">
+                                    <fieldset>
+                                        <div class="form-group">
+                                            <label class="col-sm-3 control-label" for="edit-med-name">Name*</label>
+                                            <div class="col-sm-9">
+                                                <input type="text" class="form-control" name="edit-med-name" id="edit-med-name" required>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="col-sm-3 control-label" for="edit-med-dosage">Dosage*</label>
+                                            <div class="col-sm-9">
+                                                <input type="text" class="form-control" name="edit-med-dosage" id="edit-med-dosage" required>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="col-sm-3 control-label" for="edit-med-frequency">Frequency*</label>
+                                            <div class="col-sm-9">
+                                                <input type="text" class="form-control" name="edit-med-frequency" id="edit-med-frequency" required>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="col-sm-3 control-label">Type*</label>
+                                            <div class="col-sm-9">
+                                                <select class="form-control" name="edit-med-type" id="edit-med-type" required>
+                                                  <option value="" selected disabled>----</option>
+                                                  <option value="Maintenance">Maintenance</option>
+                                                  <option value="Non-Maintenance">Non-Maintenance</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="col-sm-3 control-label" for="edit-med-instructions">Instructions</label>
+                                            <div class="col-sm-9">
+                                                <textarea rows="5" class="form-control" name="edit-med-instructions" id="edit-med-instructions"></textarea>
+                                            </div>
+                                        </div>
+                                    </fieldset>
+                                    <div class="button-group">
+                                        <a class="btn btn-gray pull-right" data-dismiss="modal">Cancel</a>
+                                        <button type="submit" class="btn btn-lime pull-right" id="edit-med-btn">Save</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- END MODAL EDIT MEDICATION -->
+
 <!-- END OF MODAAAALLSSS -->
 
 </body>
@@ -340,6 +457,9 @@
             displayFormat: "mdy"
         });
 
+        $("#add-med-procedure-date").dateDropdowns({
+            displayFormat: "mdy"
+        });
 
 
         $('#list-ipt-view-link').hide();
@@ -475,7 +595,7 @@
 
     // /////// //
 
-    // var meds;
+    var meds;
     var med_procedures;
     var billing;
 
@@ -498,12 +618,15 @@
         med_procedures.destroy();
     }
     
+    // function example() {
+    //     console.log($(this).text());
+    // }
 
     $('#add-med-form').submit(function(e){
         e.preventDefault();
          meds.row.add([
             '<input type="checkbox" id="" name=""></input>', //idk UNSAON ANG NAME AND ID ANI FOR DELETION
-            $('#add-med-name').val(),
+            '<a onclick="">' + $('#add-med-name').val() + '</a>',
             $('#add-med-dosage').val(),
             $('#add-med-frequency').val(),
             $('#add-med-type').val(),
@@ -517,6 +640,40 @@
          $('#add-medication-modal textarea').val("");
 
     });
+
+     $('#add-med-procedure-form').submit(function(e){
+        e.preventDefault();
+         med_procedures.row.add([
+            '<input type="checkbox" id="" name=""></input>', //idk UNSAON ANG NAME AND ID ANI FOR DELETION
+            $("#add-med-procedure-date select[name='date_[year]']").val() + '-' + 
+            $("#add-med-procedure-date select[name='date_[month]']").val() + '-' +
+            $("#add-med-procedure-date select[name='date_[day]']").val(),
+            $('#add-med-procedure-description').val(),
+            $('#add-med-procedure-details').val()
+        ]).draw();
+         
+
+         $('#add-med-procedure-modal').modal('toggle');
+         $('#add-med-procedure-modal input').val("");
+         $('#add-med-procedure-modal select').val("");
+         $('#add-med-procedure-modal textarea').val("");
+
+    });
+
+    //  $('#edit-med-form').submit(function(e){
+    //     e.preventDefault();
+    //      // meds.row(this).edit();
+         
+
+    //      $('#edit-medication-modal').modal('toggle');
+    //      $('#edit-medication-modal input').val("");
+    //      $('#edit-medication-modal select').val("");
+    //      $('#edit-medication-modal textarea').val("");
+
+    // });
+
+
+
 
     (function ($) {
       $.each(['show', 'hide'], function (i, ev) {
@@ -606,5 +763,12 @@
     $("#tab-billing").click(function (e) {
 
     });
+
+
+
+    $('#add-medication-modal').on('shown.bs.modal', function (e) {
+        var caller = $(e.relatedTarget).attr('id');
+    });
+
 </script>
 </html>

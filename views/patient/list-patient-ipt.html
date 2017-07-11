@@ -38,24 +38,12 @@
         $('#add-ipt-view input').not('#doctor').not('#hidden-doctor').not('#p-id').val("");
         $('#add-ipt-view textarea').val("");
 
-
         if( $.fn.dataTable.isDataTable('#list-medication') ){
             meds.rows().remove();
             med_procedures.rows().remove();
         }
         else{
-            meds = $('#list-medication').DataTable({
-                "bSort": true, 
-                "aaSorting": [[0]],
-                "aoColumns": [
-                    { "bSortable": false },
-                    { "bSortable": true },
-                    { "bSortable": true },
-                    { "bSortable": true },
-                    { "bSortable": true },
-                    { "bSortable": true }
-                ]    
-            });
+            meds = $('#list-medication').DataTable();
 
             med_procedures = $('#list-med-procedure').DataTable({
                 "bSort": true, 
@@ -66,6 +54,23 @@
                     { "bSortable": true },
                     { "bSortable": true }
                 ]    
+            });
+
+
+            meds.on('click', 'tbody tr', function () {
+                var data = meds.row(this).data();
+                meds.row(this).edit( {
+                    buttons: [
+                        { label: 'Cancel', fn: function () { this.close(); } },
+                        'Edit'
+                    ]
+                } );
+                // $('#edit-medication-modal').modal('show');
+                // $('#edit-med-name').val(data[1]);
+                // $('#edit-med-dosage').val(data[2]);
+                // $('#edit-med-frequency').val(data[3]);
+                // $('#edit-med-type').val(data[4]);
+                // $('#edit-med-instructions').val(data[5]);
             });
             // 
         }
