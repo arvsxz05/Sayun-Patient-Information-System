@@ -1,4 +1,3 @@
-
 <div class="row" id="edit-opt-view">
     <div class="form-container col-md-8" style="padding: 20px">
         <form id="edit-opt-form" class="form-horizontal" role="form" method="POST">
@@ -118,41 +117,63 @@
         </form>
         <!-- END OF MEDICAL PROCEDURES LIST FOR opt -->
 
+        <legend><b>Add/Edit Attachments</b></legend>
+        <div class="form-group">
+            <input id="edit-opt-attachments" name="add-opt-attachments[]" type="file" multiple class="file-loading">
+        </div>
+
     </div>
     <!-- BILLING FOR opt -->
-    <div class="col-md-4">
-        ssssssssss
-    </div>
+    <div class="col-md-4"></div>
     <!-- END OF BILLING FOR opt -->
 </div>
 
 <script type="text/javascript">
-    $("#edit-opt-form").submit(function (event) {
-        var key = $("#edit-p-id").val();
-        var cu = $("#edit-c-id").val();
-        event.preventDefault();
-        $.ajax({
-            type: "POST",
-            url: "/opt_edit/"+ key +"/"+cu,
-            data: {                
-                'date':  $("#edit-opt-date-div select[name='date_[year]']").val() + '-' + $("#edit-opt-date-div select[name='date_[month]']").val() + '-' +
-                $("#edit-opt-date-div select[name='date_[day]']").val(),
-                'hospital': $("#edit-opt-hospital").val(),
-                'summary': $("#edit-opt-summary").val(),
-                'detailed-diagnosis': $("#edit-opt-detailed-diagnosis").val(),
-                'notes': $("#edit-opt-notes").val(),
-                'doctor': $("#edit-opt-doctor").val(),
 
-            }
-        }).done(function (data) {
-            if(data.success) {
-                $('#list-opt-view').show();
-                $('#edit-opt-view').hide();
-            } 
-            else {
-                $("#opt-error-response").text(data.error);
-            }
-        });
+    $("#edit-opt-form").submit(function (event) {
+        var files = $('#edit-opt-attachments').fileinput('getFileStack');
+        if(files.length != 0) {
+            $(".unique-name-edit-opt").click();
+            event.preventDefault();
+        } else {
+            var key = $("#edit-p-id").val();
+            var cu = $("#edit-c-id").val();
+            event.preventDefault();
+            $.ajax({
+                type: "POST",
+                url: "/opt_edit/"+ key +"/"+cu,
+                data: {                
+                    'date':  $("#edit-opt-date-div select[name='date_[year]']").val() + '-' + $("#edit-opt-date-div select[name='date_[month]']").val() + '-' +
+                    $("#edit-opt-date-div select[name='date_[day]']").val(),
+                    'hospital': $("#edit-opt-hospital").val(),
+                    'summary': $("#edit-opt-summary").val(),
+                    'detailed-diagnosis': $("#edit-opt-detailed-diagnosis").val(),
+                    'notes': $("#edit-opt-notes").val(),
+                    'doctor': $("#edit-opt-doctor").val(),
+
+                }
+            }).done(function (data) {
+                if(data.success) {
+                    $('#list-opt-view').show();
+                    $('#edit-opt-view').hide();
+                } 
+                else {
+                    $("#opt-error-response").text(data.error);
+                }
+            });
+        }
+    });
+
+    $("#edit-opt-attachments").on("filepredelete", function (jqXHR) {
+        var abort = true;
+        if (confirm("Are you sure you want to delete this file?")) {
+            abort = false;
+        }
+        return abort;
+    });
+
+    $('#edit-opt-attachments').on('fileloaded', function (event, file, previewId, index, reader) {
+        $('#edit-opt-attachments').fileinput('upload');
     });
 
 </script>

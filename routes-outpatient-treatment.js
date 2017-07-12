@@ -6,6 +6,8 @@ const Doctor = require('./models').Doctor;
 const User_Account = require('./models').User_Account;
 const Medication = require('./models').Medication;
 const Medical_Procedure = require('./models').Medical_Procedure;
+const multer = require('multer');
+const fs = require('fs');
 
 ///////////////////// MIDDLEWARES ////////////////////////
 
@@ -27,38 +29,56 @@ function requireDoctor(req, res, next) {
 	next();
 }
 
+var addOPTfileQueue = {};
+
+const upload_file_opts = multer({
+	storage: multer.diskStorage({
+		destination: function (req, file, cb) {
+			if(file.fieldname == 'add-opt-attachments[]'){
+				var path = './static/uploads/OPTs';
+				cb(null, path);
+			}
+		},
+		filename: function (req, file, cb) {
+			cb(null, Date.now()+file.originalname);
+		}
+	}),
+});
+
+var upload_opt_success = upload_file_opts.array('add-opt-attachments[]');
+
 //////////////////////// GET ////////////////////////////////////
 
-router.get('/opt_list/:patient_id', function(req, res){
+router.get('/opt_list/:patient_id', 
+	function (req, res, next) {
+		var fileId = Date.now() + "" + Math.floor(Math.random()*10);
+		res.cookie('optFileId', fileId, { signed: true });
+		addOPTfileQueue[fileId] = {filesArr: []};
+		next();
+	},
+	function (req, res) {
+		var patient_id = req.params.patient_id;
 
-	console.log("IN OPT LIST");
+		OutPatient_Treatment.findAll({
+			raw: true,
+			include: [{
+		        model: Check_Up,
+		        where: {
+					patientId: patient_id,
+				},
+				as: 'parent_record',
+				include: [{ 
+					model: Doctor,
+					include: [{ model: User_Account, as: 'username'}]
+				}]
+		    }]
+		}).then(function (results) {
+			res.json({opt_list: results});
+		});
+	}
+);
 
-	var patient_id = req.params.patient_id;
-
-	OutPatient_Treatment.findAll({
-		raw: true,
-		include: [{
-	        model: Check_Up,
-	        where: {
-				patientId: patient_id,
-			},
-			as: 'parent_record',
-			include: [{ 
-				model: Doctor,
-				include: [{ model: User_Account, as: 'username'}]
-			}]
-	    }]
-	}).then(function(results){
-		// console.log(results);
-		res.json({opt_list: results});
-	});
-});
-
-router.get('/opt_add', function(req, res){
-
-});
-
-router.get('/opt_edit_json/:opt_id/:patient_id', function(req, res){
+router.get('/opt_edit_json/:opt_id/:patient_id', function (req, res) {
 	console.log("OPT EDIT JSON");
 	console.log(req.params);
 
@@ -83,26 +103,26 @@ router.get('/opt_edit_json/:opt_id/:patient_id', function(req, res){
 	    where: {
 	    	id: key,
 	    }
-	}).then(function(result){
-		// console.log(result);
+	}).then(function (result) {
 		opt = result;
 		Medication.findAll({
 			where: {
 				checkUpId: opt['parent_record.id'],
 			},
 			raw: true,
-		}).then(function(results){
+		}).then(function (results) {
 			meds = results;
 			Medical_Procedure.findAll({
 				where: {
 					checkUpId: opt['parent_record.id'],
 				},
 				raw: true,
-			}).then(function(results){
-				res.json({	opt: opt,
-							medications: meds,
-							med_procedures: results});
-
+			}).then(function (results) {
+				res.json({	
+					opt: opt,
+					medications: meds,
+					med_procedures: results
+				});
 			});
 		});
 	});
@@ -111,10 +131,8 @@ router.get('/opt_edit_json/:opt_id/:patient_id', function(req, res){
 
 //////////////////////// POST ////////////////////////////////////
 
-router.post('/opt_add', function(req, res){
-
-	console.log("OPT ADD");
-	console.log(req.body);
+router.post('/opt_add', upload_file_opts.array('add-opt-attachments[]'), function (req, res) {
+	var fileId = req.signedCookies.optFileId;
 
 	var date = req.body['opt-date'];
 	var hospital = req.body['hospital'];
@@ -142,6 +160,7 @@ router.post('/opt_add', function(req, res){
 		sum_of_diag: summary,
 		detailed_diag: details,
 		notes: notes,
+		attachments: addOPTfileQueue[fileId].filesArr,
 		parent_record: {
 			check_up_type: "Out-Patient-Treatment",
 			hospitalName: hospital,
@@ -163,7 +182,19 @@ router.post('/opt_add', function(req, res){
 			}],
 		}]
 	}).then(checkUp_data => {
+		addOPTfileQueue[fileId] = null;
 		res.json({success: true});
+	});
+});
+
+router.post('/upload_files_opt', requireLoggedIn, function (req, res) {
+	upload_opt_success (req, res, function (err) {
+		if (err) {
+			return res.json({error: "Your upload failed. Please try again later."});
+		}
+		var fileId = req.signedCookies.optFileId;
+		addOPTfileQueue[fileId].filesArr.push(req.files[0].path);
+		res.json({});
 	});
 });
 
@@ -171,18 +202,12 @@ router.post('/opt_edit/:opt_id/:cu_id', function(req, res){
 	var key = req.params.opt_id;
 	var cu_id = req.params.cu_id;
 
-	console.log("IN OPT EDIT");
-	console.log(req.body);
-
-	console.log(key);
-
 	var date = null;
 
 	// if(req.body['date_'].year != '' && req.body['date_'].month != '' && req.body['date_'].day != ''){
 	// 	date = req.body["date_"].year+"-"+req.body["date_"].month+"-"+req.body["date_"].day;
 	// }
 
-	// console.log(date);
 	var date = req.body['date'];
 	var hospital = req.body['hospital'];
 	var summary = req.body['summary'];
@@ -191,29 +216,6 @@ router.post('/opt_edit/:opt_id/:cu_id', function(req, res){
 	var doc = req.body['doctor'];
 
 	var checkup_id;
-
-	// OutPatient_Treatment.update({
-	// 	date: date,
-	// 	sum_of_diag: summary,
-	// 	detailed_diag: details,
-	// 	notes: notes,
-	// 	parent_record: {
-	// 		hospitalName: hospital,
-	// 		doctorId: doc
-	// 	}
-	// },{
-	// 	where: {
-	// 		id: key,
-	// 	}		
-	// // }, {
-	// // 	include: [{
-	// // 		model: Check_Up,
-	// // 		as: 'parent_record'
-	// // 	}]
-	// }).then(checkUp_data => {
-	// 	res.json({success: true});
-	// });
-
 
 	OutPatient_Treatment.update({
 		date: date,
@@ -243,6 +245,52 @@ router.post('/opt_edit/:opt_id/:cu_id', function(req, res){
 	}).catch(function(error){
 		console.log(error);
 		res.json({error: error});
+	});
+});
+
+router.post('/delete_files_opt/:opt_id', requireLoggedIn, function (req, res) {
+	var opt_id = req.params.opt_id;
+	console.log(req.body.key);
+	if (fs.existsSync(req.body.key)) {
+		fs.unlink(req.body.key);
+	}
+	InPatient_Treatment.findOne({
+		where: {
+			id: opt_id
+		}
+	}).then(opt_instance => {
+		// console.log(lab_instance);
+		if(opt_instance) {
+			var clone_arr_attachments = opt_instance.attachments.slice(0);
+			var index_to_remove = clone_arr_attachments.indexOf(req.body.key);
+			if (index_to_remove > -1) {
+			    clone_arr_attachments.splice(index_to_remove, 1);
+			}
+			opt_instance.update({ attachments: clone_arr_attachments }).then(() => { return res.json({}); });
+		} else {
+			res.json({});
+		}
+	});
+});
+
+router.post("/upload_files_edit_opt/:opt_id", requireLoggedIn, function (req, res) {
+	upload_opt_success (req, res, function (err) {
+		if (err) {
+			return res.json({error: "Your upload failed. Please try again later."});
+		}
+		InPatient_Treatment.findOne({
+			where: {
+				id: req.params.opt_id
+			}
+		}).then(opt_instance => {
+			if(opt_instance) {
+				var clone_arr_attachments = opt_instance.attachments.slice(0);
+				clone_arr_attachments.push(req.files[0].path);
+				opt_instance.update({ attachments: clone_arr_attachments }).then(() => { return res.json({}); });
+			} else {
+				res.json({});
+			}
+		});
 	});
 });
 

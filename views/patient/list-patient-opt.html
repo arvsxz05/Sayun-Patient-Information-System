@@ -21,7 +21,8 @@
 
 
 <script type="text/javascript">
-    function edit_OPT(key){
+
+    function edit_OPT (key) {
         $('#list-opt-view').hide();
         $('#add-opt-view').hide();
         $('#edit-opt-view').show();
@@ -30,10 +31,10 @@
         $.ajax({
             type: "GET",
             url: "/opt_edit_json/"+key+"/"+"{{patient.id}}",
-        }).done(function(data){
+        }).done(function (data) {
             var date;
 
-            if(data['opt']['date'] != null){
+            if(data['opt']['date'] != null) {
                 // console.log("IN HERE EDIT OPT DATE");
                 date = data['opt']['date'].split("-");
                 $("#edit-opt-date-div select[name='date_[month]']").val(date[1]);
@@ -98,11 +99,8 @@
                 $('#edit-med-procedure-details').val(data[3]);
             });
             
-
             meds.rows().remove();
             med_procedures.rows().remove();
-
-            console.log(data);
 
             for (var i = data['medications'].length - 1; i >= 0; i--) {
                 meds.row.add([
@@ -125,10 +123,50 @@
                     data['med_procedures'][i].details
                 ]).draw();
             }
+
+            var edit_attachments_init = [], edit_attachments_config = [];
+
+            for (var i = data.opt.attachments.length - 1; i >= 0; i--) {
+
+                var file_path = "\\" + data.opt.attachments[i];
+
+                edit_attachments_init.push(file_path);
+
+                var rev_file_path = file_path.split("").reverse().join("");
+                var rev_file_name = rev_file_path.substring(0, rev_file_path.indexOf('\\'));
+                var file_name = rev_file_name.split("").reverse().join("");
+                var mime_type = file_path.split('.').pop();
+
+                var type_mapping = getMimeByExt(mime_type.toLowerCase());
+
+                edit_attachments_config.push({
+                    caption: file_name,
+                    type: type_mapping,
+                    url: '/delete_files_opt/' + data.opt['id'],  
+                    key: data.opt.attachments[i]
+                });
+            };
             
+            $("#edit-opt-attachments").fileinput({
+                // showUpload: false,
+                uploadUrl: '/upload_files_edit_opt/'+data.opt['id'],
+                browseOnZoneClick: true,
+                initialPreview: edit_attachments_init,
+                initialPreviewAsData: true,
+                initialPreviewConfig: edit_attachments_config,
+                overwriteInitial: false,
+                layoutTemplates: {
+                    actions: '<div class="file-actions">\n' +
+                    '    <div class="file-footer-buttons">\n' +
+                    '        {delete} {zoom} {other}' +
+                    '    </div>\n' +
+                    '    {drag}\n' +
+                    '    <div class="clearfix"></div>\n' +
+                    '</div>'
+                },
+                uploadClass: 'btn btn-xs btn-default unique-name-edit-opt hidden',
+            });
         });
-
-
     }
 
     function add_OPT() {
@@ -136,7 +174,6 @@
         $('#add-opt-view').show();
         $('#edit-opt-view').hide();
         $('#list-opt-view-link').show();
-        // dapat on-Submit nani sa ADD IPT Record//
         $('#add-opt-view select').val("");
         $('#add-opt-view input').not('#hidden-opt-doctor').not('#opt-doctor').not('#p-id').val("");
         $('#add-opt-view textarea').val("");
@@ -160,7 +197,6 @@
                 ]    
             }).on('click', 'tbody tr', function () {
                 var data = meds.row(this).data();
-                // console.log($(this));
                 edit_med_caller = $(this);
 
                 $('#edit-medication-modal').modal('toggle');
@@ -192,7 +228,6 @@
                 $('#edit-med-procedure-description').val(data[2]);
                 $('#edit-med-procedure-details').val(data[3]);
             });
-            // 
         }
     }
 

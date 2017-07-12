@@ -138,7 +138,7 @@
 <script type="text/javascript">
     $(document).on('ready', function() {
         $("#add-ipt-attachments").fileinput({
-            uploadUrl: '/upload_files_ipt_results',
+            uploadUrl: '/upload_files_ipt',
             browseOnZoneClick: true,
             layoutTemplates: {
                 actions: '<div class="file-actions">\n' +
@@ -206,6 +206,7 @@
             });
         }
     });
+    
     $('#add-ipt-attachments').on('filebatchuploadcomplete', function (event, files, extra) {
         console.log('File batch upload complete');
         $("#add-ipt-form").submit();
