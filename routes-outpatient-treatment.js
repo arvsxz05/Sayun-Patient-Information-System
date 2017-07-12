@@ -127,8 +127,7 @@ router.post('/opt_add', function(req, res){
 			include: [{
 				model: Medication,
 				as: 'medication'
-			}],
-			include: [{
+			}, {
 				model: Medical_Procedure,
 				as: 'medical_procedure',
 			}]

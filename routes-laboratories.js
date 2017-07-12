@@ -28,7 +28,7 @@ function requireDoctor(req, res, next) {
 
 var addLabfileQueue = {};
 
-const upload_file = multer({
+const upload_file_labs = multer({
 	storage: multer.diskStorage({
 		destination: function (req, file, cb) {
 			if(file.fieldname == 'add-lab-attachments[]'){
@@ -42,7 +42,7 @@ const upload_file = multer({
 	}),
 });
 
-var upload_success = upload_file.array('add-lab-attachments[]');
+var upload_success = upload_file_labs.array('add-lab-attachments[]');
 
 //////////////////////// GET ////////////////////////////////////
 
@@ -67,7 +67,7 @@ router.get('/lab_results_list/:patient_id', requireLoggedIn,
 	}
 );
 
-router.post('/laboratory_add', requireLoggedIn, upload_file.array('add-lab-attachments[]'), function (req, res) {
+router.post('/laboratory_add', requireLoggedIn, upload_file_labs.array('add-lab-attachments[]'), function (req, res) {
 	var fileId = req.signedCookies.fileId;
 	console.log(req.body);
 	if (req.body.notes.trim() === "") { req.body.notes = null; }
@@ -135,5 +135,46 @@ router.post('/delete_files_lab/:lab_id', requireLoggedIn, function (req, res) {
 	});
 });
 
+router.post("/upload_files_edit_lab_results/:lab_id", requireLoggedIn, function (req, res) {
+	upload_success (req, res, function (err) {
+		if (err) {
+			return res.json({error: "Your upload failed. Please try again later."});
+		}
+		Laboratory.findOne({
+			where: {
+				id: req.params.lab_id
+			}
+		}).then(lab_instance => {
+			if(lab_instance) {
+				var clone_arr_attachments = lab_instance.attachments.slice(0);
+				clone_arr_attachments.push(req.files[0].path);
+				lab_instance.update({ attachments: clone_arr_attachments }).then(() => { return res.json({}); });
+			} else {
+				res.json({});
+			}
+		});
+	});
+});
+
+router.post('/laboratory_edit/:lab_id', requireLoggedIn, function (req, res){
+	var lab_id = req.params.lab_id;
+
+	Laboratory.findOne({
+		where: {
+			id: lab_id
+		}
+	}).then(lab_result => {
+		if(lab_result) {
+			lab_result.date = req.body.date;
+			lab_result.hospitalName = req.body.hospital;
+			lab_result.description = req.body.description;
+			lab_result.notes = req.body.notes;
+			lab_result.save().then(() => { res.json({}); });
+		}
+		else {
+			res.json({});
+		}
+	});
+});
 
 module.exports = router;
