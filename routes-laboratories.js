@@ -20,7 +20,6 @@ function requireLoggedIn(req, res, next) {
 function requireDoctor(req, res, next) {
 	const currentUser = req.session.doctor;
 	if(!currentUser) {
-		// return res.redirect('/login');
 		return res.send("You are not authorized to access this page");
 	}
 	next();
@@ -67,6 +66,22 @@ router.get('/lab_results_list/:patient_id', requireLoggedIn,
 	}
 );
 
+router.get('/laboratory_edit/:lab_id', requireLoggedIn, function (req, res){
+	var lab_id = req.params.lab_id;
+
+	Laboratory.findOne({
+		raw: true,
+		where: {
+			id: lab_id
+		}
+	}).then(lab_result => {
+		console.log(lab_result);
+		res.json({lab_result: lab_result});
+	});
+});
+
+//////////////////////// POST ////////////////////////////////////
+
 router.post('/laboratory_add', requireLoggedIn, upload_file_labs.array('add-lab-attachments[]'), function (req, res) {
 	var fileId = req.signedCookies.labFileId;
 	console.log(req.body);
@@ -82,7 +97,6 @@ router.post('/laboratory_add', requireLoggedIn, upload_file_labs.array('add-lab-
 		addLabfileQueue[fileId] = null;
 		res.json({});
 	});
-	
 });
 
 router.post('/upload_files_lab_results', requireLoggedIn, function (req, res) {
@@ -93,20 +107,6 @@ router.post('/upload_files_lab_results', requireLoggedIn, function (req, res) {
 		var fileId = req.signedCookies.labFileId;
 		addLabfileQueue[fileId].filesArr.push(req.files[0].path);
 		res.json({});
-	});
-});
-
-router.get('/laboratory_edit/:lab_id', requireLoggedIn, function (req, res){
-	var lab_id = req.params.lab_id;
-
-	Laboratory.findOne({
-		raw: true,
-		where: {
-			id: lab_id
-		}
-	}).then(lab_result => {
-		console.log(lab_result);
-		res.json({lab_result: lab_result});
 	});
 });
 
@@ -121,7 +121,6 @@ router.post('/delete_files_lab/:lab_id', requireLoggedIn, function (req, res) {
 			id: lab_id
 		}
 	}).then(lab_instance => {
-		// console.log(lab_instance);
 		if(lab_instance) {
 			var clone_arr_attachments = lab_instance.attachments.slice(0);
 			var index_to_remove = clone_arr_attachments.indexOf(req.body.key);

@@ -41,7 +41,7 @@ const upload_file_ipts = multer({
 		filename: function (req, file, cb) {
 			cb(null, Date.now()+file.originalname);
 		}
-	})
+	}),
 });
 
 var upload_ipt_success = upload_file_ipts.array('add-ipt-attachments[]');
@@ -102,31 +102,32 @@ router.get('/ipt_edit_json/:ipt_id/:patient_id', function (req, res) {
 			}],
 		}],
 		where: {
-			id: key,
-		}
-	}).then(function (result) {
+				id: key,
+			}
+	}).then(function(result){
+		// console.log("INPATIENT TREATMENT EDIT JSON");
+		// console.log(result);
 		ipt = result;
 		Medication.findAll({
 			where: {
 				checkUpId: ipt['parent_record.id'],
 			},
 			raw: true,
-		}).then(function (results) {
+		}).then(function(results){
 			meds = results;
 			Medical_Procedure.findAll({
 				where: {
 					checkUpId: ipt['parent_record.id'],
 				},
 				raw: true,
-			}).then(function (results) {
-				res.json({	
-					ipt: ipt,
-					medications: meds,
-					med_procedures: results
-				});
+			}).then(function(results){
+				res.json({	ipt: ipt,
+							medications: meds,
+							med_procedures: results});
 			});
 		});
 	});
+
 });
 
 /////////////////////////// POST ////////////////////////////////////
@@ -191,7 +192,7 @@ router.post('/ipt_add', requireLoggedIn, upload_file_ipts.array('add-ipt-attachm
 	});
 });
 
-router.post('/upload_files_ipt', requireLoggedIn, function (req, res) {
+router.post('/upload_files_ipt_results', requireLoggedIn, function (req, res) {
 	upload_ipt_success (req, res, function (err) {
 		if (err) {
 			return res.json({error: "Your upload failed. Please try again later."});
@@ -309,5 +310,32 @@ router.post("/upload_files_edit_ipt/:ipt_id", requireLoggedIn, function (req, re
 		});
 	});
 });
+
+router.post("/ipt_edit_add_medication/:cu_id", requireLoggedIn, function (req, res) {
+	var key = req.params.cu_id;
+	Medication.create({
+		name: req.body['name'],
+		dosage: req.body['dosage'],
+		frequency: req.body['frequency'],
+		type: req.body['type'],
+		notes: req.body['notes'],
+		checkUpId: key
+	}).then(function(result){
+		res.json({id: result.id});
+	});
+});
+
+router.post("/ipt_edit_add_medical_procedure/:cu_id", requireLoggedIn, function (req, res) {
+	var key = req.params.cu_id;
+	Medical_Procedure.create({
+		date: req.body['date'],
+		description: req.body['description'],
+		details: req.body['details'],
+		checkUpId: key,
+	}).then(function(result){
+		res.json({id: result.id});
+	});
+});
+
 
 module.exports = router;

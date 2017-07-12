@@ -121,6 +121,7 @@
         <div class="form-group">
             <input id="add-opt-attachments" name="add-opt-attachments[]" type="file" multiple class="file-loading">
         </div>
+
     </div>
     <!-- BILLING FOR OPT -->
     <div class="col-md-4"></div>
@@ -143,6 +144,7 @@
             uploadClass: 'btn btn-xs btn-default unique-name-add-opt hidden'
         });
     });
+
     $("#add-opt-form").submit(function (event) {
         event.preventDefault();
         var files = $('#add-opt-attachments').fileinput('getFileStack');
@@ -151,7 +153,7 @@
         } else {
             var medication = [], med_procedure = [];
 
-            for(var i = 0; i < meds.rows().data().length; i++){
+            for(var i = 0; i < meds.rows().data().length; i++) {
                 var name = meds.rows().data()[i][1];
                 medication.push({
                     name: name.substring(3, name.length-4),
@@ -162,7 +164,7 @@
                 });
             }
 
-            for(var i = 0; i < med_procedures.rows().data().length; i++){
+            for(var i = 0; i < med_procedures.rows().data().length; i++) {
                 var date = med_procedures.rows().data()[i][1];
                 med_procedure.push({
                     date: date.substring(3, date.length-4),

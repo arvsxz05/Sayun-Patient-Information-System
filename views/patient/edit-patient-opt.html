@@ -1,3 +1,4 @@
+
 <div class="row" id="edit-opt-view">
     <div class="form-container col-md-8" style="padding: 20px">
         <form id="edit-opt-form" class="form-horizontal" role="form" method="POST">
@@ -87,11 +88,10 @@
             </div>
             <div class="button-group">
                 <button class="btn btn-red pull-right" type="submit" name="delete" value="true" id="delete">Delete</button>
-                <a href class="btn btn-lime pull-right" id="add-hlc-button" data-toggle="modal" data-target="#add-medication-modal">Add</a>
+                <a href class="btn btn-lime pull-right" id="edit-opt-add-medication-button" data-toggle="modal" data-target="#add-medication-modal">Add</a>
             </div>
         </form>
         <!-- END OF MEDICATION LIST FOR opt -->
-
 
         <!-- MEDICAL PROCEDURES LIST FOR opt -->
         <form method="POST" action="/delete_medication">
@@ -102,7 +102,7 @@
                         <tr>
                             <th><input type="checkbox" aria-label="..." id="select-all"/></th>
                             <th>Date</th>
-                            <th>Descroption</th>
+                            <th>Description</th>
                             <th>Details</th>
                         </tr>
                     </thead>
@@ -112,7 +112,7 @@
             </div>
             <div class="button-group">
                 <button class="btn btn-red pull-right" type="submit" name="delete" value="true" id="">Delete</button>
-                <a href class="btn btn-lime pull-right" id="add-med-procedure-button" data-toggle="modal" data-target="#add-med-procedure-modal">Add</a>
+                <a href class="btn btn-lime pull-right" id="edit-opt-add-med-procedure-button" data-toggle="modal" data-target="#add-med-procedure-modal">Add</a>
             </div>
         </form>
         <!-- END OF MEDICAL PROCEDURES LIST FOR opt -->
@@ -129,7 +129,6 @@
 </div>
 
 <script type="text/javascript">
-
     $("#edit-opt-form").submit(function (event) {
         var files = $('#edit-opt-attachments').fileinput('getFileStack');
         if(files.length != 0) {
@@ -175,5 +174,4 @@
     $('#edit-opt-attachments').on('fileloaded', function (event, file, previewId, index, reader) {
         $('#edit-opt-attachments').fileinput('upload');
     });
-
 </script>

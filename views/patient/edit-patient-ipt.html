@@ -21,7 +21,7 @@
                 <label class="col-sm-4 control-label" for="edit-doctor">Doctor*</label>
                 <div class="col-sm-8">
                     {% if doctor == null %}
-                    <select class="form-control" id="edit-doctor" name="edit-doctor" required>
+                    <select class="form-control" id="hidden-edit-doctor" name="edit-doctor" required>
                       <option value="" disabled>Select Doctor</option>
                         {% for doctor in doctors %}
                             <option value="{{doctor.id}}">{{doctor['username.first_name']}} {{doctor['username.middle_name']}} {{doctor['username.last_name']}}</option>
@@ -30,6 +30,7 @@
                     </select>
                     {% else %}
                         <input type="text" class="form-control" name="edit-doctor" id="edit-doctor" value="{{user.first_name}} {{user.middle_name}} {{user.last_name}}" disabled>
+                        <input type="hidden" name="hidden-edit-doctor" id="hidden-edit-doctor" value="{{doctor.id}}">
                     {% endif %}
                 </div>
             </div>
@@ -73,7 +74,7 @@
         </form>
 
         <!-- MEDICATION LIST FOR IPT -->
-        <form method="POST" action="/delete_medication">
+        <form method="POST" action="" id="edit-ipt-med-form">
             <legend><b>Medications</b></legend>
             <div class="table-responsive">
                 <table id="edit-list-medication" class="table table-striped table-bordered" cellspacing="0" width="100%">
@@ -93,7 +94,7 @@
             </div>
             <div class="button-group">
                 <button class="btn btn-red pull-right" type="submit" name="delete" value="true" id="delete">Delete</button>
-                <a href class="btn btn-lime pull-right" id="add-hlc-button" data-toggle="modal" data-target="#add-medication-modal">Add</a>
+                <a href class="btn btn-lime pull-right" id="edit-ipt-add-medication-button" data-toggle="modal" data-target="#add-medication-modal">Add</a>
             </div>
         </form>
         <!-- END OF MEDICATION LIST FOR IPT -->
@@ -117,8 +118,8 @@
                 </table>
             </div>
             <div class="button-group">
-                <button class="btn btn-red pull-right" type="submit" name="delete" value="true" id="">Delete</button>
-                <a href class="btn btn-lime pull-right" id="add-med-procedure-button" data-toggle="modal" data-target="#add-med-procedure-modal">Add</a>
+                <button class="btn btn-red pull-right" type="submit" name="delete" value="true" id="delete-med-procedure-button">Delete</button>
+                <a href class="btn btn-lime pull-right" id="edit-ipt-add-med-procedure-button" data-toggle="modal" data-target="#add-med-procedure-modal">Add</a>
             </div>
         </form>
         <!-- END OF MEDICAL PROCEDURES LIST FOR IPT -->
@@ -160,7 +161,7 @@
                     'summary': $("#edit-summary").val(),
                     'detailed-diagnosis': $("#edit-detailed-diagnosis").val(),
                     'notes': $("#edit-notes").val(),
-                    'doctor': $("#edit-doctor").val(),
+                    'doctor': $("#hidden-edit-doctor").val(),
                 }
             }).done(function (data) {
                 if(data.success) {

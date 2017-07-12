@@ -23,7 +23,6 @@ function requireLoggedIn(req, res, next) {
 function requireDoctor(req, res, next) {
 	const currentUser = req.session.doctor;
 	if(!currentUser) {
-		// return res.redirect('/login');
 		return res.send("You are not authorized to access this page");
 	}
 	next();
@@ -49,7 +48,7 @@ var upload_opt_success = upload_file_opts.array('add-opt-attachments[]');
 
 //////////////////////// GET ////////////////////////////////////
 
-router.get('/opt_list/:patient_id', 
+router.get('/opt_list/:patient_id',
 	function (req, res, next) {
 		var fileId = Date.now() + "" + Math.floor(Math.random()*10);
 		res.cookie('optFileId', fileId, { signed: true });
@@ -78,10 +77,7 @@ router.get('/opt_list/:patient_id',
 	}
 );
 
-router.get('/opt_edit_json/:opt_id/:patient_id', function (req, res) {
-	console.log("OPT EDIT JSON");
-	console.log(req.params);
-
+router.get('/opt_edit_json/:opt_id/:patient_id', function(req, res){
 	var key = req.params.opt_id;
 	var patient_id = req.params.patient_id;
 	var doctors = [];
@@ -146,13 +142,12 @@ router.post('/opt_add', upload_file_opts.array('add-opt-attachments[]'), functio
 	var medication = [];
 	var medical_procedure = [];
 
-	if(req.body['meds'] != null && req.body['meds'] != ''){
+	if(req.body['meds'] != null && req.body['meds'] != '') {
 		medication = req.body['meds'];
 	}
 
-	if(req.body['med_procedures'] != null && req.body['med_procedures'] != ''){
+	if(req.body['med_procedures'] != null && req.body['med_procedures'] != '') {
 		medical_procedure = req.body['med_procedures'];
-		console.log("MED PROC");
 	}
 
 	OutPatient_Treatment.create({
@@ -198,21 +193,17 @@ router.post('/upload_files_opt', requireLoggedIn, function (req, res) {
 	});
 });
 
-router.post('/opt_edit/:opt_id/:cu_id', function(req, res){
+router.post('/opt_edit/:opt_id/:cu_id', function(req, res) {
 	var key = req.params.opt_id;
 	var cu_id = req.params.cu_id;
 
 	var date = null;
 
-	// if(req.body['date_'].year != '' && req.body['date_'].month != '' && req.body['date_'].day != ''){
-	// 	date = req.body["date_"].year+"-"+req.body["date_"].month+"-"+req.body["date_"].day;
-	// }
-
 	var date = req.body['date'];
 	var hospital = req.body['hospital'];
-	var summary = req.body['summary'];
-	var details = req.body['detailed-diagnosis'];
-	var notes = req.body['notes'];
+	var summary = req.body['summary'].trim();
+	var details = req.body['detailed-diagnosis'].trim();
+	var notes = req.body['notes'].trim();
 	var doc = req.body['doctor'];
 
 	var checkup_id;
@@ -226,7 +217,7 @@ router.post('/opt_edit/:opt_id/:cu_id', function(req, res){
 		where:{
 			id: key,
 		}
-	}).then(function(result){
+	}).then(function (result) {
 
 		Check_Up.update({
 			hospitalName: hospital,
@@ -235,14 +226,14 @@ router.post('/opt_edit/:opt_id/:cu_id', function(req, res){
 			where: {
 				id: cu_id,
 			}
-		}).then(function(result){
+		}).then(function (result) {
 			res.json({success: true});
-		}).catch(function(error){
+		}).catch(function (error) {
 			console.log(error);
 			res.json({error: error});
 		});
 
-	}).catch(function(error){
+	}).catch(function (error) {
 		console.log(error);
 		res.json({error: error});
 	});
@@ -254,12 +245,11 @@ router.post('/delete_files_opt/:opt_id', requireLoggedIn, function (req, res) {
 	if (fs.existsSync(req.body.key)) {
 		fs.unlink(req.body.key);
 	}
-	InPatient_Treatment.findOne({
+	OutPatient_Treatment.findOne({
 		where: {
 			id: opt_id
 		}
 	}).then(opt_instance => {
-		// console.log(lab_instance);
 		if(opt_instance) {
 			var clone_arr_attachments = opt_instance.attachments.slice(0);
 			var index_to_remove = clone_arr_attachments.indexOf(req.body.key);
@@ -268,7 +258,7 @@ router.post('/delete_files_opt/:opt_id', requireLoggedIn, function (req, res) {
 			}
 			opt_instance.update({ attachments: clone_arr_attachments }).then(() => { return res.json({}); });
 		} else {
-			res.json({});
+			res.json({error: "Something went wrong..."});
 		}
 	});
 });
@@ -278,7 +268,7 @@ router.post("/upload_files_edit_opt/:opt_id", requireLoggedIn, function (req, re
 		if (err) {
 			return res.json({error: "Your upload failed. Please try again later."});
 		}
-		InPatient_Treatment.findOne({
+		OutPatient_Treatment.findOne({
 			where: {
 				id: req.params.opt_id
 			}
@@ -288,9 +278,69 @@ router.post("/upload_files_edit_opt/:opt_id", requireLoggedIn, function (req, re
 				clone_arr_attachments.push(req.files[0].path);
 				opt_instance.update({ attachments: clone_arr_attachments }).then(() => { return res.json({}); });
 			} else {
-				res.json({});
+				res.json({error: "Something went wrong..."});
 			}
 		});
+	});
+});
+
+router.post("/opt_edit_add_medication/:cu_id", requireLoggedIn, function (req, res) {
+	var key = req.params.cu_id;
+	Medication.create({
+		name: req.body['name'].trim(),
+		dosage: req.body['dosage'].trim(),
+		frequency: req.body['frequency'].trim(),
+		type: req.body['type'],
+		notes: req.body['notes'].trim(),
+		checkUpId: key
+	}).then(function (result) {
+		res.json({id: result.id});
+	});
+});
+
+router.post("/opt_edit_add_medical_procedure/:cu_id", requireLoggedIn, function (req, res) {
+	var key = req.params.cu_id;
+	Medical_Procedure.create({
+		date: req.body['date'],
+		description: req.body['description'].trim(),
+		details: req.body['details'].trim(),
+		checkUpId: key,
+	}).then(function(result){
+		res.json({id: result.id});
+	});
+});
+
+router.post("/edit_medication/:med_id", requireLoggedIn, function (req, res) {
+	var key = req.params.med_id;
+
+	Medication.update({
+		name: req.body['name'].trim(),
+		dosage: req.body['dosage'].trim(),
+		frequency: req.body['frequency'].trim(),
+		type: req.body['type'],
+		notes: req.body['notes'].trim()
+	},{
+		where: {
+			id: key,
+		}
+	}).then(function (result) {
+		res.json({id: result.id});
+	});
+});
+
+router.post("/edit_medical_procedure/:medproc_id", requireLoggedIn, function (req, res) {
+	var key = req.params.medproc_id;
+
+	Medical_Procedure.update({
+		date: req.body['date'],
+		description: req.body['description'].trim(),
+		details: req.body['details'].trim(),
+	},{
+		where: {
+			id: key
+		}
+	}).then(function (result) {
+		res.json({id: result.id});
 	});
 });
 

@@ -5,10 +5,12 @@
         <table id="ipt-list" class="table table-striped table-bordered" cellspacing="0" width="100%">
             <thead>
                 <tr>
+                    <!-- <th><input type="checkbox" aria-label="..." id="select-all"/></th> -->
                     <th>Confinement Date</th>
                     <th>Discharge Date</th>
                     <th>Hospital</th>
                     <th>Doctor</th>
+                    <!-- <th></th> -->
                 </tr>
             </thead>
             <tbody>
@@ -62,7 +64,7 @@
                 edit_med_caller = $(this);
 
                 $('#edit-medication-modal').modal('toggle');
-                $('#edit-med-name').val(data[1].substring(3, data[1].length-4));
+                $('#edit-med-name').val(data[1].substring(data[1].indexOf(">") + 1, data[1].length-4));
                 $('#edit-med-dosage').val(data[2]);
                 $('#edit-med-frequency').val(data[3]);
                 $('#edit-med-type').val(data[4]);
@@ -83,9 +85,9 @@
                 edit_med_procedure_caller = $(this);
                 
                 $('#edit-med-procedure-modal').modal('toggle');
-                $('#edit-med-procedure-date select[name="date_[month]"').val(data[1].substring(3, data[1].length-4).substring(5, 7));
-                $('#edit-med-procedure-date select[name="date_[day]"').val(data[1].substring(3, data[1].length-4).substring(8, 10));
-                $('#edit-med-procedure-date select[name="date_[year]"').val(data[1].substring(3, data[1].length-4).substring(0, 4));
+                $('#edit-med-procedure-date select[name="date_[month]"').val(data[1].substring(data[1].indexOf(">") + 1, data[1].length-4).substring(5, 7));
+                $('#edit-med-procedure-date select[name="date_[day]"').val(data[1].substring(data[1].indexOf(">") + 1, data[1].length-4).substring(8, 10));
+                $('#edit-med-procedure-date select[name="date_[year]"').val(data[1].substring(data[1].indexOf(">") + 1, data[1].length-4).substring(0, 4));
                 $('#edit-med-procedure-description').val(data[2]);
                 $('#edit-med-procedure-details').val(data[3]);
             });
@@ -109,6 +111,18 @@
                 { "bSortable": true },
                 { "bSortable": true }
             ]    
+        }).on('click', 'tbody tr', function () {
+            var data = meds.row(this).data();
+            // console.log($(this));
+            edit_med_caller = $(this);
+            edit_med_id = data[0].substring(data[0].indexOf("name") + 6, data[0].length - 10);
+            console.log(data[0]);
+            $('#edit-medication-modal').modal('toggle');
+            $('#edit-med-name').val(data[1].substring(data[1].indexOf(">") + 1, data[1].length-4));
+            $('#edit-med-dosage').val(data[2]);
+            $('#edit-med-frequency').val(data[3]);
+            $('#edit-med-type').val(data[4]);
+            $('#edit-med-instructions').val(data[5]);
         });
 
         med_procedures = $('#edit-list-med-procedure').DataTable({
@@ -120,7 +134,22 @@
                 { "bSortable": true },
                 { "bSortable": true }
             ]    
+        }).on('click', 'tbody tr', function () {
+            var data = med_procedures.row(this).data();
+            // console.log($(this));
+            edit_med_procedure_caller = $(this);
+            edit_med_procedure_id = data[0].substring(data[0].indexOf("name") + 6, data[0].length - 10);
+            
+            $('#edit-med-procedure-modal').modal('toggle');
+            $('#edit-med-procedure-date select[name="date_[month]"').val(data[1].substring(data[1].indexOf(">") + 1, data[1].length-4).substring(5, 7));
+            $('#edit-med-procedure-date select[name="date_[day]"').val(data[1].substring(data[1].indexOf(">") + 1, data[1].length-4).substring(8, 10));
+            $('#edit-med-procedure-date select[name="date_[year]"').val(data[1].substring(data[1].indexOf(">") + 1, data[1].length-4).substring(0, 4));
+            $('#edit-med-procedure-description').val(data[2]);
+            $('#edit-med-procedure-details').val(data[3]);
         });
+
+        meds.rows().remove();
+        med_procedures.rows().remove();
 
         $.ajax({
             type: "GET",

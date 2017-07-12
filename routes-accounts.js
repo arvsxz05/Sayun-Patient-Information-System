@@ -289,75 +289,71 @@ router.post('/add_account', requireLoggedIn, requireSuperUser,
 
 		console.log(req.body.user_type)
 
-		// database.transaction(function(t) {
-			SPIS_Instance.findOne({ where: {
-				license_no: req.session.spisinstance.license_no
-			}}).then(instance => {
-				var temp = {
-					id : username,
-					title: title,
-					last_name : lastname,
-					first_name : firstname,
-					middle_name : middlename,
-					suffix : suffix,
-					contact_numbers : contact_num,
-					email : email_add,
-					user_type: user_type,
-					isAdmin: is_admin,
-					password_hash : password,
-					spisInstanceLicenseNo : instance.license_no,
-					photo: photo,
-				}
-				User_Account.create(temp).then(account => {
-					if (req.body.user_type == "Doctor") {
-						console.log(sign);
-						Doctor.create({
-							license_no : license_num,
-							ptr_no : ptr_num,
-							s2_license_no : s2_license_num,
-							usernameId: account.dataValues.id,
-							signature: sign,
-						})
-						.catch(function(error) {
-							console.log(error);
-							res.render('account/add-account.html', {
-								error: error
-							});
+		SPIS_Instance.findOne({ where: {
+			license_no: req.session.spisinstance.license_no
+		}}).then(instance => {
+			var temp = {
+				id : username,
+				title: title,
+				last_name : lastname,
+				first_name : firstname,
+				middle_name : middlename,
+				suffix : suffix,
+				contact_numbers : contact_num,
+				email : email_add,
+				user_type: user_type,
+				isAdmin: is_admin,
+				password_hash : password,
+				spisInstanceLicenseNo : instance.license_no,
+				photo: photo,
+			}
+			User_Account.create(temp).then(account => {
+				if (req.body.user_type == "Doctor") {
+					console.log(sign);
+					Doctor.create({
+						license_no : license_num,
+						ptr_no : ptr_num,
+						s2_license_no : s2_license_num,
+						usernameId: account.dataValues.id,
+						signature: sign,
+					})
+					.catch(function(error) {
+						console.log(error);
+						res.render('account/add-account.html', {
+							error: error
 						});
-					};
-					if (req.body.user_type == "Secretary") {
-						Secretary.create({
-							usernameId: account.dataValues.id
-						})
-						.catch(function(error) {
-							console.log(error);
-							res.render('account/add-account.html', {
-								error: error
-							});
-						});
-					};
-					if(req.body.access_rights == "Admin") {
-						Admin.create({
-							usernameId: account.dataValues.id
-						})
-						.catch(function(error) {
-							console.log(error);
-							res.render('account/add-account.html', {
-								error: error
-							});
-						});
-					};
-					res.redirect('/account_list');
-				})//.then(function () {
-				// 	t.commit();
-				// })
-				.catch(function(error) {
-					// console.log(error);
-					res.render('account/add-account.html', {
-						error: error
 					});
+				};
+				if (req.body.user_type == "Secretary") {
+					Secretary.create({
+						usernameId: account.dataValues.id
+					})
+					.catch(function(error) {
+						console.log(error);
+						res.render('account/add-account.html', {
+							error: error
+						});
+					});
+				};
+				if(req.body.access_rights == "Admin") {
+					Admin.create({
+						usernameId: account.dataValues.id
+					})
+					.catch(function(error) {
+						console.log(error);
+						res.render('account/add-account.html', {
+							error: error
+						});
+					});
+				};
+				res.redirect('/account_list');
+			})
+			.catch(function(error) {
+				// console.log(error);
+				res.render('account/add-account.html', {
+					error: error
 				});
-			// });
+			});
 		});
 	}
 );

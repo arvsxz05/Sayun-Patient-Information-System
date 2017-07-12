@@ -59,8 +59,7 @@ const upload = multer({
 					console.log(err);
 					return cb(err);
 				}
-
-				cb(null, req.session.spisinstance.license_no+"_"+raw.toString('hex')+'.'+require('mime').extension(file.mimetype)); //"_"+file.originalname)
+				cb(null, req.session.spisinstance.license_no+"_"+raw.toString('hex')+'.'+require('mime').extension(file.mimetype));
 			});
 		}
 	}),

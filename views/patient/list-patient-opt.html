@@ -21,8 +21,10 @@
 
 
 <script type="text/javascript">
+    var edit_med_id;
+    var edit_med_procedure_id;
 
-    function edit_OPT (key) {
+    function edit_OPT(key){
         $('#list-opt-view').hide();
         $('#add-opt-view').hide();
         $('#edit-opt-view').show();
@@ -31,11 +33,10 @@
         $.ajax({
             type: "GET",
             url: "/opt_edit_json/"+key+"/"+"{{patient.id}}",
-        }).done(function (data) {
+        }).done(function(data){
             var date;
 
             if(data['opt']['date'] != null) {
-                // console.log("IN HERE EDIT OPT DATE");
                 date = data['opt']['date'].split("-");
                 $("#edit-opt-date-div select[name='date_[month]']").val(date[1]);
                 $("#edit-opt-date-div select[name='date_[day]']").val(date[2]);
@@ -66,11 +67,12 @@
                 ]    
             }).on('click', 'tbody tr', function () {
                 var data = meds.row(this).data();
-                // console.log($(this));
+
                 edit_med_caller = $(this);
+                edit_med_id = data[0].substring(data[0].indexOf("name") + 6, data[0].length - 10);
 
                 $('#edit-medication-modal').modal('toggle');
-                $('#edit-med-name').val(data[1].substring(3, data[1].length-4));
+                $('#edit-med-name').val(data[1].substring(data[1].indexOf(">") + 1, data[1].length-4));
                 $('#edit-med-dosage').val(data[2]);
                 $('#edit-med-frequency').val(data[3]);
                 $('#edit-med-type').val(data[4]);
@@ -88,24 +90,26 @@
                 ]    
             }).on('click', 'tbody tr', function () {
                 var data = med_procedures.row(this).data();
-                // console.log($(this));
+
                 edit_med_procedure_caller = $(this);
+                edit_med_procedure_id = data[0].substring(data[0].indexOf("name") + 6, data[0].length - 10);
                 
                 $('#edit-med-procedure-modal').modal('toggle');
-                $('#edit-med-procedure-date select[name="date_[month]"').val(data[1].substring(3, data[1].length-4).substring(5, 7));
-                $('#edit-med-procedure-date select[name="date_[day]"').val(data[1].substring(3, data[1].length-4).substring(8, 10));
-                $('#edit-med-procedure-date select[name="date_[year]"').val(data[1].substring(3, data[1].length-4).substring(0, 4));
+                $('#edit-med-procedure-date select[name="date_[month]"').val(data[1].substring(data[1].indexOf(">") + 1, data[1].length-4).substring(5, 7));
+                $('#edit-med-procedure-date select[name="date_[day]"').val(data[1].substring(data[1].indexOf(">") + 1, data[1].length-4).substring(8, 10));
+                $('#edit-med-procedure-date select[name="date_[year]"').val(data[1].substring(data[1].indexOf(">") + 1, data[1].length-4).substring(0, 4));
                 $('#edit-med-procedure-description').val(data[2]);
                 $('#edit-med-procedure-details').val(data[3]);
             });
             
+
             meds.rows().remove();
             med_procedures.rows().remove();
 
             for (var i = data['medications'].length - 1; i >= 0; i--) {
                 meds.row.add([
                     '<input type="checkbox" id="' + data['medications'][i].id + 
-                    '" name="' + data['medications'][i].id + '"></input>', //idk UNSAON ANG NAME AND ID ANI FOR DELETION
+                    '" name="' + data['medications'][i].id + '"></input>',
                     '<a>' + data['medications'][i].name + '</a>',
                     data['medications'][i].dosage,
                     data['medications'][i].frequency,
@@ -117,7 +121,7 @@
             for (var i = data['med_procedures'].length - 1; i >= 0; i--) {
                 med_procedures.row.add([
                     '<input type="checkbox" id="' + data['med_procedures'][i].id + 
-                    '" name="' + data['med_procedures'][i].id + '"></input>', //idk UNSAON ANG NAME AND ID ANI FOR DELETION
+                    '" name="' + data['med_procedures'][i].id + '"></input>',
                     '<a>' + data['med_procedures'][i].date + '</a>',
                     data['med_procedures'][i].description,
                     data['med_procedures'][i].details
@@ -125,20 +129,16 @@
             }
 
             var edit_attachments_init = [], edit_attachments_config = [];
-
             for (var i = data.opt.attachments.length - 1; i >= 0; i--) {
 
                 var file_path = "\\" + data.opt.attachments[i];
-
-                edit_attachments_init.push(file_path);
-
                 var rev_file_path = file_path.split("").reverse().join("");
                 var rev_file_name = rev_file_path.substring(0, rev_file_path.indexOf('\\'));
                 var file_name = rev_file_name.split("").reverse().join("");
                 var mime_type = file_path.split('.').pop();
-
                 var type_mapping = getMimeByExt(mime_type.toLowerCase());
 
+                edit_attachments_init.push(file_path);
                 edit_attachments_config.push({
                     caption: file_name,
                     type: type_mapping,
@@ -174,61 +174,60 @@
         $('#add-opt-view').show();
         $('#edit-opt-view').hide();
         $('#list-opt-view-link').show();
+
         $('#add-opt-view select').val("");
         $('#add-opt-view input').not('#hidden-opt-doctor').not('#opt-doctor').not('#p-id').val("");
         $('#add-opt-view textarea').val("");
 
+        edit_med_id = null;
+        edit_med_procedure_id = null;
 
-        if( $.fn.dataTable.isDataTable('#opt-list-medication') ){
-            meds.rows().remove();
-            med_procedures.rows().remove();
-        }
-        else{
-            meds = $('#opt-list-medication').DataTable({
-                "bSort": true, 
-                "aaSorting": [],
-                "aoColumns": [
-                    { "bSortable": false },
-                    { "bSortable": true },
-                    { "bSortable": true },
-                    { "bSortable": true },
-                    { "bSortable": true },
-                    { "bSortable": true }
-                ]    
-            }).on('click', 'tbody tr', function () {
-                var data = meds.row(this).data();
-                edit_med_caller = $(this);
+        meds = $('#opt-list-medication').DataTable({
+            "bSort": true, 
+            "aaSorting": [],
+            "aoColumns": [
+                { "bSortable": false },
+                { "bSortable": true },
+                { "bSortable": true },
+                { "bSortable": true },
+                { "bSortable": true },
+                { "bSortable": true }
+            ]    
+        }).on('click', 'tbody tr', function () {
+            var data = meds.row(this).data();
+            edit_med_caller = $(this);
 
-                $('#edit-medication-modal').modal('toggle');
-                $('#edit-med-name').val(data[1].substring(3, data[1].length-4));
-                $('#edit-med-dosage').val(data[2]);
-                $('#edit-med-frequency').val(data[3]);
-                $('#edit-med-type').val(data[4]);
-                $('#edit-med-instructions').val(data[5]);
-            });
+            $('#edit-medication-modal').modal('toggle');
+            $('#edit-med-name').val(data[1].substring(data[1].indexOf(">") + 1, data[1].length-4));
+            $('#edit-med-dosage').val(data[2]);
+            $('#edit-med-frequency').val(data[3]);
+            $('#edit-med-type').val(data[4]);
+            $('#edit-med-instructions').val(data[5]);
+        });
 
-            med_procedures = $('#opt-list-med-procedure').DataTable({
-                "bSort": true, 
-                "aaSorting": [],
-                "aoColumns": [
-                    { "bSortable": false },
-                    { "bSortable": true },
-                    { "bSortable": true },
-                    { "bSortable": true }
-                ]    
-            }).on('click', 'tbody tr', function () {
-                var data = med_procedures.row(this).data();
-                // console.log($(this));
-                edit_med_procedure_caller = $(this);
-                
-                $('#edit-med-procedure-modal').modal('toggle');
-                $('#edit-med-procedure-date select[name="date_[month]"').val(data[1].substring(3, data[1].length-4).substring(5, 7));
-                $('#edit-med-procedure-date select[name="date_[day]"').val(data[1].substring(3, data[1].length-4).substring(8, 10));
-                $('#edit-med-procedure-date select[name="date_[year]"').val(data[1].substring(3, data[1].length-4).substring(0, 4));
-                $('#edit-med-procedure-description').val(data[2]);
-                $('#edit-med-procedure-details').val(data[3]);
-            });
-        }
+        med_procedures = $('#opt-list-med-procedure').DataTable({
+            "bSort": true, 
+            "aaSorting": [],
+            "aoColumns": [
+                { "bSortable": false },
+                { "bSortable": true },
+                { "bSortable": true },
+                { "bSortable": true }
+            ]    
+        }).on('click', 'tbody tr', function () {
+            var data = med_procedures.row(this).data();
+
+            edit_med_procedure_caller = $(this);
+            
+            $('#edit-med-procedure-modal').modal('toggle');
+            $('#edit-med-procedure-date select[name="date_[month]"').val(data[1].substring(data[1].indexOf(">") + 1, data[1].length-4).substring(5, 7));
+            $('#edit-med-procedure-date select[name="date_[day]"').val(data[1].substring(data[1].indexOf(">") + 1, data[1].length-4).substring(8, 10));
+            $('#edit-med-procedure-date select[name="date_[year]"').val(data[1].substring(data[1].indexOf(">") + 1, data[1].length-4).substring(0, 4));
+            $('#edit-med-procedure-description').val(data[2]);
+            $('#edit-med-procedure-details').val(data[3]);
+        });
+        meds.rows().remove();
+        med_procedures.rows().remove();
     }
 
 </script>
