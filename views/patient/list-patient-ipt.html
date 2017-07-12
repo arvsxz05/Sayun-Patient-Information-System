@@ -42,11 +42,11 @@
         $('#add-ipt-view input').not('#doctor').not('#hidden-doctor').not('#p-id').val("");
         $('#add-ipt-view textarea').val("");
 
-        if( $.fn.dataTable.isDataTable('#list-medication') ){
+        if($.fn.dataTable.isDataTable('#list-medication')) {
             meds.rows().remove();
             med_procedures.rows().remove();
         }
-        else{
+        else {
             meds = $('#list-medication').DataTable({
                 "bSort": true, 
                 "aaSorting": [],
@@ -82,20 +82,19 @@
                 ]    
             }).on('click', 'tbody tr', function () {
                 var data = med_procedures.row(this).data();
-                // console.log($(this));
                 edit_med_procedure_caller = $(this);
                 
                 $('#edit-med-procedure-modal').modal('toggle');
-                $('#edited-med-procedure-date').val(data[1].substring(3, data[1].length-4));
+                $('#edit-med-procedure-date select[name="date_[month]"').val(data[1].substring(3, data[1].length-4).substring(5, 7));
+                $('#edit-med-procedure-date select[name="date_[day]"').val(data[1].substring(3, data[1].length-4).substring(8, 10));
+                $('#edit-med-procedure-date select[name="date_[year]"').val(data[1].substring(3, data[1].length-4).substring(0, 4));
                 $('#edit-med-procedure-description').val(data[2]);
                 $('#edit-med-procedure-details').val(data[3]);
             });
-
         }
-        
     }
 
-    function edit_IPT(key){
+    function edit_IPT (key) {
         $('#list-ipt-view').hide();
         $('#add-ipt-view').hide();
         $('#edit-ipt-view').show();
@@ -125,14 +124,11 @@
             ]    
         });
 
-        // var key = $("#edit_ipt").attr('value');
-        // console.log(key);
         $.ajax({
             type: "GET",
             url: "/ipt_edit_json/"+key+"/"+"{{patient.id}}",
-        }).done(function(data){
-            console.log("IN HERE DONE AJAX")
-            console.log(data);
+        }).done(function (data) {
+
             var date;
             $('#edit-p-id').val(key);
 
@@ -155,15 +151,76 @@
             $('#edit-hospital option[value="' + data['ipt']['parent_record.hospitalName'] + '"]').prop('selected', 'true');
             $('#edit-doctor option[value="' + data['ipt']['parent_record.doctor.id'] + '"]').prop('selected', 'true');
 
-
-
             $('#edit-p-id').val(data['ipt']['id']);
             $('#edit-c-id').val(data['ipt']['parent_record.id']);
 
-            // console.log(data);
+            meds.rows().remove();
+            med_procedures.rows().remove();
 
-            // $('#edit-ipt-form').attr('action', '/ipt_edit/'+data['ipt']['id']+"/"+data['ipt']['check_upId']);
+            for (var i = data['medications'].length - 1; i >= 0; i--) {
+                meds.row.add([
+                    '<input type="checkbox" id="' + data['medications'][i].id + 
+                    '" name="' + data['medications'][i].id + '"></input>', //idk UNSAON ANG NAME AND ID ANI FOR DELETION
+                    '<a>' + data['medications'][i].name + '</a>',
+                    data['medications'][i].dosage,
+                    data['medications'][i].frequency,
+                    data['medications'][i].type,
+                    data['medications'][i].notes
+                ]).draw();
+            }
+
+            for (var i = data['med_procedures'].length - 1; i >= 0; i--) {
+                med_procedures.row.add([
+                    '<input type="checkbox" id="' + data['med_procedures'][i].id +
+                    '" name="' + data['med_procedures'][i].id + '"></input>', //idk UNSAON ANG NAME AND ID ANI FOR DELETION
+                    '<a>' + data['med_procedures'][i].date + '</a>',
+                    data['med_procedures'][i].description,
+                    data['med_procedures'][i].details
+                ]).draw();
+            }
+
+            var edit_attachments_init = [], edit_attachments_config = [];
+
+            for (var i = data.ipt.attachments.length - 1; i >= 0; i--) {
+
+                var file_path = "\\" + data.ipt.attachments[i];
+
+                edit_attachments_init.push(file_path);
+
+                var rev_file_path = file_path.split("").reverse().join("");
+                var rev_file_name = rev_file_path.substring(0, rev_file_path.indexOf('\\'));
+                var file_name = rev_file_name.split("").reverse().join("");
+                var mime_type = file_path.split('.').pop();
+
+                var type_mapping = getMimeByExt(mime_type.toLowerCase());
+
+                edit_attachments_config.push({
+                    caption: file_name,
+                    type: type_mapping,
+                    url: '/delete_files_ipt/' + data.ipt['id'],  
+                    key: data.ipt.attachments[i]
+                });
+            };
             
-        })
+            $("#edit-ipt-attachments").fileinput({
+                // showUpload: false,
+                uploadUrl: '/upload_files_edit_ipt/'+data.ipt['id'],
+                browseOnZoneClick: true,
+                initialPreview: edit_attachments_init,
+                initialPreviewAsData: true,
+                initialPreviewConfig: edit_attachments_config,
+                overwriteInitial: false,
+                layoutTemplates: {
+                    actions: '<div class="file-actions">\n' +
+                    '    <div class="file-footer-buttons">\n' +
+                    '        {delete} {zoom} {other}' +
+                    '    </div>\n' +
+                    '    {drag}\n' +
+                    '    <div class="clearfix"></div>\n' +
+                    '</div>'
+                },
+                uploadClass: 'btn btn-xs btn-default unique-name-edit-ipt hidden',
+            });
+        });
     }
 </script>

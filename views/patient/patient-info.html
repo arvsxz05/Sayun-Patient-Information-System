@@ -622,7 +622,7 @@
 
         IPT_List_Table = $('#ipt-list').DataTable({
             "bSort": true, 
-            "aaSorting": [[0]],
+            "aaSorting": [],
             "aoColumns": [
                 { "bSortable": true },
                 { "bSortable": true },
@@ -633,7 +633,7 @@
 
         OPT_List_Table = $('#opt-list').DataTable({
             "bSort": true, 
-            "aaSorting": [[0]],
+            "aaSorting": [],
             "aoColumns": [
                 { "bSortable": true },
                 { "bSortable": true },
@@ -697,7 +697,7 @@
 
     $('#add-med-form').submit(function(e){
         e.preventDefault();
-         meds.row.add([
+        meds.row.add([
             '<input type="checkbox" id="" name=""></input>', //idk UNSAON ANG NAME AND ID ANI FOR DELETION
             '<a>' + $('#add-med-name').val() + '</a>',
             $('#add-med-dosage').val(),

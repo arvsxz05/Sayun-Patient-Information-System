@@ -10,8 +10,9 @@ const Medical_Procedure = require('./models').Medical_Procedure;
 ///////////////////// MIDDLEWARES ////////////////////////
 
 function requireLoggedIn(req, res, next) {
+	const currentInstance = req.session.spisinstance;
 	const currentUser = req.session.user;
-	if(!currentUser) {
+	if(!currentUser || !currentInstance) {
 		return res.redirect('/login');
 	}
 	next();
@@ -64,6 +65,7 @@ router.get('/opt_edit_json/:opt_id/:patient_id', function(req, res){
 	var key = req.params.opt_id;
 	var patient_id = req.params.patient_id;
 	var doctors = [];
+	var opt, meds;
 
 	OutPatient_Treatment.findOne({
 		raw: true,
@@ -76,14 +78,33 @@ router.get('/opt_edit_json/:opt_id/:patient_id', function(req, res){
 			include: [{ 
 				model: Doctor,
 				include: [{ model: User_Account, as: 'username'}]
-			}]
+			}],
 	    }],
 	    where: {
 	    	id: key,
 	    }
 	}).then(function(result){
 		// console.log(result);
-		res.json({opt: result});
+		opt = result;
+		Medication.findAll({
+			where: {
+				checkUpId: opt['parent_record.id'],
+			},
+			raw: true,
+		}).then(function(results){
+			meds = results;
+			Medical_Procedure.findAll({
+				where: {
+					checkUpId: opt['parent_record.id'],
+				},
+				raw: true,
+			}).then(function(results){
+				res.json({	opt: opt,
+							medications: meds,
+							med_procedures: results});
+
+			});
+		});
 	});
 });
 
@@ -104,8 +125,17 @@ router.post('/opt_add', function(req, res){
 	var doc = req.body['doctor'];
 	var discharge = null;
 
-	var medication = req.body['meds'];
-	var medical_procedure = req.body['med_procedures'];
+	var medication = [];
+	var medical_procedure = [];
+
+	if(req.body['meds'] != null && req.body['meds'] != ''){
+		medication = req.body['meds'];
+	}
+
+	if(req.body['med_procedures'] != null && req.body['med_procedures'] != ''){
+		medical_procedure = req.body['med_procedures'];
+		console.log("MED PROC");
+	}
 
 	OutPatient_Treatment.create({
 		date: date,
@@ -130,7 +160,7 @@ router.post('/opt_add', function(req, res){
 			}, {
 				model: Medical_Procedure,
 				as: 'medical_procedure',
-			}]
+			}],
 		}]
 	}).then(checkUp_data => {
 		res.json({success: true});

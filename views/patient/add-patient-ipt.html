@@ -99,7 +99,6 @@
         </form>
         <!-- END OF MEDICATION LIST FOR IPT -->
 
-
         <!-- MEDICAL PROCEDURES LIST FOR IPT -->
         <form method="POST" action="/delete_medication">
             <legend><b>Medical Procedures</b></legend>
@@ -124,61 +123,91 @@
         </form>
         <!-- END OF MEDICAL PROCEDURES LIST FOR IPT -->
 
+        <legend><b>Add Attachments</b></legend>
+        <div class="form-group">
+            <input id="add-ipt-attachments" name="add-ipt-attachments[]" type="file" multiple class="file-loading">
+        </div>
     </div>
+
     <!-- BILLING FOR IPT -->
     <div class="col-md-4"></div>
     <!-- END OF BILLING FOR IPT -->
+
 </div>
 
 <script type="text/javascript">
+    $(document).on('ready', function() {
+        $("#add-ipt-attachments").fileinput({
+            uploadUrl: '/upload_files_ipt_results',
+            browseOnZoneClick: true,
+            layoutTemplates: {
+                actions: '<div class="file-actions">\n' +
+                '    <div class="file-footer-buttons">\n' +
+                '        {delete} {zoom} {other}' +
+                '    </div>\n' +
+                '    {drag}\n' +
+                '    <div class="clearfix"></div>\n' +
+                '</div>'
+            },
+            uploadClass: 'btn btn-xs btn-default unique-name-add-ipt hidden'
+        });
+    });
+
     $("#add-ipt-form").submit(function (event) {
         event.preventDefault();
-        console.log("whayYYYY:" + meds.rows().data()[0][1]);
+        var files = $('#add-ipt-attachments').fileinput('getFileStack');
+        if(files.length != 0) {
+            $(".unique-name-add-ipt").click();
+        } else {
+            var medication = [], med_procedure = [];
 
-        var medication = [], med_procedure = [];
+            for(var i = 0; i < meds.rows().data().length; i++){
+                var name = meds.rows().data()[i][1];
+                medication.push({
+                    name: name.substring(3, name.length-4),
+                    dosage: meds.rows().data()[i][2],
+                    frequency: meds.rows().data()[i][3],
+                    type: meds.rows().data()[i][4],
+                    notes: meds.rows().data()[i][5],
+                });
+            }
 
-        for(var i = 0; i < meds.rows().data().length; i++){
-            medication.push({
-                name: meds.rows().data()[i][1],
-                dosage: meds.rows().data()[i][2],
-                frequency: meds.rows().data()[i][3],
-                type: meds.rows().data()[i][4],
-                instruction: meds.rows().data()[i][5],
+            for(var i = 0; i < med_procedures.rows().data().length; i++){
+                var date = med_procedures.rows().data()[i][1];
+                med_procedure.push({
+                    date: date.substring(3, date.length-4),
+                    description: med_procedures.rows().data()[i][2],
+                    details: med_procedures.rows().data()[i][3],
+                });
+            }
+
+            $.ajax({
+                type: "POST",
+                url: "/ipt_add",
+                data: {
+                    'confinement-date': $("#confinement-date").val(),
+                    'discharge-date': $("#discharge-date").val(),
+                    'hospital': $("#hospital").val(),
+                    'summary': $("#summary").val(),
+                    'detailed-diagnosis': $("#detailed-diagnosis").val(),
+                    'notes': $("#ipt-notes").val(),
+                    'doctor': $("#hidden-doctor").val(),
+                    'p-id': $("#p-id").val(),
+                    'meds':  medication,
+                    'med_procedures': med_procedure,
+                }
+            }).done(function (data) {
+                if(data.success) {
+                    $('#list-ipt-view').show();
+                    $('#add-ipt-view').hide();
+                } else {
+                    $("#ipt-error-response").text(data.error);
+                }
             });
         }
-
-        for(var i = 0; i < med_procedures.rows().data().length; i++){
-            med_procedure.push({
-                date: med_procedures.rows().data()[i][1],
-                description: med_procedures.rows().data()[i][2],
-                details: med_procedures.rows().data()[i][3],
-            });
-        }
-
-        // console.log(medication);
-
-        $.ajax({
-            type: "POST",
-            url: "/ipt_add",
-            data: {
-                'confinement-date': $("#confinement-date").val(),
-                'discharge-date': $("#discharge-date").val(),
-                'hospital': $("#hospital").val(),
-                'summary': $("#summary").val(),
-                'detailed-diagnosis': $("#detailed-diagnosis").val(),
-                'notes': $("#ipt-notes").val(),
-                'doctor': $("#hidden-doctor").val(),
-                'p-id': $("#p-id").val(),
-                'meds':  medication,
-                'med_procedures': med_procedure,
-            }
-        }).done(function (data) {
-            if(data.success) {
-                $('#list-ipt-view').show();
-                $('#add-ipt-view').hide();
-            } else {
-                $("#ipt-error-response").text(data.error);
-            }
-        });
+    });
+    $('#add-ipt-attachments').on('filebatchuploadcomplete', function (event, files, extra) {
+        console.log('File batch upload complete');
+        $("#add-ipt-form").submit();
     });
 </script>

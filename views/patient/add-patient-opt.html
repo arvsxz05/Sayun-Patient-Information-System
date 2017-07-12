@@ -17,16 +17,15 @@
                 <label class="col-sm-4 control-label" for="opt-doctor">Doctor*</label>
                 <div class="col-sm-8">
                     {% if doctor == null %}
-                    <select class="form-control" id="opt-doctor" name="opt-doctor" required>
+                    <select class="form-control" id="hidden-opt-doctor" name="opt-doctor" required>
                       <option value="" selected disabled>Select Doctor</option>
                         {% for doctor in doctors %}
                             <option value="{{doctor.id}}">{{doctor['username.first_name']}} {{doctor['username.middle_name']}} {{doctor['username.last_name']}}</option>
                         {% endfor %}
-
                     </select>
                     {% else %}
+                        <input type="hidden" id="hidden-opt-doctor" name="hidden-opt-doctor" value="{{doctor.id}}">
                         <input type="text" class="form-control" name="opt-doctor" id="opt-doctor" value="{{user.first_name}} {{user.middle_name}} {{user.last_name}}" disabled>
-                        <input type="hidden" id="opt-doctor" name="opt-doctor" value="{{doctor.id}}">
                     {% endif %}
                 </div>
             </div>
@@ -135,23 +134,27 @@
         var medication = [], med_procedure = [];
 
         for(var i = 0; i < meds.rows().data().length; i++){
+            var name = meds.rows().data()[i][1];
             medication.push({
-                name: meds.rows().data()[i][1],
+                name: name.substring(3, name.length-4),
                 dosage: meds.rows().data()[i][2],
                 frequency: meds.rows().data()[i][3],
                 type: meds.rows().data()[i][4],
-                instruction: meds.rows().data()[i][5],
+                notes: meds.rows().data()[i][5],
             });
         }
 
         for(var i = 0; i < med_procedures.rows().data().length; i++){
+            var date = med_procedures.rows().data()[i][1];
             med_procedure.push({
-                date: med_procedures.rows().data()[i][1],
+                date: date.substring(3, date.length-4),
                 description: med_procedures.rows().data()[i][2],
                 details: med_procedures.rows().data()[i][3],
             });
         }
 
+        alert($("#hidden-opt-doctor").val());
+        console.log($("#hidden-opt-doctor").val());
         $.ajax({
             type: "POST",
             url: "/opt_add",
@@ -161,7 +164,7 @@
                 'summary': $("#opt-summary").val(),
                 'detailed-diagnosis': $("#opt-detailed-diagnosis").val(),
                 'notes': $("#opt-notes").val(),
-                'doctor': $("#opt-doctor").val(),
+                'doctor': $("#hidden-opt-doctor").val(),
                 'p-id': $("#p-id").val(),
                 'meds': medication,
                 'med_procedures': med_procedure,

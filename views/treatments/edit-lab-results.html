@@ -101,13 +101,6 @@
             }
         });
 
-
-
-        // $('#lab-edit-attachments').on('filebatchuploadcomplete', function (event, files, extra) {
-        //     console.log('File batch upload complete');
-        //     $("#edit-lab-form").submit();
-        // });
-
         $("#lab-edit-attachments").on("filepredelete", function(jqXHR) {
             var abort = true;
             if (confirm("Are you sure you want to delete this file?")) {

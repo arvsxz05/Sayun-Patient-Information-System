@@ -123,46 +123,67 @@
         </form>
         <!-- END OF MEDICAL PROCEDURES LIST FOR IPT -->
 
+        <legend><b>Add/Edit Attachments</b></legend>
+        <div class="form-group">
+            <input id="edit-ipt-attachments" name="add-ipt-attachments[]" type="file" multiple class="file-loading">
+        </div>
+
     </div>
     <!-- BILLING FOR IPT -->
-    <div class="col-md-4">
-        ssssssssss
-    </div>
+    <div class="col-md-4"></div>
     <!-- END OF BILLING FOR IPT -->
 </div>
 
 <script type="text/javascript">
 
     $("#edit-ipt-form").submit(function (event) {
-        var key = $("#edit-p-id").val();
-        var cu = $("#edit-c-id").val();
-        console.log("IN EDIT IPT FORM AJAX");
-        event.preventDefault();
-        $.ajax({
-            type: "POST",
-            url: "/ipt_edit/"+ key +"/"+cu,
-            data: {                
-                'confinement-date': $("#edit-confinement-date-div select[name='date_[year]']").val() + '-' + $("#edit-confinement-date-div select[name='date_[month]']").val() + '-' +
-                $("#edit-confinement-date-div select[name='date_[day]']").val(),
-                
-                'discharge-date': $("#edit-discharge-date-div select[name='date_[year]']").val() + '-' + $("#edit-discharge-date-div select[name='date_[month]']").val() + '-' +
-                $("#edit-discharge-date-div select[name='date_[day]']").val(),
-                
-                'hospital': $("#edit-hospital").val(),
-                'summary': $("#edit-summary").val(),
-                'detailed-diagnosis': $("#edit-detailed-diagnosis").val(),
-                'notes': $("#edit-notes").val(),
-                'doctor': $("#edit-doctor").val(),
-            }
-        }).done(function (data) {
-            if(data.success) {
-                $('#list-ipt-view').show();
-                $('#edit-ipt-view').hide();
-            } else {
-                $("#opt-error-response").text(data.error);
-                alert(data.error);
-            }
-        });
+        var files = $('#edit-ipt-attachments').fileinput('getFileStack');
+        if(files.length != 0) {
+            $(".unique-name-edit-ipt").click();
+            event.preventDefault();
+        } else {
+            var key = $("#edit-p-id").val();
+            var cu = $("#edit-c-id").val();
+            event.preventDefault();
+
+            $.ajax({
+                type: "POST",
+                url: "/ipt_edit/"+ key +"/"+cu,
+                data: {                
+                    'confinement-date': $("#edit-confinement-date-div select[name='date_[year]']").val() + '-' + $("#edit-confinement-date-div select[name='date_[month]']").val() + '-' +
+                    $("#edit-confinement-date-div select[name='date_[day]']").val(),
+                    
+                    'discharge-date': $("#edit-discharge-date-div select[name='date_[year]']").val() + '-' + $("#edit-discharge-date-div select[name='date_[month]']").val() + '-' +
+                    $("#edit-discharge-date-div select[name='date_[day]']").val(),
+                    
+                    'hospital': $("#edit-hospital").val(),
+                    'summary': $("#edit-summary").val(),
+                    'detailed-diagnosis': $("#edit-detailed-diagnosis").val(),
+                    'notes': $("#edit-notes").val(),
+                    'doctor': $("#edit-doctor").val(),
+                }
+            }).done(function (data) {
+                if(data.success) {
+                    $('#list-ipt-view').show();
+                    $('#edit-ipt-view').hide();
+                } else {
+                    $("#opt-error-response").text(data.error);
+                    alert(data.error);
+                }
+            });
+        }
+    });
+
+    $("#edit-ipt-attachments").on("filepredelete", function (jqXHR) {
+        var abort = true;
+        if (confirm("Are you sure you want to delete this file?")) {
+            abort = false;
+        }
+        return abort;
+    });
+
+    $('#edit-ipt-attachments').on('fileloaded', function (event, file, previewId, index, reader) {
+        $('#edit-ipt-attachments').fileinput('upload');
     });
 
 </script>

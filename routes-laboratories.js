@@ -49,7 +49,7 @@ var upload_success = upload_file_labs.array('add-lab-attachments[]');
 router.get('/lab_results_list/:patient_id', requireLoggedIn, 
 	function (req, res, next) {
 		var fileId = Date.now() + "" + Math.floor(Math.random()*10);
-		res.cookie('fileId', fileId, { signed: true });
+		res.cookie('labFileId', fileId, { signed: true });
 		addLabfileQueue[fileId] = {filesArr: []};
 		next();
 	},
@@ -68,7 +68,7 @@ router.get('/lab_results_list/:patient_id', requireLoggedIn,
 );
 
 router.post('/laboratory_add', requireLoggedIn, upload_file_labs.array('add-lab-attachments[]'), function (req, res) {
-	var fileId = req.signedCookies.fileId;
+	var fileId = req.signedCookies.labFileId;
 	console.log(req.body);
 	if (req.body.notes.trim() === "") { req.body.notes = null; }
 	Laboratory.create({
@@ -90,7 +90,7 @@ router.post('/upload_files_lab_results', requireLoggedIn, function (req, res) {
 		if (err) {
 			return res.json({error: "Your upload failed. Please try again later."});
 		}
-		var fileId = req.signedCookies.fileId;
+		var fileId = req.signedCookies.labFileId;
 		addLabfileQueue[fileId].filesArr.push(req.files[0].path);
 		res.json({});
 	});

@@ -34,7 +34,7 @@
             var date;
 
             if(data['opt']['date'] != null){
-                console.log("IN HERE EDIT OPT DATE");
+                // console.log("IN HERE EDIT OPT DATE");
                 date = data['opt']['date'].split("-");
                 $("#edit-opt-date-div select[name='date_[month]']").val(date[1]);
                 $("#edit-opt-date-div select[name='date_[day]']").val(date[2]);
@@ -51,29 +51,8 @@
 
             $('#edit-p-id').val(data['opt']['id']);
             $('#edit-c-id').val(data['opt']['parent_record.id']);
-            
-        });
-
-
-    }
-
-    function add_OPT() {
-        $('#list-opt-view').hide();
-        $('#add-opt-view').show();
-        $('#edit-opt-view').hide();
-        $('#list-opt-view-link').show();
-        // dapat on-Submit nani sa ADD IPT Record//
-        $('#add-opt-view select').val("");
-        $('#add-opt-view input').not('#opt-doctor').not('#p-id').val("");
-        $('#add-opt-view textarea').val("");
-
-
-        if( $.fn.dataTable.isDataTable('#opt-list-medication') ){
-            meds.rows().remove();
-            med_procedures.rows().remove();
-        }
-        else{
-            meds = $('#opt-list-medication').DataTable({
+                
+            meds = $('#edit-opt-list-medication').DataTable({
                 "bSort": true, 
                 "aaSorting": [[0]],
                 "aoColumns": [
@@ -97,9 +76,104 @@
                 $('#edit-med-instructions').val(data[5]);
             });
 
-            med_procedures = $('#opt-list-med-procedure').DataTable({
+            med_procedures = $('#edit-opt-list-med-procedure').DataTable({
                 "bSort": true, 
                 "aaSorting": [[0]],
+                "aoColumns": [
+                    { "bSortable": false },
+                    { "bSortable": true },
+                    { "bSortable": true },
+                    { "bSortable": true }
+                ]    
+            }).on('click', 'tbody tr', function () {
+                var data = med_procedures.row(this).data();
+                // console.log($(this));
+                edit_med_procedure_caller = $(this);
+                
+                $('#edit-med-procedure-modal').modal('toggle');
+                $('#edit-med-procedure-date select[name="date_[month]"').val(data[1].substring(3, data[1].length-4).substring(5, 7));
+                $('#edit-med-procedure-date select[name="date_[day]"').val(data[1].substring(3, data[1].length-4).substring(8, 10));
+                $('#edit-med-procedure-date select[name="date_[year]"').val(data[1].substring(3, data[1].length-4).substring(0, 4));
+                $('#edit-med-procedure-description').val(data[2]);
+                $('#edit-med-procedure-details').val(data[3]);
+            });
+            
+
+            meds.rows().remove();
+            med_procedures.rows().remove();
+
+            console.log(data);
+
+            for (var i = data['medications'].length - 1; i >= 0; i--) {
+                meds.row.add([
+                    '<input type="checkbox" id="' + data['medications'][i].id + 
+                    '" name="' + data['medications'][i].id + '"></input>', //idk UNSAON ANG NAME AND ID ANI FOR DELETION
+                    '<a>' + data['medications'][i].name + '</a>',
+                    data['medications'][i].dosage,
+                    data['medications'][i].frequency,
+                    data['medications'][i].type,
+                    data['medications'][i].notes
+                ]).draw();
+            }
+
+            for (var i = data['med_procedures'].length - 1; i >= 0; i--) {
+                med_procedures.row.add([
+                    '<input type="checkbox" id="' + data['med_procedures'][i].id + 
+                    '" name="' + data['med_procedures'][i].id + '"></input>', //idk UNSAON ANG NAME AND ID ANI FOR DELETION
+                    '<a>' + data['med_procedures'][i].date + '</a>',
+                    data['med_procedures'][i].description,
+                    data['med_procedures'][i].details
+                ]).draw();
+            }
+            
+        });
+
+
+    }
+
+    function add_OPT() {
+        $('#list-opt-view').hide();
+        $('#add-opt-view').show();
+        $('#edit-opt-view').hide();
+        $('#list-opt-view-link').show();
+        // dapat on-Submit nani sa ADD IPT Record//
+        $('#add-opt-view select').val("");
+        $('#add-opt-view input').not('#hidden-opt-doctor').not('#opt-doctor').not('#p-id').val("");
+        $('#add-opt-view textarea').val("");
+
+
+        if( $.fn.dataTable.isDataTable('#opt-list-medication') ){
+            meds.rows().remove();
+            med_procedures.rows().remove();
+        }
+        else{
+            meds = $('#opt-list-medication').DataTable({
+                "bSort": true, 
+                "aaSorting": [],
+                "aoColumns": [
+                    { "bSortable": false },
+                    { "bSortable": true },
+                    { "bSortable": true },
+                    { "bSortable": true },
+                    { "bSortable": true },
+                    { "bSortable": true }
+                ]    
+            }).on('click', 'tbody tr', function () {
+                var data = meds.row(this).data();
+                // console.log($(this));
+                edit_med_caller = $(this);
+
+                $('#edit-medication-modal').modal('toggle');
+                $('#edit-med-name').val(data[1].substring(3, data[1].length-4));
+                $('#edit-med-dosage').val(data[2]);
+                $('#edit-med-frequency').val(data[3]);
+                $('#edit-med-type').val(data[4]);
+                $('#edit-med-instructions').val(data[5]);
+            });
+
+            med_procedures = $('#opt-list-med-procedure').DataTable({
+                "bSort": true, 
+                "aaSorting": [],
                 "aoColumns": [
                     { "bSortable": false },
                     { "bSortable": true },

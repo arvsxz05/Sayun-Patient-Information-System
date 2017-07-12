@@ -6,12 +6,15 @@ const Doctor = require('./models').Doctor;
 const User_Account = require('./models').User_Account;
 const Medication = require('./models').Medication;
 const Medical_Procedure = require('./models').Medical_Procedure;
+const multer = require('multer');
+const fs = require('fs');
 
 ///////////////////// MIDDLEWARES ////////////////////////
 
 function requireLoggedIn(req, res, next) {
+	const currentInstance = req.session.spisinstance;
 	const currentUser = req.session.user;
-	if(!currentUser) {
+	if(!currentUser || !currentInstance) {
 		return res.redirect('/login');
 	}
 	next();
@@ -20,44 +23,67 @@ function requireLoggedIn(req, res, next) {
 function requireDoctor(req, res, next) {
 	const currentUser = req.session.doctor;
 	if(!currentUser) {
-		// return res.redirect('/login');
 		return res.send("You are not authorized to access this page");
 	}
 	next();
 }
 
+var addIPTfileQueue = {};
+
+const upload_file_ipts = multer({
+	storage: multer.diskStorage({
+		destination: function (req, file, cb) {
+			if(file.fieldname == 'add-ipt-attachments[]'){
+				var path = './static/uploads/IPTs';
+				cb(null, path);
+			}
+		},
+		filename: function (req, file, cb) {
+			cb(null, Date.now()+file.originalname);
+		}
+	}),
+});
+
+var upload_ipt_success = upload_file_ipts.array('add-ipt-attachments[]');
+
 //////////////////////////// GET ////////////////////////////////////
 
-router.get('/ipt_list/:patient_id', function (req, res) {
-	var patient_id = req.params.patient_id;
+router.get('/ipt_list/:patient_id',
+	function (req, res, next) {
+		var fileId = Date.now() + "" + Math.floor(Math.random()*10);
+		res.cookie('iptFileId', fileId, { signed: true });
+		addIPTfileQueue[fileId] = {filesArr: []};
+		next();
+	},
+	function (req, res) {
+		var patient_id = req.params.patient_id;
 
-	InPatient_Treatment.findAll({
-		raw: true,
-		include: [{
-	        model: Check_Up,
-	        where: {
-				patientId: patient_id,
-			},
-			as: 'parent_record',
-			include: [{ 
-				model: Doctor,
-				include: [{ model: User_Account, as: 'username'}]
-			}]
-	    }]
-	}).then(ipt_list => {
-		res.json({ipt_list: ipt_list});
-	});
-});
+		InPatient_Treatment.findAll({
+			raw: true,
+			include: [{
+		        model: Check_Up,
+		        where: {
+					patientId: patient_id,
+				},
+				as: 'parent_record',
+				include: [{ 
+					model: Doctor,
+					include: [{ model: User_Account, as: 'username'}]
+				}]
+		    }]
+		}).then(ipt_list => {
+			res.json({ipt_list: ipt_list});
+		});
+	}
+);
 
 
 router.get('/ipt_edit_json/:ipt_id/:patient_id', function (req, res) {
 
-	console.log("IPT EDIT JSON");
-	console.log(req.params);
-
 	var key = req.params.ipt_id;
 	var patient_id = req.params.patient_id, result;
 	var doctors = [];
+	var ipt, meds;
 
 	InPatient_Treatment.findOne({
 		raw: true,
@@ -79,17 +105,35 @@ router.get('/ipt_edit_json/:ipt_id/:patient_id', function (req, res) {
 				id: key,
 			}
 	}).then(function(result){
-		res.json({ipt: result});
-	})
+		// console.log("INPATIENT TREATMENT EDIT JSON");
+		// console.log(result);
+		ipt = result;
+		Medication.findAll({
+			where: {
+				checkUpId: ipt['parent_record.id'],
+			},
+			raw: true,
+		}).then(function(results){
+			meds = results;
+			Medical_Procedure.findAll({
+				where: {
+					checkUpId: ipt['parent_record.id'],
+				},
+				raw: true,
+			}).then(function(results){
+				res.json({	ipt: ipt,
+							medications: meds,
+							med_procedures: results});
+			});
+		});
+	});
 
 });
 
 /////////////////////////// POST ////////////////////////////////////
 
-router.post('/ipt_add', function(req, res){
-
-	console.log("IN IPT ADD");
-	console.log(req.body);
+router.post('/ipt_add', requireLoggedIn, upload_file_ipts.array('add-ipt-attachments[]'), function (req, res) {
+	var fileId = req.signedCookies.iptFileId;
 
 	var confine = req.body['confinement-date'];
 	var hospital = req.body['hospital'];
@@ -104,8 +148,16 @@ router.post('/ipt_add', function(req, res){
 		discharge = req.body['discharge-date'];
 	};
 
-	var medication = req.body['meds'];
-	var medical_procedure = req.body['med_procedures'];
+	var medication = [];
+	var medical_procedure = [];
+
+	if(req.body['meds'] != null && req.body['meds'] != ''){
+		medication = req.body['meds'];
+	}
+
+	if(req.body['med_procedures'] != null && req.body['med_procedures'] != ''){
+		medical_procedure = req.body['med_procedures'];
+	}
 
 	InPatient_Treatment.create({
 		conf_date: confine,
@@ -113,6 +165,7 @@ router.post('/ipt_add', function(req, res){
 		sum_of_diag: summary,
 		detailed_diag: details,
 		notes: notes,
+		attachments: addIPTfileQueue[fileId].filesArr,
 		parent_record: {
 			check_up_type: "In-Patient-Treatment",
 			hospitalName: hospital,
@@ -131,10 +184,22 @@ router.post('/ipt_add', function(req, res){
 			}, {
 				model: Medical_Procedure,
 				as: 'medical_procedure',
-			}]
+			}],
 		}]
 	}).then(checkUp_data => {
+		addIPTfileQueue[fileId] = null;
 		res.json({success: true});
+	});
+});
+
+router.post('/upload_files_ipt_results', requireLoggedIn, function (req, res) {
+	upload_ipt_success (req, res, function (err) {
+		if (err) {
+			return res.json({error: "Your upload failed. Please try again later."});
+		}
+		var fileId = req.signedCookies.iptFileId;
+		addIPTfileQueue[fileId].filesArr.push(req.files[0].path);
+		res.json({});
 	});
 });
 
@@ -197,6 +262,52 @@ router.post('/ipt_edit/:ipt_id/:cu_id', function(req, res){
 	}).catch(function(error){
 		console.log(error);
 		res.json({error: error});
+	});
+});
+
+router.post('/delete_files_ipt/:ipt_id', requireLoggedIn, function (req, res) {
+	var ipt_id = req.params.ipt_id;
+	console.log(req.body.key);
+	if (fs.existsSync(req.body.key)) {
+		fs.unlink(req.body.key);
+	}
+	InPatient_Treatment.findOne({
+		where: {
+			id: ipt_id
+		}
+	}).then(ipt_instance => {
+		// console.log(lab_instance);
+		if(ipt_instance) {
+			var clone_arr_attachments = ipt_instance.attachments.slice(0);
+			var index_to_remove = clone_arr_attachments.indexOf(req.body.key);
+			if (index_to_remove > -1) {
+			    clone_arr_attachments.splice(index_to_remove, 1);
+			}
+			ipt_instance.update({ attachments: clone_arr_attachments }).then(() => { return res.json({}); });
+		} else {
+			res.json({});
+		}
+	});
+});
+
+router.post("/upload_files_edit_ipt/:ipt_id", requireLoggedIn, function (req, res) {
+	upload_ipt_success (req, res, function (err) {
+		if (err) {
+			return res.json({error: "Your upload failed. Please try again later."});
+		}
+		InPatient_Treatment.findOne({
+			where: {
+				id: req.params.ipt_id
+			}
+		}).then(ipt_instance => {
+			if(ipt_instance) {
+				var clone_arr_attachments = ipt_instance.attachments.slice(0);
+				clone_arr_attachments.push(req.files[0].path);
+				ipt_instance.update({ attachments: clone_arr_attachments }).then(() => { return res.json({}); });
+			} else {
+				res.json({});
+			}
+		});
 	});
 });
 
