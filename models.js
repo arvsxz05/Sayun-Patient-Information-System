@@ -6,12 +6,13 @@ const user_types = ['Doctor', 'Secretary'];
 const institution_types = ['Clinic', 'Hospital', 'Laboratory', 'Others'];
 const spis_instance_types = ['Active', 'Inactive'];
 const title_types = ['Ms.', 'Mr.', 'Mrs.', 'Dr.'];
-const sex_types = ['Female', 'Male', 'Others'];
+const sex_types = ['Female', 'Male'];
 const check_up_types = ['Consultation', 'In-Patient-Treatment', 'Out-Patient-Treatment']
 const inpatient_status_types = ['Confined', 'Discharged'];
 const medication_types = ['Maintenance', 'Non-Maintenance'];
 const billing_status_types = ['Fully Paid', 'Partially Paid', 'Deferred', 'Waived'];
 const civil_status_types = ['Single', 'Married', 'Divorced', 'Separated', 'Widowed'];
+const queue_status_types = ['Waiting', 'Done', 'Current'];
 
 const User_Account = database.define('user_account', {
 	id: {
@@ -256,8 +257,7 @@ const Patient = database.define('patient', {
 	sex: {
 		type: Sequelize.ENUM,
 		values: sex_types,
-		allowNull: false,
-		defaultValue: 'Others'
+		allowNull: false
 	},
 	birthdate: {
 		type: Sequelize.DATEONLY,
@@ -548,6 +548,49 @@ const Billing = database.define('billing', {
 Billing.hasMany(Billing_Item, {as: 'billing_items'});
 Billing.belongsTo(Check_Up);
 Check_Up.hasOne(Billing, {as: 'receipt'});
+
+const Consultation = database.define('consultation', {
+	date: {
+		type: Sequelize.DATEONLY,
+		allowNull: false
+	},
+	sum_of_diag: { // Summary of Diagnosis
+		type: Sequelize.TEXT,
+		allowNull: true,
+	},
+	detailed_diag: { // Detailed Diagnosis
+		type: Sequelize.TEXT,
+		allowNull: true,
+	},
+	notes: { // Detailed Diagnosis
+		type: Sequelize.TEXT,
+		allowNull: true,
+	},
+	attachments: {
+		type: Sequelize.ARRAY(Sequelize.STRING),
+		allowNull: true,
+	}
+});
+
+Consultation.belongsTo(Check_Up, {as: 'parent_record'});
+
+Daily_Consultation = database.define('daily_consultation', {
+	date: {
+		type: Sequelize.DATEONLY,
+		allowNull: false
+	},
+	queue_no: {
+		type: Sequelize.INTEGER,
+		allowNull: false
+	},
+	status: {
+		type: Sequelize.ENUM,
+		values: queue_status_types,
+		allowNull: false,
+	}
+});
+
+Daily_Consultation.belongsTo(Consultation, {as: 'consultation_records'});
 
 // database.sync();
 
