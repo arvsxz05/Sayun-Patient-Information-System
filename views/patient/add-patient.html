@@ -122,7 +122,7 @@
                                     </div>
                                     <div class="form-group">
                                         <label class="col-sm-3 control-label" for="birthday">Birth date*</label>
-                                        <div class="col-sm-9 col-md-8 date-div">
+                                        <div class="col-sm-9 col-md-8 date-div" id="birthday">
                                             <input type="hidden" id="bday">
                                         </div>
                                     </div>
@@ -133,7 +133,6 @@
                                               <option value="" selected disabled>Select Sex</option>
                                               <option value="Male">Male</option>
                                               <option value="Female">Female</option>
-                                              <option value="Others">Others</option>
                                             </select>
                                         </div>
                                     </div>
@@ -182,14 +181,14 @@
                                 <div class="col-md-6">
                                     <div class="form-group">
                                         <label class="col-sm-3 col-md-4 control-label" for="membership">Date of Membership</label>
-                                        <div class="col-sm-9 col-md-8 date-div">
+                                        <div class="col-sm-9 col-md-8 date-div" id="mem-date">
                                             <input type="hidden" id="membership-date">
                                         </div>
                                     </div>
 
                                     <div class="form-group">
                                         <label class="col-sm-3 col-md-4 control-label" for="expiration">Date of Expiration</label>
-                                        <div class="col-sm-9 col-md-8 date-div">
+                                        <div class="col-sm-9 col-md-8 date-div" id="exp-date">
                                             <input type="hidden" id="expiration-date">
                                         </div>
                                     </div>
@@ -320,6 +319,21 @@
         $("select[name='date_[month]'] option").first().prop("disabled", true);
         $("select[name='date_[day]'] option").first().prop("disabled", true);
         $("select[name='date_[year]'] option").first().prop("disabled", true);
+
+
+        $("#birthday select[name='date_[month]']").attr('name', 'bday_month');
+        $("#birthday select[name='date_[day]']").attr('name', 'bday_day');
+        $("#birthday select[name='date_[year]']").attr('name', 'bday_year');
+
+        $("#mem-date select[name='date_[month]']").attr('name', 'mem_date_month');
+        $("#mem-date select[name='date_[day]']").attr('name', 'mem_date_day');
+        $("#mem-date select[name='date_[year]']").attr('name', 'mem_date_year');
+
+        $("#exp-date select[name='date_[month]']").attr('name', 'exp_date_month');
+        $("#exp-date select[name='date_[day]']").attr('name', 'exp_date_day');
+        $("#exp-date select[name='date_[year]']").attr('name', 'exp_date_year');
+        
+
 
         $('input[type=radio][name=referral]').change(function() {
             if (this.value == 'walk-in') {

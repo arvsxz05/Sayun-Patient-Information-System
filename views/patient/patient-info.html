@@ -540,9 +540,19 @@
         $(".date-div select").addClass("form-control");
         $("#birthday select").prop("required", true);
         $("select option[value='']:selected").attr('disabled',"disabled");
-        // $("select[name='date_[day]'] option").first().prop("disabled", true);
-        // $("select[name='date_[year]'] option").first().prop("disabled", true);
+        
+        $("#birthday select[name='date_[month]']").attr('name', 'bday_month');
+        $("#birthday select[name='date_[day]']").attr('name', 'bday_day');
+        $("#birthday select[name='date_[year]']").attr('name', 'bday_year');
 
+        $("#mem-date select[name='date_[month]']").attr('name', 'mem_date_month');
+        $("#mem-date select[name='date_[day]']").attr('name', 'mem_date_day');
+        $("#mem-date select[name='date_[year]']").attr('name', 'mem_date_year');
+
+        $("#exp-date select[name='date_[month]']").attr('name', 'exp_date_month');
+        $("#exp-date select[name='date_[day]']").attr('name', 'exp_date_day');
+        $("#exp-date select[name='date_[year]']").attr('name', 'exp_date_year');
+        
         $('input[type=radio][name=referral]').change(function() {
             if (this.value == 'walk-in') {
                 $('#referrer').slideUp(200);
@@ -557,24 +567,24 @@
         });
 
                 var date = "{{patient.birthdate}}".split("-");
-                $("#birthday select[name='date_[month]']").val(date[1]);
-                $("#birthday select[name='date_[day]']").val(date[2]);
-                $("#birthday select[name='date_[year]']").val(date[0]);
+                $("#birthday select[name='bday_month']").val(date[1]);
+                $("#birthday select[name='bday_day']").val(date[2]);
+                $("#birthday select[name='bday_year']").val(date[0]);
 
 
                 if("{{patient.membership}}" !== "") {
                     date = "{{patient.membership}}".split("-");
-                    $("#membership select[name='date_[month]']").val(date[1]);
-                    $("#membership select[name='date_[day]']").val(date[2]);
-                    $("#membership select[name='date_[year]']").val(date[0]);
+                   $("#mem-date select[name='mem_date_month']").val(date[1]);
+                    $("#mem-date select[name='mem_date_day']").val(date[2]);
+                    $("#mem-date select[name='mem_date_year']").val(date[0]);
                 }
                 
 
                 if("{{patient.expiration}}" !== "") {
                     date = "{{patient.expiration}}".split("-");
-                    $("#expiration select[name='date_[month]']").val(date[1]);
-                    $("#expiration select[name='date_[day]']").val(date[2]);
-                    $("#expiration select[name='date_[year]']").val(date[0]);
+                    $("#exp-date select[name='exp_date_month']").val(date[1]);
+                    $("#exp-date select[name='exp_date_day']").val(date[2]);
+                    $("#exp-date select[name='exp_date_year']").val(date[0]);
                 }
 
                 if("{{patient.referred_by}}" !== "") {

@@ -178,7 +178,7 @@ router.post('/patient_add', requireLoggedIn, upload.fields([{name: 'photo', maxC
 	var lname = req.body['last_name'];
 	var fname = req.body['first_name'];
 	var mname = req.body['middle_name'];
-	var bday = req.body['date_']['year'][0] + "-" + req.body['date_']['month'][0] + "-" + req.body['date_']['day'][0];;
+	var bday = req.body['bday_year'] + "-" + req.body['bday_month'] + "-" + req.body['bday_day'];
 	var sex = req.body['sex'];
 	var cstatus = req.body['civil_status'];
 	var nationality = req.body['nationality'];
@@ -201,12 +201,12 @@ router.post('/patient_add', requireLoggedIn, upload.fields([{name: 'photo', maxC
 	var expiration;
 
 
-	if(req.body['date_']['year'][1] != '' && req.body['date_']['month'][1] != '' && req.body['date_']['day'][1] != ''){
-		membership = req.body['date_']['year'][1] + "-" + req.body['date_']['month'][1] + "-" + req.body['date_']['day'][1];
+	if(req.body['mem_date_year'] != '' && req.body['mem_date_month'] != '' && req.body['mem_date_day'] != ''){
+		membership = req.body['mem_date_year'] + "-" + req.body['mem_date_month'] + "-" + req.body['mem_date_day'];
 	}
 
-	if(req.body['date_']['year'][2] != '' && req.body['date_']['month'][2] != '' && req.body['date_']['day'][2] != ''){
-		expiration = req.body['date_']['year'][2] + "-" + req.body['date_']['month'][2] + "-" + req.body['date_']['day'][2];
+	if(req.body['exp_date_year'] != '' && req.body['exp_date_month'] != '' && req.body['exp_date_day'] != ''){
+		expiration = req.body['exp_date_year'] + "-" + req.body['exp_date_month'] + "-" + req.body['exp_date_day'];
 	}
 
 	Patient.create({
@@ -259,13 +259,14 @@ router.post('/patient_edit/:id', requireLoggedIn, upload.fields([{name: 'photo',
 	var expiration = null;
 
 
-	if(req.body['date_']['year'][1] != '' && req.body['date_']['month'][1] != '' && req.body['date_']['day'][1] != ''){
-		membership = req.body['date_']['year'][1] + "-" + req.body['date_']['month'][1] + "-" + req.body['date_']['day'][1];
+	if(req.body['mem_date_year'] != '' && req.body['mem_date_month'] != '' && req.body['mem_date_day'] != ''){
+		membership = req.body['mem_date_year'] + "-" + req.body['mem_date_month'] + "-" + req.body['mem_date_day'];
 	}
 
-	if(req.body['date_']['year'][2] != '' && req.body['date_']['month'][2] != '' && req.body['date_']['day'][2] != ''){
-		expiration = req.body['date_']['year'][2] + "-" + req.body['date_']['month'][2] + "-" + req.body['date_']['day'][2];
+	if(req.body['exp_date_year'] != '' && req.body['exp_date_month'] != '' && req.body['exp_date_day'] != ''){
+		expiration = req.body['exp_date_year'] + "-" + req.body['exp_date_month'] + "-" + req.body['exp_date_day'];
 	}
+	
 
 	if(photo === null) {
 		patient_obj = {
@@ -274,7 +275,7 @@ router.post('/patient_edit/:id', requireLoggedIn, upload.fields([{name: 'photo',
 			first_name: req.body['first_name'].trim(),
 			suffix: req.body['suffix'].trim(),
 			sex: req.body['sex'],
-			birthdate: req.body['date_']['year'][0] + "-" + req.body['date_']['month'][0] + "-" + req.body['date_']['day'][0],
+			birthdate: req.body['bday_year'] + "-" + req.body['bday_month'] + "-" + req.body['bday_day'],
 			nationality: req.body['nationality'].trim(),
 			address: req.body['address'].trim(),
 			email: req.body['email'].trim(),
@@ -300,8 +301,7 @@ router.post('/patient_edit/:id', requireLoggedIn, upload.fields([{name: 'photo',
 			first_name: req.body['first_name'].trim(),
 			suffix: req.body['suffix'].trim(),
 			sex: req.body['sex'],
-			birthdate: req.body['date_']['year'][0] + "-" + req.body['date_']['month'][0] + "-" + req.body['date_']['day'][0],
-			nationality: req.body['nationality'].trim(),
+			birthdate: req.body['bday_year'] + "-" + req.body['bday_month'] + "-" + req.body['bday_day'],
 			address: req.body['address'].trim(),
 			email: req.body['email'].trim(),
 			phone_number: req.body['contact1'].trim(),
