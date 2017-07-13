@@ -622,3 +622,4 @@ module.exports.Check_Up = Check_Up;
 module.exports.Medication = Medication;
 module.exports.Medical_Procedure = Medical_Procedure;
 module.exports.title_types = title_types;
+module.exports.Consultation = Consultation;

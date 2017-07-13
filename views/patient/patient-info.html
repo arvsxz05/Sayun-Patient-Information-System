@@ -99,14 +99,46 @@
                         <!-- END OF PATIENT INFO -->
                         <!-- NOTES -->
                         <div class="tab-pane" id="notes">
-
                             {% include "../patient/edit-patient-notes.html" %}
-
                         </div>
                         <!-- END OF NOTES -->
                         <!-- CONSULTATIONS -->
                         <div class="tab-pane" id="consultations">
-                            Tab 3 ... Quisque et neque nec velit tincidunt fringilla. Morbi eget nisi molestie, egestas turpis non, pharetra orci. Donec mattis sem ipsum, eu dapibus lacus rutrum in. Fusce blandit mi leo, non feugiat nunc tempus vitae. Mauris hendrerit, leo sit amet mollis bibendum, lacus augue auctor turpis, sed placerat augue libero quis massa.
+                            <div class="row">
+                                <div class="col-xs-12 col-md-10 col-md-offset-1">   
+                                    <!-- BASIC PATIENT INFO -->
+                                    <div class="row" style="margin-top: 40px">
+                                        <div class="col-md-6">
+                                            <div class="row form-group">
+                                                <label class="col-sm-3 control-label" for="patient-id">Patient ID</label>
+                                                <div class="col-sm-6">
+                                                    <input type="text" class="form-control" id="patient-id" value="{{patient.id}}" disabled>
+                                                </div>
+                                            </div>                                       
+                                            <div class="row form-group">
+                                                <label class="col-sm-3 control-label" for="patient-id">Patient Name</label>
+                                                <div class="col-sm-6">
+                                                    <input type="text" class="form-control" id="patient-id" value="{{patient.first_name}} {{patient.middle_name}} {{patient.last_name}}" disabled>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <a id="list-cc-view-link" onclick="view_CC()">Back to Consultation List</a><hr>
+                                    <!-- END OF BASIC PATIENT INFO -->
+
+
+                                    <!-- IPT TABLE -->
+                                        {% include "../consultation/list-consultation.html" %}
+                                    <!-- END OF IPT TABLE -->
+
+
+                                    <!-- ADD NEW IPT RECORD -->
+                                        {% include "../consultation/add-consultation.html" %}
+                                    <!-- END OF ADDING NEW IPT RECORD -->
+                               
+                                </div>
+                            </div>   
                         </div>
                         <!-- END OF CONSULTATIONS -->
 
@@ -146,7 +178,7 @@
                                     <!-- END OF ADDING NEW IPT RECORD -->
 
                                     <!-- VIEW IPT RECORD -->
-                                    {% include "../patient/edit-patient-ipt.html" %}
+                                        {% include "../patient/edit-patient-ipt.html" %}
                                     <!--  -->                                   
                                 </div>
                             </div>
@@ -464,6 +496,7 @@
 
     var IPT_List_Table;
     var OPT_List_Table;
+    var CC_List_Table;
 
     (function($) {
       fakewaffle.responsiveTabs(['xs', 'sm']);
@@ -521,6 +554,19 @@
         $("#edited-med-procedure-date").dateDropdowns({
             displayFormat: "mdy"
         });
+
+        $("#edited-med-procedure-date").dateDropdowns({
+            displayFormat: "mdy"
+        });
+
+        $("#cc-date").dateDropdowns({
+            displayFormat: "mdy"
+        });
+
+
+        $('#list-cc-view-link').hide();
+        $('#add-cc-view').hide();
+        $('#edit-cc-view').hide();
 
 
         $('#list-ipt-view-link').hide();
@@ -661,6 +707,18 @@
                 { "bSortable": true }
             ]    
         });
+
+        CC_List_Table = $('#cc-list').DataTable({
+            "bSort": true, 
+            "aaSorting": [],
+            "aoColumns": [
+                { "bSortable": false },
+                { "bSortable": true },
+                { "bSortable": true },
+                { "bSortable": true },
+                { "bSortable": true }
+            ]    
+        });
     });
 
 
@@ -681,6 +739,13 @@
     var meds;
     var med_procedures;
     var billing;
+
+    function view_CC() {
+        $('#list-cc-view').show();
+        $('#add-cc-view').hide();
+        $('#edit-cc-view').hide();
+        $('#list-cc-view-link').hide();
+    }
 
     function view_IPT() {
         $('#list-ipt-view').show();
@@ -967,6 +1032,13 @@
             url: "/lab_results_list/{{patient.id}}",
         }).done(updateLabListRows);
     });
+
+    $("#list-cc-view").on('show', function() {
+        $.ajax({
+            type: "GET",
+            url: "/clinic_consultation_list/{{patient.id}}",
+        }).done(updateCCListRows);
+    });
     // var temp_hehe = 1;
 
     function updateIPTListRows (data) {
@@ -1011,8 +1083,24 @@
         };
     }
 
-    $("#tab-consultations").click(function (e) {
+    function updateCCListRows (data) {
+        CC_List_Table = CC_List_Table.rows().remove().draw();
+        for (var i = data.cc_list.length - 1; i >= 0; i--) {
+            CC_List_Table.row.add([
+                '<input type="checkbox" id="' + data.cc_list[i].id + '" name="' + data.cc_list[i].id + '"></input>', //idk UNSAON ANG NAME AND ID ANI FOR DELETION
+                '<a onclick="edit_CC(\'cc-data-' + data.cc_list[i].id + '\')" value="' + data.cc_list[i].id + '" id="cc-data-' + data.cc_list[i].id + '">' + data.cc_list[i].date + '</a>',
+                data.cc_list[i]['parent_record.hospitalName'],
+                data.cc_list[i]['parent_record.doctor.username.first_name'] + " " + data.cc_list[i]['parent_record.doctor.username.middle_name'] + " " + data.cc_list[i]['parent_record.doctor.username.last_name'],
+                data.cc_list[i].sum_of_diag
+            ]).draw();
+        };
+    }
 
+    $("#tab-consultations").click(function (e) {
+        $.ajax({
+            type: "GET",
+            url: "/clinic_consultation_list/{{patient.id}}",
+        }).done(updateCCListRows);
     });
 
     $("#tab-inpatient").click(function (e) {

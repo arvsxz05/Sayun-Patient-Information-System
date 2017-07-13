@@ -1,0 +1,41 @@
+<!-- CC TABLE -->
+<div class="row" id="list-cc-view">
+    <div class="table-responsive">
+        <h3>Consultation List</h3>
+        <table id="cc-list" class="table table-striped table-bordered" cellspacing="0" width="100%">
+            <thead>
+                <tr>
+                    <th><input type="checkbox" aria-label="..." id="select-all"/></th>
+                    <th>Date</th>
+                    <th>Clinic Name</th>
+                    <th>Doctor</th>
+                    <th>Summary of Diagnosis</th>
+                    <!-- <th></th> -->
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="button-group">
+        <a class="btn btn-lime pull-right" type="button" onclick="add_CC()">Add</a>    
+    </div>
+</div>
+<!-- END OF CC TABLE -->
+
+<script type="text/javascript">
+    function add_CC() {
+        $('#list-cc-view').hide();
+        $('#add-cc-view').show();
+        $('#edit-cc-view').hide();
+        $('#list-cc-view-link').show();
+    }
+
+    function edit_CC (key) {
+        $('#list-cc-view').hide();
+        $('#add-cc-view').hide();
+        $('#edit-cc-view').show();
+        $('#list-cc-view-link').show();
+    }
+</script>

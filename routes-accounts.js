@@ -338,7 +338,6 @@ router.post('/add_account', requireLoggedIn, requireSuperUser,
 				});
 			} else if (req.body.user_type == "Secretary") {
 				Secretary.create({
-					usernameId: account.dataValues.id,
 					username: temp
 				}, {
 					include: [{
