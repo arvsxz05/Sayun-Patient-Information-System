@@ -23,14 +23,14 @@ function requireLoggedIn(req, res, next) {
 
 router.get('/login', 
 	function (req, res, next) {
-		const currentUser = req.session.user; //req.signedCookies.user;
+		const currentUser = req.session.user;
 		const spisInstance = req.session.spisinstance;
 		if(currentUser && spisInstance) {
 			return res.redirect('/');
 		}
 		next();
 	},
-	function (req, res){
+	function (req, res) {
 		var instances;
 
 		instances = SPIS_Instance.findAll({ where: {status: 'Active'}, attributes: ['description', 'license_no'], raw: true })
@@ -67,7 +67,7 @@ router.get('/logout', function (req, res) {
 	res.redirect('/login');
 });
 
-router.get('/check_username/:name', requireLoggedIn, function (req, res){
+router.get('/check_username/:name', requireLoggedIn, function (req, res) {
 	var key = req.params.name;
 	console.log(key);
 	User_Account.findOne({
@@ -135,7 +135,6 @@ router.post('/login', function (req, res) {
 	var username = req.body.username;
 	var password = req.body.password;
 	var spis_instance = req.body.spis_instance;
-	// var hash = bcrypt.hashSync(password, 10);
 
 	SPIS_Instance.findOne({where : {
 		license_no: spis_instance
@@ -169,7 +168,6 @@ router.post('/login', function (req, res) {
 					}
 					else {
 						if(bcrypt.compareSync(password, single_user.dataValues.password_hash)) {
-							// res.cookie('user', single_user.dataValues, {signed: true});
 							req.session.user = single_user.dataValues;
 							Doctor.findOne({where: {
 								usernameId: single_user.dataValues.id

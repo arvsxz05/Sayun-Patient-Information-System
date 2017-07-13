@@ -287,8 +287,6 @@ router.post('/add_account', requireLoggedIn, requireSuperUser,
 			}
 		}
 
-		console.log(req.body.user_type)
-
 		SPIS_Instance.findOne({ where: {
 			license_no: req.session.spisinstance.license_no
 		}}).then(instance => {
@@ -306,54 +304,67 @@ router.post('/add_account', requireLoggedIn, requireSuperUser,
 				password_hash : password,
 				spisInstanceLicenseNo : instance.license_no,
 				photo: photo,
-			}
-			User_Account.create(temp).then(account => {
-				if (req.body.user_type == "Doctor") {
-					console.log(sign);
-					Doctor.create({
-						license_no : license_num,
-						ptr_no : ptr_num,
-						s2_license_no : s2_license_num,
-						usernameId: account.dataValues.id,
-						signature: sign,
-					})
-					.catch(function(error) {
-						console.log(error);
-						res.render('account/add-account.html', {
-							error: error
+			};
+			if (req.body.user_type == "Doctor") {
+				Doctor.create({
+					license_no : license_num,
+					ptr_no : ptr_num,
+					s2_license_no : s2_license_num,
+					signature: sign,
+					username: temp
+				}, {
+					include: [{
+						model: User_Account,
+						as: 'username'
+					}]
+				}).then(doctor_instance => {
+					if(req.body.access_rights == "Admin") {
+						Admin.create({
+							usernameId: doctor_instance.usernameId
+						})
+						.catch(function(error) {
+							console.log(error);
+							res.render('account/add-account.html', {
+								error: error
+							});
 						});
+					};
+					res.redirect('/account_list');
+				}).catch(error => {
+					console.log(error);
+					res.render('account/add-account.html', {
+						error: error
 					});
-				};
-				if (req.body.user_type == "Secretary") {
-					Secretary.create({
-						usernameId: account.dataValues.id
-					})
-					.catch(function(error) {
-						console.log(error);
-						res.render('account/add-account.html', {
-							error: error
-						});
-					});
-				};
-				if(req.body.access_rights == "Admin") {
-					Admin.create({
-						usernameId: account.dataValues.id
-					})
-					.catch(function(error) {
-						console.log(error);
-						res.render('account/add-account.html', {
-							error: error
-						});
-					});
-				};
-				res.redirect('/account_list');
-			})
-			.catch(function(error) {
-				// console.log(error);
-				res.render('account/add-account.html', {
-					error: error
 				});
-			});
+			} else if (req.body.user_type == "Secretary") {
+				Secretary.create({
+					usernameId: account.dataValues.id,
+					username: temp
+				}, {
+					include: [{
+						model: User_Account,
+						as: 'username'
+					}]
+				}).then(secretary_instance => {
+					if(req.body.access_rights == "Admin") {
+						Admin.create({
+							usernameId: secretary_instance.usernameId
+						})
+						.catch(function(error) {
+							console.log(error);
+							res.render('account/add-account.html', {
+								error: error
+							});
+						});
+					};
+					res.redirect('/account_list');
+				}).catch(error => {
+					console.log(error);
+					res.render('account/add-account.html', {
+						error: error
+					});
+				});
+			};
 		});
 	}
 );
