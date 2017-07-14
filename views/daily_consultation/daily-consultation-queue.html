@@ -325,7 +325,10 @@
      $(function() {
         var patients  =  [
             {% for patient in patients %}
-                "{{ patient.first_name }} {{ patient.middle_name }} {{ patient.last_name }} {{ patient.suffix }}",
+                {
+                    value: "{{ patient.id }}",
+                    label: "{{ patient.first_name }} {{ patient.middle_name }} {{ patient.last_name }} {{ patient.suffix }}".trim()
+                },
             {% endfor %}
         ];
         $("#patients-names-list" ).autocomplete({
@@ -339,11 +342,19 @@
                 }
             },
             select: function (event, ui){
+                event.preventDefault();
+                $("#patients-names-list").val(ui.item.label);
+                $("#patients-names-list").attr('name', ui.item.value);
                 $("#daily-cc-div").removeClass("hidden");
+            },
+            focus: function(event, ui) {
+                event.preventDefault();
+                $("#patients-names-list").val(ui.item.label);
             }
         }).keydown(function(e){
-            if(e.keyCode == 8 && jQuery.inArray($("#patients-names-list").val().trim(), patients) > -1){
+            if(e.keyCode == 8 && JSON.stringify(patients).indexOf($("#patients-names-list").val().trim()) > -1){
                 if($("#daily-cc-div").hasClass("hidden") == false){
+                    $("#patients-names-list").attr('name', '');
                     $("#daily-cc-div").addClass("hidden");
                 }
             }
@@ -446,6 +457,25 @@
         $("#empty-message").addClass("hidden");
         $('#add-daily-consultation-modal input').val("");
         $('#add-daily-consultation-modal select').val("");
+
+        // $.ajax({
+        //     type: "POST",
+        //     url: "/add_daily_consultation",
+        //     data: {
+        //         'date': $("#daily-cc-date").val(),
+        //         'queue_no': iCnt,
+        //         'doctor': $("#doctor").val(),
+        //         'p-id': $('#patients-names-list').attr('name'),
+        //         'hospital': $('#hospital').val()
+        //     }
+        // }).done(function (data) {
+        //     if(data.success) {
+        //         $('#list-opt-view').show();
+        //         $('#add-opt-view').hide();
+        //     } else {
+        //         $("#opt-error-response").text(data.error);
+        //     }
+        // });
     });
 
 </script>

@@ -17,10 +17,11 @@
             </tbody>
         </table>
     </div>
-
+    {% if doctor %}
     <div class="button-group">
         <a class="btn btn-lime pull-right" type="button" onclick="add_CC()">Add</a>    
     </div>
+    {% endif %}
 </div>
 <!-- END OF CC TABLE -->
 
@@ -44,6 +45,7 @@
             med_procedures.destroy();
         }
 
+        {% if doctor %}
         meds = $('#cc-list-medication').DataTable({
             "bSort": true, 
             "aaSorting": [],
@@ -91,6 +93,7 @@
 
         meds.rows().remove().draw();
         med_procedures.rows().remove().draw();
+        {% endif %}
     }
 
     function edit_CC (key) {
@@ -129,7 +132,7 @@
                 meds.destroy();
                 med_procedures.destroy();
             }
-                
+            {% if doctor %}
             meds = $('#edit-cc-list-medication').DataTable({
                 "bSort": true, 
                 "aaSorting": [[0]],
@@ -240,7 +243,7 @@
                 },
                 uploadClass: 'btn btn-xs btn-default unique-name-edit-cc hidden',
             });
+            {% endif %}
         });
     }
-
 </script>

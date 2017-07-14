@@ -17,10 +17,11 @@
             </tbody>
         </table>
     </div>
-
+    {% if doctor %}
     <div class="button-group">
         <a class="btn btn-lime pull-right" type="button" onclick="add_IPT()">Add</a>    
     </div>
+    {% endif %}
 </div>
 <!-- END OF IPT TABLE -->
 
@@ -46,55 +47,55 @@
             meds.destroy();
             med_procedures.destroy();
         }
-        // else {
-            meds = $('#list-medication').DataTable({
-                "bSort": true, 
-                "aaSorting": [],
-                "aoColumns": [
-                    { "bSortable": false },
-                    { "bSortable": true },
-                    { "bSortable": true },
-                    { "bSortable": true },
-                    { "bSortable": true },
-                    { "bSortable": true }
-                ]    
-            }).on('click', 'tbody tr', function () {
-                var data = meds.row(this).data();
-                // console.log($(this));
-                edit_med_caller = $(this);
+        {% if doctor %}
+        meds = $('#list-medication').DataTable({
+            "bSort": true, 
+            "aaSorting": [],
+            "aoColumns": [
+                { "bSortable": false },
+                { "bSortable": true },
+                { "bSortable": true },
+                { "bSortable": true },
+                { "bSortable": true },
+                { "bSortable": true }
+            ]    
+        }).on('click', 'tbody tr', function () {
+            var data = meds.row(this).data();
+            // console.log($(this));
+            edit_med_caller = $(this);
 
-                $('#edit-medication-modal').modal('toggle');
-                $('#edit-med-name').val(data[1].substring(data[1].indexOf(">") + 1, data[1].length-4));
-                $('#edit-med-dosage').val(data[2]);
-                $('#edit-med-frequency').val(data[3]);
-                $('#edit-med-type').val(data[4]);
-                $('#edit-med-instructions').val(data[5]);
-            });
+            $('#edit-medication-modal').modal('toggle');
+            $('#edit-med-name').val(data[1].substring(data[1].indexOf(">") + 1, data[1].length-4));
+            $('#edit-med-dosage').val(data[2]);
+            $('#edit-med-frequency').val(data[3]);
+            $('#edit-med-type').val(data[4]);
+            $('#edit-med-instructions').val(data[5]);
+        });
 
-            med_procedures = $('#list-med-procedure').DataTable({
-                "bSort": true, 
-                "aaSorting": [[0]],
-                "aoColumns": [
-                    { "bSortable": false },
-                    { "bSortable": true },
-                    { "bSortable": true },
-                    { "bSortable": true }
-                ]    
-            }).on('click', 'tbody tr', function () {
-                var data = med_procedures.row(this).data();
-                edit_med_procedure_caller = $(this);
-                
-                $('#edit-med-procedure-modal').modal('toggle');
-                $('#edit-med-procedure-date select[name="date_[month]"').val(data[1].substring(data[1].indexOf(">") + 1, data[1].length-4).substring(5, 7));
-                $('#edit-med-procedure-date select[name="date_[day]"').val(data[1].substring(data[1].indexOf(">") + 1, data[1].length-4).substring(8, 10));
-                $('#edit-med-procedure-date select[name="date_[year]"').val(data[1].substring(data[1].indexOf(">") + 1, data[1].length-4).substring(0, 4));
-                $('#edit-med-procedure-description').val(data[2]);
-                $('#edit-med-procedure-details').val(data[3]);
-            });
+        med_procedures = $('#list-med-procedure').DataTable({
+            "bSort": true, 
+            "aaSorting": [[0]],
+            "aoColumns": [
+                { "bSortable": false },
+                { "bSortable": true },
+                { "bSortable": true },
+                { "bSortable": true }
+            ]    
+        }).on('click', 'tbody tr', function () {
+            var data = med_procedures.row(this).data();
+            edit_med_procedure_caller = $(this);
+            
+            $('#edit-med-procedure-modal').modal('toggle');
+            $('#edit-med-procedure-date select[name="date_[month]"').val(data[1].substring(data[1].indexOf(">") + 1, data[1].length-4).substring(5, 7));
+            $('#edit-med-procedure-date select[name="date_[day]"').val(data[1].substring(data[1].indexOf(">") + 1, data[1].length-4).substring(8, 10));
+            $('#edit-med-procedure-date select[name="date_[year]"').val(data[1].substring(data[1].indexOf(">") + 1, data[1].length-4).substring(0, 4));
+            $('#edit-med-procedure-description').val(data[2]);
+            $('#edit-med-procedure-details').val(data[3]);
+        });
 
-            meds.rows().remove().draw();
-            med_procedures.rows().remove().draw();
-        // }
+        meds.rows().remove().draw();
+        med_procedures.rows().remove().draw();
+        {% endif %}
     }
 
     function edit_IPT (key) {
@@ -107,7 +108,7 @@
             meds.destroy();
             med_procedures.destroy();
         }
-
+        {% if doctor %}
         meds = $('#edit-list-medication').DataTable({
             "bSort": true, 
             "aaSorting": [[0]],
@@ -158,7 +159,7 @@
 
         meds.rows().remove().draw();
         med_procedures.rows().remove().draw();
-
+        {% endif %}
         $.ajax({
             type: "GET",
             url: "/ipt_edit_json/"+key+"/"+"{{patient.id}}",
@@ -179,16 +180,17 @@
                 $("#edit-discharge-date-div select[name='date_[day]']").val(date[2]);
                 $("#edit-discharge-date-div select[name='date_[year]']").val(date[0]);
             }
-
+            {% if doctor %}
             $('#edit-summary').val(data['ipt']['sum_of_diag']);
             $('#edit-detailed-diagnosis').val(data['ipt']['detailed_diag']);
             $('#edit-notes').val(data['ipt']['notes']);
+            {% endif %}
             $('#edit-hospital option[value="' + data['ipt']['parent_record.hospitalName'] + '"]').prop('selected', 'true');
             $('#edit-doctor option[value="' + data['ipt']['parent_record.doctor.id'] + '"]').prop('selected', 'true');
 
             $('#edit-p-id').val(data['ipt']['id']);
             $('#edit-c-id').val(data['ipt']['parent_record.id']);
-
+            {% if doctor %}
             for (var i = data['medications'].length - 1; i >= 0; i--) {
                 meds.row.add([
                     '<input type="checkbox" id="' + data['medications'][i].id + 
@@ -253,6 +255,7 @@
                 },
                 uploadClass: 'btn btn-xs btn-default unique-name-edit-ipt hidden',
             });
+            {% endif %}
         });
     }
 </script>

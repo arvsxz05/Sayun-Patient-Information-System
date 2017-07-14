@@ -13,10 +13,11 @@
             </tbody>
         </table>
     </div>
-
+    {% if doctor %}
     <div class="button-group">
         <a class="btn btn-lime pull-right" type="button" onclick="add_OPT()">Add</a>    
     </div>
+    {% endif %}
 </div>
 
 
@@ -54,11 +55,12 @@
             $('#edit-p-id').val(data['opt']['id']);
             $('#edit-c-id').val(data['opt']['parent_record.id']);
 
-             if(meds instanceof $.fn.dataTable.Api) {
+            if(meds instanceof $.fn.dataTable.Api) {
                 meds.destroy();
                 med_procedures.destroy();
             }
-                
+
+            {% if doctor %}
             meds = $('#edit-opt-list-medication').DataTable({
                 "bSort": true, 
                 "aaSorting": [[0]],
@@ -170,9 +172,11 @@
                 },
                 uploadClass: 'btn btn-xs btn-default unique-name-edit-opt hidden',
             });
+            {% endif %}
         });
     }
 
+    {% if doctor %}
     function add_OPT() {
         $('#list-opt-view').hide();
         $('#add-opt-view').show();
@@ -238,5 +242,5 @@
         meds.rows().remove().draw();
         med_procedures.rows().remove().draw();
     }
-
+    {% endif %}
 </script>

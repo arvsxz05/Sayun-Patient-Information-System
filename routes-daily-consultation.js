@@ -162,14 +162,14 @@ router.post('/add_daily_consultation', requireLoggedIn, function (req, res) {
 		Daily_Consultation.create({
 			date: req.body.date,
 			queue_no: queue_no,
-			status: req.body.status,
+			status: 'Waiting',
 			consultation_records: {
 				date: req.body.date,
 				parent_record: {
 					hospitalName: req.body.hospital,
 					patientId: req.body.p_id,
-					doctorId: req.body.doc,
-					check_up_type: 'Consultation'
+					doctorId: req.body.doctor,
+					check_up_type: 'Consultation',
 				}
 			}
 		}, {
@@ -182,7 +182,7 @@ router.post('/add_daily_consultation', requireLoggedIn, function (req, res) {
 				}]
 			}]
 		}).then(daily_consultation_instance => {
-			res.redirect('/daily_consultation_list');
+			res.json({});
 		});
 	});
 });

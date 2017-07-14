@@ -132,11 +132,11 @@
                                         {% include "../consultation/list-consultation.html" %}
                                     <!-- END OF CONSULTATION TABLE -->
 
-
+                                    {% if doctor %}
                                     <!-- ADD NEW CONSULTATION RECORD -->
                                         {% include "../consultation/add-consultation.html" %}
                                     <!-- END OF ADDING NEW CONSULTATION RECORD -->
-                               
+                                    {% endif %}
                                     <!-- VIEW CONSULTATION RECORD -->
                                         {% include "../consultation/edit-consultation.html" %}
                                     <!--  -->   
@@ -173,16 +173,16 @@
 
 
                                     <!-- IPT TABLE -->
-                                        {% include "../patient/list-patient-ipt.html" %}
+                                        {% include "../inpatients/list-patient-ipt.html" %}
                                     <!-- END OF IPT TABLE -->
 
-
+                                    {% if doctor %}
                                     <!-- ADD NEW IPT RECORD -->
-                                        {% include "../patient/add-patient-ipt.html" %}
+                                        {% include "../inpatients/add-patient-ipt.html" %}
                                     <!-- END OF ADDING NEW IPT RECORD -->
-
+                                    {% endif %}
                                     <!-- VIEW IPT RECORD -->
-                                        {% include "../patient/edit-patient-ipt.html" %}
+                                        {% include "../inpatients/edit-patient-ipt.html" %}
                                     <!--  -->                                   
                                 </div>
                             </div>
@@ -217,15 +217,15 @@
 
 
                                     <!-- OPT TABLE -->
-                                        {% include "../patient/list-patient-opt.html" %}
+                                        {% include "../outpatients/list-patient-opt.html" %}
                                     <!-- END OF OPT TABLE -->
-
+                                    {% if doctor %}
                                     <!-- ADD NEW OPT RECORD -->
-                                        {% include "../patient/add-patient-opt.html" %}
+                                        {% include "../outpatients/add-patient-opt.html" %}
                                     <!-- END OF ADDING NEW OPT RECORD -->
-
+                                    {% endif %}
                                     <!-- VIEW OPT RECORD -->
-                                        {% include "../patient/edit-patient-opt.html" %}
+                                        {% include "../outpatients/edit-patient-opt.html" %}
                                     <!-- END OF VIEW OPT RECORD -->                                   
 
                                 </div>
@@ -238,14 +238,13 @@
                         <!-- LABORATORY RESULTS -->
                         <div class="tab-pane" id="laboratories">
                             <div class="row" id="list-lab-view">
-                                {% include "../treatments/list-lab-results.html" %}
+                                {% include "../lab_results/list-lab-results.html" %}
                             </div>
-
                             <div class="row" id="add-lab-view">
-                                {% include "../treatments/add-lab-results.html" %}
+                                {% include "../lab_results/add-lab-results.html" %}
                             </div>
                             <div class="row" id="edit-lab-view">
-                                {% include "../treatments/edit-lab-results.html" %}
+                                {% include "../lab_results/edit-lab-results.html" %}
                             </div>
                         </div>
                         <!-- END OF LABORATORY RESULTS -->
@@ -257,7 +256,7 @@
         </div>
     </div>
 
-
+{% if doctor %}
 <!-- MODALSSSS -->
     <!-- MODAL ADD MEDICATION -->
     <div class="modal fade" id="add-medication-modal" role="dialog">
@@ -489,11 +488,8 @@
         </div>
     </div>
     <!-- END OF EDIT MEDICAL PROCEDURES MODAL -->
-
-
-
 <!-- END OF MODAAAALLSSS -->
-
+{% endif %}
 </body>
 
 <script type="text/javascript">
@@ -742,8 +738,6 @@
 
     });
 
-    // /////// //
-
     var meds;
     var med_procedures;
     var billing;
@@ -774,18 +768,11 @@
         // med_procedures.destroy();
     }
     
-    // function example() {
-    //     console.log($(this).text());
-    // }
-
+    {% if doctor %}
     $('#add-med-form').submit(function(e){
         e.preventDefault();
-       
-         
-
         // server SIDE AJAX FOR ADDING A NEW IPT MED ROW TO EDIT IPT VIEW//
-         if(med_modal_caller == 'edit-ipt-add-medication-button'){
-            // $('#edit-ipt-med-form').attr('action', '/help');
+        if(med_modal_caller == 'edit-ipt-add-medication-button') {
             var cu = $('#edit-c-id').val();
             $.ajax({
                 type: "POST",
@@ -806,14 +793,13 @@
                     $('#add-med-type').val(),
                     $('#add-med-instructions').val()
                 ]).draw();
-                 $('#add-medication-modal').modal('toggle');
-                 $('#add-medication-modal input').val("");
-                 $('#add-medication-modal select').val("");
-                 $('#add-medication-modal textarea').val("");
+                $('#add-medication-modal').modal('toggle');
+                $('#add-medication-modal input').val("");
+                $('#add-medication-modal select').val("");
+                $('#add-medication-modal textarea').val("");
             });
-         }
-         else if(med_modal_caller == 'edit-opt-add-medication-button'){
-            //HERE
+        }
+        else if(med_modal_caller == 'edit-opt-add-medication-button') {
             var cu = $('#edit-c-id').val();
             $.ajax({
                 type: "POST",
@@ -835,13 +821,13 @@
                     $('#add-med-instructions').val()
                 ]).draw();
 
-                 $('#add-medication-modal').modal('toggle');
-                 $('#add-medication-modal input').val("");
-                 $('#add-medication-modal select').val("");
-                 $('#add-medication-modal textarea').val("");
+                $('#add-medication-modal').modal('toggle');
+                $('#add-medication-modal input').val("");
+                $('#add-medication-modal select').val("");
+                $('#add-medication-modal textarea').val("");
             });
-         } 
-         else if(med_modal_caller == 'edit-cc-add-medication-button'){
+        } 
+        else if(med_modal_caller == 'edit-cc-add-medication-button') {
             var cu = $('#edit-cc-c-id').val();
             $.ajax({
                 type: "POST",
@@ -863,13 +849,13 @@
                     $('#add-med-instructions').val()
                 ]).draw();
 
-                 $('#add-medication-modal').modal('toggle');
-                 $('#add-medication-modal input').val("");
-                 $('#add-medication-modal select').val("");
-                 $('#add-medication-modal textarea').val("");
+                $('#add-medication-modal').modal('toggle');
+                $('#add-medication-modal input').val("");
+                $('#add-medication-modal select').val("");
+                $('#add-medication-modal textarea').val("");
             });
-         }
-         else{
+        }
+        else{
              meds.row.add([
                 '<input type="checkbox" id="new-med" name=""></input>', //idk UNSAON ANG NAME AND ID ANI FOR DELETION
                 '<a>' + $('#add-med-name').val() + '</a>',
@@ -883,18 +869,12 @@
              $('#add-medication-modal input').val("");
              $('#add-medication-modal select').val("");
              $('#add-medication-modal textarea').val("");
-         }
-
-         
-
+        }
     });
 
-     $('#add-med-procedure-form').submit(function(e){
+    $('#add-med-procedure-form').submit(function(e){
         e.preventDefault();
-
-         // server SIDE AJAX FOR ADDING A NEW IPT MED ROW TO EDIT IPT VIEW//
-         if(med_procedure_modal_caller == 'edit-ipt-add-med-procedure-button'){
-            // $('#edit-ipt-med-form').attr('action', '/help');
+        if(med_procedure_modal_caller == 'edit-ipt-add-med-procedure-button') {
             var cu = $('#edit-c-id').val();
             $.ajax({
                 type: "POST",
@@ -921,10 +901,9 @@
                 $('#add-med-procedure-modal select').val("");
                 $('#add-med-procedure-modal textarea').val("");
             });
-         }
+        }
 
-         else if(med_procedure_modal_caller == 'edit-opt-add-med-procedure-button'){
-            //HERE
+        else if(med_procedure_modal_caller == 'edit-opt-add-med-procedure-button') {
             var cu = $('#edit-c-id').val();
             $.ajax({
                 type: "POST",
@@ -953,7 +932,7 @@
             });
          }
 
-         else if(med_procedure_modal_caller == 'edit-cc-add-med-procedure-button'){
+         else if(med_procedure_modal_caller == 'edit-cc-add-med-procedure-button') {
             var cu = $('#edit-cc-c-id').val();
             $.ajax({
                 type: "POST",
@@ -980,9 +959,9 @@
                 $('#add-med-procedure-modal select').val("");
                 $('#add-med-procedure-modal textarea').val("");
             });
-         }
+        }
 
-         else{
+        else{
             med_procedures.row.add([
                 '<input type="checkbox" id="new-med-procedure" name=""></input>', //idk UNSAON ANG NAME AND ID ANI FOR DELETION
                 '<a>' + $("#add-med-procedure-date select[name='date_[year]']").val() + '-' + 
@@ -996,11 +975,10 @@
             $('#add-med-procedure-modal input').val("");
             $('#add-med-procedure-modal select').val("");
             $('#add-med-procedure-modal textarea').val("");
-         }
-
+        }
     });
 
-     $('#edit-med-form').submit(function(e){
+    $('#edit-med-form').submit(function (e) {
         e.preventDefault();
         meds.row(edit_med_caller).data([
             '<input type="checkbox" id="' + edit_med_id + '" name="' + edit_med_id + '"></input>', //idk UNSAON ANG NAME AND ID ANI FOR DELETION
@@ -1012,7 +990,7 @@
         ]).draw();
 
 
-        if(edit_med_id != null){
+        if(edit_med_id != null) {
             $.ajax({
                 type: "POST",
                 url: "/edit_medication/"+edit_med_id,
@@ -1033,7 +1011,7 @@
 
     });
 
-     $('#edit-med-procedure-form').submit(function(e){
+    $('#edit-med-procedure-form').submit(function (e) {
         e.preventDefault();
 
         med_procedures.row(edit_med_procedure_caller).data([
@@ -1045,7 +1023,7 @@
             $('#edit-med-procedure-details').val()
         ]).draw();
 
-        if(edit_med_procedure_id != null){
+        if(edit_med_procedure_id != null) {
             $.ajax({
                 type: "POST",
                 url: "/edit_medical_procedure/"+edit_med_procedure_id,
@@ -1063,9 +1041,8 @@
         $('#edit-med-procedure-modal input').val("");
         $('#edit-med-procedure-modal select').val("");
         $('#edit-med-procedure-modal textarea').val("");
-
     });
-
+    {% endif %}
 
     (function ($) {
       $.each(['show', 'hide'], function (i, ev) {
@@ -1218,7 +1195,6 @@
     $('#edit-medication-modal').on('shown.bs.modal', function (e) {
         // edit_med_modal_caller = $(e.relatedTarget).children('input').attr('id');
         // console.log(edit_med_id);
-
     });
 
     $('#edit-med-procedure-modal').on('shown.bs.modal', function (e) {

@@ -43,6 +43,7 @@
                     </select>
                 </div>
             </div>
+            {% if doctor %}
             <div class="form-group">
                 <label class="col-sm-4 control-label" for="cc-summary">Summary of Diagnosis*</label>
                 <div class="col-sm-8">
@@ -66,8 +67,9 @@
                 <a href="/account_list" class="btn btn-gray pull-right">Cancel</a>
                 <button type="submit" class="btn btn-lime pull-right" id="save-btn">Save</button>    
             </div>
+            {% endif %}
         </form>
-
+        {% if doctor %}
         <!-- MEDICATION LIST FOR IPT -->
         <form method="POST" action="/delete_medication">
             <legend><b>Medications</b></legend>
@@ -123,13 +125,13 @@
         <div class="form-group">
             <input id="edit-cc-attachments" name="add-cc-attachments[]" type="file" multiple class="file-loading">
         </div>
-
+        {% endif %}
     </div>
     <!-- BILLING FOR CC -->
     <div class="col-md-4"></div>
     <!-- END OF BILLING FOR CC -->
 </div>
-
+{% if doctor %}
 <script type="text/javascript">
     $("#edit-cc-form").submit(function (event) {
         var files = $('#edit-cc-attachments').fileinput('getFileStack');
@@ -177,5 +179,5 @@
     $('#edit-cc-attachments').on('fileloaded', function (event, file, previewId, index, reader) {
         $('#edit-cc-attachments').fileinput('upload');
     });
-
 </script>
+{% endif %}

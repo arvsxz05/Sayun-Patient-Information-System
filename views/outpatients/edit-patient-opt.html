@@ -42,6 +42,7 @@
                     </select>
                 </div>
             </div>
+            {% if doctor %}
             <div class="form-group">
                 <label class="col-sm-4 control-label" for="edit-opt-summary">Summary of Diagnosis*</label>
                 <div class="col-sm-8">
@@ -65,8 +66,9 @@
                 <a href="/account_list" class="btn btn-gray pull-right">Cancel</a>
                 <button type="submit" class="btn btn-lime pull-right" id="edit-btn">Save</button>    
             </div>
+            {% endif %}
         </form>
-
+        {% if doctor %}
         <!-- MEDICATION LIST FOR opt -->
         <form method="POST" action="/delete_medication">
             <legend><b>Medications</b></legend>
@@ -121,13 +123,13 @@
         <div class="form-group">
             <input id="edit-opt-attachments" name="add-opt-attachments[]" type="file" multiple class="file-loading">
         </div>
-
+        {% endif %}
     </div>
     <!-- BILLING FOR opt -->
     <div class="col-md-4"></div>
     <!-- END OF BILLING FOR opt -->
 </div>
-
+{% if doctor %}
 <script type="text/javascript">
     $("#edit-opt-form").submit(function (event) {
         var files = $('#edit-opt-attachments').fileinput('getFileStack');
@@ -175,3 +177,4 @@
         $('#edit-opt-attachments').fileinput('upload');
     });
 </script>
+{% endif %}

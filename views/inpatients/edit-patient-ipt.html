@@ -48,6 +48,7 @@
                     </select>
                 </div>
             </div>
+            {% if doctor %}
             <div class="form-group">
                 <label class="col-sm-4 control-label" for="edit-summary">Summary of Diagnosis*</label>
                 <div class="col-sm-8">
@@ -71,8 +72,9 @@
                 <a href="/account_list" class="btn btn-gray pull-right">Cancel</a>
                 <button type="submit" class="btn btn-lime pull-right" id="edit-btn">Save</button>    
             </div>
+            {% endif %}
         </form>
-
+        {% if doctor %}
         <!-- MEDICATION LIST FOR IPT -->
         <form method="POST" action="" id="edit-ipt-med-form">
             <legend><b>Medications</b></legend>
@@ -128,13 +130,14 @@
         <div class="form-group">
             <input id="edit-ipt-attachments" name="add-ipt-attachments[]" type="file" multiple class="file-loading">
         </div>
-
+        {% endif %}
     </div>
     <!-- BILLING FOR IPT -->
     <div class="col-md-4"></div>
     <!-- END OF BILLING FOR IPT -->
 </div>
 
+{% if doctor %}
 <script type="text/javascript">
 
     $("#edit-ipt-form").submit(function (event) {
@@ -188,3 +191,4 @@
     });
 
 </script>
+{% endif %}
