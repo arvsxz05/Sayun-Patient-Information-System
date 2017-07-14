@@ -623,3 +623,4 @@ module.exports.Medication = Medication;
 module.exports.Medical_Procedure = Medical_Procedure;
 module.exports.title_types = title_types;
 module.exports.Consultation = Consultation;
+module.exports.Daily_Consultation = Daily_Consultation;
