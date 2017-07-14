@@ -128,15 +128,19 @@
                                     <!-- END OF BASIC PATIENT INFO -->
 
 
-                                    <!-- IPT TABLE -->
+                                    <!-- CONSULTATION TABLE -->
                                         {% include "../consultation/list-consultation.html" %}
-                                    <!-- END OF IPT TABLE -->
+                                    <!-- END OF CONSULTATION TABLE -->
 
 
-                                    <!-- ADD NEW IPT RECORD -->
+                                    <!-- ADD NEW CONSULTATION RECORD -->
                                         {% include "../consultation/add-consultation.html" %}
-                                    <!-- END OF ADDING NEW IPT RECORD -->
+                                    <!-- END OF ADDING NEW CONSULTATION RECORD -->
                                
+                                    <!-- VIEW CONSULTATION RECORD -->
+                                        {% include "../consultation/edit-consultation.html" %}
+                                    <!--  -->   
+
                                 </div>
                             </div>   
                         </div>
@@ -563,6 +567,10 @@
             displayFormat: "mdy"
         });
 
+        $("#edit-cc-date").dateDropdowns({
+            displayFormat: "mdy"
+        });
+
 
         $('#list-cc-view-link').hide();
         $('#add-cc-view').hide();
@@ -832,6 +840,34 @@
                  $('#add-medication-modal select').val("");
                  $('#add-medication-modal textarea').val("");
             });
+         } 
+         else if(med_modal_caller == 'edit-cc-add-medication-button'){
+            var cu = $('#edit-cc-c-id').val();
+            $.ajax({
+                type: "POST",
+                url: "/clinic_consultation_edit_add_medication/"+cu,
+                data: {                
+                    'name': $('#add-med-name').val(),
+                    'dosage': $('#add-med-dosage').val(),
+                    'frequency': $('#add-med-frequency').val(),
+                    'type': $('#add-med-type').val(),
+                    'notes': $('#add-med-instructions').val()
+                }
+            }).done(function (data) {
+                 meds.row.add([
+                    '<input type="checkbox" id="' + data.id + '" name="' + data.id + '"></input>', //idk UNSAON ANG NAME AND ID ANI FOR DELETION
+                    '<a>' + $('#add-med-name').val() + '</a>',
+                    $('#add-med-dosage').val(),
+                    $('#add-med-frequency').val(),
+                    $('#add-med-type').val(),
+                    $('#add-med-instructions').val()
+                ]).draw();
+
+                 $('#add-medication-modal').modal('toggle');
+                 $('#add-medication-modal input').val("");
+                 $('#add-medication-modal select').val("");
+                 $('#add-medication-modal textarea').val("");
+            });
          }
          else{
              meds.row.add([
@@ -916,6 +952,36 @@
                 $('#add-med-procedure-modal textarea').val("");
             });
          }
+
+         else if(med_procedure_modal_caller == 'edit-cc-add-med-procedure-button'){
+            var cu = $('#edit-cc-c-id').val();
+            $.ajax({
+                type: "POST",
+                url: "/clinic_consultation_edit_add_medical_procedure/"+cu,
+                data: {                
+                    'date': $("#add-med-procedure-date select[name='date_[year]']").val() + '-' + 
+                            $("#add-med-procedure-date select[name='date_[month]']").val() + '-' +
+                            $("#add-med-procedure-date select[name='date_[day]']").val(),
+                    'description': $('#add-med-procedure-description').val(),
+                    'details': $('#add-med-procedure-details').val(),
+                }
+            }).done(function (data) {
+                med_procedures.row.add([
+                    '<input type="checkbox" id="' + data.id + '" name="' + data.id + '"></input>', //idk UNSAON ANG NAME AND ID ANI FOR DELETION
+                    '<a>' + $("#add-med-procedure-date select[name='date_[year]']").val() + '-' + 
+                    $("#add-med-procedure-date select[name='date_[month]']").val() + '-' +
+                    $("#add-med-procedure-date select[name='date_[day]']").val() + '</a>',
+                    $('#add-med-procedure-description').val(),
+                    $('#add-med-procedure-details').val()
+                ]).draw();
+
+                $('#add-med-procedure-modal').modal('toggle');
+                $('#add-med-procedure-modal input').val("");
+                $('#add-med-procedure-modal select').val("");
+                $('#add-med-procedure-modal textarea').val("");
+            });
+         }
+
          else{
             med_procedures.row.add([
                 '<input type="checkbox" id="new-med-procedure" name=""></input>', //idk UNSAON ANG NAME AND ID ANI FOR DELETION
@@ -1088,7 +1154,7 @@
         for (var i = data.cc_list.length - 1; i >= 0; i--) {
             CC_List_Table.row.add([
                 '<input type="checkbox" id="' + data.cc_list[i].id + '" name="' + data.cc_list[i].id + '"></input>', //idk UNSAON ANG NAME AND ID ANI FOR DELETION
-                '<a onclick="edit_CC(\'cc-data-' + data.cc_list[i].id + '\')" value="' + data.cc_list[i].id + '" id="cc-data-' + data.cc_list[i].id + '">' + data.cc_list[i].date + '</a>',
+                '<a onclick="edit_CC(' + data.cc_list[i].id + ')" value="' + data.cc_list[i].id + '" id="cc-data-' + data.cc_list[i].id + '">' + data.cc_list[i].date + '</a>',
                 data.cc_list[i]['parent_record.hospitalName'],
                 data.cc_list[i]['parent_record.doctor.username.first_name'] + " " + data.cc_list[i]['parent_record.doctor.username.middle_name'] + " " + data.cc_list[i]['parent_record.doctor.username.last_name'],
                 data.cc_list[i].sum_of_diag

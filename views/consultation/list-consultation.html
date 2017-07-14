@@ -25,11 +25,72 @@
 <!-- END OF CC TABLE -->
 
 <script type="text/javascript">
+
+    var edit_med_caller;
+    var edit_med_procedure_caller;
+
     function add_CC() {
         $('#list-cc-view').hide();
         $('#add-cc-view').show();
         $('#edit-cc-view').hide();
         $('#list-cc-view-link').show();
+
+        $('#add-cc-view select').val("");
+        $('#add-cc-view input').not('#cc-doctor').not('#hidden-cc-doctor').not('#cc-p-id').val("");
+        $('#add-cc-view textarea').val("");
+
+        if(meds instanceof $.fn.dataTable.Api) {
+            meds.destroy();
+            med_procedures.destroy();
+        }
+
+        meds = $('#cc-list-medication').DataTable({
+            "bSort": true, 
+            "aaSorting": [],
+            "aoColumns": [
+                { "bSortable": false },
+                { "bSortable": true },
+                { "bSortable": true },
+                { "bSortable": true },
+                { "bSortable": true },
+                { "bSortable": true }
+            ]    
+        }).on('click', 'tbody tr', function () {
+            var data = meds.row(this).data();
+            // console.log($(this));
+            edit_med_caller = $(this);
+
+            $('#edit-medication-modal').modal('toggle');
+            $('#edit-med-name').val(data[1].substring(data[1].indexOf(">") + 1, data[1].length-4));
+            $('#edit-med-dosage').val(data[2]);
+            $('#edit-med-frequency').val(data[3]);
+            $('#edit-med-type').val(data[4]);
+            $('#edit-med-instructions').val(data[5]);
+        });
+
+        med_procedures = $('#cc-list-med-procedure').DataTable({
+            "bSort": true, 
+            "aaSorting": [[0]],
+            "aoColumns": [
+                { "bSortable": false },
+                { "bSortable": true },
+                { "bSortable": true },
+                { "bSortable": true }
+            ]    
+        }).on('click', 'tbody tr', function () {
+            var data = med_procedures.row(this).data();
+            edit_med_procedure_caller = $(this);
+            
+            $('#edit-med-procedure-modal').modal('toggle');
+            $('#edit-med-procedure-date select[name="date_[month]"').val(data[1].substring(data[1].indexOf(">") + 1, data[1].length-4).substring(5, 7));
+            $('#edit-med-procedure-date select[name="date_[day]"').val(data[1].substring(data[1].indexOf(">") + 1, data[1].length-4).substring(8, 10));
+            $('#edit-med-procedure-date select[name="date_[year]"').val(data[1].substring(data[1].indexOf(">") + 1, data[1].length-4).substring(0, 4));
+            $('#edit-med-procedure-description').val(data[2]);
+            $('#edit-med-procedure-details').val(data[3]);
+        });
+
+        meds.rows().remove().draw();
+        med_procedures.rows().remove().draw();
     }
 
     function edit_CC (key) {
@@ -37,5 +98,149 @@
         $('#add-cc-view').hide();
         $('#edit-cc-view').show();
         $('#list-cc-view-link').show();
+
+        console.log("cc-key: "+ key);
+
+        $.ajax({
+            type: "GET",
+            url: "/clinic_consultation_edit_json/"+key+"/"+"{{patient.id}}",
+        }).done(function(data){
+            var date;
+
+            if(data['consultation']['date'] != null) {
+                date = data['consultation']['date'].split("-");
+                $("#edit-cc-date-div select[name='date_[month]']").val(date[1]);
+                $("#edit-cc-date-div select[name='date_[day]']").val(date[2]);
+                $("#edit-cc-date-div select[name='date_[year]']").val(date[0]);
+            }
+
+            $('#edit-cc-hospital option[value="' + data['consultation']['parent_record.hospitalName'] + '"]').prop('selected', 'true');
+
+            $('#hidden-cc-doctor option[value="' + data['consultation']['parent_record.doctor.id'] + '"]').prop('selected', 'true');
+
+            $('#edit-cc-summary').val(data['consultation']['sum_of_diag']);
+            $('#edit-cc-detailed-diagnosis').val(data['consultation']['detailed_diag']);
+            $('#edit-cc-notes').val(data['consultation']['notes']);
+
+            $('#edit-cc-p-id').val(data['consultation']['id']);
+            $('#edit-cc-c-id').val(data['consultation']['parent_record.id']);
+
+             if(meds instanceof $.fn.dataTable.Api) {
+                meds.destroy();
+                med_procedures.destroy();
+            }
+                
+            meds = $('#edit-cc-list-medication').DataTable({
+                "bSort": true, 
+                "aaSorting": [[0]],
+                "aoColumns": [
+                    { "bSortable": false },
+                    { "bSortable": true },
+                    { "bSortable": true },
+                    { "bSortable": true },
+                    { "bSortable": true },
+                    { "bSortable": true }
+                ]    
+            }).on('click', 'tbody tr', function () {
+                var data = meds.row(this).data();
+
+                edit_med_caller = $(this);
+                edit_med_id = data[0].substring(data[0].indexOf("name") + 6, data[0].length - 10);
+
+                $('#edit-medication-modal').modal('show');
+                $('#edit-med-name').val(data[1].substring(data[1].indexOf(">") + 1, data[1].length-4));
+                $('#edit-med-dosage').val(data[2]);
+                $('#edit-med-frequency').val(data[3]);
+                $('#edit-med-type').val(data[4]);
+                $('#edit-med-instructions').val(data[5]);
+            });
+
+            med_procedures = $('#edit-cc-list-med-procedure').DataTable({
+                "bSort": true, 
+                "aaSorting": [[0]],
+                "aoColumns": [
+                    { "bSortable": false },
+                    { "bSortable": true },
+                    { "bSortable": true },
+                    { "bSortable": true }
+                ]    
+            }).on('click', 'tbody tr', function () {
+                var data = med_procedures.row(this).data();
+
+                edit_med_procedure_caller = $(this);
+                edit_med_procedure_id = data[0].substring(data[0].indexOf("name") + 6, data[0].length - 10);
+                
+                $('#edit-med-procedure-modal').modal('show');
+                $('#edit-med-procedure-date select[name="date_[month]"').val(data[1].substring(data[1].indexOf(">") + 1, data[1].length-4).substring(5, 7));
+                $('#edit-med-procedure-date select[name="date_[day]"').val(data[1].substring(data[1].indexOf(">") + 1, data[1].length-4).substring(8, 10));
+                $('#edit-med-procedure-date select[name="date_[year]"').val(data[1].substring(data[1].indexOf(">") + 1, data[1].length-4).substring(0, 4));
+                $('#edit-med-procedure-description').val(data[2]);
+                $('#edit-med-procedure-details').val(data[3]);
+            });
+            
+            meds.rows().remove().draw();
+            med_procedures.rows().remove().draw();
+
+            for (var i = data['medications'].length - 1; i >= 0; i--) {
+                meds.row.add([
+                    '<input type="checkbox" id="' + data['medications'][i].id + 
+                    '" name="' + data['medications'][i].id + '"></input>',
+                    '<a>' + data['medications'][i].name + '</a>',
+                    data['medications'][i].dosage,
+                    data['medications'][i].frequency,
+                    data['medications'][i].type,
+                    data['medications'][i].notes
+                ]).draw();
+            }
+
+            for (var i = data['med_procedures'].length - 1; i >= 0; i--) {
+                med_procedures.row.add([
+                    '<input type="checkbox" id="' + data['med_procedures'][i].id + 
+                    '" name="' + data['med_procedures'][i].id + '"></input>',
+                    '<a>' + data['med_procedures'][i].date + '</a>',
+                    data['med_procedures'][i].description,
+                    data['med_procedures'][i].details
+                ]).draw();
+            }
+
+            var edit_attachments_init = [], edit_attachments_config = [];
+            for (var i = data.consultation.attachments.length - 1; i >= 0; i--) {
+
+                var file_path = "\\" + data.consultation.attachments[i];
+                var rev_file_path = file_path.split("").reverse().join("");
+                var rev_file_name = rev_file_path.substring(0, rev_file_path.indexOf('\\'));
+                var file_name = rev_file_name.split("").reverse().join("");
+                var mime_type = file_path.split('.').pop();
+                var type_mapping = getMimeByExt(mime_type.toLowerCase());
+
+                edit_attachments_init.push(file_path);
+                edit_attachments_config.push({
+                    caption: file_name,
+                    type: type_mapping,
+                    url: '/delete_files_cc/' + data.consultation['id'],  
+                    key: data.consultation.attachments[i]
+                });
+            };
+            
+            $("#edit-cc-attachments").fileinput({
+                uploadUrl: '/upload_files_edit_cc/'+data.consultation['id'],
+                browseOnZoneClick: true,
+                initialPreview: edit_attachments_init,
+                initialPreviewAsData: true,
+                initialPreviewConfig: edit_attachments_config,
+                overwriteInitial: false,
+                layoutTemplates: {
+                    actions: '<div class="file-actions">\n' +
+                    '    <div class="file-footer-buttons">\n' +
+                    '        {delete} {zoom} {other}' +
+                    '    </div>\n' +
+                    '    {drag}\n' +
+                    '    <div class="clearfix"></div>\n' +
+                    '</div>'
+                },
+                uploadClass: 'btn btn-xs btn-default unique-name-edit-cc hidden',
+            });
+        });
     }
+
 </script>
