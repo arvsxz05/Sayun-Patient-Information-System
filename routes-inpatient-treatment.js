@@ -48,9 +48,11 @@ var upload_ipt_success = upload_file_ipts.array('add-ipt-attachments[]');
 
 //////////////////////////// GET ////////////////////////////////////
 
-router.get('/ipt_list/:patient_id',
+router.get('/ipt_list/:patient_id', requireLoggedIn,
 	function (req, res, next) {
-		var fileId = Date.now() + "" + Math.floor(Math.random()*10);
+		var fileId = req.signedCookies.iptFileId;
+		addIPTfileQueue[fileId] = null;
+		fileId = Date.now() + "" + Math.floor(Math.random()*10);
 		res.cookie('iptFileId', fileId, { signed: true });
 		addIPTfileQueue[fileId] = {filesArr: []};
 		next();
@@ -58,32 +60,51 @@ router.get('/ipt_list/:patient_id',
 	function (req, res) {
 		var patient_id = req.params.patient_id;
 
-		InPatient_Treatment.findAll({
+		if(req.session.doctor) {
+			InPatient_Treatment.findAll({
 			raw: true,
 			include: [{
 		        model: Check_Up,
-		        where: {
-					patientId: patient_id,
-				},
-				as: 'parent_record',
-				include: [{ 
-					model: Doctor,
-					include: [{ model: User_Account, as: 'username'}]
-				}]
-		    }]
-		}).then(ipt_list => {
-			res.json({ipt_list: ipt_list});
-		});
+			        where: {
+						patientId: patient_id
+					},
+					as: 'parent_record',
+					include: [{ 
+						model: Doctor,
+						where: { id: req.session.doctor.id },
+						include: [{ model: User_Account, as: 'username'}]
+					}]
+			    }]
+			}).then(ipt_list => {
+				res.json({ipt_list: ipt_list});
+			});
+		} else if (req.session.secretary) {
+			InPatient_Treatment.findAll({
+			raw: true,
+			include: [{
+		        model: Check_Up,
+			        where: {
+						patientId: patient_id,
+					},
+					as: 'parent_record',
+					include: [{ 
+						model: Doctor,
+						include: [{ model: User_Account, as: 'username'}]
+					}]
+			    }]
+			}).then(ipt_list => {
+				res.json({ipt_list: ipt_list});
+			});
+		} else {
+			res.send("You are not given access here.");
+		}
 	}
 );
 
 
 router.get('/ipt_edit_json/:ipt_id/:patient_id', function (req, res) {
-
 	var key = req.params.ipt_id;
 	var patient_id = req.params.patient_id, result;
-	var doctors = [];
-	var ipt, meds;
 
 	InPatient_Treatment.findOne({
 		raw: true,
@@ -102,32 +123,29 @@ router.get('/ipt_edit_json/:ipt_id/:patient_id', function (req, res) {
 			}],
 		}],
 		where: {
-				id: key,
-			}
-	}).then(function(result){
-		// console.log("INPATIENT TREATMENT EDIT JSON");
-		// console.log(result);
-		ipt = result;
+			id: key,
+		}
+	}).then(ipt_instance => {
 		Medication.findAll({
 			where: {
-				checkUpId: ipt['parent_record.id'],
+				checkUpId: ipt_instance['parent_record.id'],
 			},
 			raw: true,
-		}).then(function(results){
-			meds = results;
+		}).then(medication_list => {
 			Medical_Procedure.findAll({
 				where: {
-					checkUpId: ipt['parent_record.id'],
+					checkUpId: ipt_instance['parent_record.id'],
 				},
 				raw: true,
-			}).then(function(results){
-				res.json({	ipt: ipt,
-							medications: meds,
-							med_procedures: results});
+			}).then(procedures_list => {
+				res.json({
+					ipt: ipt_instance,
+					medications: medication_list,
+					med_procedures: procedures_list,
+				});
 			});
 		});
 	});
-
 });
 
 /////////////////////////// POST ////////////////////////////////////
@@ -203,27 +221,16 @@ router.post('/upload_files_ipt_results', requireLoggedIn, function (req, res) {
 	});
 });
 
-router.post('/ipt_edit/:ipt_id/:cu_id', function(req, res){
+router.post('/ipt_edit/:ipt_id/:cu_id', function (req, res) {
 	var key = req.params.ipt_id;
 	var cu_id = req.params.cu_id;
 
-	// console.log(key, cu_id);
-
 	var confine = null, discharge = null;
 
-	// if(req.body['date_']['year'][0] != '' && req.body['date_']['month'][0] != '' && req.body['date_']['day'][0] != ''){
-	// 	confine = req.body["date_"]["year"][0]+"-"+req.body["date_"]["month"][0]+"-"+req.body["date_"]["day"][0];
-	// }
-
-	// if(req.body['date_']['year'][1] != '' && req.body['date_']['month'][1] != '' && req.body['date_']['day'][1] != ''){
-	// 	discharge = req.body["date_"]["year"][1]+"-"+req.body["date_"]["month"][1]+"-"+req.body["date_"]["day"][1];
-	// }
-
 	var dis_date = req.body['discharge-date'].split("-");
-	console.log(dis_date);
+
 	if((dis_date[0] != "" && dis_date[1] != "" && dis_date[2] != "") && (dis_date[0] != 'null' && dis_date[1] != 'null' && dis_date[2] != 'null') ){
 		discharge = req.body['discharge-date'];
-		console.log("DISCHARGE DATE");
 	}
 
 	confine = req.body['confinement-date'];
@@ -243,7 +250,7 @@ router.post('/ipt_edit/:ipt_id/:cu_id', function(req, res){
 		where:{
 			id: key,
 		}
-	}).then(function(result){
+	}).then(function (result) {
 
 		Check_Up.update({
 			hospitalName: hospital,
@@ -252,14 +259,14 @@ router.post('/ipt_edit/:ipt_id/:cu_id', function(req, res){
 			where: {
 				id: cu_id,
 			}
-		}).then(function(result){
+		}).then(function (result) {
 			res.json({success: true});
-		}).catch(function(error){
+		}).catch(function (error) {
 			console.log(error);
 			res.json({error: error});
 		});
 
-	}).catch(function(error){
+	}).catch(function (error) {
 		console.log(error);
 		res.json({error: error});
 	});
@@ -276,7 +283,6 @@ router.post('/delete_files_ipt/:ipt_id', requireLoggedIn, function (req, res) {
 			id: ipt_id
 		}
 	}).then(ipt_instance => {
-		// console.log(lab_instance);
 		if(ipt_instance) {
 			var clone_arr_attachments = ipt_instance.attachments.slice(0);
 			var index_to_remove = clone_arr_attachments.indexOf(req.body.key);
@@ -320,8 +326,8 @@ router.post("/ipt_edit_add_medication/:cu_id", requireLoggedIn, function (req, r
 		type: req.body['type'],
 		notes: req.body['notes'],
 		checkUpId: key
-	}).then(function(result){
-		res.json({id: result.id});
+	}).then(med_instance => {
+		res.json({id: med_instance.id});
 	});
 });
 
@@ -332,8 +338,8 @@ router.post("/ipt_edit_add_medical_procedure/:cu_id", requireLoggedIn, function 
 		description: req.body['description'],
 		details: req.body['details'],
 		checkUpId: key,
-	}).then(function(result){
-		res.json({id: result.id});
+	}).then(procedure_instance => {
+		res.json({id: procedure_instance.id});
 	});
 });
 

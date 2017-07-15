@@ -50,7 +50,9 @@ var upload_opt_success = upload_file_opts.array('add-opt-attachments[]');
 
 router.get('/opt_list/:patient_id',
 	function (req, res, next) {
-		var fileId = Date.now() + "" + Math.floor(Math.random()*10);
+		var fileId = req.signedCookies.optFileId;
+		addOPTfileQueue[fileId] = null;
+		fileId = Date.now() + "" + Math.floor(Math.random()*10);
 		res.cookie('optFileId', fileId, { signed: true });
 		addOPTfileQueue[fileId] = {filesArr: []};
 		next();
@@ -58,30 +60,50 @@ router.get('/opt_list/:patient_id',
 	function (req, res) {
 		var patient_id = req.params.patient_id;
 
-		OutPatient_Treatment.findAll({
-			raw: true,
-			include: [{
-		        model: Check_Up,
-		        where: {
-					patientId: patient_id,
-				},
-				as: 'parent_record',
-				include: [{ 
-					model: Doctor,
-					include: [{ model: User_Account, as: 'username'}]
-				}]
-		    }]
-		}).then(function (results) {
-			res.json({opt_list: results});
-		});
+		if(req.session.doctor) {
+			OutPatient_Treatment.findAll({
+				raw: true,
+				include: [{
+			        model: Check_Up,
+			        where: {
+						patientId: patient_id,
+					},
+					as: 'parent_record',
+					include: [{ 
+						model: Doctor,
+						where: { id: req.session.doctor.id },
+						include: [{ model: User_Account, as: 'username'}]
+					}]
+			    }]
+			}).then(function (results) {
+				res.json({opt_list: results});
+			});
+		} else if(req.session.secretary) {
+			OutPatient_Treatment.findAll({
+				raw: true,
+				include: [{
+			        model: Check_Up,
+			        where: {
+						patientId: patient_id,
+					},
+					as: 'parent_record',
+					include: [{ 
+						model: Doctor,
+						include: [{ model: User_Account, as: 'username'}]
+					}]
+			    }]
+			}).then(function (results) {
+				res.json({opt_list: results});
+			});
+		} else {
+			res.send("You are not given access here.");
+		}
 	}
 );
 
 router.get('/opt_edit_json/:opt_id/:patient_id', function(req, res){
 	var key = req.params.opt_id;
 	var patient_id = req.params.patient_id;
-	var doctors = [];
-	var opt, meds;
 
 	OutPatient_Treatment.findOne({
 		raw: true,
@@ -99,25 +121,23 @@ router.get('/opt_edit_json/:opt_id/:patient_id', function(req, res){
 	    where: {
 	    	id: key,
 	    }
-	}).then(function (result) {
-		opt = result;
+	}).then(opt_instance => {
 		Medication.findAll({
 			where: {
-				checkUpId: opt['parent_record.id'],
+				checkUpId: opt_instance['parent_record.id'],
 			},
 			raw: true,
-		}).then(function (results) {
-			meds = results;
+		}).then(medication_list => {
 			Medical_Procedure.findAll({
 				where: {
-					checkUpId: opt['parent_record.id'],
+					checkUpId: opt_instance['parent_record.id'],
 				},
 				raw: true,
-			}).then(function (results) {
-				res.json({	
-					opt: opt,
-					medications: meds,
-					med_procedures: results
+			}).then(procedures_list => {
+				res.json({
+					opt: opt_instance,
+					medications: medication_list,
+					med_procedures: procedures_list,
 				});
 			});
 		});
@@ -293,8 +313,8 @@ router.post("/opt_edit_add_medication/:cu_id", requireLoggedIn, function (req, r
 		type: req.body['type'],
 		notes: req.body['notes'].trim(),
 		checkUpId: key
-	}).then(function (result) {
-		res.json({id: result.id});
+	}).then(med_instance => {
+		res.json({id: med_instance.id});
 	});
 });
 
@@ -305,8 +325,8 @@ router.post("/opt_edit_add_medical_procedure/:cu_id", requireLoggedIn, function 
 		description: req.body['description'].trim(),
 		details: req.body['details'].trim(),
 		checkUpId: key,
-	}).then(function(result){
-		res.json({id: result.id});
+	}).then(procedure_instance => {
+		res.json({id: procedure_instance.id});
 	});
 });
 
@@ -323,8 +343,8 @@ router.post("/edit_medication/:med_id", requireLoggedIn, function (req, res) {
 		where: {
 			id: key,
 		}
-	}).then(function (result) {
-		res.json({id: result.id});
+	}).then(med_instance => {
+		res.json({id: med_instance.id});
 	});
 });
 
@@ -339,8 +359,8 @@ router.post("/edit_medical_procedure/:medproc_id", requireLoggedIn, function (re
 		where: {
 			id: key
 		}
-	}).then(function (result) {
-		res.json({id: result.id});
+	}).then(procedure_instance => {
+		res.json({id: procedure_instance.id});
 	});
 });
 

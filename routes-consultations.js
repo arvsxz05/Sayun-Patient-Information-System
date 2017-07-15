@@ -51,7 +51,9 @@ var upload_cc_success = upload_file_cc.array('add-cc-attachments[]');
 
 router.get('/clinic_consultation_list/:patient_id', requireLoggedIn,
 	function (req, res, next) {
-		var fileId = Date.now() + "" + Math.floor(Math.random()*10);
+		var fileId = req.signedCookies.ccFileId;
+		addCCfileQueue[fileId] = null;
+		fileId = Date.now() + "" + Math.floor(Math.random()*10);
 		res.cookie('ccFileId', fileId, { signed: true });
 		addCCfileQueue[fileId] = {filesArr: []};
 		next();
@@ -59,35 +61,51 @@ router.get('/clinic_consultation_list/:patient_id', requireLoggedIn,
 	function (req, res) {
 		var patient_id = req.params.patient_id;
 
-		Consultation.findAll({
-			raw: true,
-			include: [{
-		        model: Check_Up,
-		        where: {
-					patientId: patient_id,
-				},
-				as: 'parent_record',
-				include: [{ 
-					model: Doctor,
-					include: [{ model: User_Account, as: 'username'}]
-				}]
-		    }]
-		}).then(cc_list => {
-			// console.log(cc_list);
-			res.json({cc_list: cc_list});
-		});
+		if(req.session.doctor) {
+			Consultation.findAll({
+				raw: true,
+				include: [{
+			        model: Check_Up,
+			        where: {
+						patientId: patient_id,
+					},
+					as: 'parent_record',
+					include: [{ 
+						model: Doctor,
+						where: { id: req.session.doctor.id },
+						include: [{ model: User_Account, as: 'username'}]
+					}]
+			    }]
+			}).then(cc_list => {
+				res.json({cc_list: cc_list});
+			});
+		} else if (req.session.secretary) {
+			Consultation.findAll({
+				raw: true,
+				include: [{
+			        model: Check_Up,
+			        where: {
+						patientId: patient_id,
+					},
+					as: 'parent_record',
+					include: [{ 
+						model: Doctor,
+						include: [{ model: User_Account, as: 'username'}]
+					}]
+			    }]
+			}).then(cc_list => {
+				res.json({cc_list: cc_list});
+			});
+		} else {
+			res.send("You are not given access here.");
+		}
 	}
 );
 
-router.get('/clinic_consultation_edit_json/:cc_id/:patient_id', requireLoggedIn, 
-	function(req, res){
-
-	console.log("AT CLINIC CONSULTATION EDIT JSON");
-	console.log(req.params);
+router.get('/clinic_consultation_edit_json/:cc_id/:patient_id', requireLoggedIn, function (req, res) {
 
 	var key = req.params.cc_id;
 	var patient_id = req.params.patient_id;
-	var consultation, meds = [];
 
 	Consultation.findOne({
 		raw: true,
@@ -108,26 +126,23 @@ router.get('/clinic_consultation_edit_json/:cc_id/:patient_id', requireLoggedIn,
 		where: {
 			id: key,
 		}
-	}).then(function(result){
-		consultation = result;
+	}).then(consultation_instance => {
 		Medication.findAll({
 			where: {
-				checkUpId: consultation['parent_record.id'],
+				checkUpId: consultation_instance['parent_record.id'],
 			},
 			raw: true,
-		}).then(function(results){
-			meds = results;
+		}).then(medication_list => {
 			Medical_Procedure.findAll({
 				where: {
-					checkUpId: consultation['parent_record.id'],
+					checkUpId: consultation_instance['parent_record.id'],
 				},
 				raw: true,
-			}).then(function(results){
-
+			}).then(procedures_list => {
 				res.json({
-					consultation: consultation,
-					medications: meds,
-					med_procedures: results,
+					consultation: consultation_instance,
+					medications: medication_list,
+					med_procedures: procedures_list,
 				});
 			});
 		});
@@ -139,9 +154,6 @@ router.get('/clinic_consultation_edit_json/:cc_id/:patient_id', requireLoggedIn,
 
 router.post('/clinic_consultation_add', requireLoggedIn, upload_file_cc.array('add-cc-attachments[]'), function (req, res) {
 	var fileId = req.signedCookies.ccFileId;
-
-	console.log("IN CLINIC CONSULTATION ADD");
-	console.log(req.body);
 
 	var hospital = req.body['hospital'];
 	var p_id = req.body['p-id'];
@@ -161,10 +173,7 @@ router.post('/clinic_consultation_add', requireLoggedIn, upload_file_cc.array('a
 		medical_procedure = req.body['med_procedures'];
 	}
 
-	// console.log(addCCfileQueue);
-
 	Consultation.create({
-		// date: req.body['date_'].year + "-" + req.body['date_'].month + "-" + req.body['date_'].day,
 		date: date,
 		sum_of_diag: summary,
 		detailed_diag: detailed,
@@ -190,7 +199,7 @@ router.post('/clinic_consultation_add', requireLoggedIn, upload_file_cc.array('a
 				as: 'medical_procedure',
 			}]
 		}]
-	}).then(function(result){
+	}).then(consultation_instance => {
 		addCCfileQueue[fileId] = null;
 		res.json({success: true});
 	});
@@ -202,23 +211,16 @@ router.post('/upload_files_cc_results', requireLoggedIn, function (req, res) {
 			return res.json({error: "Your upload failed. Please try again later."});
 		}
 		var fileId = req.signedCookies.ccFileId;
-		console.log(fileId);
 		addCCfileQueue[fileId].filesArr.push(req.files[0].path);
 		res.json({});
 	});
 });
 
-router.post('/clinic_consultation_edit/:cc_id/:cu_id', function(req, res){
+router.post('/clinic_consultation_edit/:cc_id/:cu_id', function (req, res) {
 	var key = req.params.cc_id;
 	var cu_id = req.params.cu_id;
 
-	// console.log(key, cu_id);
-
-	console.log("IN CC EDIT ROUTE");
-	console.log(req.body);
-	console.log(req.params);
-
-	var date = null;//, discharge = null;
+	var date = null;
 
 	date = req.body['date'];
 	var hospital = req.body['hospital'];
@@ -236,7 +238,7 @@ router.post('/clinic_consultation_edit/:cc_id/:cu_id', function(req, res){
 		where:{
 			id: key,
 		}
-	}).then(function(result){
+	}).then(function (result) {
 		Check_Up.update({
 			hospitalName: hospital,
 			doctorId: doc,
@@ -244,13 +246,13 @@ router.post('/clinic_consultation_edit/:cc_id/:cu_id', function(req, res){
 			where: {
 				id: cu_id,
 			}
-		}).then(function(result){
+		}).then(function (result) {
 			res.json({success: true});
-		}).catch(function(error){
+		}).catch(function (error) {
 			console.log(error);
 			res.json({error: error});
 		});
-	}).catch(function(error){
+	}).catch(function (error) {
 		console.log(error);
 		res.json({error: error});
 	});
@@ -267,7 +269,6 @@ router.post('/delete_files_cc/:cc_id', requireLoggedIn, function (req, res) {
 			id: cc_id
 		}
 	}).then(cc_instance => {
-		// console.log(lab_instance);
 		if(cc_instance) {
 			var clone_arr_attachments = cc_instance.attachments.slice(0);
 			var index_to_remove = clone_arr_attachments.indexOf(req.body.key);
@@ -305,9 +306,6 @@ router.post("/upload_files_edit_cc/:cc_id", requireLoggedIn, function (req, res)
 router.post("/clinic_consultation_edit_add_medication/:cu_id", requireLoggedIn, function (req, res) {
 	var key = req.params.cu_id;
 
-	console.log("IN CC EDIT ADD MEDICATION");
-	console.log(req.body);
-
 	Medication.create({
 		name: req.body['name'],
 		dosage: req.body['dosage'],
@@ -315,24 +313,21 @@ router.post("/clinic_consultation_edit_add_medication/:cu_id", requireLoggedIn, 
 		type: req.body['type'],
 		notes: req.body['notes'],
 		checkUpId: key
-	}).then(function(result){
-		res.json({id: result.id});
+	}).then(med_instance => {
+		res.json({id: med_instance.id});
 	});
 });
 
 router.post("/clinic_consultation_edit_add_medical_procedure/:cu_id", requireLoggedIn, function (req, res) {
 	var key = req.params.cu_id;
 
-	console.log("IN CC EDIT ADD MEDICAL PROCEDURE");
-	console.log(req.body);
-
 	Medical_Procedure.create({
 		date: req.body['date'],
 		description: req.body['description'],
 		details: req.body['details'],
 		checkUpId: key,
-	}).then(function(result){
-		res.json({id: result.id});
+	}).then(procedure_instance => {
+		res.json({id: procedure_instance.id});
 	});
 });
 
