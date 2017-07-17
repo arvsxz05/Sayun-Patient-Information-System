@@ -1,7 +1,7 @@
 <div class="row"  id="add-ipt-view">
     <div class="form-container col-md-8" style="padding: 20px">
         <form id="add-ipt-form" class="form-horizontal" role="form" method="POST">
-            <input type="hidden" name="p-id" id="p-id" value="{{patient.id}}">
+            <input type="hidden" name="ipt-p-id" id="ipt-p-id" value="{{patient.id}}">
             <legend><b>Add In-Patient Treatment</b></legend>
             <div>
                 <p class="text-danger" id="ipt-error-response"></p>
@@ -40,14 +40,13 @@
                 <div class="col-sm-8">
                     <select class="form-control" id="hospital" name="hospital" required>
                       <option value="" selected disabled>Select Hospital/Clinic</option>
-
                         {% for hospital in hospitals %}
                             <option value="{{hospital.name}}">{{hospital.name}}</option>
                         {% endfor %}
-
                     </select>
                 </div>
             </div>
+            {% if doctor %}
             <div class="form-group">
                 <label class="col-sm-4 control-label" for="summary">Summary of Diagnosis*</label>
                 <div class="col-sm-8">
@@ -119,7 +118,7 @@
             <div class="form-group">
                 <input id="add-ipt-attachments" name="add-ipt-attachments[]" type="file" multiple class="file-loading">
             </div>
-
+            {% endif %}
             <div class="button-group">
                 <a onclick="view_IPT()" class="btn btn-gray pull-right">Cancel</a>
                 <button type="submit" class="btn btn-lime pull-right" id="save-btn">Save</button>    
@@ -134,6 +133,7 @@
 </div>
 
 <script type="text/javascript">
+{% if doctor %}
     $(document).on('ready', function() {
         $("#add-ipt-attachments").fileinput({
             uploadUrl: '/upload_files_ipt_results',
@@ -150,9 +150,10 @@
             uploadClass: 'btn btn-xs btn-default unique-name-add-ipt hidden'
         });
     });
-
+{% endif %}
     $("#add-ipt-form").submit(function (event) {
         event.preventDefault();
+        {% if doctor %}
         var files = $('#add-ipt-attachments').fileinput('getFileStack');
         if(files.length != 0) {
             $(".unique-name-add-ipt").click();
@@ -190,7 +191,7 @@
                     'detailed-diagnosis': $("#detailed-diagnosis").val(),
                     'notes': $("#ipt-notes").val(),
                     'doctor': $("#hidden-doctor").val(),
-                    'p-id': $("#p-id").val(),
+                    'p-id': $("#ipt-p-id").val(),
                     'meds':  medication,
                     'med_procedures': med_procedure,
                 }
@@ -198,14 +199,39 @@
                 if(data.success) {
                     $('#list-ipt-view').show();
                     $('#add-ipt-view').hide();
+                    showSnackBar('IPT Record successfully added.');
                 } else {
                     $("#ipt-error-response").text(data.error);
                 }
             });
         }
+        {% else %}
+        $.ajax({
+            type: "POST",
+            url: "/ipt_add",
+            data: {
+                'confinement-date': $("#confinement-date").val(),
+                'discharge-date': $("#discharge-date").val(),
+                'hospital': $("#hospital").val(),
+                'doctor': $("#hidden-doctor").val(),
+                'p-id': $("#ipt-p-id").val()
+            }
+        }).done(function (data) {
+            if(data.success) {
+                $('#list-ipt-view').show();
+                $('#add-ipt-view').hide();
+                showSnackBar('IPT Record successfully added.');
+            } else {
+                $("#ipt-error-response").text(data.error);
+            }
+        });
+        {% endif %}
     });
+
+    {% if doctor %}
     $('#add-ipt-attachments').on('filebatchuploadcomplete', function (event, files, extra) {
         console.log('File batch upload complete');
         $("#add-ipt-form").submit();
     });
+    {% endif %}
 </script>

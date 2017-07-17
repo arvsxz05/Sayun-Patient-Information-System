@@ -149,56 +149,80 @@ router.get('/opt_edit_json/:opt_id/:patient_id', function(req, res){
 
 router.post('/opt_add', upload_file_opts.array('add-opt-attachments[]'), function (req, res) {
 	var fileId = req.signedCookies.optFileId;
+	var fields, includes;
 
 	var date = req.body['opt-date'];
 	var hospital = req.body['hospital'];
-	var summary = req.body['summary'].trim();
-	var details = req.body['detailed-diagnosis'].trim();
-	var notes = req.body['notes'].trim();
-	var p_id = req.body['p-id'];
+	var p_id = req.body['opt-p-id'];
 	var doc = req.body['doctor'];
-	var discharge = null;
 
-	var medication = [];
-	var medical_procedure = [];
+	if(req.session.doctor) {
+		var medication = [];
+		var medical_procedure = [];
+		var summary = req.body['summary'].trim();
+		var details = req.body['detailed-diagnosis'].trim();
+		var notes = req.body['notes'].trim();
 
-	if(req.body['meds'] != null && req.body['meds'] != '') {
-		medication = req.body['meds'];
-	}
-
-	if(req.body['med_procedures'] != null && req.body['med_procedures'] != '') {
-		medical_procedure = req.body['med_procedures'];
-	}
-
-	OutPatient_Treatment.create({
-		date: date,
-		sum_of_diag: summary,
-		detailed_diag: details,
-		notes: notes,
-		attachments: addOPTfileQueue[fileId].filesArr,
-		parent_record: {
-			check_up_type: "Out-Patient-Treatment",
-			hospitalName: hospital,
-			patientId: p_id,
-			doctorId: doc,
-			medication: medication,
-			medical_procedure: medical_procedure,
+		if(req.body['meds'] != null && req.body['meds'] != '') {
+			medication = req.body['meds'];
 		}
-	}, {
-		include: [{
-			model: Check_Up,
-			as: 'parent_record',
+
+		if(req.body['med_procedures'] != null && req.body['med_procedures'] != '') {
+			medical_procedure = req.body['med_procedures'];
+		}
+
+		fields = {
+			date: date,
+			sum_of_diag: summary,
+			detailed_diag: details,
+			notes: notes,
+			attachments: addOPTfileQueue[fileId].filesArr,
+			parent_record: {
+				check_up_type: "Out-Patient-Treatment",
+				hospitalName: hospital,
+				patientId: p_id,
+				doctorId: doc,
+				medication: medication,
+				medical_procedure: medical_procedure,
+			}
+		};
+		includes = {
 			include: [{
-				model: Medication,
-				as: 'medication'
-			}, {
-				model: Medical_Procedure,
-				as: 'medical_procedure',
-			}],
-		}]
-	}).then(checkUp_data => {
+				model: Check_Up,
+				as: 'parent_record',
+				include: [{
+					model: Medication,
+					as: 'medication'
+				}, {
+					model: Medical_Procedure,
+					as: 'medical_procedure',
+				}],
+			}]
+		};
+	} else if (req.session.secretary) {
+		fields = {
+			date: date,
+			attachments: [],
+			parent_record: {
+				check_up_type: "Out-Patient-Treatment",
+				hospitalName: hospital,
+				patientId: p_id,
+				doctorId: doc
+			}
+		};
+		includes = {
+			include: [{
+				model: Check_Up,
+				as: 'parent_record'
+			}]
+		}
+	}
+	OutPatient_Treatment.create(fields, includes).then(checkUp_data => {
 		addOPTfileQueue[fileId] = null;
 		res.json({success: true});
+	}).catch(error => {
+		console.log(error);
+		res.json({error: 'Something went wrong. Please try again later.'});
 	});
 });
 
@@ -216,47 +240,71 @@ router.post('/upload_files_opt', requireLoggedIn, function (req, res) {
 router.post('/opt_edit/:opt_id/:cu_id', function(req, res) {
 	var key = req.params.opt_id;
 	var cu_id = req.params.cu_id;
-
 	var date = null;
 
 	var date = req.body['date'];
 	var hospital = req.body['hospital'];
-	var summary = req.body['summary'].trim();
-	var details = req.body['detailed-diagnosis'].trim();
-	var notes = req.body['notes'].trim();
 	var doc = req.body['doctor'];
 
-	var checkup_id;
+	if (req.session.doctor) {
+		var summary = req.body['summary'].trim();
+		var details = req.body['detailed-diagnosis'].trim();
+		var notes = req.body['notes'].trim();
 
-	OutPatient_Treatment.update({
-		date: date,
-		sum_of_diag: summary,
-		detailed_diag: details,
-		notes: notes,
-	},{
-		where:{
-			id: key,
-		}
-	}).then(function (result) {
-
-		Check_Up.update({
-			hospitalName: hospital,
-			doctorId: doc,
-		}, {
-			where: {
-				id: cu_id,
+		OutPatient_Treatment.update({
+			date: date,
+			sum_of_diag: summary,
+			detailed_diag: details,
+			notes: notes,
+		},{
+			where:{
+				id: key,
 			}
-		}).then(function (result) {
-			res.json({success: true});
+		}).then(updated_opt => {
+			Check_Up.update({
+				hospitalName: hospital,
+				doctorId: doc,
+			}, {
+				where: {
+					id: cu_id,
+				}
+			}).then(updated_check_up => {
+				res.json({success: true});
+			}).catch(function (error) {
+				console.log(error);
+				res.json({error: error});
+			});
+
 		}).catch(function (error) {
 			console.log(error);
 			res.json({error: error});
 		});
-
-	}).catch(function (error) {
-		console.log(error);
-		res.json({error: error});
-	});
+	} else if (req.session.secretary) {
+		OutPatient_Treatment.update({
+			date: date
+		},{
+			where:{
+				id: key,
+			}
+		}).then(updated_opt => {
+			Check_Up.update({
+				hospitalName: hospital,
+				doctorId: doc,
+			}, {
+				where: {
+					id: cu_id,
+				}
+			}).then(updated_check_up => {
+				res.json({success: true});
+			}).catch(function (error) {
+				console.log(error);
+				res.json({error: error});
+			});
+		}).catch(function (error) {
+			console.log(error);
+			res.json({error: error});
+		});
+	}
 });
 
 router.post('/delete_files_opt/:opt_id', requireLoggedIn, function (req, res) {

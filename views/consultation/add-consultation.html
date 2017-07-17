@@ -42,6 +42,7 @@
                     </select>
                 </div>
             </div>
+            {% if doctor %}
             <div class="form-group">
                 <label class="col-sm-4 control-label" for="cc-summary">Summary of Diagnosis*</label>
                 <div class="col-sm-8">
@@ -112,12 +113,11 @@
             <div class="form-group">
                 <input id="add-cc-attachments" name="add-cc-attachments[]" type="file" multiple class="file-loading">
             </div>
-
+            {% endif %}
             <div class="button-group">
                 <a onclick="view_CC()" class="btn btn-gray pull-right">Cancel</a>
                 <button type="submit" class="btn btn-lime pull-right" id="save-btn">Save</button>    
             </div>
-
         </form>
     </div>
     <!-- BILLING FOR CC -->
@@ -126,6 +126,7 @@
 </div>
 
 <script type="text/javascript">
+    {% if doctor %}
     $(document).on('ready', function() {
         $("#add-cc-attachments").fileinput({
             uploadUrl: '/upload_files_cc_results',
@@ -142,9 +143,11 @@
             uploadClass: 'btn btn-xs btn-default unique-name-add-cc hidden'
         });
     });
+    {% endif %}
 
     $("#add-cc-form").submit(function (event) {
         event.preventDefault();
+        {% if doctor %}
         var files = $('#add-cc-attachments').fileinput('getFileStack');
         if(files.length != 0) {
             $(".unique-name-add-cc").click();
@@ -189,15 +192,38 @@
                 if(data.success) {
                     $('#list-cc-view').show();
                     $('#add-cc-view').hide();
+                    showSnackBar('Consultation successfully added.');
                 } else {
                     $("#cc-error-response").text(data.error);
                 }
             });
         }
+        {% else %}
+        $.ajax({
+            type: "POST",
+            url: "/clinic_consultation_add",
+            data: {
+                'date': $("#cc-date").val(),
+                'hospital': $("#cc-hospital").val(),
+                'doctor': $("#hidden-cc-doctor").val(),
+                'p-id': $("#cc-p-id").val(),
+            }
+        }).done(function (data) {
+            if(data.success) {
+                $('#list-cc-view').show();
+                $('#add-cc-view').hide();
+                showSnackBar('Consultation successfully added.');
+            } else {
+                $("#cc-error-response").text(data.error);
+            }
+        });
+        {% endif %}
     });
 
+    {% if doctor %}
     $('#add-cc-attachments').on('filebatchuploadcomplete', function (event, files, extra) {
         console.log('File batch upload complete');
         $("#add-cc-form").submit();
     });
+    {% endif %}
 </script>

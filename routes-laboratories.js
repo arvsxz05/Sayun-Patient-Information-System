@@ -95,7 +95,10 @@ router.post('/laboratory_add', requireLoggedIn, upload_file_labs.array('add-lab-
 		patientId: req.body.patient_id
 	}).then(lab_instance => {
 		addLabfileQueue[fileId] = null;
-		res.json({});
+		res.json({success: true});
+	}).catch(error => {
+		console.log(error);
+		res.json({error: 'Something went wrong. Please try again later.'});
 	});
 });
 

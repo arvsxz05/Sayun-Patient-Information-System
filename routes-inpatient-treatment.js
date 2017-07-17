@@ -152,61 +152,89 @@ router.get('/ipt_edit_json/:ipt_id/:patient_id', function (req, res) {
 
 router.post('/ipt_add', requireLoggedIn, upload_file_ipts.array('add-ipt-attachments[]'), function (req, res) {
 	var fileId = req.signedCookies.iptFileId;
+	var fields, includes;
 
 	var confine = req.body['confinement-date'];
 	var hospital = req.body['hospital'];
-	var summary = req.body['summary'].trim();
-	var details = req.body['detailed-diagnosis'].trim();
-	var notes = req.body['notes'].trim();
 	var p_id = req.body['p-id'];
 	var doc = req.body['doctor'];
 	var discharge = null;
 
-	if(req.body['discharge-date'] && req.body['discharge-date'].trim() !== "") {
+	if (req.body['discharge-date'] && req.body['discharge-date'].trim() !== "") {
 		discharge = req.body['discharge-date'];
 	};
 
-	var medication = [];
-	var medical_procedure = [];
+	if (req.session.doctor) {
+		var medication = [];
+		var medical_procedure = [];
+		var summary = req.body['summary'].trim();
+		var details = req.body['detailed-diagnosis'].trim();
+		var notes = req.body['notes'].trim();
 
-	if(req.body['meds'] != null && req.body['meds'] != ''){
-		medication = req.body['meds'];
-	}
-
-	if(req.body['med_procedures'] != null && req.body['med_procedures'] != ''){
-		medical_procedure = req.body['med_procedures'];
-	}
-
-	InPatient_Treatment.create({
-		conf_date: confine,
-		discharge_date: discharge,
-		sum_of_diag: summary,
-		detailed_diag: details,
-		notes: notes,
-		attachments: addIPTfileQueue[fileId].filesArr,
-		parent_record: {
-			check_up_type: "In-Patient-Treatment",
-			hospitalName: hospital,
-			patientId: p_id,
-			doctorId: doc,
-			medication: medication,
-			medical_procedure: medical_procedure,
+		if(req.body['meds'] != null && req.body['meds'] != ''){
+			medication = req.body['meds'];
 		}
-	}, {
-		include: [{
-			model: Check_Up,
-			as: 'parent_record',
+
+		if(req.body['med_procedures'] != null && req.body['med_procedures'] != ''){
+			medical_procedure = req.body['med_procedures'];
+		}
+
+		fields = {
+			conf_date: confine,
+			discharge_date: discharge,
+			sum_of_diag: summary,
+			detailed_diag: details,
+			notes: notes,
+			attachments: addIPTfileQueue[fileId].filesArr,
+			parent_record: {
+				check_up_type: "In-Patient-Treatment",
+				hospitalName: hospital,
+				patientId: p_id,
+				doctorId: doc,
+				medication: medication,
+				medical_procedure: medical_procedure,
+			}
+		};
+		includes = {
 			include: [{
-				model: Medication,
-				as: 'medication'
-			}, {
-				model: Medical_Procedure,
-				as: 'medical_procedure',
-			}],
-		}]
-	}).then(checkUp_data => {
+				model: Check_Up,
+				as: 'parent_record',
+				include: [{
+					model: Medication,
+					as: 'medication'
+				}, {
+					model: Medical_Procedure,
+					as: 'medical_procedure',
+				}],
+			}]
+		};
+		
+	}  else if (req.session.secretary) {
+		fields = {
+			conf_date: confine,
+			discharge_date: discharge,
+			attachments: [],
+			parent_record: {
+				check_up_type: "In-Patient-Treatment",
+				hospitalName: hospital,
+				patientId: p_id,
+				doctorId: doc
+			}
+		};
+		includes = {
+			include: [{
+				model: Check_Up,
+				as: 'parent_record'
+			}]
+		}
+	}
+
+	InPatient_Treatment.create(fields, includes).then(checkUp_data => {
 		addIPTfileQueue[fileId] = null;
 		res.json({success: true});
+	}).catch(error => {
+		console.log(error);
+		res.json({error: 'Something went wrong. Please try again later.'});
 	});
 });
 
@@ -235,41 +263,70 @@ router.post('/ipt_edit/:ipt_id/:cu_id', function (req, res) {
 
 	confine = req.body['confinement-date'];
 	var hospital = req.body['hospital'];
-	var summary = req.body['summary'];
-	var details = req.body['detailed-diagnosis'];
-	var notes = req.body['notes'];
 	var doc = req.body['doctor'];
 	
-	InPatient_Treatment.update({
-		conf_date: confine,
-		discharge_date: discharge,
-		sum_of_diag: summary,
-		detailed_diag: details,
-		notes: notes,
-	},{
-		where:{
-			id: key,
-		}
-	}).then(function (result) {
+	if (req.session.doctor) {
+		var summary = req.body['summary'];
+		var details = req.body['detailed-diagnosis'];
+		var notes = req.body['notes'];
 
-		Check_Up.update({
-			hospitalName: hospital,
-			doctorId: doc,
-		}, {
-			where: {
-				id: cu_id,
+		InPatient_Treatment.update({
+			conf_date: confine,
+			discharge_date: discharge,
+			sum_of_diag: summary,
+			detailed_diag: details,
+			notes: notes,
+		},{
+			where:{
+				id: key,
 			}
-		}).then(function (result) {
-			res.json({success: true});
+		}).then(updated_ipt => {
+
+			Check_Up.update({
+				hospitalName: hospital,
+				doctorId: doc,
+			}, {
+				where: {
+					id: cu_id,
+				}
+			}).then(updated_check_up => {
+				res.json({success: true});
+			}).catch(function (error) {
+				console.log(error);
+				res.json({error: error});
+			});
+
 		}).catch(function (error) {
 			console.log(error);
 			res.json({error: error});
 		});
-
-	}).catch(function (error) {
-		console.log(error);
-		res.json({error: error});
-	});
+	} else if (req.session.secretary) {
+		InPatient_Treatment.update({
+			conf_date: confine,
+			discharge_date: discharge
+		},{
+			where:{
+				id: key,
+			}
+		}).then(updated_ipt => {
+			Check_Up.update({
+				hospitalName: hospital,
+				doctorId: doc,
+			}, {
+				where: {
+					id: cu_id,
+				}
+			}).then(updated_check_up => {
+				res.json({success: true});
+			}).catch(function (error) {
+				console.log(error);
+				res.json({error: error});
+			});
+		}).catch(function (error) {
+			console.log(error);
+			res.json({error: error});
+		});
+	}
 });
 
 router.post('/delete_files_ipt/:ipt_id', requireLoggedIn, function (req, res) {

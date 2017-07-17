@@ -3,6 +3,9 @@
         <form id="add-lab-form" class="form-horizontal" role="form" method="POST" enctype="multipart/form-data">
             <input type="hidden" name="lab-patient-id" id="lab-patient-id" value="{{patient.id}}">
             <legend><b>Add Laboratory Result</b></legend>
+            <div>
+                <p class="text-danger" id="lab-error-response"></p>
+            </div>
             <div class="form-group">
                 <label class="col-sm-4 control-label" for="lab-date">Date*</label>
                 <div class="col-sm-8">
@@ -90,9 +93,14 @@
                     patient_id: $("#lab-patient-id").val(),
                 }
             }).done(function (data) {
-                $('#list-lab-view').show();
-                $('#add-lab-view').hide();
-                $('#edit-lab-view').hide();
+                if(data.success) {
+                    $('#list-lab-view').show();
+                    $('#add-lab-view').hide();
+                    $('#edit-lab-view').hide();
+                    showSnackBar('Lab Result successfully added.');
+                } else {
+                    $("#lab-error-response").text(data.error);
+                }
             });
         }
     });

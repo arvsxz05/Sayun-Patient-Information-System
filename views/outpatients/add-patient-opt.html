@@ -1,8 +1,7 @@
 <div class="row"  id="add-opt-view">
     <div class="form-container col-md-8" style="padding: 20px">
         <form id="add-opt-form" class="form-horizontal" role="form" method="POST" action="">
-            <input type="hidden" name="p-id" id="p-id">
-            <input type="hidden" name="c-id" id="c-id">
+            <input type="hidden" name="opt-p-id" id="opt-p-id" value="{{patient.id}}">
             <legend><b>Add Out-Patient Treatment</b></legend>
             <div>
                 <p class="text-danger" id="opt-error-response"></p>
@@ -42,6 +41,7 @@
                     </select>
                 </div>
             </div>
+            {% if doctor %}
             <div class="form-group">
                 <label class="col-sm-4 control-label" for="opt-summary">Summary of Diagnosis*</label>
                 <div class="col-sm-8">
@@ -112,7 +112,7 @@
             <div class="form-group">
                 <input id="add-opt-attachments" name="add-opt-attachments[]" type="file" multiple class="file-loading">
             </div>
-
+            {% endif %}
             <div class="button-group">
                 <a href="/account_list" class="btn btn-gray pull-right">Cancel</a>
                 <button type="submit" class="btn btn-lime pull-right" id="opt-save-btn">Save</button>    
@@ -125,6 +125,7 @@
     <!-- END OF BILLING FOR OPT -->
 </div>
 <script type="text/javascript">
+    {% if doctor %}
     $(document).on('ready', function() {
         $("#add-opt-attachments").fileinput({
             uploadUrl: '/upload_files_opt',
@@ -141,9 +142,10 @@
             uploadClass: 'btn btn-xs btn-default unique-name-add-opt hidden'
         });
     });
-
+    {% endif %}
     $("#add-opt-form").submit(function (event) {
         event.preventDefault();
+        {% if doctor %}
         var files = $('#add-opt-attachments').fileinput('getFileStack');
         if(files.length != 0) {
             $(".unique-name-add-opt").click();
@@ -180,7 +182,7 @@
                     'detailed-diagnosis': $("#opt-detailed-diagnosis").val(),
                     'notes': $("#opt-notes").val(),
                     'doctor': $("#hidden-opt-doctor").val(),
-                    'p-id': $("#p-id").val(),
+                    'opt-p-id': $("#opt-p-id").val(),
                     'meds': medication,
                     'med_procedures': med_procedure,
                 }
@@ -188,15 +190,38 @@
                 if(data.success) {
                     $('#list-opt-view').show();
                     $('#add-opt-view').hide();
+                    showSnackBar('OPT Record successfully added.');
                 } else {
                     $("#opt-error-response").text(data.error);
                 }
             });
         }
+        {% else %}
+        $.ajax({
+            type: "POST",
+            url: "/opt_add",
+            data: {
+                'opt-date': $("#opt-date").val(),
+                'hospital': $("#opt-hospital").val(),
+                'doctor': $("#hidden-opt-doctor").val(),
+                'opt-p-id': $("#opt-p-id").val()
+            }
+        }).done(function (data) {
+            if(data.success) {
+                $('#list-opt-view').show();
+                $('#add-opt-view').hide();
+                showSnackBar('OPT Record successfully added.');
+            } else {
+                $("#opt-error-response").text(data.error);
+            }
+        });
+        {% endif %}
     });
 
+    {% if doctor %}
     $('#add-opt-attachments').on('filebatchuploadcomplete', function (event, files, extra) {
         console.log('File batch upload complete');
         $("#add-opt-form").submit();
     });
+    {% endif %}
 </script>

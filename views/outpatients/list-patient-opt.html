@@ -13,11 +13,9 @@
             </tbody>
         </table>
     </div>
-    {% if doctor %}
     <div class="button-group">
         <a class="btn btn-lime pull-right" type="button" onclick="add_OPT()">Add</a>    
     </div>
-    {% endif %}
 </div>
 
 
@@ -176,7 +174,6 @@
         });
     }
 
-    {% if doctor %}
     function add_OPT() {
         $('#list-opt-view').hide();
         $('#add-opt-view').show();
@@ -184,7 +181,7 @@
         $('#list-opt-view-link').show();
 
         $('#add-opt-view select').val("");
-        $('#add-opt-view input').not('#hidden-opt-doctor').not('#opt-doctor').not('#p-id').val("");
+        $('#add-opt-view input').not('#hidden-opt-doctor').not('#opt-doctor').not('#opt-p-id').val("");
         $('#add-opt-view textarea').val("");
 
         edit_med_id = null;
@@ -195,6 +192,7 @@
             med_procedures.destroy();
         }
 
+        {% if doctor %}
         meds = $('#opt-list-medication').DataTable({
             "bSort": true, 
             "aaSorting": [],
@@ -241,6 +239,6 @@
         });
         meds.rows().remove().draw();
         med_procedures.rows().remove().draw();
+        {% endif %}
     }
-    {% endif %}
 </script>

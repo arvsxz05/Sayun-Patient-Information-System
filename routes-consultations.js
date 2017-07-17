@@ -158,50 +158,75 @@ router.post('/clinic_consultation_add', requireLoggedIn, upload_file_cc.array('a
 	var hospital = req.body['hospital'];
 	var p_id = req.body['p-id'];
 	var doc = req.body['doctor'];
-	var summary = req.body['summary'].trim();
-	var detailed = req.body['detailed-diagnosis'].trim();
-	var notes = req.body['notes'].trim();
 	var date = req.body['date'];
-	var medication = [];
-	var medical_procedure = [];
 
-	if(req.body['meds'] != null && req.body['meds'] != ''){
-		medication = req.body['meds'];
-	}
+	if(req.session.doctor) {
+		var summary = req.body['summary'].trim();
+		var detailed = req.body['detailed-diagnosis'].trim();
+		var notes = req.body['notes'].trim();
+		var medication = [];
+		var medical_procedure = [];
 
-	if(req.body['med_procedures'] != null && req.body['med_procedures'] != ''){
-		medical_procedure = req.body['med_procedures'];
-	}
-
-	Consultation.create({
-		date: date,
-		sum_of_diag: summary,
-		detailed_diag: detailed,
-		notes: notes,
-		attachments: addCCfileQueue[fileId].filesArr,
-		parent_record: {
-			check_up_type: "Consultation",
-			hospitalName: hospital,
-			patientId: p_id,
-			doctorId: doc,
-			medication: medication,
-			medical_procedure: medical_procedure,
+		if(req.body['meds'] != null && req.body['meds'] != ''){
+			medication = req.body['meds'];
 		}
-	},{
-		include: [{
-			model: Check_Up,
-			as: 'parent_record',
+
+		if(req.body['med_procedures'] != null && req.body['med_procedures'] != ''){
+			medical_procedure = req.body['med_procedures'];
+		}
+
+		fields = {
+			date: date,
+			sum_of_diag: summary,
+			detailed_diag: detailed,
+			notes: notes,
+			attachments: addCCfileQueue[fileId].filesArr,
+			parent_record: {
+				check_up_type: "Consultation",
+				hospitalName: hospital,
+				patientId: p_id,
+				doctorId: doc,
+				medication: medication,
+				medical_procedure: medical_procedure,
+			}
+		};
+		includes = {
 			include: [{
-				model: Medication,
-				as: 'medication',
-			}, {
-				model: Medical_Procedure,
-				as: 'medical_procedure',
+				model: Check_Up,
+				as: 'parent_record',
+				include: [{
+					model: Medication,
+					as: 'medication',
+				}, {
+					model: Medical_Procedure,
+					as: 'medical_procedure',
+				}]
 			}]
-		}]
-	}).then(consultation_instance => {
+		};
+	} else if (req.session.secretary) {
+		fields = {
+			date: date,
+			attachments: [],
+			parent_record: {
+				check_up_type: "Consultation",
+				hospitalName: hospital,
+				patientId: p_id,
+				doctorId: doc
+			}
+		};
+		includes = {
+			include: [{
+				model: Check_Up,
+				as: 'parent_record'
+			}]
+		};
+	}
+	Consultation.create(fields, includes).then(consultation_instance => {
 		addCCfileQueue[fileId] = null;
 		res.json({success: true});
+	}).catch(error => {
+		console.log(error);
+		res.json({error: 'Something went wrong. Please try again later.'});
 	});
 });
 
@@ -219,43 +244,70 @@ router.post('/upload_files_cc_results', requireLoggedIn, function (req, res) {
 router.post('/clinic_consultation_edit/:cc_id/:cu_id', function (req, res) {
 	var key = req.params.cc_id;
 	var cu_id = req.params.cu_id;
-
 	var date = null;
 
 	date = req.body['date'];
 	var hospital = req.body['hospital'];
-	var summary = req.body['summary'];
-	var details = req.body['detailed-diagnosis'];
-	var notes = req.body['notes'];
 	var doc = req.body['doctor'];
 	
-	Consultation.update({
-		date: date,
-		sum_of_diag: summary,
-		detailed_diag: details,
-		notes: notes,
-	},{
-		where:{
-			id: key,
-		}
-	}).then(function (result) {
-		Check_Up.update({
-			hospitalName: hospital,
-			doctorId: doc,
-		}, {
-			where: {
-				id: cu_id,
+	if (req.session.doctor) {
+		var summary = req.body['summary'];
+		var details = req.body['detailed-diagnosis'];
+		var notes = req.body['notes'];
+
+		Consultation.update({
+			date: date,
+			sum_of_diag: summary,
+			detailed_diag: details,
+			notes: notes,
+		},{
+			where:{
+				id: key,
 			}
-		}).then(function (result) {
-			res.json({success: true});
+		}).then(updated_consultation => {
+			Check_Up.update({
+				hospitalName: hospital,
+				doctorId: doc,
+			}, {
+				where: {
+					id: cu_id,
+				}
+			}).then(updated_check_up => {
+				res.json({success: true});
+			}).catch(function (error) {
+				console.log(error);
+				res.json({error: error});
+			});
 		}).catch(function (error) {
 			console.log(error);
 			res.json({error: error});
 		});
-	}).catch(function (error) {
-		console.log(error);
-		res.json({error: error});
-	});
+	} else if (req.session.secretary) {
+		Consultation.update({
+			date: date
+		},{
+			where:{
+				id: key,
+			}
+		}).then(updated_consultation => {
+			Check_Up.update({
+				hospitalName: hospital,
+				doctorId: doc,
+			}, {
+				where: {
+					id: cu_id,
+				}
+			}).then(updated_check_up => {
+				res.json({success: true});
+			}).catch(function (error) {
+				console.log(error);
+				res.json({error: error});
+			});
+		}).catch(function (error) {
+			console.log(error);
+			res.json({error: error});
+		});
+	}
 });
 
 router.post('/delete_files_cc/:cc_id', requireLoggedIn, function (req, res) {

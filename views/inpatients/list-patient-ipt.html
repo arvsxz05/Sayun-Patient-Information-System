@@ -17,11 +17,9 @@
             </tbody>
         </table>
     </div>
-    {% if doctor %}
     <div class="button-group">
         <a class="btn btn-lime pull-right" type="button" onclick="add_IPT()">Add</a>    
     </div>
-    {% endif %}
 </div>
 <!-- END OF IPT TABLE -->
 
@@ -38,9 +36,8 @@
         $('#list-ipt-view-link').show();
         // dapat on-Submit nani sa ADD IPT Record//
 
-
         $('#add-ipt-view select').val("");
-        $('#add-ipt-view input').not('#doctor').not('#hidden-doctor').not('#p-id').val("");
+        $('#add-ipt-view input').not('#doctor').not('#hidden-doctor').not('#ipt-p-id').val("");
         $('#add-ipt-view textarea').val("");
 
         if(meds instanceof $.fn.dataTable.Api) {

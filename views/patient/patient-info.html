@@ -67,6 +67,8 @@
     </nav>
     <!-- END OF NAVIGATION -->
 
+    <div id="snackbar"></div>
+
     <div class="container-fluid main-container">
         <!-- BREADCRUMBS -->
         <ol class="breadcrumb">
@@ -131,12 +133,9 @@
                                     <!-- CONSULTATION TABLE -->
                                         {% include "../consultation/list-consultation.html" %}
                                     <!-- END OF CONSULTATION TABLE -->
-
-                                    {% if doctor %}
                                     <!-- ADD NEW CONSULTATION RECORD -->
                                         {% include "../consultation/add-consultation.html" %}
                                     <!-- END OF ADDING NEW CONSULTATION RECORD -->
-                                    {% endif %}
                                     <!-- VIEW CONSULTATION RECORD -->
                                         {% include "../consultation/edit-consultation.html" %}
                                     <!--  -->   
@@ -175,12 +174,9 @@
                                     <!-- IPT TABLE -->
                                         {% include "../inpatients/list-patient-ipt.html" %}
                                     <!-- END OF IPT TABLE -->
-
-                                    {% if doctor %}
                                     <!-- ADD NEW IPT RECORD -->
                                         {% include "../inpatients/add-patient-ipt.html" %}
                                     <!-- END OF ADDING NEW IPT RECORD -->
-                                    {% endif %}
                                     <!-- VIEW IPT RECORD -->
                                         {% include "../inpatients/edit-patient-ipt.html" %}
                                     <!--  -->                                   
@@ -219,11 +215,9 @@
                                     <!-- OPT TABLE -->
                                         {% include "../outpatients/list-patient-opt.html" %}
                                     <!-- END OF OPT TABLE -->
-                                    {% if doctor %}
                                     <!-- ADD NEW OPT RECORD -->
                                         {% include "../outpatients/add-patient-opt.html" %}
                                     <!-- END OF ADDING NEW OPT RECORD -->
-                                    {% endif %}
                                     <!-- VIEW OPT RECORD -->
                                         {% include "../outpatients/edit-patient-opt.html" %}
                                     <!-- END OF VIEW OPT RECORD -->                                   
@@ -264,11 +258,9 @@
                                     <!-- LAB RESULTS TABLE -->
                                         {% include "../lab_results/list-lab-results.html" %}
                                     <!-- END OF LAB RESULTS TABLE -->
-                                    {% if doctor %}
                                     <!-- ADD NEW LAB RESULTS RECORD -->
                                         {% include "../lab_results/add-lab-results.html" %}
                                     <!-- END OF ADDING NEW LAB RESULTS RECORD -->
-                                    {% endif %}
                                     <!-- VIEW LAB RESULTS RECORD -->
                                         {% include "../lab_results/edit-lab-results.html" %}
                                     <!-- END OF VIEW LAB RESULTS RECORD -->                               
@@ -540,6 +532,34 @@
             $('#collapse-' + url.substring(url.indexOf("#") + 1)).attr('aria-expanded', true);
             $('a[href="' + '#collapse-' + url.substring(url.indexOf("#") + 1) + '"]').removeClass('collapsed');
             $('a[href="' + '#collapse-' + url.substring(url.indexOf("#") + 1) + '"]').attr('aria-expanded', true);
+
+            if($('#ip-treatments').hasClass('active')){
+                $.ajax({
+                    type: "GET",
+                    url: "/ipt_list/{{patient.id}}",
+                }).done(updateIPTListRows);
+            }
+
+            else if($('#op-treatments').hasClass('active')){
+                $.ajax({
+                    type: "GET",
+                    url: "/opt_list/{{patient.id}}",
+                }).done(updateOPTListRows);
+            }
+
+            else if($('#laboratories').hasClass('active')){
+                $.ajax({
+                    type: "GET",
+                    url: "/lab_results_list/{{patient.id}}",
+                }).done(updateLabListRows);
+            }
+
+            else if($('#consultations').hasClass('active')){
+                $.ajax({
+                    type: "GET",
+                    url: "/clinic_consultation_list/{{patient.id}}",
+                }).done(updateCCListRows);
+            }
         }
         else{
             $('a[href="#patient-info"]').tab('show');
@@ -590,6 +610,34 @@
             $('#collapse-' + url.substring(url.indexOf("#") + 1)).attr('aria-expanded', true);
             $('a[href="' + '#collapse-' + url.substring(url.indexOf("#") + 1) + '"]').removeClass('collapsed');
             $('a[href="' + '#collapse-' + url.substring(url.indexOf("#") + 1) + '"]').attr('aria-expanded', true);
+
+            if($('#ip-treatments').hasClass('active')){
+                $.ajax({
+                    type: "GET",
+                    url: "/ipt_list/{{patient.id}}",
+                }).done(updateIPTListRows);
+            }
+
+            else if($('#op-treatments').hasClass('active')){
+                $.ajax({
+                    type: "GET",
+                    url: "/opt_list/{{patient.id}}",
+                }).done(updateOPTListRows);
+            }
+
+            else if($('#laboratories').hasClass('active')){
+                $.ajax({
+                    type: "GET",
+                    url: "/lab_results_list/{{patient.id}}",
+                }).done(updateLabListRows);
+            }
+
+            else if($('#consultations').hasClass('active')){
+                $.ajax({
+                    type: "GET",
+                    url: "/clinic_consultation_list/{{patient.id}}",
+                }).done(updateCCListRows);
+            }
         }
         else{
             $( '#myTab li' ).first().addClass('active');
@@ -813,11 +861,12 @@
             "bSort": true, 
             "aaSorting": [],
             "aoColumns": [
-                { "bSortable": false },
                 { "bSortable": true },
                 { "bSortable": true },
                 { "bSortable": true },
+                {% if doctor %}
                 { "bSortable": true }
+                {% endif %}
             ]    
         });
     });
@@ -873,7 +922,7 @@
     }
     
     {% if doctor %}
-    $('#add-med-form').submit(function(e){
+    $('#add-med-form').submit(function (e) {
         e.preventDefault();
         // server SIDE AJAX FOR ADDING A NEW IPT MED ROW TO EDIT IPT VIEW//
         if(med_modal_caller == 'edit-ipt-add-medication-button') {
@@ -897,6 +946,7 @@
                     $('#add-med-type').val(),
                     $('#add-med-instructions').val()
                 ]).draw();
+                showSnackBar('Medication for this IPT Record was successfully added.');
                 $('#add-medication-modal').modal('toggle');
                 $('#add-medication-modal input').val("");
                 $('#add-medication-modal select').val("");
@@ -916,7 +966,7 @@
                     'notes': $('#add-med-instructions').val()
                 }
             }).done(function (data) {
-                 meds.row.add([
+                meds.row.add([
                     '<input type="checkbox" id="' + data.id + '" name="' + data.id + '"></input>', //idk UNSAON ANG NAME AND ID ANI FOR DELETION
                     '<a>' + $('#add-med-name').val() + '</a>',
                     $('#add-med-dosage').val(),
@@ -924,7 +974,7 @@
                     $('#add-med-type').val(),
                     $('#add-med-instructions').val()
                 ]).draw();
-
+                showSnackBar('Medication for this OPT Record was successfully added.');
                 $('#add-medication-modal').modal('toggle');
                 $('#add-medication-modal input').val("");
                 $('#add-medication-modal select').val("");
@@ -944,7 +994,7 @@
                     'notes': $('#add-med-instructions').val()
                 }
             }).done(function (data) {
-                 meds.row.add([
+                meds.row.add([
                     '<input type="checkbox" id="' + data.id + '" name="' + data.id + '"></input>', //idk UNSAON ANG NAME AND ID ANI FOR DELETION
                     '<a>' + $('#add-med-name').val() + '</a>',
                     $('#add-med-dosage').val(),
@@ -952,14 +1002,14 @@
                     $('#add-med-type').val(),
                     $('#add-med-instructions').val()
                 ]).draw();
-
+                showSnackBar('Medication for this Consultation was successfully added.');
                 $('#add-medication-modal').modal('toggle');
                 $('#add-medication-modal input').val("");
                 $('#add-medication-modal select').val("");
                 $('#add-medication-modal textarea').val("");
             });
         }
-        else{
+        else {
              meds.row.add([
                 '<input type="checkbox" id="new-med" name=""></input>', //idk UNSAON ANG NAME AND ID ANI FOR DELETION
                 '<a>' + $('#add-med-name').val() + '</a>',
@@ -976,7 +1026,7 @@
         }
     });
 
-    $('#add-med-procedure-form').submit(function(e){
+    $('#add-med-procedure-form').submit(function (e) {
         e.preventDefault();
         if(med_procedure_modal_caller == 'edit-ipt-add-med-procedure-button') {
             var cu = $('#edit-c-id').val();
@@ -999,7 +1049,7 @@
                     $('#add-med-procedure-description').val(),
                     $('#add-med-procedure-details').val()
                 ]).draw();
-
+                showSnackBar('Medical Procedure for this IPT Record was successfully added.');
                 $('#add-med-procedure-modal').modal('toggle');
                 $('#add-med-procedure-modal input').val("");
                 $('#add-med-procedure-modal select').val("");
@@ -1028,15 +1078,15 @@
                     $('#add-med-procedure-description').val(),
                     $('#add-med-procedure-details').val()
                 ]).draw();
-
+                showSnackBar('Medical Procedure for this OPT Record was successfully added.');
                 $('#add-med-procedure-modal').modal('toggle');
                 $('#add-med-procedure-modal input').val("");
                 $('#add-med-procedure-modal select').val("");
                 $('#add-med-procedure-modal textarea').val("");
             });
-         }
+        }
 
-         else if(med_procedure_modal_caller == 'edit-cc-add-med-procedure-button') {
+        else if(med_procedure_modal_caller == 'edit-cc-add-med-procedure-button') {
             var cu = $('#edit-cc-c-id').val();
             $.ajax({
                 type: "POST",
@@ -1057,7 +1107,7 @@
                     $('#add-med-procedure-description').val(),
                     $('#add-med-procedure-details').val()
                 ]).draw();
-
+                showSnackBar('Medical Procedure for this Consultation was successfully added.');
                 $('#add-med-procedure-modal').modal('toggle');
                 $('#add-med-procedure-modal input').val("");
                 $('#add-med-procedure-modal select').val("");
@@ -1065,7 +1115,7 @@
             });
         }
 
-        else{
+        else {
             med_procedures.row.add([
                 '<input type="checkbox" id="new-med-procedure" name=""></input>', //idk UNSAON ANG NAME AND ID ANI FOR DELETION
                 '<a>' + $("#add-med-procedure-date select[name='date_[year]']").val() + '-' + 
@@ -1105,14 +1155,17 @@
                     'type': $('#edit-med-type').val(),
                     'notes': $('#edit-med-instructions').val()
                 }
-            }).done();
+            }).done(function (data) {
+                if(data.id) {
+                    showSnackBar('Medication "' + $('#edit-med-name').val() + '" was successfully updated.');
+                }
+            });
         }
 
         $('#edit-medication-modal').modal('toggle');
         $('#edit-medication-modal input').val("");
         $('#edit-medication-modal select').val("");
         $('#edit-medication-modal textarea').val("");
-
     });
 
     $('#edit-med-procedure-form').submit(function (e) {
@@ -1138,7 +1191,11 @@
                     'description': $('#edit-med-procedure-description').val(),
                     'details': $('#edit-med-procedure-details').val(),
                 }
-            }).done();
+            }).done(function (data) {
+                if(data.id) {
+                    showSnackBar('Medical Procedure "' + $('#edit-med-procedure-description').val() + '" was successfully updated.');
+                }
+            });
         }
          
         $('#edit-med-procedure-modal').modal('toggle');
@@ -1173,6 +1230,7 @@
         }).done(updateOPTListRows);
     });
 
+
     $("#list-lab-view").on('show', function() {
         $.ajax({
             type: "GET",
@@ -1180,7 +1238,9 @@
         }).done(updateLabListRows);
     });
 
+
     $("#list-cc-view").on('show', function() {
+        // alert("BESH");
         $.ajax({
             type: "GET",
             url: "/clinic_consultation_list/{{patient.id}}",
@@ -1189,7 +1249,7 @@
     // var temp_hehe = 1;
 
     function updateIPTListRows (data) {
-        console.log("WHY HERE BESHIE")
+        console.log("WHY HEsRE BESHIE")
         IPT_List_Table = IPT_List_Table.rows().remove().draw();
         for (var i = data.ipt_list.length - 1; i >= 0; i--) {
             IPT_List_Table.row.add([
@@ -1234,11 +1294,12 @@
         CC_List_Table = CC_List_Table.rows().remove().draw();
         for (var i = data.cc_list.length - 1; i >= 0; i--) {
             CC_List_Table.row.add([
-                '<input type="checkbox" id="' + data.cc_list[i].id + '" name="' + data.cc_list[i].id + '"></input>', //idk UNSAON ANG NAME AND ID ANI FOR DELETION
                 '<a onclick="edit_CC(' + data.cc_list[i].id + ')" value="' + data.cc_list[i].id + '" id="cc-data-' + data.cc_list[i].id + '">' + data.cc_list[i].date + '</a>',
                 data.cc_list[i]['parent_record.hospitalName'],
                 data.cc_list[i]['parent_record.doctor.username.first_name'] + " " + data.cc_list[i]['parent_record.doctor.username.middle_name'] + " " + data.cc_list[i]['parent_record.doctor.username.last_name'],
+                {% if doctor %}
                 data.cc_list[i].sum_of_diag
+                {% endif %}
             ]).draw();
         };
     }
@@ -1305,6 +1366,13 @@
         // edit_med_procedure_modal_caller = $(e.relatedTarget).children('input').attr('id');
         // alert(edit_med_procedure_id);
     });
+
+    function showSnackBar(str) {
+        var x = document.getElementById("snackbar");
+        x.innerHTML = str;
+        x.className = "show";
+        setTimeout(function(){ x.className = x.className.replace("show", ""); }, 3000);
+    }
 
 </script>
 </html>
