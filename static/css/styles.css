@@ -30,7 +30,7 @@ body{
 }
 .feature-icon{
 	border-radius: 50%;
-    background-color: #d92323;
+    background-color: #337ab7;
     width: 130px;
     max-width: 80%;
     position: relative;
@@ -47,7 +47,7 @@ body{
     left: -8px;
     right: -8px;
     bottom: -8px;
-    border: 3px solid #d92323;
+    border: 3px solid #73c215;
 }
 
 .feature-icon:hover{
@@ -144,6 +144,17 @@ body{
     width: 80px;
 }
 
+.btn-blue{
+    color: white;
+    background: #337ab7;
+    font-size: 16px;
+    width: 80px;
+}
+
+.btn-icon{
+    width: 60px;
+}
+
 select{
     width: 100%;
 }
@@ -161,6 +172,15 @@ select{
 * {
   .border-radius(0) !important;
 }
+
+.navbar-inverse .navbar-nav>.active>a, .navbar-inverse .navbar-nav>.active>a:focus, .navbar-inverse .navbar-nav>.active>a:hover{
+    background: #337ab7 !important;
+}
+
+.navbar-inverse .navbar-brand, .navbar-inverse .navbar-nav>li>a{
+    color: white !important;
+}
+
 
 /*#field {
     margin-bottom:20px;

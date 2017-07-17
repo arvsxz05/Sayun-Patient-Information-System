@@ -176,11 +176,22 @@ var fakewaffle = ( function ( $, fakewaffle ) {
 				// Activate current tabs
 				var current = $( e.target ).context.id.replace( /collapse-/g, '#' );
 				$( 'a[href="' + current + '"]' ).tab( 'show' );
+				// alert(current);
 
+				var url = window.location.href;
+
+				if(url.indexOf("#") > -1){
+					window.location.href = url.substring(0, url.indexOf("#")) + current;
+				}
+				else{
+					window.location.href = window.location.href + current;
+				}
+
+				console.log(e.currentTarget);
 				// Update the content with active
-				var panelGroup = $( e.currentTarget ).closest( '.panel-group.responsive' );
-				$( panelGroup ).find( '.panel-body' ).removeClass( 'active' );
-				$( e.currentTarget ).find( '.panel-body' ).addClass( 'active' );
+				// var panelGroup = $( e.currentTarget ).closest( '.panel-group.responsive' );
+				// $( panelGroup ).find( '.panel-body' ).removeClass( 'active' );
+				// $( e.currentTarget ).find( '.panel-body' ).addClass( 'active' );
 			}
 
 		} );

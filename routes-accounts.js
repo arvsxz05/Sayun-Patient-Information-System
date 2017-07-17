@@ -454,10 +454,10 @@ router.post('/account_edit/:id', requireLoggedIn,
 					if (req.session.user.id == req.params.id) {
 						req.session.doctor = doctor_updated;
 					}
-					return res.redirect('/account_list');
+					return res.redirect('/');
 				});
 			} else {
-				res.redirect('/account_list');
+				res.redirect('/');
 			}
 		}).catch(function (error) {
 			console.log(error);

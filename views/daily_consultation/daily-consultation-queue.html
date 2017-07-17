@@ -21,26 +21,18 @@
     <script type="text/javascript" src="https://rawgit.com/isocra/TableDnD/master/js/jquery.tablednd.js"></script>
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
     <style>
-        .even {
-            background-color: #ecf6fc;
-        }
-
-        .odd {
-            background-color: #ddeedd;
-        }
 
         .myDragClass {
-            background-color: yellow;
-            font-size: 16pt;
+            background-color: #73c215;
         }
 
         td select {
             width: 150px !important;
         }
+
         .ui-autocomplete {
             z-index: 5000;
         }
-
         .date-div select {
             background: #ffffff;
             border: 1px solid #CCCCCC;
@@ -56,6 +48,10 @@
 
         .date-div select.invalid {
             color: #E9403C;
+        }
+
+        #daily-queue-table tr:active {
+            background-color: #73c215;
         }
 
     </style>
@@ -114,7 +110,6 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                {% for daily_consultation in daily_consultation_list %}
                                     <tr>
                                         <td></td>
                                         <td>Giovanni Rovelli</td>
@@ -128,7 +123,19 @@
     									   </select>
                                         </td>
                                     </tr>
-                                {% endfor %}
+                                    <tr>
+                                        <td></td>
+                                        <td>Giovanni Rovelli</td>
+                                        <td>Hospital/Clinic</td>
+                                        <td>46</td>
+                                        <td>
+                                            <select class="form-control">
+                                                <option selected>Waiting</option>
+                                                <option>Done</option>
+                                                <option>Attending</option>
+                                           </select>
+                                        </td>
+                                    </tr>
                             </tbody>
                         </table>
                     </div>
@@ -219,7 +226,7 @@
                                     </fieldset>
                                     <div class="button-group">
                                         <a class="btn btn-gray pull-right" data-dismiss="modal">Cancel</a>
-                                        <button type="submit" class="btn btn-lime pull-right" id="add-med-btn">Save</button>
+                                        <button type="submit" class="btn btn-lime pull-right" id="add-daily-cc-btn" disabled="true">Save</button>
                                     </div>
                                 </form>
                             </div>
@@ -346,6 +353,7 @@
                 $("#patients-names-list").val(ui.item.label);
                 $("#patients-names-list").attr('name', ui.item.value);
                 $("#daily-cc-div").removeClass("hidden");
+                $('#add-daily-cc-btn').attr('disabled', false);
             },
             focus: function(event, ui) {
                 event.preventDefault();
@@ -356,6 +364,7 @@
                 if($("#daily-cc-div").hasClass("hidden") == false){
                     $("#patients-names-list").attr('name', '');
                     $("#daily-cc-div").addClass("hidden");
+                    $('#add-daily-cc-btn').attr('disabled', true);
                 }
             }
         });
@@ -418,6 +427,7 @@
 
     $('#add-daily-consultation-modal').submit(function(e) {
         e.preventDefault();
+        
         $("#daily-queue-table tr:last").after("<tr id='tr" + iCnt +"'>" +
             "<td>"+ iCnt + "</td>" +
             "<td>"+ $("#patients-names-list").val() + "</td>" +
@@ -432,12 +442,19 @@
             "</tr>"
         );
 
+        $('#add-daily-consultation-modal').modal('toggle');
+        $("#daily-cc-div").addClass("hidden");
+        $("#empty-message").addClass("hidden");
+        $('#add-daily-consultation-modal input').not('#hidden-doctor').not('#doctor').val("");
+        $('#add-daily-consultation-modal select').not('#daily-cc-status').val("");
+
         iCnt = 1;
         $("#daily-queue-table tbody tr").each(function() {
             var id = "tr" + parseInt(iCnt);
             $(this).children().first().html(iCnt);
             $(this).attr("id", id);
             iCnt++;
+            alert(iCnt);
         });
         $("#daily-queue-table").tableDnD({
             onDragClass: "myDragClass",
@@ -451,12 +468,6 @@
                 });
             }
         });
-
-        $('#add-daily-consultation-modal').modal('toggle');
-        $("#daily-cc-div").addClass("hidden");
-        $("#empty-message").addClass("hidden");
-        $('#add-daily-consultation-modal input').val("");
-        $('#add-daily-consultation-modal select').val("");
 
         // $.ajax({
         //     type: "POST",

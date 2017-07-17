@@ -237,14 +237,42 @@
 
                         <!-- LABORATORY RESULTS -->
                         <div class="tab-pane" id="laboratories">
-                            <div class="row" id="list-lab-view">
-                                {% include "../lab_results/list-lab-results.html" %}
-                            </div>
-                            <div class="row" id="add-lab-view">
-                                {% include "../lab_results/add-lab-results.html" %}
-                            </div>
-                            <div class="row" id="edit-lab-view">
-                                {% include "../lab_results/edit-lab-results.html" %}
+                            <div class="row">
+                                <div class="col-xs-12 col-md-10 col-md-offset-1">
+                                    <!-- BASIC PATIENT INFO -->
+                                    <div class="row" style="margin-top: 40px">
+                                        <div class="col-md-6">
+                                            <div class="row form-group">
+                                                <label class="col-sm-3 control-label" for="patient-id">Patient ID</label>
+                                                <div class="col-sm-6">
+                                                    <input type="text" class="form-control" id="patient-id" value="{{patient.id}}" disabled>
+                                                </div>
+                                            </div>                                       
+                                            <div class="row form-group">
+                                                <label class="col-sm-3 control-label" for="patient-id">Patient Name</label>
+                                                <div class="col-sm-6">
+                                                    <input type="text" class="form-control" id="patient-id" value="{{patient.first_name}} {{patient.middle_name}} {{patient.last_name}}" disabled>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <a id="list-lab-view-link" onclick="view_lab()">Back to Lab Results List</a>
+                                    <hr>
+
+
+                                    <!-- LAB RESULTS TABLE -->
+                                        {% include "../lab_results/list-lab-results.html" %}
+                                    <!-- END OF LAB RESULTS TABLE -->
+                                    {% if doctor %}
+                                    <!-- ADD NEW LAB RESULTS RECORD -->
+                                        {% include "../lab_results/add-lab-results.html" %}
+                                    <!-- END OF ADDING NEW LAB RESULTS RECORD -->
+                                    {% endif %}
+                                    <!-- VIEW LAB RESULTS RECORD -->
+                                        {% include "../lab_results/edit-lab-results.html" %}
+                                    <!-- END OF VIEW LAB RESULTS RECORD -->                               
+                                </div>
                             </div>
                         </div>
                         <!-- END OF LABORATORY RESULTS -->
@@ -494,6 +522,43 @@
 
 <script type="text/javascript">
 
+    $(window).on('hashchange',function() {
+        var url = window.location.href;
+
+        if(url.indexOf("#") > -1){
+            $('a[href="' + url.substring(url.indexOf("#")) + '"').tab('show');
+
+            $( '.panel-collapse' ).removeClass( 'in' );
+            $( '.panel-body' ).removeClass( 'active' );
+            $('a[class="accordion-toggle"]').addClass('collapsed');
+            $('.collapsed').attr('aria-expanded', false);
+            $( '.panel-collapse' ).attr('aria-expanded', false);
+
+            $(url.substring(url.indexOf("#")) ).addClass('active');
+            $('#collapse-' + url.substring(url.indexOf("#") + 1)).addClass('in');
+            $('#collapse-' + url.substring(url.indexOf("#") + 1)).css("height", "auto");
+            $('#collapse-' + url.substring(url.indexOf("#") + 1)).attr('aria-expanded', true);
+            $('a[href="' + '#collapse-' + url.substring(url.indexOf("#") + 1) + '"]').removeClass('collapsed');
+            $('a[href="' + '#collapse-' + url.substring(url.indexOf("#") + 1) + '"]').attr('aria-expanded', true);
+        }
+        else{
+            $('a[href="#patient-info"]').tab('show');
+
+            $( '.panel-collapse' ).removeClass( 'in' );
+            $( '.panel-body' ).removeClass( 'active' );
+            $('a[class="accordion-toggle"]').addClass('collapsed');
+            $('.collapsed').attr('aria-expanded', false);
+            $( '.panel-collapse' ).attr('aria-expanded', false);
+
+            $('#patient-info').addClass('active');
+            $('#collapse-patient-info').addClass('in');
+            $('#collapse-patient-info').css("height", "auto");
+            $('#collapse-patient-info').attr('aria-expanded', true);
+            $('a[href="#collapse-patient-info"]').removeClass('collapsed');
+            $('a[href="#collapse-patient-info"]').attr('aria-expanded', true);
+        }
+    });
+
     var IPT_List_Table;
     var OPT_List_Table;
     var CC_List_Table;
@@ -502,14 +567,45 @@
       fakewaffle.responsiveTabs(['xs', 'sm']);
     })(jQuery);
 
-      $( '#myTab a' ).click( function ( e ) {
-        // e.preventDefault();
+    $( '#myTab a' ).click( function ( e ) {
+    // e.preventDefault();
         $( this ).tab( 'show' );
-      } );
+    } );
 
     $(document).ready(function(){
-        $( '#myTab li' ).first().addClass('active');
-        $( '#collapse-patient-info').addClass('in');
+        var url = window.location.href;
+
+        if(url.indexOf("#") > -1){
+            $('a[href="' + url.substring(url.indexOf("#")) + '"').tab('show');
+
+            $( '.panel-collapse' ).removeClass( 'in' );
+            $( '.panel-body' ).removeClass( 'active' );
+            $('a[class="accordion-toggle"]').addClass('collapsed');
+            $('.collapsed').attr('aria-expanded', false);
+            $( '.panel-collapse' ).attr('aria-expanded', false);
+
+            $(url.substring(url.indexOf("#")) ).addClass('active');
+            $('#collapse-' + url.substring(url.indexOf("#") + 1)).addClass('in');
+            $('#collapse-' + url.substring(url.indexOf("#") + 1)).css("height", "auto");
+            $('#collapse-' + url.substring(url.indexOf("#") + 1)).attr('aria-expanded', true);
+            $('a[href="' + '#collapse-' + url.substring(url.indexOf("#") + 1) + '"]').removeClass('collapsed');
+            $('a[href="' + '#collapse-' + url.substring(url.indexOf("#") + 1) + '"]').attr('aria-expanded', true);
+        }
+        else{
+            $( '#myTab li' ).first().addClass('active');
+            $( '.panel-collapse' ).removeClass( 'in' );
+            $( '.panel-body' ).removeClass( 'active' );
+            $('a[class="accordion-toggle"]').addClass('collapsed');
+            $('.collapsed').attr('aria-expanded', false);
+            $( '.panel-collapse' ).attr('aria-expanded', false);
+
+            $('#patient-info').addClass('active');
+            $('#collapse-patient-info').addClass('in');
+            $('#collapse-patient-info').css("height", "auto");
+            $('#collapse-patient-info').attr('aria-expanded', true);
+            $('a[href="#collapse-patient-info"]').removeClass('collapsed');
+            $('a[href="#collapse-patient-info"]').attr('aria-expanded', true);
+        }  
 
         $("#confinement-date").dateDropdowns({
             displayFormat: "mdy"
@@ -583,6 +679,7 @@
         $('#edit-opt-view').hide();
 
 
+        $('#list-lab-view-link').hide();
         $('#add-lab-view').hide();
         $('#edit-lab-view').hide();
 
@@ -766,6 +863,13 @@
         $('#list-opt-view-link').hide();
         // meds.destroy();
         // med_procedures.destroy();
+    }
+
+    function view_lab() {
+        $('#list-lab-view').show();
+        $('#add-lab-view').hide();
+        $('#edit-lab-view').hide();
+        $('#list-lab-view-link').hide();
     }
     
     {% if doctor %}

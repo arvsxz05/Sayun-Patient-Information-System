@@ -2,7 +2,6 @@
     <div class="form-container col-md-8" style="padding: 20px">
         <form id="edit-cc-form" class="form-horizontal" role="form" method="POST">
             <input type="hidden" name="edit-cc-p-id" id="edit-cc-p-id">
-            <input type="hidden" name="edit-cc-c-id" id="edit-cc-c-id">
             <legend><b>Edit Clinic Consultation</b></legend>
             <div>
                 <p class="text-danger" id="cc-error-response"></p>
@@ -64,7 +63,7 @@
             </div>
 
             <div class="button-group">
-                <a href="/account_list" class="btn btn-gray pull-right">Cancel</a>
+                <a onclick="view_CC()" class="btn btn-gray pull-right">Cancel</a>
                 <button type="submit" class="btn btn-lime pull-right" id="save-btn">Save</button>    
             </div>
             {% endif %}
@@ -118,7 +117,7 @@
                 <button class="btn btn-red pull-right" type="submit" name="delete" value="true" id="">Delete</button>
                 <a href class="btn btn-lime pull-right" id="edit-cc-add-med-procedure-button" data-toggle="modal" data-target="#add-med-procedure-modal">Add</a>
             </div>
-        </form> -->
+        </form>
         <!-- END OF MEDICAL PROCEDURES LIST FOR CC -->
 
         <legend><b>Add/Edit Attachments</b></legend>

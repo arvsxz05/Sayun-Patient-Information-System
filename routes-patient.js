@@ -259,11 +259,11 @@ router.post('/patient_edit/:id', requireLoggedIn, upload.fields([{name: 'photo',
 	var expiration = null;
 
 
-	if(req.body['mem_date_year'] != '' && req.body['mem_date_month'] != '' && req.body['mem_date_day'] != ''){
+	if(req.body['mem_date_year'] != undefined && req.body['mem_date_month'] != undefined && req.body['mem_date_day'] != undefined){
 		membership = req.body['mem_date_year'] + "-" + req.body['mem_date_month'] + "-" + req.body['mem_date_day'];
 	}
 
-	if(req.body['exp_date_year'] != '' && req.body['exp_date_month'] != '' && req.body['exp_date_day'] != ''){
+	if(req.body['exp_date_year'] != undefined && req.body['exp_date_month'] != undefined && req.body['exp_date_day'] != undefined){
 		expiration = req.body['exp_date_year'] + "-" + req.body['exp_date_month'] + "-" + req.body['exp_date_day'];
 	}
 	
