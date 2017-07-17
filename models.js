@@ -107,6 +107,10 @@ const User_Account = database.define('user_account', {
 	},
 	photo: {
 		type: Sequelize.STRING
+	}, 
+	active: {
+		type: Sequelize.BOOLEAN,
+		defaultValue: true,
 	}
 	}, {
 	timestamps: true
@@ -368,7 +372,11 @@ const Patient = database.define('patient', {
 	prior_surgeries: {
 		type: Sequelize.TEXT,
 		allowNull: true,
-	}
+	},
+	active: {
+		type: Sequelize.BOOLEAN,
+		defaultValue: true,
+	},
 
 });
 
@@ -384,7 +392,11 @@ const Check_Up = database.define('check_up', {
 		type: Sequelize.ENUM,
 		values: check_up_types,
 		allowNull: false,
-	}
+	},
+	active: {
+		type: Sequelize.BOOLEAN,
+		defaultValue: true,
+	},
 });
 
 const InPatient_Treatment = database.define('inpatient_treatment', {
@@ -416,7 +428,11 @@ const InPatient_Treatment = database.define('inpatient_treatment', {
 		type: Sequelize.ENUM,
 		values: inpatient_status_types,
 		defaultValue: 'Confined'
-	}
+	},
+	active: {
+		type: Sequelize.BOOLEAN,
+		defaultValue: true,
+	},
 });
 
 InPatient_Treatment.belongsTo(Check_Up, {as: 'parent_record'});
@@ -499,7 +515,11 @@ const OutPatient_Treatment = database.define('outpatient_treatment', {
 	attachments: {
 		type: Sequelize.ARRAY(Sequelize.STRING),
 		allowNull: true,
-	}
+	},
+	active: {
+		type: Sequelize.BOOLEAN,
+		defaultValue: true,
+	},
 });
 
 OutPatient_Treatment.belongsTo(Check_Up, {as: 'parent_record'});
@@ -520,7 +540,11 @@ const Laboratory = database.define('laboratory', {
 	attachments: {
 		type: Sequelize.ARRAY(Sequelize.STRING),
 		allowNull: true
-	}
+	},
+	active: {
+		type: Sequelize.BOOLEAN,
+		defaultValue: true,
+	},
 });
 
 Patient.hasMany(Laboratory);
@@ -569,7 +593,11 @@ const Consultation = database.define('consultation', {
 	attachments: {
 		type: Sequelize.ARRAY(Sequelize.STRING),
 		allowNull: true,
-	}
+	},
+	active: {
+		type: Sequelize.BOOLEAN,
+		defaultValue: true,
+	},
 });
 
 Consultation.belongsTo(Check_Up, {as: 'parent_record'});
