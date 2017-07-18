@@ -598,27 +598,20 @@ const Consultation = database.define('consultation', {
 		type: Sequelize.BOOLEAN,
 		defaultValue: true,
 	},
-});
-
-Consultation.belongsTo(Check_Up, {as: 'parent_record'});
-
-Daily_Consultation = database.define('daily_consultation', {
-	date: {
-		type: Sequelize.DATEONLY,
-		allowNull: false
-	},
 	queue_no: {
 		type: Sequelize.INTEGER,
-		allowNull: false
+		allowNull: true,
+		defaultValue: null,
 	},
 	status: {
 		type: Sequelize.ENUM,
 		values: queue_status_types,
-		allowNull: false,
+		allowNull: true,
+		defaultValue: null,
 	}
 });
 
-Daily_Consultation.belongsTo(Consultation, {as: 'consultation_records'});
+Consultation.belongsTo(Check_Up, {as: 'parent_record'});
 
 // database.sync();
 
@@ -651,4 +644,3 @@ module.exports.Medication = Medication;
 module.exports.Medical_Procedure = Medical_Procedure;
 module.exports.title_types = title_types;
 module.exports.Consultation = Consultation;
-module.exports.Daily_Consultation = Daily_Consultation;

@@ -1,6 +1,5 @@
 const express = require('express');
 const router = express.Router();
-const Daily_Consultation = require('./models').Daily_Consultation;
 const Consultation = require('./models').Consultation;
 const Check_Up = require('./models').Check_Up;
 const Hospital = require('./models').Hospital;
@@ -28,38 +27,55 @@ function requireSecretary(req, res, next) {
 	next();
 }
 
+function formatDate(date) {
+	var d = new Date(date),
+		month = '' + (d.getMonth() + 1),
+		day = '' + d.getDate(),
+		year = d.getFullYear();
+
+	if (month.length < 2) month = '0' + month;
+	if (day.length < 2) day = '0' + day;
+
+	return [year, month, day].join('-');
+}
+
 /////////////////////////////// GET ////////////////////////////////////
 
-router.get('/daily_consultation_list', requireLoggedIn, function (req, res) {
+router.get('/daily_consultation_list/:date', requireLoggedIn, function (req, res) {
+	var date = parseInt(req.params.date);
 	if (req.session.doctor) {
-		Daily_Consultation.findAll({
+		Consultation.findAll({
 			raw: true,
+			where: {
+				date: formatDate(date),
+				status: {
+					$ne: null
+				}
+			},
 			include: [{
-				model: Consultation,
-				as: 'consultation_records',
+				model: Check_Up,
+				as: 'parent_record',
+				attributes: ['id', 'hospitalName', 'doctorId', 'patientId'],
 				include: [{
-					model: Check_Up,
-					as: 'parent_record',
-					include: [{
-						model: Hospital,
-						attributes: ['name']
-					}, {
-						model: Doctor,
-						where: {
-							id: req.session.doctor.id
-						},
-						include: {
-							model: User_Account,
-							as: 'username',
-							attributes: ['id', 'title', 'first_name', 'middle_name', 'last_name', 'suffix']
-						}
-					}, {
-						model: Patient,
-						where: {
-							spisInstanceLicenseNo: req.session.spisinstance.license_no
-						},
-						attributes: ['id', 'first_name', 'middle_name', 'last_name', 'suffix']
-					}]
+					model: Hospital,
+					attributes: ['name']
+				}, {
+					model: Doctor,
+					where: {
+						id: req.session.doctor.id
+					},
+					attributes: ['id'],
+					include: {
+						model: User_Account,
+						as: 'username',
+						attributes: ['id', 'title', 'first_name', 'middle_name', 'last_name', 'suffix']
+					}
+				}, {
+					model: Patient,
+					where: {
+						spisInstanceLicenseNo: req.session.spisinstance.license_no
+					},
+					attributes: ['id', 'first_name', 'middle_name', 'last_name', 'suffix']
 				}]
 			}]
 		}).then(daily_consultation_list => {
@@ -77,6 +93,7 @@ router.get('/daily_consultation_list', requireLoggedIn, function (req, res) {
 					attributes: ['name', 'type'],
 					raw: true
 				}).then(hospital_list => {
+					console.log(daily_consultation_list);
 					res.render('daily_consultation/daily-consultation-queue.html', {
 						daily_consultation_list: daily_consultation_list,
 						session: req.session,
@@ -87,31 +104,30 @@ router.get('/daily_consultation_list', requireLoggedIn, function (req, res) {
 			});
 		});
 	} else if (req.session.secretary) {
-		Daily_Consultation.findAll({
+		Consultation.findAll({
 			raw: true,
+			where: {
+				date: formatDate(date)
+			},
 			include: [{
-				model: Consultation,
-				as: 'consultation_records',
+				model: Check_Up,
+				as: 'parent_record',
 				include: [{
-					model: Check_Up,
-					as: 'parent_record',
-					include: [{
-						model: Hospital,
-						attributes: ['name']
-					}, {
-						model: Doctor,
-						include: {
-							model: User_Account,
-							as: 'username',
-							attributes: ['id', 'title', 'first_name', 'middle_name', 'last_name', 'suffix']
-						}
-					}, {
-						model: Patient,
-						where: {
-							spisInstanceLicenseNo: req.session.spisinstance.license_no
-						},
-						attributes: ['id', 'first_name', 'middle_name', 'last_name', 'suffix']
-					}]
+					model: Hospital,
+					attributes: ['name']
+				}, {
+					model: Doctor,
+					include: {
+						model: User_Account,
+						as: 'username',
+						attributes: ['id', 'title', 'first_name', 'middle_name', 'last_name', 'suffix']
+					}
+				}, {
+					model: Patient,
+					where: {
+						spisInstanceLicenseNo: req.session.spisinstance.license_no
+					},
+					attributes: ['id', 'first_name', 'middle_name', 'last_name', 'suffix']
 				}]
 			}]
 		}).then(daily_consultation_list => {
@@ -139,6 +155,7 @@ router.get('/daily_consultation_list', requireLoggedIn, function (req, res) {
 						attributes: ['name', 'type'],
 						raw: true
 					}).then(hospital_list => {
+						console.log(daily_consultation_list);
 						res.render('daily_consultation/daily-consultation-queue.html', {
 							daily_consultation_list: daily_consultation_list,
 							session: req.session,
@@ -156,34 +173,25 @@ router.get('/daily_consultation_list', requireLoggedIn, function (req, res) {
 /////////////////////////////// POST ////////////////////////////////////
 
 router.post('/add_daily_consultation', requireLoggedIn, function (req, res) {
-	Daily_Consultation.count({where: {
-		date: req.body.date
-	}}).then(queue_no => {
-		Daily_Consultation.create({
-			date: req.body.date,
-			queue_no: queue_no,
-			status: 'Waiting',
-			consultation_records: {
-				date: req.body.date,
-				parent_record: {
-					hospitalName: req.body.hospital,
-					patientId: req.body.p_id,
-					doctorId: req.body.doctor,
-					check_up_type: 'Consultation',
-				}
-			}
-		}, {
-			include: [{
-				model: Consultation,
-				as: 'consultation_records',
-				include: [{
-					model: Check_Up,
-					as: 'parent_record'
-				}]
-			}]
-		}).then(daily_consultation_instance => {
-			res.json({});
-		});
+	console.log(req.body.p_id);
+	Consultation.create({
+		queue_no: req.body.queue_no,
+		status: 'Waiting',
+		date: req.body.date,
+		attachments: [],
+		parent_record: {
+			hospitalName: req.body.hospital,
+			patientId: req.body.p_id,
+			doctorId: req.body.doctor,
+			check_up_type: 'Consultation',
+		}
+	}, {
+		include: [{
+			model: Check_Up,
+			as: 'parent_record'
+		}]
+	}).then(daily_consultation_instance => {
+		res.json({});
 	});
 });
 

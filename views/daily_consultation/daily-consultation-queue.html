@@ -110,32 +110,31 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                    <tr>
-                                        <td></td>
-                                        <td>Giovanni Rovelli</td>
-                                        <td>Hospital/Clinic</td>
-                                        <td>46</td>
-                                        <td>
-                                            <select class="form-control">
-        									    <option selected>Waiting</option>
-        									    <option>Done</option>
-        									    <option>Attending</option>
-    									   </select>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td></td>
-                                        <td>Giovanni Rovelli</td>
-                                        <td>Hospital/Clinic</td>
-                                        <td>46</td>
-                                        <td>
-                                            <select class="form-control">
-                                                <option selected>Waiting</option>
-                                                <option>Done</option>
-                                                <option>Attending</option>
-                                           </select>
-                                        </td>
-                                    </tr>
+                                {% for single_consultation in daily_consultation_list %}
+                                <tr>
+                                    <td>{{ single_consultation['queue_no'] }}</td>
+                                    <td>{{ single_consultation['parent_record.patient.first_name'] }} {{ single_consultation['parent_record.patient.middle_name'] }} {{ single_consultation['parent_record.patient.last_name'] }} {{ single_consultation['parent_record.patient.suffix'] }}</td>
+                                    <td>{{ single_consultation['parent_record.hospital.name'] }}</td>
+                                    <td>{{ single_consultation['parent_record.doctor.username.title'] }} {{ single_consultation['parent_record.doctor.username.first_name'] }} {{ single_consultation['parent_record.doctor.username.middle_name'] }} {{ single_consultation['parent_record.doctor.username.last_name'] }} {{ single_consultation['parent_record.doctor.username.suffix'] }}</td>
+                                    <td>
+                                        <select class="form-control">
+                                            {% if single_consultation['status'] === 'Waiting' %}
+    									    <option selected>Waiting</option>
+    									    <option>Done</option>
+    									    <option>Attending</option>
+                                            {% elif single_consultation['status'] === 'Done' %}
+                                            <option>Waiting</option>
+                                            <option selected>Done</option>
+                                            <option>Attending</option>
+                                            {% elif single_consultation['status'] === 'Current' %}
+                                            <option>Waiting</option>
+                                            <option>Done</option>
+                                            <option selected>Attending</option>
+                                            {% endif %}
+									   </select>
+                                    </td>
+                                </tr>
+                                {% endfor %}
                             </tbody>
                         </table>
                     </div>
@@ -170,7 +169,7 @@
                                             <div class="col-sm-9">
                                                 <div class = "ui-widget">
                                                     <input class="form-control" id="patients-names-list" required>
-                                                    <p id="empty-message" class="hidden">Patient does not exist. <a href="">Create record?</a></p>
+                                                    <p id="empty-message" class="hidden">Patient does not exist. <a href="/patient_add">Create record?</a></p>
                                                 </div>
                                             </div>
                                         </div>
@@ -208,7 +207,7 @@
                                                     </select>
                                                     {% else %}
                                                         <input type="text" class="form-control" id="doctor" value="{{session.user.first_name}} {{session.user.middle_name}} {{session.user.last_name}}" disabled>
-                                                        <input type="hidden" id="hidden-doctor" name="doctor" value="{{doctor.id}}">
+                                                        <input type="hidden" id="hidden-doctor" name="doctor" value="{{session.doctor.id}}">
                                                     {% endif %}
                                                 </div>
                                             </div>
@@ -258,7 +257,7 @@
                                             <div class="col-sm-9">
                                                 <div class = "ui-widget">
                                                     <input class="form-control" id="edit-patients-names-list" required disabled>
-                                                    <p id="edit-empty-message" class="hidden">Patient does not exist. <a href="">Create record?</a></p>
+                                                    <p id="edit-empty-message" class="hidden">Patient does not exist. <a href="/patient_add">Create record?</a></p>
                                                 </div>
                                             </div>
                                         </div>
@@ -400,12 +399,12 @@
 
     $(document).ready(function() { //DO NOT CHANGEEEEE
         iCnt = 1;
-        $("#daily-queue-table tbody tr").each(function() {
-            var id = "tr" + parseInt(iCnt);
-            $(this).children().first().html(iCnt);
-            $(this).attr("id", id);
-            iCnt++;
-        });
+        // $("#daily-queue-table tbody tr").each(function() {
+        //     var id = "tr" + parseInt(iCnt);
+        //     $(this).children().first().html(iCnt);
+        //     $(this).attr("id", id);
+        //     iCnt++;
+        // });
         $("#daily-queue-table").tableDnD({
             onDragClass: "myDragClass",
             onDrop: function(table, row) {
@@ -442,19 +441,12 @@
             "</tr>"
         );
 
-        $('#add-daily-consultation-modal').modal('toggle');
-        $("#daily-cc-div").addClass("hidden");
-        $("#empty-message").addClass("hidden");
-        $('#add-daily-consultation-modal input').not('#hidden-doctor').not('#doctor').val("");
-        $('#add-daily-consultation-modal select').not('#daily-cc-status').val("");
-
         iCnt = 1;
         $("#daily-queue-table tbody tr").each(function() {
-            var id = "tr" + parseInt(iCnt);
-            $(this).children().first().html(iCnt);
-            $(this).attr("id", id);
+            // var id = "tr" + parseInt(iCnt);
+            // $(this).children().first().html(iCnt);
+            // $(this).attr("id", id);
             iCnt++;
-            alert(iCnt);
         });
         $("#daily-queue-table").tableDnD({
             onDragClass: "myDragClass",
@@ -469,26 +461,25 @@
             }
         });
 
-        // $.ajax({
-        //     type: "POST",
-        //     url: "/add_daily_consultation",
-        //     data: {
-        //         'date': $("#daily-cc-date").val(),
-        //         'queue_no': iCnt,
-        //         'doctor': $("#doctor").val(),
-        //         'p-id': $('#patients-names-list').attr('name'),
-        //         'hospital': $('#hospital').val()
-        //     }
-        // }).done(function (data) {
-        //     if(data.success) {
-        //         $('#list-opt-view').show();
-        //         $('#add-opt-view').hide();
-        //     } else {
-        //         $("#opt-error-response").text(data.error);
-        //     }
-        // });
-    });
+        $.ajax({
+            type: "POST",
+            url: "/add_daily_consultation",
+            data: {
+                'date': $("#daily-cc-date").val(),
+                'queue_no': iCnt-1,
+                'doctor': $("#hidden-doctor").val(),
+                'p_id': $("#patients-names-list").attr('name'),
+                'hospital': $('#hospital').val()
+            }
+        }).done(function (data) {
+            $('#add-daily-consultation-modal').modal('toggle');
+            $("#daily-cc-div").addClass("hidden");
+            $("#empty-message").addClass("hidden");
+            $('#add-daily-consultation-modal input').not('#hidden-doctor').not('#doctor').val("");
+            $('#add-daily-consultation-modal select').not('#daily-cc-status').val("");
+        });
 
+    });
 </script>
 
 </html>

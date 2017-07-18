@@ -70,7 +70,7 @@
 			            </div>
 			            <div class="col-xs-6 col-sm-3 feature">
 							<center>
-				              	<a href="/daily_consultation_list">
+				              	<a id="daily_const_id" href="/daily_consultation_list/">
 					              	<div class="feature-icon">
 					              		<i class="fa fa-sort-numeric-asc"></i>
 					              	</div>
@@ -135,5 +135,6 @@
 		$('.feature-icon .fa').css({'font-size':(cw*0.46)+'px'});
 		$('.feature-icon .fa').css({'margin-top':(cw*0.27)+'px'});
 	});
+	$("#daily_const_id").attr('href', $("#daily_const_id").attr('href') + Date.now());
 </script>
 </html>
