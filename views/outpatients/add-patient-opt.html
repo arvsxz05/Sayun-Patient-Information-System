@@ -67,7 +67,7 @@
                 <table id="opt-list-medication" class="table table-striped table-bordered" cellspacing="0" width="100%">
                     <thead>
                         <tr>
-                            <th><input type="checkbox" aria-label="..." id="select-all"/></th>
+                            <th><input type="checkbox" aria-label="..." id="add-opt-select-all-meds"/></th>
                             <th>Name</th>
                             <th>Dosage</th>
                             <th>Frequency</th>
@@ -80,8 +80,8 @@
                 </table>
             </div>
             <div class="button-group">
-                <button class="btn btn-blue pull-right btn-icon" type="submit" name="delete" value="true" id=""><span class="glyphicon glyphicon-trash"></span></button>
-                <a href class="btn btn-lime pull-right btn-icon" id="opt-add-med" data-toggle="modal" data-target="#add-medication-modal"><span class="glyphicon glyphicon-plus"></span></a>
+                <a class="btn btn-blue pull-right btn-icon" onclick="add_opt_delete_med()" name="delete" value="true" id="delete"><span class="glyphicon glyphicon-trash"></span></a>
+                <a href class="btn btn-lime pull-right btn-icon" id="opt-add-med-button" data-toggle="modal" data-target="#add-medication-modal"><span class="glyphicon glyphicon-plus"></span></a>
             </div>
             <!-- END OF MEDICATION LIST FOR OPT -->
 
@@ -92,7 +92,7 @@
                 <table id="opt-list-med-procedure" class="table table-striped table-bordered" cellspacing="0" width="100%">
                     <thead>
                         <tr>
-                            <th><input type="checkbox" aria-label="..." id="select-all"/></th>
+                            <th><input type="checkbox" aria-label="..." id="add-opt-select-all-med-procedures"/></th>
                             <th>Date</th>
                             <th>Description</th>
                             <th>Details</th>
@@ -103,7 +103,7 @@
                 </table>
             </div>
             <div class="button-group">
-                <button class="btn btn-blue pull-right btn-icon" type="submit" name="delete" value="true" id=""><span class="glyphicon glyphicon-trash"></span></button>
+                <a class="btn btn-blue pull-right btn-icon" onclick="add_opt_delete_med_procedure()" name="delete" value="true" id=""><span class="glyphicon glyphicon-trash"></span></button>
                 <a href class="btn btn-lime pull-right btn-icon" id="opt-add-med-procedure-button" data-toggle="modal" data-target="#add-med-procedure-modal"><span class="glyphicon glyphicon-plus"></span></a>
             </div>
              <!-- END OF MEDICAL PROCEDURES LIST FOR OPT -->
@@ -145,6 +145,9 @@
     {% endif %}
     $("#add-opt-form").submit(function (event) {
         event.preventDefault();
+        opt_med_id_counter = 1;
+        opt_med_proc_id_counter = 1;
+
         {% if doctor %}
         var files = $('#add-opt-attachments').fileinput('getFileStack');
         if(files.length != 0) {
@@ -223,5 +226,76 @@
         console.log('File batch upload complete');
         $("#add-opt-form").submit();
     });
+    {% endif %}
+
+
+     // DELETING ROWS FOR MEDS
+    {% if doctor %}
+    $('#add-opt-select-all-meds').change(function(){  //"select all" change 
+        var status = this.checked; // "select all" checked status
+        $('#opt-list-medication tbody input:checkbox').each(function(){ //iterate all listed checkbox items
+            this.checked = status; //change ".checkbox" checked status
+        });
+    });
+
+    $("#opt-list-medication tbody").on('click', ':checkbox', function(){
+        $('#add-opt-select-all-meds').prop('checked', $('#opt-list-medication tbody input:checkbox').length == $('#opt-list-medication tbody input:checkbox:checked').length);
+    });
+
+    function add_opt_delete_med(){
+        var med_rows= [];
+
+        $("#opt-list-medication tbody input:checkbox").each(function(){
+            var $this = $(this);
+            if($this.is(":checked")){
+                med_rows.push($this.parent().parent());
+            }
+        });
+
+        if(med_rows.length > 0 && confirm("Are you sure you want to delete Medication record/s? This cannot be undone.")){
+            for(var x = 0; x < med_rows.length; x++ ){
+                meds.row(med_rows[x]).remove().draw();
+            }
+
+            $('#add-opt-select-all-meds').prop('checked', false);
+
+        }
+    }
+    {% endif %}
+    // 
+
+
+    // DELETING ROWS FOR MED PROCEDURES
+    {% if doctor %}
+    $('#add-opt-select-all-med-procedures').change(function(){  //"select all" change 
+        var status = this.checked; // "select all" checked status
+        $('#opt-list-med-procedure tbody input:checkbox').each(function(){ //iterate all listed checkbox items
+            this.checked = status; //change ".checkbox" checked status
+        });
+    });
+
+    $("#opt-list-med-procedure tbody").on('click', ':checkbox', function(){
+        $('#add-opt-select-all-med-procedures').prop('checked', $('#opt-list-med-procedure tbody input:checkbox').length == $('#opt-list-med-procedure tbody input:checkbox:checked').length);
+    });
+
+    function add_opt_delete_med_procedure(){
+        var med_proc_rows= [];
+
+        $("#opt-list-med-procedure tbody input:checkbox").each(function(){
+            var $this = $(this);
+            if($this.is(":checked")){
+                med_proc_rows.push($this.parent().parent());
+            }
+        });
+
+        if(med_proc_rows.length > 0 && confirm("Are you sure you want to delete Medical Procedure record/s? This cannot be undone.")){
+            for(var x = 0; x < med_proc_rows.length; x++ ){
+                med_procedures.row(med_proc_rows[x]).remove().draw();
+            }
+
+            $('#add-opt-select-all-med-procedures').prop('checked', false);
+
+        }
+    }
     {% endif %}
 </script>

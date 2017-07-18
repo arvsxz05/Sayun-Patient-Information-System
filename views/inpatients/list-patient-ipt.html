@@ -56,10 +56,10 @@
                 { "bSortable": true },
                 { "bSortable": true }
             ]    
-        }).on('click', 'tbody tr', function () {
-            var data = meds.row(this).data();
+        }).on('click', 'tbody tr td:nth-child(2) a', function () {
+            var data = meds.row($(this).parent().parent()).data();
             // console.log($(this));
-            edit_med_caller = $(this);
+            edit_med_caller = $(this).parent().parent();
 
             $('#edit-medication-modal').modal('toggle');
             $('#edit-med-name').val(data[1].substring(data[1].indexOf(">") + 1, data[1].length-4));
@@ -78,9 +78,9 @@
                 { "bSortable": true },
                 { "bSortable": true }
             ]    
-        }).on('click', 'tbody tr', function () {
-            var data = med_procedures.row(this).data();
-            edit_med_procedure_caller = $(this);
+        }).on('click', 'tbody tr td:nth-child(2) a', function () {
+            var data = med_procedures.row($(this).parent().parent()).data();
+            edit_med_procedure_caller = $(this).parent().parent();
             
             $('#edit-med-procedure-modal').modal('toggle');
             $('#edit-med-procedure-date select[name="date_[month]"').val(data[1].substring(data[1].indexOf(">") + 1, data[1].length-4).substring(5, 7));
