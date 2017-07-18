@@ -49,6 +49,8 @@
         <div class="container-fluid">
             <div class="row">
                 <div class="col-sm-8 col-sm-offset-2 form-container">
+                    <form id="delete-account-form" method="POST" action="/account_delete/{{user.id}}"> 
+                    </form>
                     <form id="edit-account-form" class="form-horizontal" role="form" method="POST" action="/account_edit/{{user.id}}" enctype="multipart/form-data">
                         <legend><b>Edit Account</b></legend>
                         <!-- photo and digital signature (if user type==doctor) -->

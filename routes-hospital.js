@@ -1,6 +1,8 @@
 const express = require('express');
 const router = new express.Router();
 const Hospital = require('./models').Hospital;
+const Check_Up = require('./models').Check_Up;
+const Laboratory = require('./models').Laboratory;
 
 ///////////////////// MIDDLEWARES ////////////////////////
 
@@ -52,11 +54,21 @@ router.get('/hcl_edit/:name', requireLoggedIn, requireAdmin, function (req, res)
 	Hospital.findOne({
 		where: {
 			name: key,
+			active: true,
 		},
 		raw: true
 	}).then(function(result){
-		hospital = result;
-		res.json(hospital);
+
+		if(result){
+			hospital = result;
+			res.json(hospital);
+		} else{
+			res.send({
+				message: "The record doesn't exist."
+			});
+		}
+
+		
 	});
 });
 
@@ -147,7 +159,8 @@ router.post('/hcl_edit', requireLoggedIn, requireAdmin, function (req, res) {
 		contact_numbers: contact_num,
 	},
 	{ where: {
-			name: key
+			name: key,
+			active: true,
 	}}).then(function (item) {
 		// res.json({"status": "success"});
 		res.redirect('/hcl_list');
@@ -155,5 +168,102 @@ router.post('/hcl_edit', requireLoggedIn, requireAdmin, function (req, res) {
 		res.json({"status" : "error", "name": req.body.name});
 	});
 });
+
+router.post('/hcl_delete/:name', requireLoggedIn, requireAdmin, function(req, res){
+	console.log("IN HCL DELETE");
+	var key = req.params.name;
+	var hospital, cu = [], labs = [];
+	var hasChildRecord, ipt_count = 0, opt_count = 0, cc_count = 0, lab_count = 0;
+
+	Hospital.findOne({
+		where: {
+			active: true,
+			name: key,
+		},
+		raw: true,
+	}).then(function(result){
+		hospital = result;
+		if(result){
+
+			Check_Up.findAll({
+				where: {
+					hospitalName: hospital['name'],
+					active: true,
+				},
+				raw: true,
+				attributes: ['check_up_type', 'id'],
+			}).then(function(check_ups){
+
+				cu = check_ups;
+
+				Laboratory.findAll({
+					where: {
+						active: true,
+						hospitalName: hospital['name'],
+					},
+					raw: true,
+					attributes: ['id'],
+				}).then(function(laboratories){
+
+					labs = laboratories;
+
+					if(cu.length+labs.length > 0)
+						hasChildRecord = true
+					else
+						hasChildRecord = false
+
+					for(var i = 0; i < cu.length; i++){
+						if(cu[i]['check_up_type'] == 'In-Patient-Treatment' )
+							ipt_count+=1;
+						else if(cu[i]['check_up_type'] == 'Out-Patient-Treatment')
+							opt_count+=1;
+						else
+							cc_count+=1;
+					}
+
+					res.json({
+						hasChildRecord: hasChildRecord,
+						ipt_count: ipt_count,
+						opt_count: opt_count,
+						cc_count: cc_count,
+						lab_count: labs.length,
+					})
+
+				});
+
+			});
+
+		} else{
+			res.json({
+				message: "This record doesn't exist."
+			})
+		}
+
+	});
+});
+
+router.post('/hcl_delete_confirmed/:name', requireLoggedIn, requireAdmin, function(req, res){
+	console.log("IN HCL DELETE CONFIRMED");
+	var key = req.params.name;
+
+	Hospital.update({
+		active: false,
+	}, {
+		where: {
+			name: key,
+			active: true,
+		}
+	}).then(function(result){
+
+		if(result){
+			res.redirect('/hcl_list');
+		} else {
+			res.send({
+				message: "The record doesn't exist."
+			});
+		}
+
+	});
+})
 
 module.exports = router;

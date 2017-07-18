@@ -63,10 +63,14 @@ router.get('/opt_list/:patient_id',
 		if(req.session.doctor) {
 			OutPatient_Treatment.findAll({
 				raw: true,
+				where: {
+					active: true,
+				},
 				include: [{
 			        model: Check_Up,
 			        where: {
 						patientId: patient_id,
+						active: true,
 					},
 					as: 'parent_record',
 					include: [{ 
@@ -81,10 +85,14 @@ router.get('/opt_list/:patient_id',
 		} else if(req.session.secretary) {
 			OutPatient_Treatment.findAll({
 				raw: true,
+				where: {
+					active: true,
+				},
 				include: [{
 			        model: Check_Up,
 			        where: {
 						patientId: patient_id,
+						active: true,
 					},
 					as: 'parent_record',
 					include: [{ 
@@ -111,6 +119,7 @@ router.get('/opt_edit_json/:opt_id/:patient_id', function(req, res){
 	        model: Check_Up,
 	        where: {
 				patientId: patient_id,
+				active: true,
 			},
 			as: 'parent_record',
 			include: [{ 
@@ -120,27 +129,37 @@ router.get('/opt_edit_json/:opt_id/:patient_id', function(req, res){
 	    }],
 	    where: {
 	    	id: key,
+	    	active: true,
 	    }
 	}).then(opt_instance => {
-		Medication.findAll({
-			where: {
-				checkUpId: opt_instance['parent_record.id'],
-			},
-			raw: true,
-		}).then(medication_list => {
-			Medical_Procedure.findAll({
+
+		if(opt_instance != null){
+			Medication.findAll({
 				where: {
 					checkUpId: opt_instance['parent_record.id'],
 				},
 				raw: true,
-			}).then(procedures_list => {
-				res.json({
-					opt: opt_instance,
-					medications: medication_list,
-					med_procedures: procedures_list,
+			}).then(medication_list => {
+				Medical_Procedure.findAll({
+					where: {
+						checkUpId: opt_instance['parent_record.id'],
+					},
+					raw: true,
+				}).then(procedures_list => {
+					res.json({
+						opt: opt_instance,
+						medications: medication_list,
+						med_procedures: procedures_list,
+					});
 				});
 			});
-		});
+		} else{
+			res.json({
+				message: "This record doesn't exist."
+			})
+		}
+
+		
 	});
 });
 
@@ -409,6 +428,76 @@ router.post("/edit_medical_procedure/:medproc_id", requireLoggedIn, function (re
 		}
 	}).then(procedure_instance => {
 		res.json({id: procedure_instance.id});
+	});
+});
+
+router.post("/opt_delete/:opt_id", requireLoggedIn, function(req, res){
+	console.log("OPT DELETE");
+	console.log(req.params);
+	var key = req.params.opt_id;
+	var opt, meds = [], med_procs = [], childRecords, hasChildRecords;
+
+	OutPatient_Treatment.findOne({
+		where: {
+			id: key,
+			active: true,
+		},
+		raw: true,
+		attributes: ['id', 'parentRecordId'],
+	}).then(function(result){
+		console.log( result );
+		opt = result;
+		Medication.findAll({
+			where: {
+				checkUpId: opt['parentRecordId'],
+			},
+			raw: true,
+			attributes: ['id'],
+		}).then(function(results){
+
+			meds = results;
+
+			Medical_Procedure.findAll({
+				where: {
+					checkUpId: opt['parentRecordId'],
+				},
+				raw: true,
+				attributes: ['id'],
+			}).then(function(results){
+
+				med_procs = results;
+
+				if(meds.length+med_procs.length > 0)
+					hasChildRecords = true;
+				else
+					hasChildRecords = false;
+				
+				res.json({
+					hasChildRecords: hasChildRecords,
+					meds_count: meds.length,
+					medical_procedure_count: med_procs.length,
+				});
+			});
+		});
+	});
+});
+
+router.post("/opt_delete_confirmed/:opt_id", requireLoggedIn, function(req, res){
+	console.log("OPT DELETE CONFIRMED");
+	console.log(req.params);
+	var key = req.params.opt_id;
+	OutPatient_Treatment.update({
+		active: false,
+	}, {
+		where: {
+			id: key,
+		}
+	}).then(function(result){
+		res.json({success: true});
+	}).catch(function(error){
+		console.log("OUT PATIENT TREATMENT CONFIRMED");
+		console.log(error);
+		res.json({success: false});
 	});
 });
 

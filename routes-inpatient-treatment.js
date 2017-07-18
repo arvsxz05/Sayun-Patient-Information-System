@@ -63,10 +63,14 @@ router.get('/ipt_list/:patient_id', requireLoggedIn,
 		if(req.session.doctor) {
 			InPatient_Treatment.findAll({
 			raw: true,
+			where: {
+				active: true,
+			},
 			include: [{
 		        model: Check_Up,
 			        where: {
-						patientId: patient_id
+						patientId: patient_id,
+						active: true,
 					},
 					as: 'parent_record',
 					include: [{ 
@@ -81,10 +85,14 @@ router.get('/ipt_list/:patient_id', requireLoggedIn,
 		} else if (req.session.secretary) {
 			InPatient_Treatment.findAll({
 			raw: true,
+			where: {
+				active: true,
+			},
 			include: [{
 		        model: Check_Up,
 			        where: {
 						patientId: patient_id,
+						active: true,
 					},
 					as: 'parent_record',
 					include: [{ 
@@ -112,6 +120,7 @@ router.get('/ipt_edit_json/:ipt_id/:patient_id', function (req, res) {
 			model: Check_Up,
 			where: {
 				patientId: patient_id,
+				active: true,
 			},
 			as: 'parent_record',
 			include: [{
@@ -124,27 +133,36 @@ router.get('/ipt_edit_json/:ipt_id/:patient_id', function (req, res) {
 		}],
 		where: {
 			id: key,
+			active: true,
 		}
 	}).then(ipt_instance => {
-		Medication.findAll({
-			where: {
-				checkUpId: ipt_instance['parent_record.id'],
-			},
-			raw: true,
-		}).then(medication_list => {
-			Medical_Procedure.findAll({
+
+		if(ipt_instance){
+			Medication.findAll({
 				where: {
 					checkUpId: ipt_instance['parent_record.id'],
 				},
 				raw: true,
-			}).then(procedures_list => {
-				res.json({
-					ipt: ipt_instance,
-					medications: medication_list,
-					med_procedures: procedures_list,
+			}).then(medication_list => {
+				Medical_Procedure.findAll({
+					where: {
+						checkUpId: ipt_instance['parent_record.id'],
+					},
+					raw: true,
+				}).then(procedures_list => {
+					res.json({
+						ipt: ipt_instance,
+						medications: medication_list,
+						med_procedures: procedures_list,
+					});
 				});
 			});
-		});
+		} else {
+			res.send({
+				message: "This record doesn't exist."
+			});
+		}
+
 	});
 });
 
@@ -279,22 +297,41 @@ router.post('/ipt_edit/:ipt_id/:cu_id', function (req, res) {
 		},{
 			where:{
 				id: key,
+				active: true,
 			}
 		}).then(updated_ipt => {
 
-			Check_Up.update({
-				hospitalName: hospital,
-				doctorId: doc,
-			}, {
-				where: {
-					id: cu_id,
-				}
-			}).then(updated_check_up => {
-				res.json({success: true});
-			}).catch(function (error) {
-				console.log(error);
-				res.json({error: error});
-			});
+			if(updated_ipt){
+				Check_Up.update({
+					hospitalName: hospital,
+					doctorId: doc,
+				}, {
+					where: {
+						id: cu_id,
+						active: true,
+					}
+				}).then(updated_check_up => {
+
+					if(updated_check_up){
+						res.json({success: true});
+					} else{
+						res.send({
+							message: "This record doesn't exist."
+						});
+					}
+
+					
+				}).catch(function (error) {
+					console.log(error);
+					res.json({error: error});
+				});
+			} else{
+				res.send({
+					message: "This record doesn't exist."
+				});
+			}
+
+			
 
 		}).catch(function (error) {
 			console.log(error);
@@ -307,21 +344,39 @@ router.post('/ipt_edit/:ipt_id/:cu_id', function (req, res) {
 		},{
 			where:{
 				id: key,
+				active: true,
 			}
 		}).then(updated_ipt => {
-			Check_Up.update({
-				hospitalName: hospital,
-				doctorId: doc,
-			}, {
-				where: {
-					id: cu_id,
-				}
-			}).then(updated_check_up => {
-				res.json({success: true});
-			}).catch(function (error) {
-				console.log(error);
-				res.json({error: error});
-			});
+
+			if(updated_ipt){
+				Check_Up.update({
+					hospitalName: hospital,
+					doctorId: doc,
+				}, {
+					where: {
+						id: cu_id,
+						active: true,
+					}
+				}).then(updated_check_up => {
+
+					if(updated_check_up){
+						res.json({success: true});
+					} else{
+						res.send({
+							message: "This record doesn't exist."
+						})
+					}
+					
+				}).catch(function (error) {
+					console.log(error);
+					res.json({error: error});
+				});
+			} else{
+				res.send({
+					message: "This record doesn't exist."
+				})
+			}
+			
 		}).catch(function (error) {
 			console.log(error);
 			res.json({error: error});
@@ -400,5 +455,72 @@ router.post("/ipt_edit_add_medical_procedure/:cu_id", requireLoggedIn, function 
 	});
 });
 
+router.post("/ipt_delete/:ipt_id", requireLoggedIn, function(req, res){
+	console.log("IN IPT DELETE");
+	console.log(req.params);
+
+	var key = req.params.ipt_id, ipt, meds = [], med_procs = [];
+
+	InPatient_Treatment.findOne({
+		where: {
+			id: key,
+			active: true,
+		},
+		raw: true,
+		attributes: ['id', 'parentRecordId'],
+	}).then(function(result){
+		ipt = result;
+		Medication.findAll({
+			where: {
+				checkUpId: ipt['parentRecordId']
+			},
+			raw: true,
+			attributes: ['id'],
+		}).then(function(results){
+			meds = results;
+
+			Medical_Procedure.findAll({
+				where: {
+					checkUpId: ipt['parentRecordId'],
+				},
+				raw: true,
+				attributes: ['id'],
+			}).then(function(results){
+				med_procs = results;
+
+				if(meds.length+med_procs.length > 0)
+					hasChildRecords = true;
+				else
+					hasChildRecords = false;
+
+				res.json({
+					hasChildRecords: hasChildRecords,
+					meds_count: meds.length,
+					medical_procedure_count: med_procs.length,
+				});
+
+			});
+		});
+	});
+});
+
+router.post("/ipt_delete_confirmed/:ipt_id", requireLoggedIn, function(req, res){
+	console.log("IPT DELETE CONFIRMED");
+	console.log(req.params);
+	var key = req.params.ipt_id;
+	InPatient_Treatment.update({
+		active: false,
+	}, {
+		where: {
+			id: key,
+		}
+	}).then(function(result){
+		res.json({success: true});
+	}).catch(function(error){
+		console.log("IN PATIENT TREATMENT CONFIRMED");
+		console.log(error);
+		res.json({success: false});
+	});
+});
 
 module.exports = router;

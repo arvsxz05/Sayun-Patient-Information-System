@@ -87,7 +87,8 @@ router.get('/account_list', requireLoggedIn, requireSuperAdmin, function (req, r
 	var allAccounts = [];
 	User_Account.findAll({ 
 		where: {
-			spisInstanceLicenseNo: req.session.spisinstance.license_no
+			spisInstanceLicenseNo: req.session.spisinstance.license_no,
+			active: true,
 		}, 
 		raw: true
 	}).then(function (results) {
@@ -148,6 +149,7 @@ router.get('/account_edit/:id', requireLoggedIn,
 					User_Account.findOne({
 						where: {
 							id: id,
+							active: true,
 						},
 						raw: true
 					}).then(function (result) {
@@ -162,7 +164,10 @@ router.get('/account_edit/:id', requireLoggedIn,
 							});
 						}
 						else {
-							res.redirect('/');
+							// res.redirect('/');
+							res.send({
+								message: "The record doesn't exist."
+							})
 						}
 					});
 				});
@@ -193,6 +198,7 @@ router.get('/account_edit/:id', requireLoggedIn,
 						User_Account.findOne({
 							where: {
 								id: id,
+								active: true,
 							},
 							raw: true
 						}).then(function (result) {
@@ -207,7 +213,10 @@ router.get('/account_edit/:id', requireLoggedIn,
 								});
 							}
 							else {
-								res.redirect('/');
+								// res.redirect('/');
+								res.send({
+									message: "The record doesn't exist."
+								})
 							}
 						});
 					});

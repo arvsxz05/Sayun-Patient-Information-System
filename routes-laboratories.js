@@ -57,7 +57,8 @@ router.get('/lab_results_list/:patient_id', requireLoggedIn,
 		Laboratory.findAll({
 			raw: true,
 			where: {
-				patientId: patient_id
+				patientId: patient_id,
+				active: true,
 			}
 		}).then(lab_results_list => {
 			console.log(lab_results_list);
@@ -72,11 +73,20 @@ router.get('/laboratory_edit/:lab_id', requireLoggedIn, function (req, res){
 	Laboratory.findOne({
 		raw: true,
 		where: {
-			id: lab_id
+			id: lab_id,
+			active: true,
 		}
 	}).then(lab_result => {
-		console.log(lab_result);
-		res.json({lab_result: lab_result});
+
+		if(lab_result != null){
+			console.log(lab_result);
+			res.json({lab_result: lab_result});
+		} else{
+			res.json({
+				message: "This record doesn't exist."
+			})
+		}
+
 	});
 });
 
@@ -163,9 +173,11 @@ router.post('/laboratory_edit/:lab_id', requireLoggedIn, function (req, res){
 
 	Laboratory.findOne({
 		where: {
-			id: lab_id
+			id: lab_id,
+			active: true,
 		}
 	}).then(lab_result => {
+
 		if(lab_result) {
 			lab_result.date = req.body.date;
 			lab_result.hospitalName = req.body.hospital;
@@ -174,9 +186,34 @@ router.post('/laboratory_edit/:lab_id', requireLoggedIn, function (req, res){
 			lab_result.save().then(() => { res.json({}); });
 		}
 		else {
-			res.json({});
+			res.json({
+				message: "This record doesn't exist."
+			});
 		}
 	});
+});
+
+router.post('/laboratory_delete/:lab_id', requireLoggedIn, function(req, res){
+	console.log("LAB DELETE ROUTE");
+
+	console.log(req.params);
+
+	var key = req.params.lab_id;
+
+	Laboratory.update({
+		active: false,
+	}, {
+		where: {
+			id: key,
+		}
+	}).then(function(result){
+		res.json({success: true});
+	}).catch(function(error){
+		console.log("LAB TREATMENT CONFIRMED");
+		console.log(error);
+		res.json({success: false});
+	})
+	// Laboratory.
 });
 
 module.exports = router;

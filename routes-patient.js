@@ -3,6 +3,8 @@ const router = express.Router();
 const Patient = require('./models').Patient;
 const Hospital = require('./models').Hospital;
 const InPatient_Treatment = require('./models').InPatient_Treatment;
+const OutPatient_Treatment = require('./models').OutPatient_Treatment;
+const Consultation = require('./models').Consultation;
 const Doctor = require('./models').Doctor;
 const User_Account = require('./models').User_Account;
 const Check_Up = require('./models').Check_Up;
@@ -79,7 +81,8 @@ router.get('/patient_list', requireLoggedIn, function (req, res) {
 	var allPatients = [];
 	Patient.findAll({
 		where: {
-			spisInstanceLicenseNo: req.session.spisinstance.license_no
+			spisInstanceLicenseNo: req.session.spisinstance.license_no,
+			active: true,
 		},
 		raw: true,
 		order: [
@@ -124,7 +127,7 @@ router.get('/patient_edit/:id', requireLoggedIn, function (req, res) {
 	Hospital.findAll({
 		where: {
 			spisInstanceLicenseNo: req.session.spisinstance.license_no,
-			active: "t",
+			active: true,
 		},
 		attributes: ['name', 'type'],
 		raw: true
@@ -132,32 +135,41 @@ router.get('/patient_edit/:id', requireLoggedIn, function (req, res) {
 		Patient.findOne({
 			where: {
 				id: key,
+				active: true,
 			},
 			raw: true
 		}).then(function (result) {
-			var date = result.birthdate.split("-");
-			patient = result;
-			//Doctor Query
-			Doctor.findAll({
-				include: [{
-			        model: User_Account,
-			        where: {
-						spisInstanceLicenseNo: req.session.spisinstance.license_no,
-					},
-					attributes: ['id', 'first_name', 'middle_name', 'last_name'],
-			        as: 'username'
-			    }],
-			    raw: true,
-			}).then(function (doctors) {
 
-				res.render('patient/patient-info.html', {
-					patient: patient,
-					user: req.session.user,
-					doctor: req.session.doctor,
-					doctors: doctors,
-					hospitals: hospitals
+			if(result != null){
+				var date = result.birthdate.split("-");
+				patient = result;
+				//Doctor Query
+				Doctor.findAll({
+					include: [{
+				        model: User_Account,
+				        where: {
+							spisInstanceLicenseNo: req.session.spisinstance.license_no,
+						},
+						attributes: ['id', 'first_name', 'middle_name', 'last_name'],
+				        as: 'username'
+				    }],
+				    raw: true,
+				}).then(function (doctors) {
+
+					res.render('patient/patient-info.html', {
+						patient: patient,
+						user: req.session.user,
+						doctor: req.session.doctor,
+						doctors: doctors,
+						hospitals: hospitals
+					});
 				});
-			});
+			} else{
+				res.json({
+					message: "This record doesn't exist."
+				})
+			}
+
 		});
 	});
 });
@@ -241,8 +253,6 @@ router.post('/patient_add', requireLoggedIn, upload.fields([{name: 'photo', maxC
 		console.log(error);
 		res.json({"status" : "error"});
 	});
-
-
 });
 
 router.post('/patient_edit/:id', requireLoggedIn, upload.fields([{name: 'photo', maxCount: 1}]), function (req, res) {
@@ -327,12 +337,13 @@ router.post('/patient_edit/:id', requireLoggedIn, upload.fields([{name: 'photo',
 		where: {
 			id: key,
 			spisInstanceLicenseNo: req.session.spisinstance.license_no, 
+			active: true,
 		}
 	}).then(function (item) {
 		res.redirect('/patient_edit/'+key);
 	}).catch(function (error) {
 		console.log(error);
-		res.json({"status" : "error"});
+		res.json({message: "This record doesn't exist."});
 	});
 });
 
@@ -364,6 +375,75 @@ router.post('/patient_edit_notes/:id', requireLoggedIn, function (req, res) {
 		console.log("patient edit notes error");
 		console.log(error);
 		res.json({"status": "error"});
+	});
+});
+
+router.post('/patient_delete/:id', requireLoggedIn, function(req, res){
+	var key = req.params.id;
+	var patient, check_ups = [], labs, childCount, hasChildRecords;
+	var ipt_count = 0, opt_count = 0, cc_count = 0;
+
+	Check_Up.findAll({
+		where: {
+			patientId: key,
+			active: true,
+		},
+		raw: true,
+		attributes: ['check_up_type']
+	}).then(function(results){
+		check_ups = results;
+		console.log(results);
+		Laboratory.findAll({
+			where: {
+				patientId: key,
+				active: true,
+			},
+			raw: true,
+			attributes: ['id']
+		}).then(function(results){
+			labs = results;
+			childCount = check_ups.length + labs.length;
+			console.log("childCount: "+childCount);
+
+			for( var i = 0; i < check_ups.length; i++ ){
+				if(check_ups[i].check_up_type == 'In-Patient-Treatment')
+					ipt_count+=1;
+				else if(check_ups[i].check_up_type == 'Out-Patient-Treatment')
+					opt_count+=1;
+				else
+					cc_count+=1;
+			}
+
+			if(childCount > 0)
+				hasChildRecords = true;
+			else
+				hasChildRecords = false;
+
+			res.json({
+				hasChildRecords: hasChildRecords,
+				ipt_count: ipt_count,
+				opt_count: opt_count,
+				cc_count: cc_count,
+				lab_count: labs.length,
+			});
+		});
+	});
+});
+
+router.post('/patient_delete_confirmed/:id', requireLoggedIn, function(req, res){
+	var key = req.params.id;
+	Patient.update({
+		active: false,
+	},{
+		where: {
+			id: key,
+		}
+	}).then(function(result){
+		res.json({success: true});
+	}).catch(function(error){
+		console.log("IN PATIENT_DELETE_CONFIRMED");
+		console.log(error);
+		res.json({success: false});
 	});
 });
 

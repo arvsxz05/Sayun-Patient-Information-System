@@ -383,4 +383,74 @@ router.post("/clinic_consultation_edit_add_medical_procedure/:cu_id", requireLog
 	});
 });
 
+router.post("/clinic_consultation_delete/:cc_id", requireLoggedIn, function(req, res){
+	console.log("CC DELETE");
+	console.log(req.params);
+	var key = req.params.cc_id;
+	var cc, meds = [], med_procs = [], childRecords, hasChildRecords;
+
+	Consultation.findOne({
+		where: {
+			id: key,
+			active: true,
+		},
+		raw: true,
+		attributes: ['id', 'parentRecordId'],
+	}).then(function(result){
+		console.log( result );
+		cc = result;
+		Medication.findAll({
+			where: {
+				checkUpId: cc['parentRecordId'],
+			},
+			raw: true,
+			attributes: ['id'],
+		}).then(function(results){
+
+			meds = results;
+
+			Medical_Procedure.findAll({
+				where: {
+					checkUpId: cc['parentRecordId'],
+				},
+				raw: true,
+				attributes: ['id'],
+			}).then(function(results){
+
+				med_procs = results;
+
+				if(meds.length+med_procs.length > 0)
+					hasChildRecords = true;
+				else
+					hasChildRecords = false;
+				
+				res.json({
+					hasChildRecords: hasChildRecords,
+					meds_count: meds.length,
+					medical_procedure_count: med_procs.length,
+				});
+			});
+		});
+	});
+});
+
+router.post("/clinic_consultation_delete_confirmed/:cc_id", requireLoggedIn, function(req, res){
+	console.log("CC DELETE CONFIRMED");
+	console.log(req.params);
+	var key = req.params.cc_id;
+	Consultation.update({
+		active: false,
+	}, {
+		where: {
+			id: key,
+		}
+	}).then(function(result){
+		res.json({success: true});
+	}).catch(function(error){
+		console.log("CC PATIENT TREATMENT CONFIRMED");
+		console.log(error);
+		res.json({success: false});
+	});
+});
+
 module.exports = router;
