@@ -248,6 +248,31 @@ router.get('/account_edit_contacts/:id', requireLoggedIn,
 	}
 );
 
+router.get('/account_delete/:id', requireLoggedIn, requireSuperUser, function(req, res){
+
+	var key = req.params.id;
+
+	User_Account.findOne({
+		where: {
+			id: key,
+			active: true,
+		},
+		raw: true
+	}).then(function(result){
+
+		if(result){
+			res.send({
+				user: result
+			})
+		} else{
+			res.send({
+				message: "The record doesn't exist."
+			})
+		}
+
+	})
+});
+
 /////////////////////// POST //////////////////////////
 
 router.post('/add_account', requireLoggedIn, requireSuperUser, 
@@ -393,6 +418,31 @@ router.post('/account_delete', requireLoggedIn, requireSuperUser, function (req,
 	}
 });
 
+router.post('/account_delete_confirmed/:id', requireLoggedIn, requireSuperUser, function (req, res) {
+	var key = req.params.id;
+
+	User_Account.update({
+		active: false,
+	}, {
+		where: {
+			id: key,
+		}
+	}).then(function(result){
+
+		if(result){
+			res.json({
+				success: true
+			});
+		} else{
+			res.json({
+				success: false
+			})
+		}
+
+	});
+
+});
+
 router.post('/account_edit/:id', requireLoggedIn, 
 	upload.fields([{
 		name: 'photo', maxCount: 1}, {
@@ -473,5 +523,7 @@ router.post('/account_edit/:id', requireLoggedIn,
 		});
 	}
 );
+
+
 
 module.exports = router;

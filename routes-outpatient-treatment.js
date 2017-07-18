@@ -163,6 +163,56 @@ router.get('/opt_edit_json/:opt_id/:patient_id', function(req, res){
 	});
 });
 
+router.get("/opt_delete/:opt_id", requireLoggedIn, function(req, res){
+	console.log("OPT DELETE");
+	console.log(req.params);
+	var key = req.params.opt_id;
+	var opt, meds = [], med_procs = [], childRecords, hasChildRecords;
+
+	OutPatient_Treatment.findOne({
+		where: {
+			id: key,
+			active: true,
+		},
+		raw: true,
+		attributes: ['id', 'parentRecordId'],
+	}).then(function(result){
+		console.log( result );
+		opt = result;
+		Medication.findAll({
+			where: {
+				checkUpId: opt['parentRecordId'],
+			},
+			raw: true,
+			attributes: ['id'],
+		}).then(function(results){
+
+			meds = results;
+
+			Medical_Procedure.findAll({
+				where: {
+					checkUpId: opt['parentRecordId'],
+				},
+				raw: true,
+				attributes: ['id'],
+			}).then(function(results){
+
+				med_procs = results;
+
+				if(meds.length+med_procs.length > 0)
+					hasChildRecords = true;
+				else
+					hasChildRecords = false;
+				
+				res.json({
+					hasChildRecords: hasChildRecords,
+					meds_count: meds.length,
+					medical_procedure_count: med_procs.length,
+				});
+			});
+		});
+	});
+});
 
 //////////////////////// POST ////////////////////////////////////
 
@@ -428,57 +478,6 @@ router.post("/edit_medical_procedure/:medproc_id", requireLoggedIn, function (re
 		}
 	}).then(procedure_instance => {
 		res.json({id: procedure_instance.id});
-	});
-});
-
-router.post("/opt_delete/:opt_id", requireLoggedIn, function(req, res){
-	console.log("OPT DELETE");
-	console.log(req.params);
-	var key = req.params.opt_id;
-	var opt, meds = [], med_procs = [], childRecords, hasChildRecords;
-
-	OutPatient_Treatment.findOne({
-		where: {
-			id: key,
-			active: true,
-		},
-		raw: true,
-		attributes: ['id', 'parentRecordId'],
-	}).then(function(result){
-		console.log( result );
-		opt = result;
-		Medication.findAll({
-			where: {
-				checkUpId: opt['parentRecordId'],
-			},
-			raw: true,
-			attributes: ['id'],
-		}).then(function(results){
-
-			meds = results;
-
-			Medical_Procedure.findAll({
-				where: {
-					checkUpId: opt['parentRecordId'],
-				},
-				raw: true,
-				attributes: ['id'],
-			}).then(function(results){
-
-				med_procs = results;
-
-				if(meds.length+med_procs.length > 0)
-					hasChildRecords = true;
-				else
-					hasChildRecords = false;
-				
-				res.json({
-					hasChildRecords: hasChildRecords,
-					meds_count: meds.length,
-					medical_procedure_count: med_procs.length,
-				});
-			});
-		});
 	});
 });
 

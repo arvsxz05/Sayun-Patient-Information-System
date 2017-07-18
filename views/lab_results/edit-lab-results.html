@@ -3,7 +3,8 @@
         <form id="edit-cc-form" class="form-horizontal" role="form" method="POST">
             <input type="hidden" name="lab-edit-patient-id" id="lab-edit-patient-id">
             <input type="hidden" id="lab-edit-id">
-            <legend><b>Edit Laboratory Result</b></legend>
+            <legend><b>Edit Laboratory Result</b>
+            <a class="btn btn-blue" style="float: right; margin-top: -10px !important" id="delete-lab-button">Delete</a></legend>
             <div class="form-group">
                 <label class="col-sm-4 control-label" for="lab-edit-date">Date*</label>
                 <div class="col-sm-8">
@@ -88,6 +89,44 @@
 
         $('#lab-edit-attachments').on('fileloaded', function(event, file, previewId, index, reader) {
             $('#lab-edit-attachments').fileinput('upload');
+        });
+
+        $('#delete-lab-button').click(function(e){
+        // CONFIRM DIALOG DELETE
+            var key = $("#lab-edit-id").val();
+            $.confirm({
+                title: 'Move to Archive',
+                content: 'Are you sure you want to move this record to archive?',
+                buttons: {
+                    Confirm: function () {
+                        // $.alert('Confirmed!');
+
+                        $.ajax({
+                            type: "POST",
+                            url: "/laboratory_delete/"+key,
+                        }).done(function(data){
+                            if(data.success){
+                                $.alert({
+                                    title: 'Success',
+                                    content: 'Record successfully moved to archive!'
+                                });
+                                $('#list-lab-view').show();
+                                $('#edit-lab-view').hide();
+                                $('#list-lab-view-link').hide();
+                            } else{
+                                $.alert({
+                                    title: 'Error',
+                                    content: 'An error occured.'
+                                });
+                            }
+                        });
+
+                    },
+                    Cancel: function () {
+                        // $.alert('Canceled!');
+                    },
+                }
+            });
         });
         
     </script>

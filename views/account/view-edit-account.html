@@ -10,6 +10,9 @@
     <script                 type="text/javascript"  src="../../static/js/jquery.js"></script>
     <script                 type="text/javascript"  src="../../static/js/bootstrap.min.js"></script>
     <script                 type="text/javascript"  src="../../static/js/upload-image.js"></script>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-confirm/3.2.3/jquery-confirm.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-confirm/3.2.3/jquery-confirm.min.js"></script>
 </head>
 
 <body>
@@ -52,7 +55,8 @@
                     <form id="delete-account-form" method="POST" action="/account_delete/{{user.id}}"> 
                     </form>
                     <form id="edit-account-form" class="form-horizontal" role="form" method="POST" action="/account_edit/{{user.id}}" enctype="multipart/form-data">
-                        <legend><b>Edit Account</b></legend>
+                        <legend><b>Edit Account</b>
+                        <a class="btn btn-blue" style="float: right; margin-top: -10px !important" id="delete-account-button">Delete</a></legend>
                         <!-- photo and digital signature (if user type==doctor) -->
                         {% if messages.statusMessage %}
                         <div class="alert alert-success">
@@ -471,6 +475,56 @@
         }
     });
 
+    $('#delete-account-button').click(function(e){
+        // CONFIRM DIALOG DELETE
+            var key = "{{user.id}}";
+            console.log(key);
+            $.ajax({
+                type: "GET",
+                url: "/account_delete/"+ key,
+            }).done(function (data) {
+
+                if(data){
+                    $.confirm({
+                        title: 'Move to Archive',
+                        content: 'Are you sure you want to move this record to archive?',
+                        buttons: {
+                            Confirm: function () {
+                                // $.alert('Confirmed!');
+                                $.ajax({
+                                    type: "POST",
+                                    url: "/account_delete_confirmed/"+key,
+                                }).done(function(data){
+                                    if(data.success){
+                                        $.alert({
+                                            title: 'Success',
+                                            content: 'Record successfully moved to archive!'
+                                        });
+                                        window.location.href = "/account_list";
+                                    } else{
+                                        $.alert({
+                                            title: 'Error',
+                                            content: 'An error occured.'
+                                        });
+                                    }
+                                });
+
+                            },
+                            Cancel: function () {
+                                // $.alert('Canceled!');
+                            },
+                        }
+                    });
+                } else{
+                    $.alert({
+                        title: 'Error',
+                        content: "The record doesn't exist."
+                    });
+                }
+
+                
+            });
+        });
 
      
 </script>

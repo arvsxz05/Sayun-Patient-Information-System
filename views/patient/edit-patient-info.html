@@ -1,6 +1,7 @@
 <div class="col-xs-12">
     <div class="col-md-10 col-md-offset-1">
-        <h3>Patient Information</h3>
+        <h3>Patient Information
+        <a class="btn btn-blue" style="float: right; margin-top: -10px !important" id="delete-patient-button">Delete</a></h3>
         <form id="add-patient-form" class="form-horizontal" role="form" method="POST" action="/patient_edit/{{patient.id}}" enctype="multipart/form-data">
         <!-- UPLOAD PHOTO -->   
             <div class="col-md-4 col-md-push-8">
@@ -229,3 +230,62 @@
         </form>
     </div> 
 </div>
+
+<script type="text/javascript">
+    $("#delete-patient-button").click(function(e){
+
+        var key = "{{patient.id}}";
+        console.log("DELETE PATIENT BUTTON");
+        console.log(key);
+        $.ajax({
+            type: "GET",
+            url: "/patient_delete/"+ key,
+        }).done(function (data) {
+            if(data.hasChildRecords) {
+                $.confirm({
+                    title: 'Move to Archive',
+                    content: 'The record you want to archive has records associated with it. Archive them first.',
+                    buttons: {
+                        OK: function () {
+                            // $.alert('Confirmed!');
+                        },
+                    }
+                });
+            } else {
+                $.confirm({
+                    title: 'Move to Archive',
+                    content: 'Are you sure you want to move this record to archive?',
+                    buttons: {
+                        Confirm: function () {
+                            // $.alert('Confirmed!');
+
+                            $.ajax({
+                                type: "POST",
+                                url: "/patient_delete_confirmed/"+key,
+                            }).done(function(data){
+                                if(data.success){
+                                    $.alert({
+                                        title: 'Success',
+                                        content: 'Record successfully moved to archive!'
+                                    });
+                                    // for redirect to patient list
+                                    window.location.href = "/patient_list";
+                                } else{
+                                    $.alert({
+                                        title: 'Error',
+                                        content: 'An error occured.'
+                                    });
+                                }
+                            });
+
+                        },
+                        Cancel: function () {
+                            // $.alert('Canceled!');
+                        },
+                    }
+                });
+            }
+        });
+
+    });
+</script>

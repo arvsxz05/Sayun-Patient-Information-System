@@ -174,6 +174,58 @@ router.get('/patient_edit/:id', requireLoggedIn, function (req, res) {
 	});
 });
 
+router.get('/patient_delete/:id', requireLoggedIn, function(req, res){
+	var key = req.params.id;
+	var patient, check_ups = [], labs, childCount, hasChildRecords;
+	var ipt_count = 0, opt_count = 0, cc_count = 0;
+
+	Check_Up.findAll({
+		where: {
+			patientId: key,
+			active: true,
+		},
+		raw: true,
+		attributes: ['check_up_type']
+	}).then(function(results){
+		check_ups = results;
+		console.log(results);
+		Laboratory.findAll({
+			where: {
+				patientId: key,
+				active: true,
+			},
+			raw: true,
+			attributes: ['id']
+		}).then(function(results){
+			labs = results;
+			childCount = check_ups.length + labs.length;
+			console.log("childCount: "+childCount);
+
+			for( var i = 0; i < check_ups.length; i++ ){
+				if(check_ups[i].check_up_type == 'In-Patient-Treatment')
+					ipt_count+=1;
+				else if(check_ups[i].check_up_type == 'Out-Patient-Treatment')
+					opt_count+=1;
+				else
+					cc_count+=1;
+			}
+
+			if(childCount > 0)
+				hasChildRecords = true;
+			else
+				hasChildRecords = false;
+
+			res.json({
+				hasChildRecords: hasChildRecords,
+				ipt_count: ipt_count,
+				opt_count: opt_count,
+				cc_count: cc_count,
+				lab_count: labs.length,
+			});
+		});
+	});
+});
+
 //////////////////////// POST ////////////////////////////////////
 
 router.post('/patient_add', requireLoggedIn, upload.fields([{name: 'photo', maxCount: 1}]), function (req, res) {
@@ -375,58 +427,6 @@ router.post('/patient_edit_notes/:id', requireLoggedIn, function (req, res) {
 		console.log("patient edit notes error");
 		console.log(error);
 		res.json({"status": "error"});
-	});
-});
-
-router.post('/patient_delete/:id', requireLoggedIn, function(req, res){
-	var key = req.params.id;
-	var patient, check_ups = [], labs, childCount, hasChildRecords;
-	var ipt_count = 0, opt_count = 0, cc_count = 0;
-
-	Check_Up.findAll({
-		where: {
-			patientId: key,
-			active: true,
-		},
-		raw: true,
-		attributes: ['check_up_type']
-	}).then(function(results){
-		check_ups = results;
-		console.log(results);
-		Laboratory.findAll({
-			where: {
-				patientId: key,
-				active: true,
-			},
-			raw: true,
-			attributes: ['id']
-		}).then(function(results){
-			labs = results;
-			childCount = check_ups.length + labs.length;
-			console.log("childCount: "+childCount);
-
-			for( var i = 0; i < check_ups.length; i++ ){
-				if(check_ups[i].check_up_type == 'In-Patient-Treatment')
-					ipt_count+=1;
-				else if(check_ups[i].check_up_type == 'Out-Patient-Treatment')
-					opt_count+=1;
-				else
-					cc_count+=1;
-			}
-
-			if(childCount > 0)
-				hasChildRecords = true;
-			else
-				hasChildRecords = false;
-
-			res.json({
-				hasChildRecords: hasChildRecords,
-				ipt_count: ipt_count,
-				opt_count: opt_count,
-				cc_count: cc_count,
-				lab_count: labs.length,
-			});
-		});
 	});
 });
 

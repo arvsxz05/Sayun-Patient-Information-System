@@ -4,7 +4,8 @@
         <form id="edit-opt-form" class="form-horizontal" role="form" method="POST">
             <input type="hidden" name="edit-p-id" id="edit-p-id">
             <input type="hidden" name="edit-c-id" id="edit-c-id">
-            <legend><b>Edit Out-Patient Treatment</b></legend>
+            <legend><b>Edit Out-Patient Treatment</b>
+            <a class="btn btn-blue" style="float: right; margin-top: -10px !important" id="delete-opt-button">Delete</a></legend>
             <div class="form-group">
                 <label class="col-sm-4 control-label" for="edit-opt-date">Date</label>
                 <div class="col-sm-8 date-div" id="edit-opt-date-div">
@@ -201,4 +202,59 @@
         $('#edit-opt-attachments').fileinput('upload');
     });
     {% endif %}
+
+    $('#delete-opt-button').click(function(e){
+        // CONFIRM DIALOG DELETE
+        var key = $("#edit-p-id").val();
+        $.ajax({
+            type: "GET",
+            url: "/opt_delete/"+ key,
+        }).done(function (data) {
+            if(data.hasChildRecords) {
+                $.confirm({
+                    title: 'Move to Archive',
+                    content: 'The record you want to archive has records associated with it. Archive them first.',
+                    buttons: {
+                        OK: function () {
+                            // $.alert('Confirmed!');
+                        },
+                    }
+                });
+            } else {
+                $.confirm({
+                    title: 'Move to Archive',
+                    content: 'Are you sure you want to move this record to archive?',
+                    buttons: {
+                        Confirm: function () {
+                            // $.alert('Confirmed!');
+
+                            $.ajax({
+                                type: "POST",
+                                url: "/opt_delete_confirmed/"+key,
+                            }).done(function(data){
+                                if(data.success){
+                                    $.alert({
+                                        title: 'Success',
+                                        content: 'Record successfully moved to archive!'
+                                    });
+                                    $('#list-opt-view').show();
+                                    $('#edit-opt-view').hide();
+                                    $('#list-opt-view-link').hide();
+                                } else{
+                                    $.alert({
+                                        title: 'Error',
+                                        content: 'An error occured.'
+                                    });
+                                }
+                            });
+
+                        },
+                        Cancel: function () {
+                            // $.alert('Canceled!');
+                        },
+                    }
+                });
+            }
+        });
+    });
 </script>

@@ -159,7 +159,7 @@ router.post('/login', function (req, res) {
 			} else {
 				req.session.superuser = null
 				User_Account.findOne({where: {
-					id: username, spisInstanceLicenseNo: spis_instance
+					id: username, spisInstanceLicenseNo: spis_instance, active: true
 				}}).then (single_user => {
 					if(!single_user) {
 						req.flash('statusMessage', 'Wrong username and/or password.');

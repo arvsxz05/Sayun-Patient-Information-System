@@ -114,6 +114,8 @@ router.get('/ipt_edit_json/:ipt_id/:patient_id', function (req, res) {
 	var key = req.params.ipt_id;
 	var patient_id = req.params.patient_id, result;
 
+	console.log("IN HERE IPT EDIT JSON");
+
 	InPatient_Treatment.findOne({
 		raw: true,
 		include: [{
@@ -163,6 +165,55 @@ router.get('/ipt_edit_json/:ipt_id/:patient_id', function (req, res) {
 			});
 		}
 
+	});
+});
+
+router.get("/ipt_delete/:ipt_id", requireLoggedIn, function(req, res){
+	console.log("IN IPT DELETE");
+	console.log(req.params);
+
+	var key = req.params.ipt_id, ipt, meds = [], med_procs = [];
+
+	InPatient_Treatment.findOne({
+		where: {
+			id: key,
+			active: true,
+		},
+		raw: true,
+		attributes: ['id', 'parentRecordId'],
+	}).then(function(result){
+		ipt = result;
+		Medication.findAll({
+			where: {
+				checkUpId: ipt['parentRecordId']
+			},
+			raw: true,
+			attributes: ['id'],
+		}).then(function(results){
+			meds = results;
+
+			Medical_Procedure.findAll({
+				where: {
+					checkUpId: ipt['parentRecordId'],
+				},
+				raw: true,
+				attributes: ['id'],
+			}).then(function(results){
+				med_procs = results;
+
+				if(meds.length+med_procs.length > 0)
+					hasChildRecords = true;
+				else
+					hasChildRecords = false;
+
+				res.json({
+					hasChildRecords: hasChildRecords,
+					meds_count: meds.length,
+					medical_procedure_count: med_procs.length,
+				});
+
+			});
+		});
 	});
 });
 
@@ -452,55 +503,6 @@ router.post("/ipt_edit_add_medical_procedure/:cu_id", requireLoggedIn, function 
 		checkUpId: key,
 	}).then(procedure_instance => {
 		res.json({id: procedure_instance.id});
-	});
-});
-
-router.post("/ipt_delete/:ipt_id", requireLoggedIn, function(req, res){
-	console.log("IN IPT DELETE");
-	console.log(req.params);
-
-	var key = req.params.ipt_id, ipt, meds = [], med_procs = [];
-
-	InPatient_Treatment.findOne({
-		where: {
-			id: key,
-			active: true,
-		},
-		raw: true,
-		attributes: ['id', 'parentRecordId'],
-	}).then(function(result){
-		ipt = result;
-		Medication.findAll({
-			where: {
-				checkUpId: ipt['parentRecordId']
-			},
-			raw: true,
-			attributes: ['id'],
-		}).then(function(results){
-			meds = results;
-
-			Medical_Procedure.findAll({
-				where: {
-					checkUpId: ipt['parentRecordId'],
-				},
-				raw: true,
-				attributes: ['id'],
-			}).then(function(results){
-				med_procs = results;
-
-				if(meds.length+med_procs.length > 0)
-					hasChildRecords = true;
-				else
-					hasChildRecords = false;
-
-				res.json({
-					hasChildRecords: hasChildRecords,
-					meds_count: meds.length,
-					medical_procedure_count: med_procs.length,
-				});
-
-			});
-		});
 	});
 });
 
