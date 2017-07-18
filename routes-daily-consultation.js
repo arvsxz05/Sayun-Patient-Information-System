@@ -41,8 +41,9 @@ function formatDate(date) {
 
 /////////////////////////////// GET ////////////////////////////////////
 
-router.get('/daily_consultation_list/:date', requireLoggedIn, function (req, res) {
+router.get('/daily_consultation_list/:doc_username/:date', requireLoggedIn, function (req, res) {
 	var date = parseInt(req.params.date);
+	var doctor = req.params.doc_username;
 	if (req.session.doctor) {
 		Consultation.findAll({
 			raw: true,
@@ -55,12 +56,14 @@ router.get('/daily_consultation_list/:date', requireLoggedIn, function (req, res
 			include: [{
 				model: Check_Up,
 				as: 'parent_record',
+				required: true,
 				attributes: ['id', 'hospitalName', 'doctorId', 'patientId'],
 				include: [{
 					model: Hospital,
 					attributes: ['name']
 				}, {
 					model: Doctor,
+					required: true,
 					where: {
 						id: req.session.doctor.id
 					},
@@ -72,6 +75,7 @@ router.get('/daily_consultation_list/:date', requireLoggedIn, function (req, res
 					}
 				}, {
 					model: Patient,
+					required: true,
 					where: {
 						spisInstanceLicenseNo: req.session.spisinstance.license_no
 					},
@@ -93,105 +97,213 @@ router.get('/daily_consultation_list/:date', requireLoggedIn, function (req, res
 					attributes: ['name', 'type'],
 					raw: true
 				}).then(hospital_list => {
-					console.log(daily_consultation_list);
 					res.render('daily_consultation/daily-consultation-queue.html', {
 						daily_consultation_list: daily_consultation_list,
 						session: req.session,
 						patients: patient_list,
-						hospitals: hospital_list
+						hospitals: hospital_list,
+						doctor_on_queue: req.session.user.id
 					});
 				});
 			});
 		});
 	} else if (req.session.secretary) {
-		Consultation.findAll({
-			raw: true,
+		Doctor.findOne({
 			where: {
-				date: formatDate(date)
-			},
-			include: [{
-				model: Check_Up,
-				as: 'parent_record',
-				include: [{
-					model: Hospital,
-					attributes: ['name']
-				}, {
-					model: Doctor,
-					include: {
-						model: User_Account,
-						as: 'username',
-						attributes: ['id', 'title', 'first_name', 'middle_name', 'last_name', 'suffix']
-					}
-				}, {
-					model: Patient,
-					where: {
-						spisInstanceLicenseNo: req.session.spisinstance.license_no
-					},
-					attributes: ['id', 'first_name', 'middle_name', 'last_name', 'suffix']
-				}]
-			}]
-		}).then(daily_consultation_list => {
-			Patient.findAll({
-				raw: true,
-				where: {
-					spisInstanceLicenseNo: req.session.spisinstance.license_no
-				}
-			}).then(patient_list => {
-				Doctor.findAll({
+				usernameId: doctor
+			}
+		}).then(single_doctor => {
+			if (single_doctor) {
+				Consultation.findAll({
 					raw: true,
+					where: {
+						date: formatDate(date)
+					},
 					include: [{
-						model: User_Account,
-						as: 'username',
+						model: Check_Up,
+						required: true,
+						as: 'parent_record',
+						include: [{
+							model: Hospital,
+							attributes: ['name']
+						}, {
+							model: Doctor,
+							required: true,
+							include: {
+								model: User_Account,
+								required: true,
+								as: 'username',
+								where: {
+									id: doctor
+								},
+								attributes: ['id', 'title', 'first_name', 'middle_name', 'last_name', 'suffix']
+							}
+						}, {
+							model: Patient,
+							required: true,
+							where: {
+								spisInstanceLicenseNo: req.session.spisinstance.license_no
+							},
+							attributes: ['id', 'first_name', 'middle_name', 'last_name', 'suffix']
+						}]
+					}]
+				}).then(daily_consultation_list => {
+					Patient.findAll({
+						raw: true,
 						where: {
 							spisInstanceLicenseNo: req.session.spisinstance.license_no
 						}
-					}]
-				}).then(doctor_list => {
-					Hospital.findAll({
-						where: {
-							spisInstanceLicenseNo: req.session.spisinstance.license_no,
-							active: "t",
-						},
-						attributes: ['name', 'type'],
-						raw: true
-					}).then(hospital_list => {
-						console.log(daily_consultation_list);
-						res.render('daily_consultation/daily-consultation-queue.html', {
-							daily_consultation_list: daily_consultation_list,
-							session: req.session,
-							patients: patient_list,
-							doctors: doctor_list,
-							hospitals: hospital_list
+					}).then(patient_list => {
+						Doctor.findAll({
+							raw: true,
+							include: [{
+								model: User_Account,
+								as: 'username',
+								where: {
+									spisInstanceLicenseNo: req.session.spisinstance.license_no
+								}
+							}]
+						}).then(doctor_list => {
+							Hospital.findAll({
+								where: {
+									spisInstanceLicenseNo: req.session.spisinstance.license_no,
+									active: "t",
+								},
+								attributes: ['name', 'type'],
+								raw: true
+							}).then(hospital_list => {
+								res.render('daily_consultation/daily-consultation-queue.html', {
+									daily_consultation_list: daily_consultation_list,
+									session: req.session,
+									patients: patient_list,
+									doctors: doctor_list,
+									hospitals: hospital_list,
+									doctor_on_queue: doctor
+								});
+							});
 						});
 					});
 				});
-			});
+			} else {
+				res.send('Doctor not found!');
+			}
 		});
 	}
+});
+
+router.get('/reorder/:doc_username/:date', requireLoggedIn, function (req, res) {
+	var date = parseInt(req.params.date.trim());
+	var doctor = req.params.doc_username;
+	Doctor.findOne({
+		raw: true,
+		where: {
+			usernameId: doctor
+		},
+		include: [{
+			model: User_Account,
+			as: 'username',
+			attributes: ['id', 'title', 'first_name', 'middle_name', 'last_name', 'suffix']
+		}]
+	}).then(single_doctor => {
+		if (single_doctor) {
+			var doctor_include_options = null;
+			if (req.session.doctor) {
+				doctor_include_options = {
+					usernameId: req.session.user.id
+				};
+			} else if (req.session.secretary) {
+				doctor_include_options = {
+					usernameId: doctor
+				};
+			}
+			Consultation.findAll({
+				raw: true,
+				where: {
+					date: formatDate(date),
+					status: {
+						$ne: null
+					}
+				},
+				include: [{
+					model: Check_Up,
+					as: 'parent_record',
+					required: true,
+					attributes: ['id', 'hospitalName', 'doctorId', 'patientId'],
+					include: [{
+						model: Hospital,
+						attributes: ['name']
+					}, {
+						model: Doctor,
+						required: true,
+						attributes: ['id'],
+						where: doctor_include_options
+					}, {
+						model: Patient,
+						required: true,
+						where: {
+							spisInstanceLicenseNo: req.session.spisinstance.license_no
+						},
+						attributes: ['id', 'first_name', 'middle_name', 'last_name', 'suffix']
+					}]
+				}]
+			}).then(daily_consultation_list => {
+				console.log(single_doctor);
+				res.render('daily_consultation/reorder-queue.html', {
+					daily_consultation_list: daily_consultation_list,
+					session: req.session,
+					doctor_on_queue: single_doctor,
+					date_on_queue: new Date(date).toDateString()
+				});
+			});
+		} else {
+			res.send('Doctor not found!');
+		}
+	});
 });
 
 /////////////////////////////// POST ////////////////////////////////////
 
 router.post('/add_daily_consultation', requireLoggedIn, function (req, res) {
 	console.log(req.body.p_id);
-	Consultation.create({
-		queue_no: req.body.queue_no,
-		status: 'Waiting',
-		date: req.body.date,
-		attachments: [],
-		parent_record: {
-			hospitalName: req.body.hospital,
-			patientId: req.body.p_id,
-			doctorId: req.body.doctor,
-			check_up_type: 'Consultation',
-		}
-	}, {
+	Consultation.count({
+		where: {
+			date: req.body.date,
+			status: {
+				$in: ['Waiting', 'Current']
+			},
+		},
 		include: [{
 			model: Check_Up,
-			as: 'parent_record'
+			as: 'parent_record',
+			where: { doctorId: req.body.doctor }
 		}]
-	}).then(daily_consultation_instance => {
-		res.json({});
+	}).then(queue_no => {
+		Consultation.create({
+			queue_no: queue_no + 1,
+			status: 'Waiting',
+			date: req.body.date,
+			attachments: [],
+			parent_record: {
+				hospitalName: req.body.hospital,
+				patientId: req.body.p_id,
+				doctorId: req.body.doctor,
+				check_up_type: 'Consultation',
+			}
+		}, {
+			include: [{
+				model: Check_Up,
+				as: 'parent_record'
+			}]
+		}).then(daily_consultation_instance => {
+			Doctor.findOne({
+				where: {
+					id: req.body.doctor
+				},
+				attributes: ['usernameId']
+			}).then(doctor_instance => {
+				res.redirect('/daily_consultation_list/' + doctor_instance.usernameId + '/' + new Date(req.body.date).getTime());
+			})
+		});
 	});
 });
 

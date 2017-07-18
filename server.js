@@ -7,6 +7,8 @@ const database = require('./database');
 const session = require('express-session');
 const flash = require('express-flash');
 const nunjucks = require('nunjucks');
+const Doctor = require('./models').Doctor;
+const User_Account = require('./models').User_Account;
 
 const port = 8000;
 const app = express();
@@ -68,13 +70,38 @@ app.get('/', requireLoggedIn,
 		next();
 	},
 	function (req, res) {
+		const firstDoctor = null;
 		const currentUser = req.session.user;
-		res.render('account/home.html', {
-			user: currentUser,
-			doctor: req.session.doctor,
-			secretary: req.session.secretary,
-			admin : req.session.admin,
-			superuser: req.session.superuser
-		});
+		if(req.session.secretary) {
+			Doctor.findOne({
+				raw: true,
+				include: [{
+					model: User_Account,
+					as: 'username',
+					required: true,
+					where: {
+						spisInstanceLicenseNo: req.session.spisinstance.license_no
+					}
+				}]
+			}).then(oneDoctor => {
+				res.render('account/home.html', {
+					user: currentUser,
+					doctor: req.session.doctor,
+					secretary: req.session.secretary,
+					admin : req.session.admin,
+					superuser: req.session.superuser,
+					firstDoctor: oneDoctor.usernameId
+				});
+			});
+		}
+		else {
+			res.render('account/home.html', {
+				user: currentUser,
+				doctor: req.session.doctor,
+				secretary: req.session.secretary,
+				admin : req.session.admin,
+				superuser: req.session.superuser
+			});
+		}
 	}
 );

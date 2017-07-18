@@ -98,7 +98,37 @@
         <div class="container-fluid">
             <div class="row feature-row" style="padding-top: 20px">
                 <div class="col-sm-10 col-sm-offset-1">
-                    <div class="">
+                    <div class="row form-horizontal">
+                        <div class="col-sm-6 col-md-4">
+                            {% if session.doctor == null %}
+                                <div class="form-group">
+                                    <label class="col-sm-3 control-label">Doctor</label>
+                                    <div class="col-sm-9">
+                                        <select class="form-control" id="select-doctor-queue" name="doctors" required>
+                                            {% for doctor in doctors %}
+                                                {% if doctor_on_queue === doctor['username.id'] %}
+                                                <option value="{{doctor['username.id']}}" selected>{{doctor['username.first_name']}} {{doctor['username.middle_name']}} {{doctor['username.last_name']}}</option>
+                                                {% else %}
+                                                <option value="{{doctor['username.id']}}">{{doctor['username.first_name']}} {{doctor['username.middle_name']}} {{doctor['username.last_name']}}</option>
+                                                {% endif %}
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                                
+                            {% endif %}
+                        </div>
+                        <div class="col-sm-6 col-md-4 col-md-offset-4">
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">Date</label>
+                                <div class="col-sm-9">
+                                    <input type="text" id="queue-datepicker" class="form-control">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="table-responsive">
                         <table id="daily-queue-table" class="table table-striped">
                             <thead>
                                 <tr>
@@ -113,7 +143,7 @@
                                 {% for single_consultation in daily_consultation_list %}
                                 <tr>
                                     <td>{{ single_consultation['queue_no'] }}</td>
-                                    <td>{{ single_consultation['parent_record.patient.first_name'] }} {{ single_consultation['parent_record.patient.middle_name'] }} {{ single_consultation['parent_record.patient.last_name'] }} {{ single_consultation['parent_record.patient.suffix'] }}</td>
+                                    <td><a href="#">{{ single_consultation['parent_record.patient.first_name'] }} {{ single_consultation['parent_record.patient.middle_name'] }} {{ single_consultation['parent_record.patient.last_name'] }} {{ single_consultation['parent_record.patient.suffix'] }}</a></td>
                                     <td>{{ single_consultation['parent_record.hospital.name'] }}</td>
                                     <td>{{ single_consultation['parent_record.doctor.username.title'] }} {{ single_consultation['parent_record.doctor.username.first_name'] }} {{ single_consultation['parent_record.doctor.username.middle_name'] }} {{ single_consultation['parent_record.doctor.username.last_name'] }} {{ single_consultation['parent_record.doctor.username.suffix'] }}</td>
                                     <td>
@@ -140,7 +170,8 @@
                     </div>
                     <div class="button-group">
                         <a class="btn btn-gray pull-right" href="">Cancel</a>
-                        <a class="btn btn-lime pull-right" type="button" data-toggle="modal" data-target="#add-daily-consultation-modal">Add</a>    
+                        <a class="btn btn-lime pull-right" type="button" data-toggle="modal" data-target="#add-daily-consultation-modal">Add</a>
+                        <a class="btn btn-primary pull-right" type="button" href="/reorder/" id="reorder-btn">Reorder</a>
                     </div>
                 </div>
             </div>
@@ -162,7 +193,7 @@
                     <div class="container-fluid">
                         <div class="row">
                             <div class="col-xs-12">
-                                <form id="add-daily-consultation-form" class="form-horizontal" method="POST" action="">
+                                <form id="add-daily-consultation-form" class="form-horizontal" method="POST" action="/add_daily_consultation">
                                     <fieldset>
                                         <div class="form-group">
                                             <label class="col-sm-3 control-label" for="tags">Patient Name: </label>
@@ -170,6 +201,7 @@
                                                 <div class = "ui-widget">
                                                     <input class="form-control" id="patients-names-list" required>
                                                     <p id="empty-message" class="hidden">Patient does not exist. <a href="/patient_add">Create record?</a></p>
+                                                    <input type="hidden" name="p_id" id="hidden_patient_id">
                                                 </div>
                                             </div>
                                         </div>
@@ -178,7 +210,7 @@
                                             <div class="form-group">
                                                 <label class="col-sm-3 control-label" for="daily-cc-date">Date*</label>
                                                 <div class="col-sm-9 date-div" id="daily-cc-date-div">
-                                                    <input type="hidden" name="daily-cc-date" id="daily-cc-date">
+                                                    <input type="hidden" name="date" id="daily-cc-date">
                                                 </div>
                                             </div>
                                             <div class="form-group">
@@ -214,8 +246,8 @@
                                             <div class="form-group">
                                                 <label class="col-sm-3 control-label">Status*</label>
                                                 <div class="col-sm-9">
-                                                    <select class="form-control" name="daily-cc-status" id="daily-cc-status" required disabled>
-                                                      <option value="Waiting" selectedd>Waiting</option>
+                                                    <select class="form-control" name="status" id="daily-cc-status" required disabled>
+                                                      <option value="Waiting" selected>Waiting</option>
                                                       <option value="Done">Done</option>
                                                       <option value="Attending">Attending</option>
                                                     </select>
@@ -350,6 +382,7 @@
             select: function (event, ui){
                 event.preventDefault();
                 $("#patients-names-list").val(ui.item.label);
+                $("#hidden_patient_id").val(ui.item.value);
                 $("#patients-names-list").attr('name', ui.item.value);
                 $("#daily-cc-div").removeClass("hidden");
                 $('#add-daily-cc-btn').attr('disabled', false);
@@ -361,125 +394,72 @@
         }).keydown(function(e){
             if(e.keyCode == 8 && JSON.stringify(patients).indexOf($("#patients-names-list").val().trim()) > -1){
                 if($("#daily-cc-div").hasClass("hidden") == false){
-                    $("#patients-names-list").attr('name', '');
+                    $("#patients-names-list").attr('name', 'p_id');
                     $("#daily-cc-div").addClass("hidden");
                     $('#add-daily-cc-btn').attr('disabled', true);
                 }
             }
         });
-
-        // $("#edit-patients-names-list" ).autocomplete({
-        //     source: patients,
-        //     response: function(event, ui) {
-        //         if (ui.content.length === 0) {
-        //             $("#edit-empty-message").removeClass("hidden");
-        //             $("#edit-daily-cc-div").addClass("hidden");
-        //         } else {
-        //             $("#edit-mpty-message").addClass("hidden");
-        //         }
-        //     },
-        //     select: function (event, ui){
-        //         $("daily-cc-div").removeClass("hidden");
-        //     }
-        // }).keydown(function(e){
-        //     if(e.keyCode == 8 && jQuery.inArray($("#edit-patients-names-list").val().trim(), patients) > -1){
-        //         if($("daily-cc-div").hasClass("hidden") == false){
-        //             $("daily-cc-div").addClass("hidden");
-        //         }
-        //     }
-        // });
-
-
-     });
-  </script>
-
+    });
+</script>
 
 <script type="text/javascript">
-    var iCnt;
 
     $(document).ready(function() { //DO NOT CHANGEEEEE
-        iCnt = 1;
-        // $("#daily-queue-table tbody tr").each(function() {
-        //     var id = "tr" + parseInt(iCnt);
-        //     $(this).children().first().html(iCnt);
-        //     $(this).attr("id", id);
-        //     iCnt++;
-        // });
-        $("#daily-queue-table").tableDnD({
-            onDragClass: "myDragClass",
-            onDrop: function(table, row) {
-                iCnt = 1;
-                $("#daily-queue-table tbody tr").each(function() {
-                    var id = "tr" + parseInt(iCnt);
-                    $(this).children().first().html(iCnt);
-                    $(this).attr("id", id);
-                    iCnt++;
-                });
-            }
-        });
+        date = window.location.href.substring(window.location.href.lastIndexOf("/") + 1);
+        date = formatDate(parseInt(date));
 
         $("#daily-cc-date").dateDropdowns({
             displayFormat: "mdy"
         });
         $(".date-div select").addClass("form-control");
-    });//DO NOT CHANGGEEE
 
-    $('#add-daily-consultation-modal').submit(function(e) {
-        e.preventDefault();
-        
-        $("#daily-queue-table tr:last").after("<tr id='tr" + iCnt +"'>" +
-            "<td>"+ iCnt + "</td>" +
-            "<td>"+ $("#patients-names-list").val() + "</td>" +
-            "<td>"+ $("#hospital").val() + "</td>" +
-            "<td>"+ $("#doctor").val() + "</td>" +
-            "<td>"+ 
-            "<select class='form-control'>" +
-            "<option selected>Waiting</option>" +
-            "<option>Done</option>" +
-            "<option>Attending</option>" +
-            "</select>" + "</td>" +
-            "</tr>"
-        );
 
-        iCnt = 1;
-        $("#daily-queue-table tbody tr").each(function() {
-            // var id = "tr" + parseInt(iCnt);
-            // $(this).children().first().html(iCnt);
-            // $(this).attr("id", id);
-            iCnt++;
-        });
-        $("#daily-queue-table").tableDnD({
-            onDragClass: "myDragClass",
-            onDrop: function(table, row) {
-                iCnt = 1;
-                $("#daily-queue-table tbody tr").each(function() {
-                    var id = "tr" + parseInt(iCnt);
-                    $(this).children().first().html(iCnt);
-                    $(this).attr("id", id);
-                    iCnt++;
-                });
-            }
+        $( function() {
+            $( "#queue-datepicker" ).datepicker({ 
+                dateFormat: 'mm/dd/yy',
+                onSelect: function(dateText, inst) { 
+                  var dateAsMilli = new Date(dateText);
+                  window.location.replace('/daily_consultation_list/{{doctor_on_queue}}/' + dateAsMilli.getTime());
+               }
+            }).datepicker("setDate", new Date(date));
         });
 
-        $.ajax({
-            type: "POST",
-            url: "/add_daily_consultation",
-            data: {
-                'date': $("#daily-cc-date").val(),
-                'queue_no': iCnt-1,
-                'doctor': $("#hidden-doctor").val(),
-                'p_id': $("#patients-names-list").attr('name'),
-                'hospital': $('#hospital').val()
-            }
-        }).done(function (data) {
-            $('#add-daily-consultation-modal').modal('toggle');
-            $("#daily-cc-div").addClass("hidden");
-            $("#empty-message").addClass("hidden");
-            $('#add-daily-consultation-modal input').not('#hidden-doctor').not('#doctor').val("");
-            $('#add-daily-consultation-modal select').not('#daily-cc-status').val("");
+        $('#daily-queue-table').DataTable({
+            "bSort": true, 
+            "aaSorting": [[0]],
+            "aoColumns": [
+                { "bSortable": false },
+                { "bSortable": false },
+                { "bSortable": false },
+                { "bSortable": false },
+                { "bSortable": false }
+            ]    
         });
-
+        {% if session.doctor %}
+        $("#reorder-btn").attr('href', $("#reorder-btn").attr('href') + '{{ session.user.id }}/'+ new Date(date).getTime());
+        {% elif session.secretary %}
+        $("#reorder-btn").attr('href', $("#reorder-btn").attr('href') + $("#select-doctor-queue").val() + '/'+ new Date(date).getTime());
+        {% endif %}
     });
+
+    $('#select-doctor-queue').change(function () {
+        var valid_time = new Date($("#queue-datepicker").val());
+        window.location.replace('/daily_consultation_list/' + $(this).val() + '/' + valid_time.getTime());
+    });
+
+    function formatDate(date) {
+        var d = new Date(date),
+            month = '' + (d.getMonth() + 1),
+            day = '' + d.getDate(),
+            year = d.getFullYear();
+
+        if (month.length < 2) month = '0' + month;
+        if (day.length < 2) day = '0' + day;
+
+        return [month, day, year].join('/');
+    }
+    
 </script>
 
 </html>

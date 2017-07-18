@@ -135,6 +135,10 @@
 		$('.feature-icon .fa').css({'font-size':(cw*0.46)+'px'});
 		$('.feature-icon .fa').css({'margin-top':(cw*0.27)+'px'});
 	});
-	$("#daily_const_id").attr('href', $("#daily_const_id").attr('href') + Date.now());
+	{% if doctor %}
+	$("#daily_const_id").attr('href', $("#daily_const_id").attr('href') + '{{ user.id }}/'+ Date.now());
+	{% elif secretary %}
+	$("#daily_const_id").attr('href', $("#daily_const_id").attr('href') + '{{ firstDoctor }}/'+ Date.now());
+	{% endif %}
 </script>
 </html>
