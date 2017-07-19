@@ -9,6 +9,7 @@ const SPIS_Instance = require('./models').SPIS_Instance;
 const multer = require('multer');
 const avatar = multer({dest: './static/uploads/avatars'});
 const signature = multer({dest: './static/uploads/signatures'});
+const Check_Up = require('./models').Check_Up;
 
 const title_types = require('./models').title_types;
 
@@ -251,6 +252,7 @@ router.get('/account_edit_contacts/:id', requireLoggedIn,
 router.get('/account_delete/:id', requireLoggedIn, requireSuperUser, function(req, res){
 
 	var key = req.params.id;
+	var ipt_count = 0, opt_count = 0, cc_count = 0, hasChildRecords, childRecords;
 
 	User_Account.findOne({
 		where: {
@@ -263,7 +265,7 @@ router.get('/account_delete/:id', requireLoggedIn, requireSuperUser, function(re
 		if(result){
 			res.send({
 				user: result
-			})
+			});
 		} else{
 			res.send({
 				message: "The record doesn't exist."
@@ -271,6 +273,53 @@ router.get('/account_delete/:id', requireLoggedIn, requireSuperUser, function(re
 		}
 
 	})
+});
+
+router.get('/account_delete_doctor/:id', requireLoggedIn, requireSuperUser, function(req, res){
+	var key = req.params.id;
+	var ipt_count = 0, opt_count = 0, cc_count = 0, hasChildRecords;
+	Doctor.findOne({
+		where: {
+			usernameId: key,
+		},
+		raw: true,
+		attributes: ['id']
+	}).then(function(doctor){
+
+		Check_Up.findAll({
+			where: {
+				doctorId: doctor['id'],
+				active: true,
+			},
+			raw: true,
+			attributes: ['id', 'check_up_type']
+		}).then(function(check_ups){
+
+			if( check_ups.length > 0 ){
+				hasChildRecords = true;
+			} else{
+				hasChildRecords = false;
+			}
+
+			for(var i = 0; i < check_ups.length; i++){
+				if(check_ups['check_up_type'] == "In-Patient-Treatment")
+					ipt_count+=1;
+				else if(check_ups['check_up_type' == "Out-Patient-Treatment"])
+					opt_count+=1;
+				else
+					cc_count+=1;
+			}
+
+			res.json({
+				hasChildRecords: hasChildRecords,
+				ipt_count: ipt_count,
+				opt_count: opt_count,
+				cc_count: cc_count,
+			})
+
+		});
+
+	});
 });
 
 /////////////////////// POST //////////////////////////
@@ -440,7 +489,6 @@ router.post('/account_delete_confirmed/:id', requireLoggedIn, requireSuperUser, 
 		}
 
 	});
-
 });
 
 router.post('/account_edit/:id', requireLoggedIn, 

@@ -9,6 +9,7 @@ const Doctor = require('./models').Doctor;
 const User_Account = require('./models').User_Account;
 const Check_Up = require('./models').Check_Up;
 const Laboratory = require('./models').Laboratory;
+const Medication = require('./models').Medication;
 const multer = require('multer');
 const Sequelize = require('sequelize');
 
@@ -174,7 +175,7 @@ router.get('/patient_edit/:id', requireLoggedIn, function (req, res) {
 	});
 });
 
-router.get('/patient_delete/:id', requireLoggedIn, function(req, res){
+router.get('/patient_delete/:id', requireLoggedIn, function(req, res) {
 	var key = req.params.id;
 	var patient, check_ups = [], labs, childCount, hasChildRecords;
 	var ipt_count = 0, opt_count = 0, cc_count = 0;
@@ -223,6 +224,28 @@ router.get('/patient_delete/:id', requireLoggedIn, function(req, res){
 				lab_count: labs.length,
 			});
 		});
+	});
+});
+
+router.get('/patient_medication_list/:patient_id', requireLoggedIn, requireDoctor, function(req, res) {
+
+	var key = req.params.patient_id;
+
+	Medication.findAll({
+		include: [{
+			model: Check_Up,
+			where: {
+				patientId: key,
+				active: true,
+				doctorId: req.session.doctor.id,
+			}
+		}],
+		raw: true,
+	}).then(function(results){
+		console.log(results);
+		res.json({
+			meds: results
+		})
 	});
 });
 
@@ -446,5 +469,7 @@ router.post('/patient_delete_confirmed/:id', requireLoggedIn, function(req, res)
 		res.json({success: false});
 	});
 });
+
+
 
 module.exports = router;

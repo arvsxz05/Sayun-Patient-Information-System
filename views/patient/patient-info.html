@@ -273,6 +273,37 @@
                         </div>
                         <!-- END OF LABORATORY RESULTS -->
 
+                        <!-- MEDICATION RESULTS -->
+                        <div class="tab-pane" id="medication">
+                            <div class="row">
+                                <div class="col-xs-12 col-md-10 col-md-offset-1">
+                                    <!-- BASIC PATIENT INFO -->
+                                    <div class="row" style="margin-top: 40px">
+                                        <div class="col-md-6">
+                                            <div class="row form-group">
+                                                <label class="col-sm-3 control-label" for="patient-id">Patient ID</label>
+                                                <div class="col-sm-6">
+                                                    <input type="text" class="form-control" id="patient-id" value="{{patient.id}}" disabled>
+                                                </div>
+                                            </div>                                       
+                                            <div class="row form-group">
+                                                <label class="col-sm-3 control-label" for="patient-id">Patient Name</label>
+                                                <div class="col-sm-6">
+                                                    <input type="text" class="form-control" id="patient-id" value="{{patient.first_name}} {{patient.middle_name}} {{patient.last_name}}" disabled>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <a id="list-medication-view-link" onclick="view_lab()">Back to Medications List</a>
+                                    <hr>
+                                    <!-- MEDICATION TABLE -->
+                                        {% include "../medication/list-medications.html" %}
+                                    <!-- END OF MEDICATION TABLE -->                    
+                                </div>
+                            </div>
+                        </div>
+                        <!-- END OF MEDICATION RESULTS -->
 
                     </div>
                 </div>
@@ -574,6 +605,13 @@
                     url: "/clinic_consultation_list/{{patient.id}}",
                 }).done(updateCCListRows);
             }
+
+            else if($('#medication').hasClass('active')){
+                $.ajax({
+                    type: "GET",
+                    url: "/patient_medication_list/{{patient.id}}",
+                }).done(updateMedicationListRows);
+            }
         }
         else{
             $('a[href="#patient-info"]').tab('show');
@@ -596,6 +634,7 @@
     var IPT_List_Table;
     var OPT_List_Table;
     var CC_List_Table;
+    var Medication_List_Table;
 
     (function($) {
       fakewaffle.responsiveTabs(['xs', 'sm']);
@@ -651,6 +690,13 @@
                     type: "GET",
                     url: "/clinic_consultation_list/{{patient.id}}",
                 }).done(updateCCListRows);
+            }
+
+            else if($('#medication').hasClass('active')){
+                $.ajax({
+                    type: "GET",
+                    url: "/patient_medication_list/{{patient.id}}",
+                }).done(updateMedicationListRows);
             }
         }
         else{
@@ -929,6 +975,11 @@
         $('#add-lab-view').hide();
         $('#edit-lab-view').hide();
         $('#list-lab-view-link').hide();
+    }
+
+    function view_medication() {
+        $('#list-medication-view').show();
+        $('#list-medication-view-link').hide();
     }
     
     {% if doctor %}
@@ -1342,6 +1393,13 @@
         }).done(updateCCListRows);
     });
     // var temp_hehe = 1;
+    $("#list-medication-view").on('show', function() {
+        // alert("BESH");
+        $.ajax({
+            type: "GET",
+            url: "/patient_medication_list/{{patient.id}}",
+        }).done(updateMedicationListRows);
+    });
 
     function updateIPTListRows (data) {
         console.log("WHY HEsRE BESHIE")
@@ -1399,6 +1457,25 @@
         };
     }
 
+    function updateMedicationListRows (data) {
+        // CC_List_Table = CC_List_Table.rows().remove().draw();
+        console.log("IN HERE MEDICATION LIST ROWS");
+        console.log(data.meds);
+        for (var i = data.meds.length - 1; i >= 0; i--) {
+
+            console.log(data.meds[i]);
+
+            // CC_List_Table.row.add([
+            //     '<a onclick="edit_CC(' + data.cc_list[i].id + ')" value="' + data.cc_list[i].id + '" id="cc-data-' + data.cc_list[i].id + '">' + data.cc_list[i].date + '</a>',
+            //     data.cc_list[i]['parent_record.hospitalName'],
+            //     data.cc_list[i]['parent_record.doctor.username.first_name'] + " " + data.cc_list[i]['parent_record.doctor.username.middle_name'] + " " + data.cc_list[i]['parent_record.doctor.username.last_name'],
+            //     {% if doctor %}
+            //     data.cc_list[i].sum_of_diag
+            //     {% endif %}
+            // ]).draw();
+        };
+    }
+
     $("#tab-consultations").click(function (e) {
         $.ajax({
             type: "GET",
@@ -1432,7 +1509,10 @@
     });
 
     $("#tab-medications").click(function (e) {
-
+        $.ajax({
+            type: "GET",
+            url: "/patient_medication_list/{{patient.id}}",
+        }).done(updateMedicationListRows);
     });
 
     $("#tab-billing").click(function (e) {
