@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const Sequelize = require('sequelize');
 const Consultation = require('./models').Consultation;
 const Check_Up = require('./models').Check_Up;
 const Hospital = require('./models').Hospital;
@@ -50,7 +51,8 @@ router.get('/daily_consultation_list/:doc_username/:date', requireLoggedIn, func
 			where: {
 				date: formatDate(date),
 				status: {
-					$ne: null
+					$ne: null,
+					$in: ['Waiting', 'Current']
 				}
 			},
 			include: [{
@@ -117,7 +119,11 @@ router.get('/daily_consultation_list/:doc_username/:date', requireLoggedIn, func
 				Consultation.findAll({
 					raw: true,
 					where: {
-						date: formatDate(date)
+						date: formatDate(date),
+						status: {
+							$ne: null,
+							$in: ['Waiting', 'Current']
+						}
 					},
 					include: [{
 						model: Check_Up,
@@ -178,7 +184,8 @@ router.get('/daily_consultation_list/:doc_username/:date', requireLoggedIn, func
 									patients: patient_list,
 									doctors: doctor_list,
 									hospitals: hospital_list,
-									doctor_on_queue: doctor
+									doctor_on_queue: doctor,
+									date_on_queue: new Date(date).toDateString()
 								});
 							});
 						});
@@ -189,6 +196,202 @@ router.get('/daily_consultation_list/:doc_username/:date', requireLoggedIn, func
 			}
 		});
 	}
+});
+
+router.post('/change_status', requireLoggedIn, function (req, res) {
+	console.log(req.body);
+	Consultation.findOne({
+		where: {
+			id: req.body['con-id']
+		}, include: [{
+			model: Check_Up,
+			as: 'parent_record'
+		}]
+	}).then(consultation_instance => {
+		if(consultation_instance) {
+			consultation_instance.status = req.body['status'];
+			consultation_instance.save().then(() => {
+				if(req.body['status'] === 'Done') {
+					Consultation.findAll({
+						where: {
+							queue_no: {
+								$gt: consultation_instance.queue_no
+							},
+							status: {
+								$in: ['Waiting', 'Current']
+							},
+							date: consultation_instance.date
+						}, include: [{
+							model: Check_Up,
+							as: 'parent_record',
+							where: { doctorId: consultation_instance.parent_record.doctorId },
+							required: true
+						}]
+					}).then(consultation_below => {
+						// console.log(consultation_below);
+						var itemsProcessed = 0;
+						if(consultation_below.length > 0) {
+							consultation_below.forEach(function(t) {
+								t.update({ queue_no: Sequelize.literal('queue_no - 1')}).then(() => {
+									itemsProcessed++;
+									if(itemsProcessed === consultation_below.length) {
+										res.json({});
+									}
+								});
+							});
+						} else {
+							res.json({});
+						}
+					});
+				} else {
+					res.json({});
+				}
+			});
+		} else {
+			res.json({error: "Cannot change status of undefined"});
+		}
+	});
+});
+
+router.post('/edit_daily_consultation', requireLoggedIn, function (req, res) {
+	Consultation.findOne({
+		where: {
+			id: req.body['consultation_id'].trim()
+		},
+		include: [
+			{ model: Check_Up, as: 'parent_record' }
+		]
+	}).then(consultation_instance => {
+		if (consultation_instance) {
+			var fixed_date = new Date(consultation_instance.date);
+			var count_options = {
+				where: {
+					date: fixed_date,
+					status: {
+						$in: ['Waiting', 'Current']
+					},
+				},
+				include: [{
+					model: Check_Up,
+					as: 'parent_record',
+					where: { doctorId: req.body['doctor'].trim() }
+				}]
+			};
+			var below_finder_options = {
+				where: {
+					queue_no: {
+						$gt: consultation_instance.queue_no
+					},
+					status: {
+						$in: ['Waiting', 'Current']
+					},
+					date: consultation_instance.date
+				}, include: [{
+					model: Check_Up,
+					as: 'parent_record',
+					where: { doctorId: consultation_instance.parent_record.doctorId },
+					required: true
+				}]
+			};
+			if(req.body['date'] && req.body['date'].trim() !== '') {
+				fixed_date = new Date(req.body['date'].trim());
+			}
+			if (req.body['status'].trim() == 'Done') {		// meaning dili ta mucare sa iyang order sa queue, ang after ra niya
+				Consultation.findAll(below_finder_options).then(consultation_below => {
+					console.log(consultation_below);
+					var itemsProcessed = 0;
+					if(consultation_below.length > 0) {
+						consultation_below.forEach(function(t) {
+							t.update({ queue_no: Sequelize.literal('queue_no - 1')}).then(() => {
+								itemsProcessed++;
+								if(itemsProcessed === consultation_below.length) {
+									consultation_instance.parent_record.updateAttributes({
+										doctorId: req.body['doctor'].trim(),
+										hospitalName: req.body['hospital'].trim()
+									}).then(function (result) {
+										consultation_instance.date = fixed_date;
+										consultation_instance.status = req.body['status'].trim();
+										consultation_instance.save().then(() => {
+											res.redirect('/');
+										});
+									});
+								}
+							});
+						});
+					} else {
+						consultation_instance.parent_record.updateAttributes({
+							doctorId: req.body['doctor'].trim(),
+							hospitalName: req.body['hospital'].trim()
+						}).then(function (result) {
+							consultation_instance.date = fixed_date;
+							consultation_instance.status = req.body['status'].trim();
+							consultation_instance.save().then(() => {
+								res.redirect('/');
+							});
+						});
+					}
+				});
+			} else {
+				if (consultation_instance.parent_record.doctorId != req.body['doctor'].trim() || 
+					(req.body['date'] && req.body['date'].trim() !== '' && new Date(req.body['date'].trim()) != new Date(consultation_instance.date))) {
+					// Reorder to another queue
+
+					Consultation.findAll(below_finder_options).then(consultation_below => {
+						var itemsProcessed = 0;
+						if(consultation_below.length > 0) {
+							consultation_below.forEach(function(t) {
+								t.update({ queue_no: Sequelize.literal('queue_no - 1')}).then(() => {
+									itemsProcessed++;
+									if(itemsProcessed === consultation_below.length) {
+										Consultation.count(count_options).then(queue_no => {
+											consultation_instance.parent_record.updateAttributes({
+												doctorId: req.body['doctor'].trim(),
+												hospitalName: req.body['hospital'].trim()
+											}).then(function (result) {
+												consultation_instance.date = fixed_date;
+												consultation_instance.status = req.body['status'].trim();
+												consultation_instance.queue_no = queue_no + 1;
+												consultation_instance.save().then(() => {
+													res.redirect('/');
+												});
+											});
+										});
+									}
+								});
+							});
+						} else {
+							Consultation.count(count_options).then(queue_no => {
+								consultation_instance.parent_record.updateAttributes({
+									doctorId: req.body['doctor'].trim(),
+									hospitalName: req.body['hospital'].trim()
+								}).then(function (result) {
+									consultation_instance.date = fixed_date;
+									consultation_instance.status = req.body['status'].trim();
+									consultation_instance.queue_no = queue_no + 1;
+									consultation_instance.save().then(() => {
+										res.redirect('/');
+									});
+								});
+							});
+						}
+					});
+				} else {
+					// No need to reorder
+					consultation_instance.parent_record.updateAttributes({
+						hospitalName: req.body['hospital'].trim()
+					}).then(function (result) {
+						console.log(result);
+						consultation_instance.status = req.body['status'].trim();
+						consultation_instance.save().then(() => {
+							res.redirect('/');
+						});
+					});
+				}
+			}
+		} else {
+			res.send('Invalid Consultation Code!');
+		}
+	});
 });
 
 router.get('/reorder/:doc_username/:date', requireLoggedIn, function (req, res) {
