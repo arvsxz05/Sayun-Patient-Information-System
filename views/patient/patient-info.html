@@ -929,6 +929,17 @@
                 {% endif %}
             ]    
         });
+
+        Medication_List_Table = $('#patient-medication-list').DataTable({
+            "bSort": true, 
+            "aaSorting": [],
+            "aoColumns": [
+                { "bSortable": true },
+                { "bSortable": true },
+                { "bSortable": true },
+                { "bSortable": true }
+            ]    
+        });
     });
 
 
@@ -1458,22 +1469,44 @@
     }
 
     function updateMedicationListRows (data) {
-        // CC_List_Table = CC_List_Table.rows().remove().draw();
+        Medication_List_Table = Medication_List_Table.rows().remove().draw();
         console.log("IN HERE MEDICATION LIST ROWS");
-        console.log(data.meds);
+        console.log("what the fuck", data.meds);
         for (var i = data.meds.length - 1; i >= 0; i--) {
+            var checkup_date;
+            var checkup_type = data.meds[i]['parent_record.check_up_type'];
 
-            console.log(data.meds[i]);
+            if(data.meds[i].date == undefined){
+                checkup_date = data.meds[i].conf_date;   
+            }
+            else{
+               checkup_date = data.meds[i].date;
+            }
 
-            // CC_List_Table.row.add([
-            //     '<a onclick="edit_CC(' + data.cc_list[i].id + ')" value="' + data.cc_list[i].id + '" id="cc-data-' + data.cc_list[i].id + '">' + data.cc_list[i].date + '</a>',
-            //     data.cc_list[i]['parent_record.hospitalName'],
-            //     data.cc_list[i]['parent_record.doctor.username.first_name'] + " " + data.cc_list[i]['parent_record.doctor.username.middle_name'] + " " + data.cc_list[i]['parent_record.doctor.username.last_name'],
-            //     {% if doctor %}
-            //     data.cc_list[i].sum_of_diag
-            //     {% endif %}
-            // ]).draw();
+            Medication_List_Table.row.add([
+                "<a onclick='edit_check_up(\"" + checkup_type + "\"," + data.meds[i]['id'] + ")'>" + checkup_date + "</a>",
+                data.meds[i]['parent_record.medication.name'],
+                data.meds[i]['parent_record.check_up_type'],
+                "{{user.first_name}} {{user.middle_name}} {{user.last_name}}"
+            ]).draw();
+           
+            
         };
+    }
+
+    function edit_check_up(type, key) {
+        if(type == 'Consultation'){
+            window.location.href = window.location.href.substring(0, window.location.href.indexOf("#medication")) + '#consultations'
+            edit_CC(key);
+        }
+        else if(type == 'In-Patient-Treatment'){
+            window.location.href = window.location.href.substring(0, window.location.href.indexOf("#medication")) + '#ip-treatments'
+            edit_IPT(key);
+        }
+        else{
+            window.location.href = window.location.href.substring(0, window.location.href.indexOf("#medication")) + '#op-treatments'
+            edit_OPT(key);
+        }
     }
 
     $("#tab-consultations").click(function (e) {

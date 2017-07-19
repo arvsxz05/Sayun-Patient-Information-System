@@ -32,7 +32,8 @@
             url: "/opt_edit_json/"+key+"/"+"{{patient.id}}",
         }).done(function(data){
             var date;
-
+            console.log("IN EDIT OPT HERE WAI");
+            console.log(data);
             if(data['opt']['date'] != null) {
                 date = data['opt']['date'].split("-");
                 $("#edit-opt-date-div select[name='date_[month]']").val(date[1]);
