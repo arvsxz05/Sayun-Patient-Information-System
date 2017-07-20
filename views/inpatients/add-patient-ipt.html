@@ -156,8 +156,6 @@
         event.preventDefault();
         ipt_med_id_counter = 1;
         ipt_med_proc_id_counter = 1;
-        add_ipt_meds_table.rows().remove().draw();
-        add_ipt_med_procedures_table.rows().remove().draw();
 
         {% if doctor %}
         var files = $('#add-ipt-attachments').fileinput('getFileStack');

@@ -147,8 +147,6 @@
         event.preventDefault();
         opt_med_id_counter = 1;
         opt_med_proc_id_counter = 1;
-        add_opt_meds_table.rows().remove().draw();
-        add_opt_med_procedures_table.rows().remove().draw();
 
         {% if doctor %}
         var files = $('#add-opt-attachments').fileinput('getFileStack');
