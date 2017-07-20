@@ -131,8 +131,8 @@
                             <tbody>
                                 {% for single_consultation in daily_consultation_list %}
                                 <tr>
-                                    <td></td>
-                                    <td><a href="#">{{ single_consultation['parent_record.patient.first_name'] }} {{ single_consultation['parent_record.patient.middle_name'] }} {{ single_consultation['parent_record.patient.last_name'] }} {{ single_consultation['parent_record.patient.suffix'] }}</a></td>
+                                    <td id="{{single_consultation['id']}}"></td>
+                                    <td>{{ single_consultation['parent_record.patient.first_name'] }} {{ single_consultation['parent_record.patient.middle_name'] }} {{ single_consultation['parent_record.patient.last_name'] }} {{ single_consultation['parent_record.patient.suffix'] }}</td>
                                     <td>{{ single_consultation['parent_record.hospital.name'] }}</td>
                                     <td>{{ single_consultation['status'] }}</td>
                                 </tr>
@@ -142,7 +142,7 @@
                     </div>
                     <div class="button-group">
                         <a class="btn btn-gray pull-right" href="" id="cancel-reorder-btn">Cancel</a>
-                        <a class="btn btn-lime pull-right" type="button" href="#" id="reorder-btn">Save</a>
+                        <a class="btn btn-lime pull-right" type="button" id="reorder-btn">Save</a>
                     </div>
                 </div>
             </div>
@@ -175,7 +175,30 @@
             }
         });
         $('#cancel-reorder-btn').attr('href', window.location.href.replace('reorder', 'daily_consultation_list'));
-    });//DO NOT CHANGGEEE
+    });
+
+    $('#reorder-btn').on('click', function(){
+        var queue = [];
+        
+        $('#daily-queue-table tbody').children('tr').each(function () {
+            queue.push({
+                key: $(this).children('td:first').attr('id'),
+                value: $(this).children('td:first').text()
+            });
+        });
+        
+        // console.log(queue);
+        $.ajax({
+            type: "POST",
+            url: window.location.href,
+            data: {
+                'queue': queue
+            }
+        }).done(function (data) {
+            window.location.replace(window.location.href.replace('reorder', 'daily_consultation_list'));
+        });
+    });
+
 </script>
 
 </html>

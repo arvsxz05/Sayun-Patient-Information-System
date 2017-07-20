@@ -11,9 +11,12 @@ const Doctor = require('./models').Doctor;
 const User_Account = require('./models').User_Account;
 
 const port = 8000;
-const app = express();
+var app = express(),
+	http = require('http'),
+	server = http.createServer(app),
+	io = require('socket.io').listen(server);
 
-app.listen(port, function(){
+server.listen(port, function() {
 	console.log('SPIS: Server Running!');
 });
 

@@ -9,6 +9,11 @@ const Secretary = require('./models').Secretary;
 const Patient = require('./models').Patient;
 const User_Account = require('./models').User_Account;
 
+var app = express(),
+	http = require('http'),
+	server = http.createServer(app),
+	io = require('socket.io').listen(server);
+
 //////////////////////////// MIDDLEWARES /////////////////////////////////
 
 function requireLoggedIn(req, res, next) {
@@ -99,7 +104,6 @@ router.get('/daily_consultation_list/:doc_username/:date', requireLoggedIn, func
 					attributes: ['name', 'type'],
 					raw: true
 				}).then(hospital_list => {
-					console.log(daily_consultation_list);
 					res.render('daily_consultation/daily-consultation-queue.html', {
 						daily_consultation_list: daily_consultation_list,
 						session: req.session,
@@ -179,7 +183,6 @@ router.get('/daily_consultation_list/:doc_username/:date', requireLoggedIn, func
 								attributes: ['name', 'type'],
 								raw: true
 							}).then(hospital_list => {
-								console.log(daily_consultation_list);
 								res.render('daily_consultation/daily-consultation-queue.html', {
 									daily_consultation_list: daily_consultation_list,
 									session: req.session,
@@ -261,7 +264,7 @@ router.post('/edit_daily_consultation', requireLoggedIn, function (req, res) {
 			id: req.body['consultation_id'].trim()
 		},
 		include: [
-			{ model: Check_Up, as: 'parent_record' }
+			{ model: Check_Up, as: 'parent_record', include: [{ model: Doctor, }]}
 		]
 	}).then(consultation_instance => {
 		if (consultation_instance) {
@@ -300,7 +303,7 @@ router.post('/edit_daily_consultation', requireLoggedIn, function (req, res) {
 			}
 			if (req.body['status'].trim() == 'Done') {		// meaning dili ta mucare sa iyang order sa queue, ang after ra niya
 				Consultation.findAll(below_finder_options).then(consultation_below => {
-					console.log(consultation_below);
+					// console.log(consultation_below);
 					var itemsProcessed = 0;
 					if(consultation_below.length > 0) {
 						consultation_below.forEach(function(t) {
@@ -426,7 +429,8 @@ router.get('/reorder/:doc_username/:date', requireLoggedIn, function (req, res) 
 				where: {
 					date: formatDate(date),
 					status: {
-						$ne: null
+						$ne: null,
+						$in: ['Waiting', 'Current']
 					}
 				},
 				include: [{
@@ -452,7 +456,7 @@ router.get('/reorder/:doc_username/:date', requireLoggedIn, function (req, res) 
 					}]
 				}]
 			}).then(daily_consultation_list => {
-				console.log(single_doctor);
+				// console.log(single_doctor);
 				res.render('daily_consultation/reorder-queue.html', {
 					daily_consultation_list: daily_consultation_list,
 					session: req.session,
@@ -511,5 +515,36 @@ router.post('/add_daily_consultation', requireLoggedIn, function (req, res) {
 		});
 	});
 });
+
+router.post('/reorder/:doc_username/:date', requireLoggedIn, function (req, res) {
+	var reordered_queue = req.body.queue;
+	var itemsProcessed = 0;
+	reordered_queue.forEach(function (item) {
+		Consultation.update({ queue_no: item.value }, { where: { id: item.key } }).then(() => {
+			itemsProcessed++;
+			if(itemsProcessed === reordered_queue.length) {
+				res.json({});
+			}
+		});
+	});
+});
+
+/*io.on('connection', function(socket) {
+	socket.on('reorder', function (msg) {
+		io.emit('chat message', msg);
+	});
+});*/
+
+// $(function () {
+// 	var socket = io();
+// 	$('form').submit(function() {
+// 		socket.emit('chat message', $('#m').val());
+// 		$('#m').val('');
+// 		return false;
+// 	});
+// 	socket.on('chat message', function (msg) {
+// 		$('#messages').append($('<li>').text(msg));
+// 	});
+// });
 
 module.exports = router;

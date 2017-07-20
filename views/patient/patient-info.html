@@ -322,6 +322,38 @@
                         </div>
                         <!-- END OF MEDICATION RESULTS -->
 
+                        <!-- DIAGNOSES RESULTS -->
+                        <div class="tab-pane" id="diagnoses">
+                            <div class="row">
+                                <div class="col-xs-12 col-md-10 col-md-offset-1">
+                                    <!-- BASIC PATIENT INFO -->
+                                    <div class="row" style="margin-top: 40px">
+                                        <div class="col-md-6">
+                                            <div class="row form-group">
+                                                <label class="col-sm-3 control-label" for="patient-id">Patient ID</label>
+                                                <div class="col-sm-6">
+                                                    <input type="text" class="form-control" id="patient-id" value="{{patient.id}}" disabled>
+                                                </div>
+                                            </div>                                       
+                                            <div class="row form-group">
+                                                <label class="col-sm-3 control-label" for="patient-id">Patient Name</label>
+                                                <div class="col-sm-6">
+                                                    <input type="text" class="form-control" id="patient-id" value="{{patient.first_name}} {{patient.middle_name}} {{patient.last_name}}" disabled>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- <a id="list-diagnoses-view-link" onclick="view_diagnoses()">Back to Diagnoses List</a> -->
+                                    <hr>
+                                    <!-- DIAGNOSES TABLE -->
+                                        {% include "../diagnoses/list-diagnoses.html" %}
+                                    <!-- END OF DIAGNOSES TABLE -->                    
+                                </div>
+                            </div>
+                        </div>
+                        <!-- END OF DIAGNOSES RESULTS -->
+
                     </div>
                 </div>
             </div>
@@ -629,6 +661,13 @@
                     url: "/patient_medication_list/{{patient.id}}",
                 }).done(updateMedicationListRows);
             }
+
+            else if($('#diagnoses').hasClass('active')){
+                $.ajax({
+                    type: "GET",
+                    url: "/patient_diagnoses_list/{{patient.id}}",
+                }).done(updateDiagnosesListRows);
+            }
         }
         else{
             $('a[href="#patient-info"]').tab('show');
@@ -652,6 +691,7 @@
     var OPT_List_Table;
     var CC_List_Table;
     var Medication_List_Table;
+    var Diagnoses_List_Table;
 
     (function($) {
       fakewaffle.responsiveTabs(['xs', 'sm']);
@@ -742,6 +782,13 @@
                         type: "GET",
                         url: "/patient_medication_list/{{patient.id}}",
                     }).done(updateMedicationListRows);
+                }
+
+                else if($('#diagnoses').hasClass('active')){
+                    $.ajax({
+                        type: "GET",
+                        url: "/patient_diagnoses_list/{{patient.id}}",
+                    }).done(updateDiagnosesListRows);
                 }
 
                 $('#list-cc-view-link').hide();
@@ -991,6 +1038,18 @@
                 { "bSortable": true }
             ]    
         });
+
+        Diagnoses_List_Table = $('#patient-diagnoses-list').DataTable({
+            "bSort": true, 
+            "aaSorting": [],
+            "aoColumns": [
+                { "bSortable": true },
+                { "bSortable": true },
+                { "bSortable": true },
+                { "bSortable": true },
+                { "bSortable": true }
+            ]    
+        });
     });
 
 
@@ -1042,6 +1101,11 @@
     function view_medication() {
         $('#list-medication-view').show();
         $('#list-medication-view-link').hide();
+    }
+
+    function view_diagnoses() {
+        $('#list-diagnoses-view').show();
+        $('#list-diagnoses-view-link').hide();
     }
     
     {% if doctor %}
@@ -1595,6 +1659,13 @@
         }).done(updateMedicationListRows);
     });
 
+    $("#list-diagnoses-view").on('show', function() {
+        $.ajax({
+            type: "GET",
+            url: "/patient_diagnoses_list/{{patient.id}}",
+        }).done(updateDiagnosesListRows);
+    });
+
     function updateIPTListRows (data) {
         console.log("WHY HEsRE BESHIE")
         IPT_List_Table = IPT_List_Table.rows().remove().draw();
@@ -1677,6 +1748,29 @@
         };
     }
 
+    function updateDiagnosesListRows (data) {
+        Diagnoses_List_Table = Diagnoses_List_Table.rows().remove().draw();
+        for (var i = data.diagnoses.length - 1; i >= 0; i--) {
+            var checkup_date;
+            var checkup_type = data.diagnoses[i]['parent_record.check_up_type'];
+
+            if(data.diagnoses[i].date == undefined){
+                checkup_date = data.diagnoses[i].conf_date;   
+            }
+            else{
+               checkup_date = data.diagnoses[i].date;
+            }
+
+            Diagnoses_List_Table.row.add([
+                "<a onclick='edit_check_up(\"" + checkup_type + "\"," + data.diagnoses[i]['id'] + ")'>" + checkup_date + "</a>",
+                data.diagnoses[i]['parent_record.check_up_type'],
+                data.diagnoses[i]['parent_record.hospitalName'],
+                "{{user.first_name}} {{user.middle_name}} {{user.last_name}}",
+                data.diagnoses[i].sum_of_diag,
+            ]).draw();
+        };
+    }
+
     function edit_check_up(type, key) {
         if(type == 'Consultation'){
             window.location.href = window.location.href.substring(0, window.location.href.indexOf("#medication")) + '#consultations'
@@ -1721,7 +1815,10 @@
     });
 
     $("#tab-diagnoses").click(function (e) {
-
+        $.ajax({
+            type: "GET",
+            url: "/patient_diagnoses_list/{{patient.id}}",
+        }).done(updateDiagnosesListRows);
     });
 
     $("#tab-medications").click(function (e) {

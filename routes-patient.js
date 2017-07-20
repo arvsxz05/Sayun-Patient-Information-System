@@ -315,6 +315,79 @@ router.get('/patient_medication_list/:patient_id', requireLoggedIn, requireDocto
 	});
 });
 
+router.get('/patient_diagnoses_list/:patient_id', requireLoggedIn, requireDoctor, function(req, res){
+
+	var key = req.params.patient_id;
+	var ipts = [], opts = [], ccs = [];
+	var currResult;
+
+	InPatient_Treatment.findAll({
+		include: [{
+			model: Check_Up,
+			as: 'parent_record',
+			required: true,
+			where: {
+				patientId: key,
+				active: true,
+				doctorId: req.session.doctor.id,
+			},
+			attributes: ['id', 'check_up_type', 'hospitalName', 'doctorId', 'patientId'],
+		}],
+		raw: true,
+		where: {
+			active: true
+		},
+		attributes: ['id', 'conf_date', 'sum_of_diag'],
+	}).then(function(ipt_results){
+		ipts = ipt_results;
+
+		OutPatient_Treatment.findAll({
+			include: [{
+				model: Check_Up,
+				as: 'parent_record',
+				required: true,
+				where: {
+					patientId: key,
+					active: true,
+					doctorId: req.session.doctor.id,
+				},
+			}],
+			raw: true,
+			where: {
+				active: true,
+			},
+			attributes: ['id', 'date', 'sum_of_diag'],
+		}).then(function(opt_results){
+			opts = opt_results;
+
+			Consultation.findAll({
+				include: [{
+					model: Check_Up,
+					as: 'parent_record',
+					required: true,
+					where: {
+						patientId: key,
+						active: true,
+						doctorId: req.session.doctor.id,
+					},
+					attributes: ['id', 'check_up_type', 'hospitalName', 'doctorId', 'patientId' ],
+				}],
+				raw: true,
+				where: {
+					active: true,
+				},
+				attributes: ['id', 'date', 'sum_of_diag'],
+			}).then(function(cc_results){
+				ccs = cc_results;
+
+				res.json({
+					diagnoses: ipts.concat(opts.concat(ccs))
+				});
+			});
+		});
+	});
+});
+
 //////////////////////// POST ////////////////////////////////////
 
 router.post('/patient_add', requireLoggedIn, upload.fields([{name: 'photo', maxCount: 1}]), function (req, res) {
