@@ -6,6 +6,8 @@ const Doctor = require('./models').Doctor;
 const User_Account = require('./models').User_Account;
 const Medication = require('./models').Medication;
 const Medical_Procedure = require('./models').Medical_Procedure;
+const Billing = require('./models').Billing;
+const Billing_Item = require('./models').Billing_Item;
 const multer = require('multer');
 const fs = require('fs');
 
@@ -228,6 +230,7 @@ router.post('/opt_add', upload_file_opts.array('add-opt-attachments[]'), functio
 	if(req.session.doctor) {
 		var medication = [];
 		var medical_procedure = [];
+		var billing = [];
 		var summary = req.body['summary'].trim();
 		var details = req.body['detailed-diagnosis'].trim();
 		var notes = req.body['notes'].trim();
@@ -238,6 +241,10 @@ router.post('/opt_add', upload_file_opts.array('add-opt-attachments[]'), functio
 
 		if(req.body['med_procedures'] != null && req.body['med_procedures'] != '') {
 			medical_procedure = req.body['med_procedures'];
+		}
+
+		if(req.body['billings'] != null && req.body['billings'] != '') {
+			billing = req.body['billings'];
 		}
 
 		fields = {
@@ -253,6 +260,9 @@ router.post('/opt_add', upload_file_opts.array('add-opt-attachments[]'), functio
 				doctorId: doc,
 				medication: medication,
 				medical_procedure: medical_procedure,
+				receipt: {
+					billing_items: billing
+				}
 			}
 		};
 		includes = {
@@ -265,6 +275,13 @@ router.post('/opt_add', upload_file_opts.array('add-opt-attachments[]'), functio
 				}, {
 					model: Medical_Procedure,
 					as: 'medical_procedure',
+				}, {
+					model: Billing,
+					as: 'receipt',
+					include: [{
+						model: Billing_Item,
+						as: 'billing_items'
+					}]
 				}],
 			}]
 		};
@@ -429,9 +446,21 @@ router.post("/opt_edit_add_medication/:cu_id", requireLoggedIn, function (req, r
 		frequency: req.body['frequency'].trim(),
 		type: req.body['type'],
 		notes: req.body['notes'].trim(),
-		checkUpId: key
+		checkUpId: key,
 	}).then(med_instance => {
-		res.json({id: med_instance.id});
+		Billing.findOne({
+			where: {
+				receiptId: key,
+			},
+			raw: true,
+		}).then(billing_instance => {
+			Billing_Item.create({
+				description: req.body['name'].trim(),
+				billingId: billing_instance['id'],
+			}).then(billing_item => {
+				res.json({id: med_instance.id});
+			});
+		});
 	});
 });
 
@@ -443,41 +472,124 @@ router.post("/opt_edit_add_medical_procedure/:cu_id", requireLoggedIn, function 
 		details: req.body['details'].trim(),
 		checkUpId: key,
 	}).then(procedure_instance => {
-		res.json({id: procedure_instance.id});
+		Billing.findOne({
+			where: {
+				receiptId: key,
+			},
+			raw: true,
+		}).then(billing_instance => {
+			Billing_Item.create({
+				description: req.body['description'].trim(),
+				billingId: billing_instance['id'],
+			}).then(billing_item => {
+				res.json({id: procedure_instance.id});
+			});
+		});
 	});
 });
 
 router.post("/edit_medication/:med_id", requireLoggedIn, function (req, res) {
 	var key = req.params.med_id;
+	var name = req.body['name'].trim();
 
-	Medication.update({
-		name: req.body['name'].trim(),
-		dosage: req.body['dosage'].trim(),
-		frequency: req.body['frequency'].trim(),
-		type: req.body['type'],
-		notes: req.body['notes'].trim()
-	},{
+	Medication.findOne({
 		where: {
-			id: key,
-		}
+			id: key
+		},
+		raw: true,
 	}).then(med_instance => {
-		res.json({id: med_instance.id});
+		Medication.update({
+			name: name,
+			dosage: req.body['dosage'].trim(),
+			frequency: req.body['frequency'].trim(),
+			type: req.body['type'],
+			notes: req.body['notes'].trim()
+		}, {
+			where: {
+				id: key,
+			},
+			returning: true,
+			raw: true,
+		}).then(updated_med_instance => {
+			if(med_instance['name'] != updated_med_instance['name']){
+				Billing.findOne({
+					where: {
+						receiptId: med_instance['checkUpId'],
+					},
+					raw: true,
+				}).then(billing_instance => {
+					Billing_Item.update({
+						description: name
+					}, {
+						where: {
+							billingId: billing_instance['id'],
+							description: med_instance['name'],
+						}
+					}).then(billing_item => {
+						res.json({id: med_instance.id});
+					});
+				});
+			} else{
+				res.json({id: med_instance.id});
+			}
+		});
 	});
+
+	// Medication.update({
+	// 	name: req.body['name'].trim(),
+	// 	dosage: req.body['dosage'].trim(),
+	// 	frequency: req.body['frequency'].trim(),
+	// 	type: req.body['type'],
+	// 	notes: req.body['notes'].trim()
+	// },{
+	// 	where: {
+	// 		id: key,
+	// 	}
+	// }).then(med_instance => {
+	// 	res.json({id: med_instance.id});
+	// });
 });
 
 router.post("/edit_medical_procedure/:medproc_id", requireLoggedIn, function (req, res) {
 	var key = req.params.medproc_id;
-
-	Medical_Procedure.update({
-		date: req.body['date'],
-		description: req.body['description'].trim(),
-		details: req.body['details'].trim(),
-	},{
+	var desc = req.body['description'].trim();
+	Medical_Procedure.findOne({
 		where: {
 			id: key
-		}
+		},
+		raw: true
 	}).then(procedure_instance => {
-		res.json({id: procedure_instance.id});
+		Medical_Procedure.update({
+			date: req.body['date'],
+			description: req.body['description'].trim(),
+			details: req.body['details'].trim(),
+		}, {
+			where: {
+				id: key
+			}
+		}).then(updated_procedure_instance => {
+			if(procedure_instance['description'] != updated_procedure_instance['description']){
+				Billing.findOne({
+					where: {
+						receiptId: updated_procedure_instance['checkUpId'],
+					},
+					raw: true,
+				}).then(billing_instance => {
+					Billing_Item.update({
+						description: desc
+					}, {
+						where: {
+							billingId: billing_instance['id'],
+							description: procedure_instance['name'],
+						}
+					}).then(billing_item => {
+						res.json({id: procedure_instance.id});
+					});
+				});
+			} else{
+				res.json({id: procedure_instance.id});
+			}
+		});
 	});
 });
 
@@ -490,9 +602,28 @@ router.post("/opt_delete_confirmed/:opt_id", requireLoggedIn, function(req, res)
 	}, {
 		where: {
 			id: key,
-		}
-	}).then(function(result){
-		res.json({success: true});
+		},
+		returning: true,
+		raw: true,
+	}).then(function(opt_result){
+		Check_Up.update({
+			active: false,
+		}, {
+			where: {
+				id: opt_result['parentRecordId'],
+			},
+			returning: true,
+			raw: true,
+		}).then(function(check_up_result){
+
+			Billing.destroy({
+				where: {
+					receiptId: check_up_result['id']
+				}
+			}).then(function(billing_result){
+				res.json({success: true});
+			})
+		});
 	}).catch(function(error){
 		console.log("OUT PATIENT TREATMENT CONFIRMED");
 		console.log(error);

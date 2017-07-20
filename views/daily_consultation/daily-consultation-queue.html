@@ -136,8 +136,7 @@
                                 {% for single_consultation in daily_consultation_list %}
                                 <tr>
                                     <td>{{ single_consultation['queue_no'] }}</td>
-                                    <td><a id="{{single_consultation['parent_record.patient
-                                    .id']}}">{{ single_consultation['parent_record.patient.first_name'] }} {{ single_consultation['parent_record.patient.middle_name'] }} {{ single_consultation['parent_record.patient.last_name'] }} {{ single_consultation['parent_record.patient.suffix'] }}</a>
+                                    <td><a id="{{single_consultation['parent_record.patient.id']}}">{{ single_consultation['parent_record.patient.first_name'] }} {{ single_consultation['parent_record.patient.middle_name'] }} {{ single_consultation['parent_record.patient.last_name'] }} {{ single_consultation['parent_record.patient.suffix'] }}</a>
                                     <input type="hidden" value="{{single_consultation['id']}}"></td>
                                     <td>{{ single_consultation['parent_record.hospital.name'] }}</td>
                                     <td id="{{single_consultation['parent_record.doctor.id']}}">{{ single_consultation['parent_record.doctor.username.first_name'] }} {{ single_consultation['parent_record.doctor.username.middle_name'] }} {{ single_consultation['parent_record.doctor.username.last_name'] }} {{ single_consultation['parent_record.doctor.username.suffix'] }}</td>
@@ -453,18 +452,25 @@
             ],
             "order": [[ 0, "asc" ]] 
         }).on('click', 'tbody tr td:nth-child(2) a', function () {
-            var data = queue_table.row($(this).parent().parent()).data();
-            var date =  $( "#queue-datepicker" ).val().split("/");
 
-            $('#edit-daily-consultation-modal').modal('show');
-            $('#edit-daily-cc-id').val($(this).parent().parent().children('td:nth-child(2)').children('input').val());
-            $('#edit-daily-consultation-modal select[name="date_[month]"').val(date[0]);
-            $('#edit-daily-consultation-modal select[name="date_[day]"').val(date[1]);
-            $('#edit-daily-consultation-modal select[name="date_[year]"').val(date[2]);
-            $('#edit-patients-names-list').val($(this).parent().parent().children('td:nth-child(2)').children('a').text());
-            $('#edit-hospital').val(data[2]);
-            $('#edit-hidden-doctor').val($(this).parent().parent().children('td:nth-child(4)').attr('id'));
-            $('#edit-daily-cc-status').val($(this).parent().parent().children('td:nth-child(5)').children('select').val());
+            {% if session.secretary %}
+
+                var data = queue_table.row($(this).parent().parent()).data();
+                var date =  $( "#queue-datepicker" ).val().split("/");
+
+                $('#edit-daily-consultation-modal').modal('show');
+                $('#edit-daily-cc-id').val($(this).parent().parent().children('td:nth-child(2)').children('input').val());
+                $('#edit-daily-consultation-modal select[name="date_[month]"').val(date[0]);
+                $('#edit-daily-consultation-modal select[name="date_[day]"').val(date[1]);
+                $('#edit-daily-consultation-modal select[name="date_[year]"').val(date[2]);
+                $('#edit-patients-names-list').val($(this).parent().parent().children('td:nth-child(2)').children('a').text());
+                $('#edit-hospital').val(data[2]);
+                $('#edit-hidden-doctor').val($(this).parent().parent().children('td:nth-child(4)').attr('id'));
+                $('#edit-daily-cc-status').val($(this).parent().parent().children('td:nth-child(5)').children('select').val());
+
+            {% elif session.doctor %}
+                $('tbody tr td:nth-child(2) a').attr('href', '/patient_edit/' + $('tbody tr td:nth-child(2) a').attr('id') + '#consultations' + '-' + $('tbody tr td:nth-child(2) input').val());
+            {% endif %}
         });
 
 

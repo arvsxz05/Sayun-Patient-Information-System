@@ -99,6 +99,7 @@ router.get('/daily_consultation_list/:doc_username/:date', requireLoggedIn, func
 					attributes: ['name', 'type'],
 					raw: true
 				}).then(hospital_list => {
+					console.log(daily_consultation_list);
 					res.render('daily_consultation/daily-consultation-queue.html', {
 						daily_consultation_list: daily_consultation_list,
 						session: req.session,
@@ -178,6 +179,7 @@ router.get('/daily_consultation_list/:doc_username/:date', requireLoggedIn, func
 								attributes: ['name', 'type'],
 								raw: true
 							}).then(hospital_list => {
+								console.log(daily_consultation_list);
 								res.render('daily_consultation/daily-consultation-queue.html', {
 									daily_consultation_list: daily_consultation_list,
 									session: req.session,

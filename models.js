@@ -557,19 +557,15 @@ const Billing_Item = database.define('billing_item', {
 	},
 	amount: {
 		type: Sequelize.FLOAT,
-		allowNull: false
-	}
-});
-
-const Billing = database.define('billing', {
-	billing_status: {
-		type: Sequelize.ENUM,
-		values: billing_status_types,
 		allowNull: false,
+		defaultValue: 0
 	}
 });
 
-Billing.hasMany(Billing_Item, {as: 'billing_items'});
+const Billing = database.define('billing');
+
+Laboratory.hasOne(Billing, {as: 'receipt'});
+Billing.hasMany(Billing_Item, {as: 'billing_items', onDelete: 'CASCADE'});
 Check_Up.hasOne(Billing, {as: 'receipt'});
 
 const Consultation = database.define('consultation', {
@@ -643,3 +639,5 @@ module.exports.Medication = Medication;
 module.exports.Medical_Procedure = Medical_Procedure;
 module.exports.title_types = title_types;
 module.exports.Consultation = Consultation;
+module.exports.Billing = Billing;
+module.exports.Billing_Item = Billing_Item;

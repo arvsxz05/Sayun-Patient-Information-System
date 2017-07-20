@@ -26,7 +26,12 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-confirm/3.2.3/jquery-confirm.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-confirm/3.2.3/jquery-confirm.min.js"></script>
 
-
+        <script type="text/javascript">
+            $(window).load(function() {
+        // Animate loader off screen
+        $(".se-pre-con").fadeOut("slow");;
+    });
+        </script>
     <style>
         .date-div select {
             background: #ffffff;
@@ -44,9 +49,21 @@
         .date-div select.invalid {
             color: #E9403C;
         }
+        .no-js #loader { display: none;  }
+        .js #loader { display: block; position: absolute; left: 100px; top: 0; }
+        .se-pre-con {
+            position: fixed;
+            left: 0px;
+            top: 0px;
+            width: 100%;
+            height: 100%;
+            z-index: 9999;
+            background: url("../../static/img/loading-heart.gif") center no-repeat #fff;
+        }
     </style>
 </head>
 <body>
+    <div class="se-pre-con"></div>
     <!-- NAVIGATION -->
     <nav class="navbar navbar-inverse">
       <div class="container-fluid">
@@ -99,7 +116,7 @@
 
                     <div class="tab-content responsive">
                         <!-- PATIENT INFO -->
-                        <div class="tab-pane active" id="patient-info">
+                        <div class="tab-pane" id="patient-info">
                             {% include "../patient/edit-patient-info.html" %}
                         </div>
                         <!-- END OF PATIENT INFO -->
@@ -649,55 +666,89 @@
         var url = window.location.href;
 
         if(url.indexOf("#") > -1){
-            $('a[href="' + url.substring(url.indexOf("#")) + '"').tab('show');
+            var tabUrl = url.substring(url.indexOf("#"));
 
-            $( '.panel-collapse' ).removeClass( 'in' );
-            $( '.panel-body' ).removeClass( 'active' );
-            $('a[class="accordion-toggle"]').addClass('collapsed');
-            $('.collapsed').attr('aria-expanded', false);
-            $( '.panel-collapse' ).attr('aria-expanded', false);
+            if(tabUrl.indexOf('-') > -1){
+                var consultationKey = tabUrl.substring(tabUrl.indexOf("-") + 1);
+                window.location.href = window.location.href.substring(0, window.location.href.lastIndexOf("-"));
 
-            $(url.substring(url.indexOf("#")) ).addClass('active');
-            $('#collapse-' + url.substring(url.indexOf("#") + 1)).addClass('in');
-            $('#collapse-' + url.substring(url.indexOf("#") + 1)).css("height", "auto");
-            $('#collapse-' + url.substring(url.indexOf("#") + 1)).attr('aria-expanded', true);
-            $('a[href="' + '#collapse-' + url.substring(url.indexOf("#") + 1) + '"]').removeClass('collapsed');
-            $('a[href="' + '#collapse-' + url.substring(url.indexOf("#") + 1) + '"]').attr('aria-expanded', true);
+                $('a[href="#consultations"').tab('show');
+                $( '.panel-collapse' ).removeClass( 'in' );
+                $( '.panel-body' ).removeClass( 'active' );
+                $('a[class="accordion-toggle"]').addClass('collapsed');
+                $('.collapsed').attr('aria-expanded', false);
+                $( '.panel-collapse' ).attr('aria-expanded', false);
 
-            if($('#ip-treatments').hasClass('active')){
-                $.ajax({
-                    type: "GET",
-                    url: "/ipt_list/{{patient.id}}",
-                }).done(updateIPTListRows);
-            }
+                $(url.substring(url.indexOf("#")) ).addClass('active');
+                $('#collapse-consultations').addClass('in');
+                $('#collapse-consultations').css("height", "auto");
+                $('#collapse-consultations').attr('aria-expanded', true);
+                $('a[href="#collapse-consultations"]').removeClass('collapsed');
+                $('a[href="#collapse-consultations"]').attr('aria-expanded', true);
 
-            else if($('#op-treatments').hasClass('active')){
-                $.ajax({
-                    type: "GET",
-                    url: "/opt_list/{{patient.id}}",
-                }).done(updateOPTListRows);
-            }
-
-            else if($('#laboratories').hasClass('active')){
-                $.ajax({
-                    type: "GET",
-                    url: "/lab_results_list/{{patient.id}}",
-                }).done(updateLabListRows);
-            }
-
-            else if($('#consultations').hasClass('active')){
                 $.ajax({
                     type: "GET",
                     url: "/clinic_consultation_list/{{patient.id}}",
                 }).done(updateCCListRows);
-            }
 
-            else if($('#medication').hasClass('active')){
-                $.ajax({
-                    type: "GET",
-                    url: "/patient_medication_list/{{patient.id}}",
-                }).done(updateMedicationListRows);
+                edit_CC(consultationKey);
+
             }
+            else{
+                $('a[href="' + url.substring(url.indexOf("#")) + '"').tab('show');
+                $( '.panel-collapse' ).removeClass( 'in' );
+                $( '.panel-body' ).removeClass( 'active' );
+                $('a[class="accordion-toggle"]').addClass('collapsed');
+                $('.collapsed').attr('aria-expanded', false);
+                $( '.panel-collapse' ).attr('aria-expanded', false);
+
+                $(url.substring(url.indexOf("#")) ).addClass('active');
+                $('#collapse-' + url.substring(url.indexOf("#") + 1)).addClass('in');
+                $('#collapse-' + url.substring(url.indexOf("#") + 1)).css("height", "auto");
+                $('#collapse-' + url.substring(url.indexOf("#") + 1)).attr('aria-expanded', true);
+                $('a[href="' + '#collapse-' + url.substring(url.indexOf("#") + 1) + '"]').removeClass('collapsed');
+                $('a[href="' + '#collapse-' + url.substring(url.indexOf("#") + 1) + '"]').attr('aria-expanded', true);
+
+                if($('#ip-treatments').hasClass('active')){
+                    $.ajax({
+                        type: "GET",
+                        url: "/ipt_list/{{patient.id}}",
+                    }).done(updateIPTListRows);
+                }
+
+                else if($('#op-treatments').hasClass('active')){
+                    $.ajax({
+                        type: "GET",
+                        url: "/opt_list/{{patient.id}}",
+                    }).done(updateOPTListRows);
+                }
+
+                else if($('#laboratories').hasClass('active')){
+                    $.ajax({
+                        type: "GET",
+                        url: "/lab_results_list/{{patient.id}}",
+                    }).done(updateLabListRows);
+                }
+
+                else if($('#consultations').hasClass('active')){
+                    $.ajax({
+                        type: "GET",
+                        url: "/clinic_consultation_list/{{patient.id}}",
+                    }).done(updateCCListRows);
+                }
+
+                else if($('#medication').hasClass('active')){
+                    $.ajax({
+                        type: "GET",
+                        url: "/patient_medication_list/{{patient.id}}",
+                    }).done(updateMedicationListRows);
+                }
+
+                $('#list-cc-view-link').hide();
+                $('#add-cc-view').hide();
+                $('#edit-cc-view').hide();
+            }
+            
         }
         else{
             $( '#myTab li' ).first().addClass('active');
@@ -713,8 +764,12 @@
             $('#collapse-patient-info').attr('aria-expanded', true);
             $('a[href="#collapse-patient-info"]').removeClass('collapsed');
             $('a[href="#collapse-patient-info"]').attr('aria-expanded', true);
-        }  
 
+            $('#list-cc-view-link').hide();
+            $('#add-cc-view').hide();
+            $('#edit-cc-view').hide();
+        }  
+        
         $("#confinement-date").dateDropdowns({
             displayFormat: "mdy"
         });
@@ -772,9 +827,7 @@
         });
 
 
-        $('#list-cc-view-link').hide();
-        $('#add-cc-view').hide();
-        $('#edit-cc-view').hide();
+        
 
 
         $('#list-ipt-view-link').hide();

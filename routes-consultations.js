@@ -6,6 +6,8 @@ const Doctor = require('./models').Doctor;
 const User_Account = require('./models').User_Account;
 const Medication = require('./models').Medication;
 const Medical_Procedure = require('./models').Medical_Procedure;
+const Billing = require('./models').Billing;
+const Billing_Item = require('./models').Billing_Item;
 const multer = require('multer');
 const fs = require('fs');
 
@@ -166,6 +168,7 @@ router.post('/clinic_consultation_add', requireLoggedIn, upload_file_cc.array('a
 		var notes = req.body['notes'].trim();
 		var medication = [];
 		var medical_procedure = [];
+		var billing = [];
 
 		if(req.body['meds'] != null && req.body['meds'] != ''){
 			medication = req.body['meds'];
@@ -173,6 +176,10 @@ router.post('/clinic_consultation_add', requireLoggedIn, upload_file_cc.array('a
 
 		if(req.body['med_procedures'] != null && req.body['med_procedures'] != ''){
 			medical_procedure = req.body['med_procedures'];
+		}
+
+		if(req.body['billings'] != null && req.body['billings'] != '') {
+			billing = req.body['billings'];
 		}
 
 		fields = {
@@ -188,6 +195,9 @@ router.post('/clinic_consultation_add', requireLoggedIn, upload_file_cc.array('a
 				doctorId: doc,
 				medication: medication,
 				medical_procedure: medical_procedure,
+				receipt: {
+					billing_items: billing
+				}
 			}
 		};
 		includes = {
@@ -200,6 +210,13 @@ router.post('/clinic_consultation_add', requireLoggedIn, upload_file_cc.array('a
 				}, {
 					model: Medical_Procedure,
 					as: 'medical_procedure',
+				}, {
+					model: Billing,
+					as: 'receipt',
+					include: [{
+						model: Billing_Item,
+						as: 'billing_items'
+					}]
 				}]
 			}]
 		};
@@ -366,7 +383,19 @@ router.post("/clinic_consultation_edit_add_medication/:cu_id", requireLoggedIn, 
 		notes: req.body['notes'],
 		checkUpId: key
 	}).then(med_instance => {
-		res.json({id: med_instance.id});
+		Billing.findOne({
+			where: {
+				receiptId: key,
+			},
+			raw: true,
+		}).then(billing_instance => {
+			Billing_Item.create({
+				description: req.body['name'].trim(),
+				billingId: billing_instance['id'],
+			}).then(billing_item => {
+				res.json({id: med_instance.id});
+			});
+		});
 	});
 });
 
@@ -379,7 +408,19 @@ router.post("/clinic_consultation_edit_add_medical_procedure/:cu_id", requireLog
 		details: req.body['details'],
 		checkUpId: key,
 	}).then(procedure_instance => {
-		res.json({id: procedure_instance.id});
+		Billing.findOne({
+			where: {
+				receiptId: key,
+			},
+			raw: true,
+		}).then(billing_instance => {
+			Billing_Item.create({
+				description: req.body['description'].trim(),
+				billingId: billing_instance['id'],
+			}).then(billing_item => {
+				res.json({id: procedure_instance.id});
+			});
+		});
 	});
 });
 
@@ -443,9 +484,28 @@ router.post("/clinic_consultation_delete_confirmed/:cc_id", requireLoggedIn, fun
 	}, {
 		where: {
 			id: key,
-		}
-	}).then(function(result){
-		res.json({success: true});
+		},
+		returning: true,
+		raw: true,
+	}).then(function(cc_result){
+		Check_Up.update({
+			active: false,
+		}, {
+			where: {
+				id: cc_result['parentRecordId'],
+			},
+			returning: true,
+			raw: true,
+		}).then(function(check_up_result){
+
+			Billing.destroy({
+				where: {
+					receiptId: check_up_result['id']
+				}
+			}).then(function(billing_result){
+				res.json({success: true});
+			})
+		});
 	}).catch(function(error){
 		console.log("CC PATIENT TREATMENT CONFIRMED");
 		console.log(error);
