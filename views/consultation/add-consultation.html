@@ -149,7 +149,8 @@
         event.preventDefault();
         cc_med_id_counter = 1;
         cc_med_proc_id_counter = 1;
-
+        add_cc_meds_table.rows().remove().draw();
+        add_cc_med_procedures_table.rows().remove().draw();
 
         {% if doctor %}
         var files = $('#add-cc-attachments').fileinput('getFileStack');
@@ -158,14 +159,14 @@
         } else {
             var medication = [], med_procedure = [], billings = [];
 
-            for(var i = 0; i < meds.rows().data().length; i++){
-                var name = meds.rows().data()[i][1];
+            for(var i = 0; i < add_cc_meds_table.rows().data().length; i++){
+                var name = add_cc_meds_table.rows().data()[i][1];
                 medication.push({
                     name: name.substring(3, name.length-4),
-                    dosage: meds.rows().data()[i][2],
-                    frequency: meds.rows().data()[i][3],
-                    type: meds.rows().data()[i][4],
-                    notes: meds.rows().data()[i][5],
+                    dosage: add_cc_meds_table.rows().data()[i][2],
+                    frequency: add_cc_meds_table.rows().data()[i][3],
+                    type: add_cc_meds_table.rows().data()[i][4],
+                    notes: add_cc_meds_table.rows().data()[i][5],
                 });
 
                 billings.push({
@@ -173,16 +174,16 @@
                 });
             }
 
-            for(var i = 0; i < med_procedures.rows().data().length; i++){
-                var date = med_procedures.rows().data()[i][1];
+            for(var i = 0; i < add_cc_med_procedures_table.rows().data().length; i++){
+                var date = add_cc_med_procedures_table.rows().data()[i][1];
                 med_procedure.push({
                     date: date.substring(3, date.length-4),
-                    description: med_procedures.rows().data()[i][2],
-                    details: med_procedures.rows().data()[i][3],
+                    description: add_cc_med_procedures_table.rows().data()[i][2],
+                    details: add_cc_med_procedures_table.rows().data()[i][3],
                 });
 
                 billings.push({
-                    description: med_procedures.rows().data()[i][2]
+                    description: add_cc_med_procedures_table.rows().data()[i][2]
                 });
             }
 
@@ -266,7 +267,7 @@
 
         if(med_rows.length > 0 && confirm("Are you sure you want to delete Medication record/s? This cannot be undone.")){
             for(var x = 0; x < med_rows.length; x++ ){
-                meds.row(med_rows[x]).remove().draw();
+                add_cc_meds_table.row(med_rows[x]).remove().draw();
             }
 
             $('#add-cc-select-all-meds').prop('checked', false);
@@ -302,7 +303,7 @@
 
         if(med_proc_rows.length > 0 && confirm("Are you sure you want to delete Medical Procedure record/s? This cannot be undone.")){
             for(var x = 0; x < med_proc_rows.length; x++ ){
-                med_procedures.row(med_proc_rows[x]).remove().draw();
+                add_cc_med_procedures_table.row(med_proc_rows[x]).remove().draw();
             }
 
             $('#add-cc-select-all-med-procedures').prop('checked', false);

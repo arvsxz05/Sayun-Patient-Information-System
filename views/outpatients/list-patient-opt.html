@@ -20,6 +20,12 @@
 
 
 <script type="text/javascript">
+    var add_opt_meds_table;
+    var add_opt_med_procedures_table;
+
+    var edit_opt_meds_table;
+    var edit_opt_med_procedures_table;
+
 
     function edit_OPT(key){
         $('#list-opt-view').hide();
@@ -32,8 +38,6 @@
             url: "/opt_edit_json/"+key+"/"+"{{patient.id}}",
         }).done(function(data){
             var date;
-            console.log("IN EDIT OPT HERE WAI");
-            console.log(data);
             if(data['opt']['date'] != null) {
                 date = data['opt']['date'].split("-");
                 $("#edit-opt-date-div select[name='date_[month]']").val(date[1]);
@@ -52,13 +56,13 @@
             $('#edit-p-id').val(data['opt']['id']);
             $('#edit-c-id').val(data['opt']['parent_record.id']);
 
-            if(meds instanceof $.fn.dataTable.Api) {
-                meds.destroy();
-                med_procedures.destroy();
+            if(edit_opt_meds_table instanceof $.fn.dataTable.Api) {
+                edit_opt_meds_table.destroy();
+                edit_opt_med_procedures_table.destroy();
             }
 
             {% if doctor %}
-            meds = $('#edit-opt-list-medication').DataTable({
+            edit_opt_meds_table = $('#edit-opt-list-medication').DataTable({
                 "bSort": true, 
                 "aaSorting": [[0]],
                 "aoColumns": [
@@ -70,9 +74,11 @@
                     { "bSortable": true }
                 ]    
             }).on('click', 'tbody tr', function () {
-                var data = meds.row(this).data();
+                var data = edit_opt_meds_table.row(this).data();
 
                 edit_med_caller = $(this);
+                edit_med_caller_type = "OPT";
+
                 edit_med_id = data[0].substring(data[0].indexOf("name") + 6, data[0].length - 10);
 
                 $('#edit-medication-modal').modal('show');
@@ -83,7 +89,7 @@
                 $('#edit-med-instructions').val(data[5]);
             });
 
-            med_procedures = $('#edit-opt-list-med-procedure').DataTable({
+            edit_opt_med_procedures_table = $('#edit-opt-list-med-procedure').DataTable({
                 "bSort": true, 
                 "aaSorting": [[0]],
                 "aoColumns": [
@@ -93,9 +99,11 @@
                     { "bSortable": true }
                 ]    
             }).on('click', 'tbody tr', function () {
-                var data = med_procedures.row(this).data();
+                var data = edit_opt_med_procedures_table.row(this).data();
 
                 edit_med_procedure_caller = $(this);
+                edit_med_procedure_caller_type = "OPT";
+
                 edit_med_procedure_id = data[0].substring(data[0].indexOf("name") + 6, data[0].length - 10);
                 
                 $('#edit-med-procedure-modal').modal('show');
@@ -106,11 +114,11 @@
                 $('#edit-med-procedure-details').val(data[3]);
             });
             
-            meds.rows().remove().draw();
-            med_procedures.rows().remove().draw();
+            edit_opt_meds_table.rows().remove().draw();
+            edit_opt_med_procedures_table.rows().remove().draw();
 
             for (var i = data['medications'].length - 1; i >= 0; i--) {
-                meds.row.add([
+                edit_opt_meds_table.row.add([
                     '<input type="checkbox" id="' + data['medications'][i].id + 
                     '" name="' + data['medications'][i].id + '"></input>',
                     '<a>' + data['medications'][i].name + '</a>',
@@ -122,7 +130,7 @@
             }
 
             for (var i = data['med_procedures'].length - 1; i >= 0; i--) {
-                med_procedures.row.add([
+                edit_opt_med_procedures_table.row.add([
                     '<input type="checkbox" id="' + data['med_procedures'][i].id + 
                     '" name="' + data['med_procedures'][i].id + '"></input>',
                     '<a>' + data['med_procedures'][i].date + '</a>',
@@ -186,13 +194,13 @@
         edit_med_id = null;
         edit_med_procedure_id = null;
 
-        if(meds instanceof $.fn.dataTable.Api) {
-            meds.destroy();
-            med_procedures.destroy();
+        if(add_opt_meds_table instanceof $.fn.dataTable.Api) {
+            add_opt_meds_table.destroy();
+            add_opt_med_procedures_table.destroy();
         }
 
         {% if doctor %}
-        meds = $('#opt-list-medication').DataTable({
+        add_opt_meds_table = $('#opt-list-medication').DataTable({
             "bSort": true, 
             "aaSorting": [],
             "aoColumns": [
@@ -204,8 +212,9 @@
                 { "bSortable": true }
             ]    
         }).on('click', 'tbody tr td:nth-child(2) a', function () {
-            var data = meds.row($(this).parent().parent()).data();
+            var data = add_opt_meds_table.row($(this).parent().parent()).data();
             edit_med_caller = $(this).parent().parent();
+            edit_med_caller_type = "OPT";
 
             $('#edit-medication-modal').modal('toggle');
             $('#edit-med-name').val(data[1].substring(data[1].indexOf(">") + 1, data[1].length-4));
@@ -215,7 +224,7 @@
             $('#edit-med-instructions').val(data[5]);
         });
 
-        med_procedures = $('#opt-list-med-procedure').DataTable({
+        add_opt_med_procedures_table = $('#opt-list-med-procedure').DataTable({
             "bSort": true, 
             "aaSorting": [],
             "aoColumns": [
@@ -225,9 +234,10 @@
                 { "bSortable": true }
             ]    
         }).on('click', 'tbody tr td:nth-child(2) a', function () {
-            var data = med_procedures.row($(this).parent().parent()).data();
+            var data = add_opt_med_procedures_table.row($(this).parent().parent()).data();
 
             edit_med_procedure_caller = $(this).parent().parent();
+            edit_med_procedure_caller_type = "OPT";
             
             $('#edit-med-procedure-modal').modal('toggle');
             $('#edit-med-procedure-date select[name="date_[month]"').val(data[1].substring(data[1].indexOf(">") + 1, data[1].length-4).substring(5, 7));
@@ -236,8 +246,8 @@
             $('#edit-med-procedure-description').val(data[2]);
             $('#edit-med-procedure-details').val(data[3]);
         });
-        meds.rows().remove().draw();
-        med_procedures.rows().remove().draw();
+        add_opt_meds_table.rows().remove().draw();
+        add_opt_med_procedures_table.rows().remove().draw();
         {% endif %}
     }
 </script>

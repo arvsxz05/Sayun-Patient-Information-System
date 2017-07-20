@@ -664,11 +664,11 @@
 
     $(document).ready(function(){
         var url = window.location.href;
-
+        
         if(url.indexOf("#") > -1){
             var tabUrl = url.substring(url.indexOf("#"));
 
-            if(tabUrl.indexOf('-') > -1){
+            if(tabUrl.indexOf("-") > -1 && tabUrl.indexOf("#consultations-") > -1){
                 var consultationKey = tabUrl.substring(tabUrl.indexOf("-") + 1);
                 window.location.href = window.location.href.substring(0, window.location.href.lastIndexOf("-"));
 
@@ -769,7 +769,7 @@
             $('#add-cc-view').hide();
             $('#edit-cc-view').hide();
         }  
-        
+
         $("#confinement-date").dateDropdowns({
             displayFormat: "mdy"
         });
@@ -828,8 +828,6 @@
 
 
         
-
-
         $('#list-ipt-view-link').hide();
         $('#add-ipt-view').hide();
         $('#edit-ipt-view').hide();
@@ -1063,8 +1061,8 @@
                     'notes': $('#add-med-instructions').val()
                 }
             }).done(function (data) {
-                 meds.row.add([
-                    '<input type="checkbox" id="' + data.id + '" name="' + data.id + '"></input>', //idk UNSAON ANG NAME AND ID ANI FOR DELETION
+                 edit_ipt_meds_table.row.add([
+                    '<input type="checkbox" id="' + data.id + '" name="' + data.id + '"></input>',
                     '<a>' + $('#add-med-name').val() + '</a>',
                     $('#add-med-dosage').val(),
                     $('#add-med-frequency').val(),
@@ -1091,8 +1089,8 @@
                     'notes': $('#add-med-instructions').val()
                 }
             }).done(function (data) {
-                meds.row.add([
-                    '<input type="checkbox" id="' + data.id + '" name="' + data.id + '"></input>', //idk UNSAON ANG NAME AND ID ANI FOR DELETION
+                edit_opt_meds_table.row.add([
+                    '<input type="checkbox" id="' + data.id + '" name="' + data.id + '"></input>',
                     '<a>' + $('#add-med-name').val() + '</a>',
                     $('#add-med-dosage').val(),
                     $('#add-med-frequency').val(),
@@ -1119,8 +1117,8 @@
                     'notes': $('#add-med-instructions').val()
                 }
             }).done(function (data) {
-                meds.row.add([
-                    '<input type="checkbox" id="' + data.id + '" name="' + data.id + '"></input>', //idk UNSAON ANG NAME AND ID ANI FOR DELETION
+                edit_cc_meds_table.row.add([
+                    '<input type="checkbox" id="' + data.id + '" name="' + data.id + '"></input>',
                     '<a>' + $('#add-med-name').val() + '</a>',
                     $('#add-med-dosage').val(),
                     $('#add-med-frequency').val(),
@@ -1136,7 +1134,7 @@
         }
         else { //IF ADDING IPT/OPT/CLINIC CONSULTATION ONLY, MEANING NO SERVER SIDE/DATABASE CONNECTION
             if(med_modal_caller == 'ipt-add-med-button'){
-                meds.row.add([
+                add_ipt_meds_table.row.add([
                     '<input type="checkbox" id="' + ipt_med_id_counter +'" name=""></input>', //idk UNSAON ANG NAME AND ID ANI FOR DELETION
                     '<a>' + $('#add-med-name').val() + '</a>',
                     $('#add-med-dosage').val(),
@@ -1149,8 +1147,8 @@
                 ipt_med_id_counter++;
             }
             else if(med_modal_caller == 'opt-add-med-button'){
-                meds.row.add([
-                    '<input type="checkbox" id="' + opt_med_id_counter +'" name=""></input>', //idk UNSAON ANG NAME AND ID ANI FOR DELETION
+                add_opt_meds_table.row.add([
+                    '<input type="checkbox" id="' + opt_med_id_counter +'" name=""></input>',
                     '<a>' + $('#add-med-name').val() + '</a>',
                     $('#add-med-dosage').val(),
                     $('#add-med-frequency').val(),
@@ -1162,8 +1160,8 @@
                 opt_med_id_counter++;
             }
             else if(med_modal_caller == 'cc-add-med-button'){
-                meds.row.add([
-                    '<input type="checkbox" id="' + cc_med_id_counter +'" name=""></input>', //idk UNSAON ANG NAME AND ID ANI FOR DELETION
+                add_cc_meds_table.row.add([
+                    '<input type="checkbox" id="' + cc_med_id_counter +'" name=""></input>',
                     '<a>' + $('#add-med-name').val() + '</a>',
                     $('#add-med-dosage').val(),
                     $('#add-med-frequency').val(),
@@ -1197,8 +1195,8 @@
                     'details': $('#add-med-procedure-details').val(),
                 }
             }).done(function (data) {
-                med_procedures.row.add([
-                    '<input type="checkbox" id="' + data.id + '" name="' + data.id + '"></input>', //idk UNSAON ANG NAME AND ID ANI FOR DELETION
+               edit_ipt_med_procedures_table.row.add([
+                    '<input type="checkbox" id="' + data.id + '" name="' + data.id + '"></input>',
                     '<a>' + $("#add-med-procedure-date select[name='date_[year]']").val() + '-' + 
                     $("#add-med-procedure-date select[name='date_[month]']").val() + '-' +
                     $("#add-med-procedure-date select[name='date_[day]']").val() + '</a>',
@@ -1226,8 +1224,8 @@
                     'details': $('#add-med-procedure-details').val(),
                 }
             }).done(function (data) {
-                med_procedures.row.add([
-                    '<input type="checkbox" id="' + data.id + '" name="' + data.id + '"></input>', //idk UNSAON ANG NAME AND ID ANI FOR DELETION
+                edit_opt_med_procedures_table.row.add([
+                    '<input type="checkbox" id="' + data.id + '" name="' + data.id + '"></input>',
                     '<a>' + $("#add-med-procedure-date select[name='date_[year]']").val() + '-' + 
                     $("#add-med-procedure-date select[name='date_[month]']").val() + '-' +
                     $("#add-med-procedure-date select[name='date_[day]']").val() + '</a>',
@@ -1255,7 +1253,7 @@
                     'details': $('#add-med-procedure-details').val(),
                 }
             }).done(function (data) {
-                med_procedures.row.add([
+                edit_cc_med_procedures_table.row.add([
                     '<input type="checkbox" id="' + data.id + '" name="' + data.id + '"></input>', //idk UNSAON ANG NAME AND ID ANI FOR DELETION
                     '<a>' + $("#add-med-procedure-date select[name='date_[year]']").val() + '-' + 
                     $("#add-med-procedure-date select[name='date_[month]']").val() + '-' +
@@ -1273,8 +1271,8 @@
 
         else {
             if(med_procedure_modal_caller == 'ipt-add-med-procedure-button'){
-                med_procedures.row.add([
-                    '<input type="checkbox" id="'+ ipt_med_proc_id_counter +'" name=""></input>', //idk UNSAON ANG NAME AND ID ANI FOR DELETION
+                add_ipt_med_procedures_table.row.add([
+                    '<input type="checkbox" id="'+ ipt_med_proc_id_counter +'" name=""></input>',
                     '<a>' + $("#add-med-procedure-date select[name='date_[year]']").val() + '-' + 
                     $("#add-med-procedure-date select[name='date_[month]']").val() + '-' +
                     $("#add-med-procedure-date select[name='date_[day]']").val() + '</a>',
@@ -1286,8 +1284,8 @@
                 ipt_med_proc_id_counter++;
             }
             else if(med_procedure_modal_caller == 'opt-add-med-procedure-button'){
-                med_procedures.row.add([
-                    '<input type="checkbox" id="'+ opt_med_proc_id_counter +'" name=""></input>', //idk UNSAON ANG NAME AND ID ANI FOR DELETION
+                add_opt_med_procedures_table.row.add([
+                    '<input type="checkbox" id="'+ opt_med_proc_id_counter +'" name=""></input>',
                     '<a>' + $("#add-med-procedure-date select[name='date_[year]']").val() + '-' + 
                     $("#add-med-procedure-date select[name='date_[month]']").val() + '-' +
                     $("#add-med-procedure-date select[name='date_[day]']").val() + '</a>',
@@ -1299,8 +1297,8 @@
                 opt_med_proc_id_counter++;
             }
             else if(med_procedure_modal_caller == 'cc-add-med-procedure-button'){
-                med_procedures.row.add([
-                    '<input type="checkbox" id="'+ cc_med_proc_id_counter +'" name=""></input>', //idk UNSAON ANG NAME AND ID ANI FOR DELETION
+                add_cc_med_procedures_table.row.add([
+                    '<input type="checkbox" id="'+ cc_med_proc_id_counter +'" name=""></input>',
                     '<a>' + $("#add-med-procedure-date select[name='date_[year]']").val() + '-' + 
                     $("#add-med-procedure-date select[name='date_[month]']").val() + '-' +
                     $("#add-med-procedure-date select[name='date_[day]']").val() + '</a>',
@@ -1322,16 +1320,48 @@
 
     $('#edit-med-form').submit(function (e) {
         e.preventDefault();
-        
+        var med_name = $('#edit-med-name').val();
         if(edit_med_id != undefined && edit_med_id != null) {
-            meds.row(edit_med_caller).data([
-                '<input type="checkbox" id="' + edit_med_id + '" name="' + edit_med_id + '"></input>', //idk UNSAON ANG NAME AND ID ANI FOR DELETION
-                '<a>' + $('#edit-med-name').val() + '</a>',
-                $('#edit-med-dosage').val(),
-                $('#edit-med-frequency').val(),
-                $('#edit-med-type').val(),
-                $('#edit-med-instructions').val()
-            ]).draw();
+            if(edit_med_caller_type == "IPT"){
+                edit_ipt_meds_table.row(edit_med_caller).data([
+                    '<input type="checkbox" id="' + edit_med_id + '" name="' + edit_med_id + '"></input>',
+                    '<a>' + $('#edit-med-name').val() + '</a>',
+                    $('#edit-med-dosage').val(),
+                    $('#edit-med-frequency').val(),
+                    $('#edit-med-type').val(),
+                    $('#edit-med-instructions').val()
+                ]).draw();
+            }
+            else if(edit_med_caller_type == "OPT"){
+                edit_opt_meds_table.row(edit_med_caller).data([
+                    '<input type="checkbox" id="' + edit_med_id + '" name="' + edit_med_id + '"></input>',
+                    '<a>' + $('#edit-med-name').val() + '</a>',
+                    $('#edit-med-dosage').val(),
+                    $('#edit-med-frequency').val(),
+                    $('#edit-med-type').val(),
+                    $('#edit-med-instructions').val()
+                ]).draw();
+            }
+            else if(edit_med_caller_type == "CC"){
+                edit_cc_meds_table.row(edit_med_caller).data([
+                    '<input type="checkbox" id="' + edit_med_id + '" name="' + edit_med_id + '"></input>',
+                    '<a>' + $('#edit-med-name').val() + '</a>',
+                    $('#edit-med-dosage').val(),
+                    $('#edit-med-frequency').val(),
+                    $('#edit-med-type').val(),
+                    $('#edit-med-instructions').val()
+                ]).draw();
+            }
+            else{
+                meds.row(edit_med_caller).data([
+                    '<input type="checkbox" id="' + edit_med_id + '" name="' + edit_med_id + '"></input>',
+                    '<a>' + $('#edit-med-name').val() + '</a>',
+                    $('#edit-med-dosage').val(),
+                    $('#edit-med-frequency').val(),
+                    $('#edit-med-type').val(),
+                    $('#edit-med-instructions').val()
+                ]).draw();
+            }
 
             $.ajax({
                 type: "POST",
@@ -1345,21 +1375,55 @@
                 }
             }).done(function (data) {
                 if(data.id) {
-                    showSnackBar('Medication "' + $('#edit-med-name').val() + '" was successfully updated.');
+                    showSnackBar('Medication "' + med_name + '" was successfully updated.');
                 }
+                edit_med_caller_type = null;
             });
         }
-        else{
-            meds.row(edit_med_caller).data([
-                edit_med_caller.children('td:first').html(), //idk UNSAON ANG NAME AND ID ANI FOR DELETION
-                '<a>' + $('#edit-med-name').val() + '</a>',
-                $('#edit-med-dosage').val(),
-                $('#edit-med-frequency').val(),
-                $('#edit-med-type').val(),
-                $('#edit-med-instructions').val()
-            ]).draw();
+        else{//ADD IPT/OPT/CC
+            if(edit_med_caller_type == "IPT"){
+                add_ipt_meds_table.row(edit_med_caller).data([
+                    edit_med_caller.children('td:first').html(),
+                    '<a>' + $('#edit-med-name').val() + '</a>',
+                    $('#edit-med-dosage').val(),
+                    $('#edit-med-frequency').val(),
+                    $('#edit-med-type').val(),
+                    $('#edit-med-instructions').val()
+                ]).draw();
+            }
+            else if(edit_med_caller_type == "OPT"){
+                add_opt_meds_table.row(edit_med_caller).data([
+                    edit_med_caller.children('td:first').html(),
+                    '<a>' + $('#edit-med-name').val() + '</a>',
+                    $('#edit-med-dosage').val(),
+                    $('#edit-med-frequency').val(),
+                    $('#edit-med-type').val(),
+                    $('#edit-med-instructions').val()
+                ]).draw();
+            }
+            else if(edit_med_caller_type == "CC"){
+                add_cc_meds_table.row(edit_med_caller).data([
+                    edit_med_caller.children('td:first').html(),
+                    '<a>' + $('#edit-med-name').val() + '</a>',
+                    $('#edit-med-dosage').val(),
+                    $('#edit-med-frequency').val(),
+                    $('#edit-med-type').val(),
+                    $('#edit-med-instructions').val()
+                ]).draw();
+            }
+            else{
+                meds.row(edit_med_caller).data([
+                    edit_med_caller.children('td:first').html(), //idk UNSAON ANG NAME AND ID ANI FOR DELETION
+                    '<a>' + $('#edit-med-name').val() + '</a>',
+                    $('#edit-med-dosage').val(),
+                    $('#edit-med-frequency').val(),
+                    $('#edit-med-type').val(),
+                    $('#edit-med-instructions').val()
+                ]).draw();
+            }
         }
 
+        edit_med_caller_type = null;
         $('#edit-medication-modal').modal('toggle');
         $('#edit-medication-modal input').val("");
         $('#edit-medication-modal select').val("");
@@ -1368,16 +1432,49 @@
 
     $('#edit-med-procedure-form').submit(function (e) {
         e.preventDefault();
-
+        var med_procedure_name = $('#edit-med-procedure-description').val(); 
         if(edit_med_procedure_id != undefined && edit_med_procedure_id != null) {
-            med_procedures.row(edit_med_procedure_caller).data([
-                '<input type="checkbox" id="' + edit_med_procedure_id + '" name="' + edit_med_procedure_id + '"></input>', //idk UNSAON ANG NAME AND ID ANI FOR DELETION
-                '<a>' + $("#edit-med-procedure-date select[name='date_[year]']").val() + '-' + 
-                $("#edit-med-procedure-date select[name='date_[month]']").val() + '-' +
-                $("#edit-med-procedure-date select[name='date_[day]']").val() + '</a>',
-                $('#edit-med-procedure-description').val(),
-                $('#edit-med-procedure-details').val()
-            ]).draw();
+            if(edit_med_procedure_caller_type == "IPT"){
+                edit_ipt_med_procedures_table.row(edit_med_procedure_caller).data([
+                    '<input type="checkbox" id="' + edit_med_procedure_id + '" name="' + edit_med_procedure_id + '"></input>',
+                    '<a>' + $("#edit-med-procedure-date select[name='date_[year]']").val() + '-' + 
+                    $("#edit-med-procedure-date select[name='date_[month]']").val() + '-' +
+                    $("#edit-med-procedure-date select[name='date_[day]']").val() + '</a>',
+                    $('#edit-med-procedure-description').val(),
+                    $('#edit-med-procedure-details').val()
+                ]).draw();
+            }
+            else if(edit_med_procedure_caller_type == "OPT"){
+                edit_opt_med_procedures_table.row(edit_med_procedure_caller).data([
+                    '<input type="checkbox" id="' + edit_med_procedure_id + '" name="' + edit_med_procedure_id + '"></input>',
+                    '<a>' + $("#edit-med-procedure-date select[name='date_[year]']").val() + '-' + 
+                    $("#edit-med-procedure-date select[name='date_[month]']").val() + '-' +
+                    $("#edit-med-procedure-date select[name='date_[day]']").val() + '</a>',
+                    $('#edit-med-procedure-description').val(),
+                    $('#edit-med-procedure-details').val()
+                ]).draw();
+            }
+            else if(edit_med_procedure_caller_type == "CC"){
+                edit_cc_med_procedures_table.row(edit_med_procedure_caller).data([
+                    '<input type="checkbox" id="' + edit_med_procedure_id + '" name="' + edit_med_procedure_id + '"></input>',
+                    '<a>' + $("#edit-med-procedure-date select[name='date_[year]']").val() + '-' + 
+                    $("#edit-med-procedure-date select[name='date_[month]']").val() + '-' +
+                    $("#edit-med-procedure-date select[name='date_[day]']").val() + '</a>',
+                    $('#edit-med-procedure-description').val(),
+                    $('#edit-med-procedure-details').val()
+                ]).draw();
+            }
+            else{
+                med_procedures.row(edit_med_procedure_caller).data([
+                    '<input type="checkbox" id="' + edit_med_procedure_id + '" name="' + edit_med_procedure_id + '"></input>',
+                    '<a>' + $("#edit-med-procedure-date select[name='date_[year]']").val() + '-' + 
+                    $("#edit-med-procedure-date select[name='date_[month]']").val() + '-' +
+                    $("#edit-med-procedure-date select[name='date_[day]']").val() + '</a>',
+                    $('#edit-med-procedure-description').val(),
+                    $('#edit-med-procedure-details').val()
+                ]).draw();
+            }
+            
 
             $.ajax({
                 type: "POST",
@@ -1391,23 +1488,56 @@
                 }
             }).done(function (data) {
                 if(data.id) {
-                    showSnackBar('Medical Procedure "' + $('#edit-med-procedure-description').val() + '" was successfully updated.');
+                    showSnackBar('Medical Procedure "' + med_procedure_name + '" was successfully updated.');
                 }
             });
         }
-        else{
-            med_procedures.row(edit_med_procedure_caller).data([
-                edit_med_procedure_caller.children('td:first').html(), //idk UNSAON ANG NAME AND ID ANI FOR DELETION
-                '<a>' + $("#edit-med-procedure-date select[name='date_[year]']").val() + '-' + 
-                $("#edit-med-procedure-date select[name='date_[month]']").val() + '-' +
-                $("#edit-med-procedure-date select[name='date_[day]']").val() + '</a>',
-                $('#edit-med-procedure-description').val(),
-                $('#edit-med-procedure-details').val()
-            ]).draw();
+        else{//ADD IPT/OPT/CC
+            if(edit_med_procedure_caller_type == "IPT"){
+                add_ipt_med_procedures_table.row(edit_med_procedure_caller).data([
+                    edit_med_procedure_caller.children('td:first').html(),
+                    '<a>' + $("#edit-med-procedure-date select[name='date_[year]']").val() + '-' + 
+                    $("#edit-med-procedure-date select[name='date_[month]']").val() + '-' +
+                    $("#edit-med-procedure-date select[name='date_[day]']").val() + '</a>',
+                    $('#edit-med-procedure-description').val(),
+                    $('#edit-med-procedure-details').val()
+                ]).draw();
+            }
+            else if(edit_med_procedure_caller_type == "OPT"){
+                add_opt_med_procedures_table.row(edit_med_procedure_caller).data([
+                    edit_med_procedure_caller.children('td:first').html(),
+                    '<a>' + $("#edit-med-procedure-date select[name='date_[year]']").val() + '-' + 
+                    $("#edit-med-procedure-date select[name='date_[month]']").val() + '-' +
+                    $("#edit-med-procedure-date select[name='date_[day]']").val() + '</a>',
+                    $('#edit-med-procedure-description').val(),
+                    $('#edit-med-procedure-details').val()
+                ]).draw();
+            }
+            else if(edit_med_procedure_caller_type == "CC"){
+                add_cc_med_procedures_table.row(edit_med_procedure_caller).data([
+                    edit_med_procedure_caller.children('td:first').html(),
+                    '<a>' + $("#edit-med-procedure-date select[name='date_[year]']").val() + '-' + 
+                    $("#edit-med-procedure-date select[name='date_[month]']").val() + '-' +
+                    $("#edit-med-procedure-date select[name='date_[day]']").val() + '</a>',
+                    $('#edit-med-procedure-description').val(),
+                    $('#edit-med-procedure-details').val()
+                ]).draw();
+            }
+            else{
+                med_procedures.row(edit_med_procedure_caller).data([
+                    edit_med_procedure_caller.children('td:first').html(), //idk UNSAON ANG NAME AND ID ANI FOR DELETION
+                    '<a>' + $("#edit-med-procedure-date select[name='date_[year]']").val() + '-' + 
+                    $("#edit-med-procedure-date select[name='date_[month]']").val() + '-' +
+                    $("#edit-med-procedure-date select[name='date_[day]']").val() + '</a>',
+                    $('#edit-med-procedure-description').val(),
+                    $('#edit-med-procedure-details').val()
+                ]).draw();
+            }
 
         }
 
 
+        edit_med_procedure_caller_type = null;
         $('#edit-med-procedure-modal').modal('toggle');
         $('#edit-med-procedure-modal input').val("");
         $('#edit-med-procedure-modal select').val("");

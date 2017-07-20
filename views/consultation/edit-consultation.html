@@ -134,6 +134,9 @@
 <script type="text/javascript">
     $("#edit-cc-form").submit(function (event) {
         event.preventDefault();
+        edit_cc_meds_table.rows().remove().draw();
+        edit_cc_med_procedures_table.rows().remove().draw();
+
         var key = $("#edit-cc-p-id").val();
         var cu = $("#edit-cc-c-id").val();
         {% if doctor %}
