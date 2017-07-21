@@ -49,17 +49,7 @@
         .date-div select.invalid {
             color: #E9403C;
         }
-        .no-js #loader { display: none;  }
-        .js #loader { display: block; position: absolute; left: 100px; top: 0; }
-        .se-pre-con {
-            position: fixed;
-            left: 0px;
-            top: 0px;
-            width: 100%;
-            height: 100%;
-            z-index: 9999;
-            background: url("../../static/img/loading-heart.gif") center no-repeat #fff;
-        }
+        
     </style>
 </head>
 <body>
@@ -1218,7 +1208,13 @@
                 ]).draw();
 
                 $('#add-ipt-select-all-meds').prop('checked', false);
-                ipt_med_id_counter++;
+                add_ipt_billing_table.row.add([
+                    '<input type="checkbox" id="' + ipt_med_id_counter +'" name=""></input>',
+                    $('#add-med-name').val(),
+                    "0"
+                ]).draw();
+
+                ipt_med_id_counter++;                
             }
             else if(med_modal_caller == 'opt-add-med-button'){
                 add_opt_meds_table.row.add([
