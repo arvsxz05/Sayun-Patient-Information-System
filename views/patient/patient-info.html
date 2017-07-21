@@ -588,10 +588,15 @@
 
     var ipt_med_id_counter = 1;
     var ipt_med_proc_id_counter = 1;
+    var ipt_billing_id_counter = 1;
+
     var opt_med_id_counter = 1;
     var opt_med_proc_id_counter = 1;
+    var opt_billing_id_counter = 1;
+
     var cc_med_id_counter = 1;
     var cc_med_proc_id_counter = 1;
+    var cc_billing_id_counter = 1;
 
     var edit_med_id;
     var edit_med_procedure_id;
@@ -1207,14 +1212,19 @@
                     $('#add-med-instructions').val()
                 ]).draw();
 
-                $('#add-ipt-select-all-meds').prop('checked', false);
+               
                 add_ipt_billing_table.row.add([
-                    '<input type="checkbox" id="' + ipt_med_id_counter +'" name=""></input>',
+                    '<input type="checkbox" id="med-bill-' + ipt_med_id_counter +'" name=""></input>',
                     $('#add-med-name').val(),
                     "0"
                 ]).draw();
 
-                ipt_med_id_counter++;                
+                $('#add-ipt-billing').parent().children('b').children().text("▾ Hide Billing Information");
+                $('#add-ipt-billing').slideDown(600);
+
+                $('#add-ipt-select-all-meds').prop('checked', false);
+                ipt_med_id_counter++;  
+                ipt_billing_id_counter++;              
             }
             else if(med_modal_caller == 'opt-add-med-button'){
                 add_opt_meds_table.row.add([
@@ -1350,6 +1360,15 @@
                     $('#add-med-procedure-details').val()
                 ]).draw();
 
+                add_ipt_billing_table.row.add([
+                    '<input type="checkbox" id="med-procedure-bill-' + ipt_med_proc_id_counter +'" name=""></input>',
+                    $('#add-med-procedure-description').val(),
+                    "0"
+                ]).draw();
+
+                $('#add-ipt-billing').parent().children('b').children().text("▾ Hide Billing Information");
+                $('#add-ipt-billing').slideDown(600);
+
                 $('#add-ipt-select-all-med-procedures').prop('checked', false);
                 ipt_med_proc_id_counter++;
             }
@@ -1460,6 +1479,15 @@
                     $('#edit-med-type').val(),
                     $('#edit-med-instructions').val()
                 ]).draw();
+
+
+
+                var temp_id = 'med-bill-' + edit_med_caller.children('td:first').children("input").attr("id");
+                add_ipt_billing_table.row($('#' + temp_id).parent().parent()).data([
+                    '<input type="checkbox" id="' + temp_id +'" name=""></input>',
+                    $('#edit-med-name').val(),
+                    "0"
+                    ]).draw();
             }
             else if(edit_med_caller_type == "OPT"){
                 add_opt_meds_table.row(edit_med_caller).data([
@@ -1572,6 +1600,17 @@
                     $('#edit-med-procedure-description').val(),
                     $('#edit-med-procedure-details').val()
                 ]).draw();
+
+
+
+                var temp_id = 'med-procedure-bill-' + edit_med_procedure_caller.children('td:first').children("input").attr("id");
+                
+                add_ipt_billing_table.row($('#' + temp_id).parent().parent()).data([
+                    '<input type="checkbox" id="' + temp_id +'" name=""></input>',
+                    $('#edit-med-procedure-description').val(),
+                    "0"
+                    ]).draw();
+
             }
             else if(edit_med_procedure_caller_type == "OPT"){
                 add_opt_med_procedures_table.row(edit_med_procedure_caller).data([

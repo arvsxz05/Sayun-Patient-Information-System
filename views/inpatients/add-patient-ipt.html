@@ -129,7 +129,7 @@
         <!-- BILLING FOR IPT -->
         <div class="col-md-4" style="display: fixed;">
             <hr>
-            <b><legend onclick="show_billing('add-ipt-billing', this)">▸ Show Billing Information</legend></b>
+            <b><legend onclick="show_billing('add-ipt-billing', this)" style="cursor: pointer;">▸ Show Billing Information</legend></b>
             <div id="add-ipt-billing" style="display: none">
                 <div class="table-responsive">
                     <table id="add-ipt-billing-information" class="table table-striped table-bordered" cellspacing="0" width="100%">
@@ -308,7 +308,10 @@ function show_billing(div, caller) {
 
         if(med_rows.length > 0 && confirm("Are you sure you want to delete Medication record/s? This cannot be undone.")){
             for(var x = 0; x < med_rows.length; x++ ){
+                var med_bill_id = '#med-bill-' + med_rows[x].children("td:first").children("input").attr('id');
+                
                 add_ipt_meds_table.row(med_rows[x]).remove().draw();
+                add_ipt_billing_table.row($(med_bill_id).parent().parent()).remove().draw();
             }
 
             $('#add-ipt-select-all-meds').prop('checked', false);
@@ -344,7 +347,9 @@ function show_billing(div, caller) {
 
         if(med_proc_rows.length > 0 && confirm("Are you sure you want to delete Medical Procedure record/s? This cannot be undone.")){
             for(var x = 0; x < med_proc_rows.length; x++ ){
+                var med_proc_bill_id = '#med-procedure-bill-' + med_proc_rows[x].children("td:first").children("input").attr('id');
                 add_ipt_med_procedures_table.row(med_proc_rows[x]).remove().draw();
+                add_ipt_billing_table.row($(med_proc_bill_id).parent().parent()).remove().draw();
             }
 
             $('#add-ipt-select-all-med-procedures').prop('checked', false);
