@@ -150,10 +150,10 @@
                     { "bSortable": true },
                     { "bSortable": true }
                 ]    
-            }).on('click', 'tbody tr', function () {
-                var data = edit_cc_meds_table.row(this).data();
+            }).on('click', 'tbody tr td:nth-child(2) a', function () {
+                var data = edit_cc_meds_table.row($(this).parent().parent()).data();
 
-                edit_med_caller = $(this);
+                edit_med_caller = $(this).parent().parent();
                 edit_med_caller_type = "CC";
 
                 edit_med_id = data[0].substring(data[0].indexOf("name") + 6, data[0].length - 10);
@@ -175,10 +175,10 @@
                     { "bSortable": true },
                     { "bSortable": true }
                 ]    
-            }).on('click', 'tbody tr', function () {
-                var data = edit_cc_med_procedures_table.row(this).data();
+            }).on('click', 'tbody tr td:nth-child(2) a', function () {
+                var data = edit_cc_med_procedures_table.row($(this).parent().parent()).data();
 
-                edit_med_procedure_caller = $(this);
+                edit_med_procedure_caller = $(this).parent().parent();
                 edit_med_procedure_caller_type = "CC";
 
                 edit_med_procedure_id = data[0].substring(data[0].indexOf("name") + 6, data[0].length - 10);

@@ -34,9 +34,11 @@
 
     var add_ipt_meds_table;
     var add_ipt_med_procedures_table;
+    var add_ipt_billing_table;
 
     var edit_ipt_meds_table;
     var edit_ipt_med_procedures_table;
+    var edit_ipt_billing_table;
 
     function add_IPT() {
         $('#list-ipt-view').hide();
@@ -55,6 +57,7 @@
         if(add_ipt_meds_table instanceof $.fn.dataTable.Api) {
             add_ipt_meds_table.destroy();
             add_ipt_med_procedures_table.destroy();
+            add_ipt_billing_table.destroy();
         }
         {% if doctor %}
         add_ipt_meds_table = $('#list-medication').DataTable({
@@ -105,8 +108,23 @@
             $('#edit-med-procedure-details').val(data[3]);
         });
 
+        add_ipt_billing_table = $('#add-ipt-billing-information').DataTable({
+            "bSort": true, 
+            "aaSorting": [],
+            "paging":   false,
+            "ordering": false,
+            "info":     false,
+            "searching": false,
+            "aoColumns": [
+                { "bSortable": false },
+                { "bSortable": true },
+                { "bSortable": true }
+            ]    
+        });
+
         add_ipt_meds_table.rows().remove().draw();
         add_ipt_med_procedures_table.rows().remove().draw();
+        add_ipt_billing_table.rows().remove().draw();
         {% endif %}
     }
 
@@ -132,10 +150,10 @@
                 { "bSortable": true },
                 { "bSortable": true }
             ]    
-        }).on('click', 'tbody tr', function () {
-            var data = edit_ipt_meds_table.row(this).data();
+        }).on('click', 'tbody tr td:nth-child(2) a', function () {
+            var data = edit_ipt_meds_table.row($(this).parent().parent()).data();
  
-            edit_med_caller = $(this);
+            edit_med_caller = $(this).parent().parent();
             edit_med_caller_type = "IPT";
 
             edit_med_id = data[0].substring(data[0].indexOf("name") + 6, data[0].length - 10);
@@ -157,10 +175,10 @@
                 { "bSortable": true },
                 { "bSortable": true }
             ]    
-        }).on('click', 'tbody tr', function () {
-            var data = edit_ipt_med_procedures_table.row(this).data();
+        }).on('click', 'tbody tr td:nth-child(2) a', function () {
+            var data = edit_ipt_med_procedures_table.row($(this).parent().parent()).data();
 
-            edit_med_procedure_caller = $(this);
+            edit_med_procedure_caller = $(this).parent().parent();
             edit_med_procedure_caller_type = "IPT";
             
             edit_med_procedure_id = data[0].substring(data[0].indexOf("name") + 6, data[0].length - 10);

@@ -4,27 +4,27 @@
 <head>
     <title>Patient</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet"  type="text/css"         href="../../static/css/bootstrap.css">
-    <link rel="stylesheet"  type="text/css"         href="../../static/css/bootstrap.min.css">
-    <link rel="stylesheet"  type="text/css"         href="../../static/css/styles.css">
-    <script                 type="text/javascript"  src="../../static/js/jquery.js"></script>
-    <script                 type="text/javascript"  src="../../static/js/bootstrap.min.js"></script>
-    <script                 type="text/javascript"  src="../../static/js/upload-image.js"></script>
-    <script                 type="text/javascript"  src="../../static/js/jquery.date-dropdowns.js"></script>
-    <script                 type="text/javascript"  src="../../static/js/responsive-tabs.js"></script>
-    <script                 type="text/javascript"  src="../../static/js/mimes.js"></script>
-    <link rel="stylesheet"  type="text/css"         href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
-    <link rel="stylesheet"  type="text/css"         href="https://cdn.datatables.net/1.10.15/css/dataTables.bootstrap.min.css">
-    <script                 type="text/javascript"  src="https://cdn.datatables.net/1.10.15/js/jquery.dataTables.min.js"></script>
-    <script                 type="text/javascript"  src="https://cdn.datatables.net/1.10.15/js/dataTables.bootstrap.min.js"></script>
+    <link rel="stylesheet"  type="text/css" href="../../static/css/bootstrap.css">
+    <link rel="stylesheet"  type="text/css" href="../../static/css/bootstrap.min.css">
+    <link rel="stylesheet"  type="text/css" href="../../static/css/styles.css">
+    <script type="text/javascript"  src="../../static/js/jquery.js"></script>
+    <script type="text/javascript"  src="../../static/js/bootstrap.min.js"></script>
+    <script type="text/javascript"  src="../../static/js/upload-image.js"></script>
+    <script type="text/javascript"  src="../../static/js/jquery.date-dropdowns.js"></script>
+    <script type="text/javascript"  src="../../static/js/responsive-tabs.js"></script>
+    <script type="text/javascript"  src="../../static/js/mimes.js"></script>
+    <link rel="stylesheet"  type="text/css"         href="../../static/css/bootstrap.min.3.3.7.css">
+    <link rel="stylesheet"  type="text/css"         href="../../static/css/dataTables.bootstrap.min.css">
+    <script                 type="text/javascript"  src="../../static/js/jquery.dataTables.min.js"></script>
+    <script                 type="text/javascript"  src="../../static/js/dataTables.bootstrap.min.js"></script>
 
     <script type="text/javascript" src="../../static/js/fileinput.min.js"></script>
     <link rel="stylesheet" type="text/css" href="../../static/css/fileinput.min.css">
     <link rel="stylesheet" type="text/css" href="../../static/css/fileinput-rtl.min.css">
 
 
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-confirm/3.2.3/jquery-confirm.min.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-confirm/3.2.3/jquery-confirm.min.js"></script>
+    <link rel="stylesheet" href="../../static/css/jquery-confirm.min.css">
+    <script src="../../static/js/jquery-confirm.min.js"></script>
 
     <script type="text/javascript">
         $(window).load(function() {
@@ -49,17 +49,7 @@
         .date-div select.invalid {
             color: #E9403C;
         }
-        .no-js #loader { display: none;  }
-        .js #loader { display: block; position: absolute; left: 100px; top: 0; }
-        .se-pre-con {
-            position: fixed;
-            left: 0px;
-            top: 0px;
-            width: 100%;
-            height: 100%;
-            z-index: 9999;
-            background: url("../../static/img/loading-heart.gif") center no-repeat #fff;
-        }
+        
     </style>
 </head>
 <body>
@@ -128,10 +118,10 @@
                         <!-- CONSULTATIONS -->
                         <div class="tab-pane" id="consultations">
                             <div class="row">
-                                <div class="col-xs-12 col-md-10 col-md-offset-1">   
+                                <div class="col-xs-10 col-xs-offset-1">   
                                     <!-- BASIC PATIENT INFO -->
                                     <div class="row" style="margin-top: 40px">
-                                        <div class="col-md-6">
+                                        <div class="col-md-7">
                                             <div class="row form-group">
                                                 <label class="col-sm-3 control-label" for="patient-id">Patient ID</label>
                                                 <div class="col-sm-6">
@@ -169,10 +159,10 @@
                         <!-- IP-TREATMENTS -->
                         <div class="tab-pane" id="ip-treatments">
                             <div class="row">
-                                <div class="col-xs-12 col-md-10 col-md-offset-1">   
+                                <div class="col-xs-10 col-xs-offset-1"> 
                                     <!-- BASIC PATIENT INFO -->
                                     <div class="row" style="margin-top: 40px">
-                                        <div class="col-md-6">
+                                        <div class="col-md-7">
                                             <div class="row form-group">
                                                 <label class="col-sm-3 control-label" for="patient-id">Patient ID</label>
                                                 <div class="col-sm-6">
@@ -210,10 +200,10 @@
                         <!-- OP-TREATMENTS -->
                         <div class="tab-pane" id="op-treatments">
                             <div class="row">
-                                <div class="col-xs-12 col-md-10 col-md-offset-1">
+                                <div class="col-xs-10 col-xs-offset-1"> 
                                     <!-- BASIC PATIENT INFO -->
                                     <div class="row" style="margin-top: 40px">
-                                        <div class="col-md-6">
+                                        <div class="col-md-7">
                                             <div class="row form-group">
                                                 <label class="col-sm-3 control-label" for="patient-id">Patient ID</label>
                                                 <div class="col-sm-6">
@@ -253,10 +243,10 @@
                         <!-- LABORATORY RESULTS -->
                         <div class="tab-pane" id="laboratories">
                             <div class="row">
-                                <div class="col-xs-12 col-md-10 col-md-offset-1">
+                                <div class="col-xs-10 col-xs-offset-1"> 
                                     <!-- BASIC PATIENT INFO -->
                                     <div class="row" style="margin-top: 40px">
-                                        <div class="col-md-6">
+                                        <div class="col-md-7">
                                             <div class="row form-group">
                                                 <label class="col-sm-3 control-label" for="patient-id">Patient ID</label>
                                                 <div class="col-sm-6">
@@ -293,10 +283,10 @@
                         <!-- MEDICATION RESULTS -->
                         <div class="tab-pane" id="medication">
                             <div class="row">
-                                <div class="col-xs-12 col-md-10 col-md-offset-1">
+                                <div class="col-xs-10 col-xs-offset-1"> 
                                     <!-- BASIC PATIENT INFO -->
                                     <div class="row" style="margin-top: 40px">
-                                        <div class="col-md-6">
+                                        <div class="col-md-7">
                                             <div class="row form-group">
                                                 <label class="col-sm-3 control-label" for="patient-id">Patient ID</label>
                                                 <div class="col-sm-6">
@@ -311,8 +301,6 @@
                                             </div>
                                         </div>
                                     </div>
-
-                                    <a id="list-medication-view-link" onclick="view_lab()">Back to Medications List</a>
                                     <hr>
                                     <!-- MEDICATION TABLE -->
                                         {% include "../medication/list-medications.html" %}
@@ -325,10 +313,10 @@
                         <!-- DIAGNOSES RESULTS -->
                         <div class="tab-pane" id="diagnoses">
                             <div class="row">
-                                <div class="col-xs-12 col-md-10 col-md-offset-1">
+                                <div class="col-xs-10 col-xs-offset-1"> 
                                     <!-- BASIC PATIENT INFO -->
                                     <div class="row" style="margin-top: 40px">
-                                        <div class="col-md-6">
+                                        <div class="col-md-7">
                                             <div class="row form-group">
                                                 <label class="col-sm-3 control-label" for="patient-id">Patient ID</label>
                                                 <div class="col-sm-6">
@@ -600,10 +588,15 @@
 
     var ipt_med_id_counter = 1;
     var ipt_med_proc_id_counter = 1;
+    var ipt_billing_id_counter = 1;
+
     var opt_med_id_counter = 1;
     var opt_med_proc_id_counter = 1;
+    var opt_billing_id_counter = 1;
+
     var cc_med_id_counter = 1;
     var cc_med_proc_id_counter = 1;
+    var cc_billing_id_counter = 1;
 
     var edit_med_id;
     var edit_med_procedure_id;
@@ -873,6 +866,13 @@
             displayFormat: "mdy"
         });
 
+        $("#lab-date").dateDropdowns({
+            displayFormat: "mdy"
+        });
+
+        $("#edit-lab-date").dateDropdowns({
+            displayFormat: "mdy"
+        });
 
         
         $('#list-ipt-view-link').hide();
@@ -892,6 +892,11 @@
 
         $(".date-div select").addClass("form-control");
         $("#birthday select").prop("required", true);
+        $("#confinement-date-div select").prop("required", true);
+        $("#opt-date-div select").prop("required", true);
+        $("#cc-date-div select").prop("required", true);
+        $("#lab-date-div select").prop("required", true);
+        $("#edit-lab-date-div select").prop("required", true);
         $("select option[value='']:selected").attr('disabled',"disabled");
         
         $("#birthday select[name='date_[month]']").attr('name', 'bday_month');
@@ -1112,7 +1117,7 @@
     $('#add-med-form').submit(function (e) {
         e.preventDefault();
         // server SIDE AJAX FOR ADDING A NEW IPT MED ROW TO EDIT IPT VIEW//
-        if(med_modal_caller == 'edit-ipt-add-medication-button') {
+        if(med_modal_caller == 'edit-ipt-add-med-button') {
             var cu = $('#edit-c-id').val();
             $.ajax({
                 type: "POST",
@@ -1140,7 +1145,7 @@
                 $('#add-medication-modal textarea').val("");
             });
         }
-        else if(med_modal_caller == 'edit-opt-add-medication-button') {
+        else if(med_modal_caller == 'edit-opt-add-med-button') {
             var cu = $('#edit-c-id').val();
             $.ajax({
                 type: "POST",
@@ -1168,7 +1173,7 @@
                 $('#add-medication-modal textarea').val("");
             });
         } 
-        else if(med_modal_caller == 'edit-cc-add-medication-button') {
+        else if(med_modal_caller == 'edit-cc-add-med-button') {
             var cu = $('#edit-cc-c-id').val();
             $.ajax({
                 type: "POST",
@@ -1207,8 +1212,19 @@
                     $('#add-med-instructions').val()
                 ]).draw();
 
+               
+                add_ipt_billing_table.row.add([
+                    '<input type="checkbox" id="med-bill-' + ipt_med_id_counter +'" name=""></input>',
+                    $('#add-med-name').val(),
+                    "0"
+                ]).draw();
+
+                $('#add-ipt-billing').parent().children('b').children().text("▾ Hide Billing Information");
+                $('#add-ipt-billing').slideDown(600);
+
                 $('#add-ipt-select-all-meds').prop('checked', false);
-                ipt_med_id_counter++;
+                ipt_med_id_counter++;  
+                ipt_billing_id_counter++;              
             }
             else if(med_modal_caller == 'opt-add-med-button'){
                 add_opt_meds_table.row.add([
@@ -1344,6 +1360,15 @@
                     $('#add-med-procedure-details').val()
                 ]).draw();
 
+                add_ipt_billing_table.row.add([
+                    '<input type="checkbox" id="med-procedure-bill-' + ipt_med_proc_id_counter +'" name=""></input>',
+                    $('#add-med-procedure-description').val(),
+                    "0"
+                ]).draw();
+
+                $('#add-ipt-billing').parent().children('b').children().text("▾ Hide Billing Information");
+                $('#add-ipt-billing').slideDown(600);
+
                 $('#add-ipt-select-all-med-procedures').prop('checked', false);
                 ipt_med_proc_id_counter++;
             }
@@ -1454,6 +1479,15 @@
                     $('#edit-med-type').val(),
                     $('#edit-med-instructions').val()
                 ]).draw();
+
+
+
+                var temp_id = 'med-bill-' + edit_med_caller.children('td:first').children("input").attr("id");
+                add_ipt_billing_table.row($('#' + temp_id).parent().parent()).data([
+                    '<input type="checkbox" id="' + temp_id +'" name=""></input>',
+                    $('#edit-med-name').val(),
+                    "0"
+                    ]).draw();
             }
             else if(edit_med_caller_type == "OPT"){
                 add_opt_meds_table.row(edit_med_caller).data([
@@ -1566,6 +1600,17 @@
                     $('#edit-med-procedure-description').val(),
                     $('#edit-med-procedure-details').val()
                 ]).draw();
+
+
+
+                var temp_id = 'med-procedure-bill-' + edit_med_procedure_caller.children('td:first').children("input").attr("id");
+                
+                add_ipt_billing_table.row($('#' + temp_id).parent().parent()).data([
+                    '<input type="checkbox" id="' + temp_id +'" name=""></input>',
+                    $('#edit-med-procedure-description').val(),
+                    "0"
+                    ]).draw();
+
             }
             else if(edit_med_procedure_caller_type == "OPT"){
                 add_opt_med_procedures_table.row(edit_med_procedure_caller).data([
