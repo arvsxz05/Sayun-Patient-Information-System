@@ -67,7 +67,7 @@
                     <li class="active"><a href="/">Home</a></li>
                 </ul>
                 <ul class="nav navbar-nav navbar-right">
-                    <li><a href="#">{{session.user}}</a></li>
+                    <li><a href="#">{{session.user.id}}</a></li>
                     <li><a href="/logout"><span class="glyphicon glyphicon-log-out"></span> Log out</a></li>
                 </ul>
             </div>
@@ -80,7 +80,7 @@
         <ol class="breadcrumb">
             <li><a href="#">Home</a></li>
             <li><a href="#">Daily Consultation</a></li>
-            <li class="active">Queue for Today (subject to change based on the date of view)</li>
+            <li class="active">Queue for {{ date_on_queue }}</li>
         </ol>
         <!-- END OF BREADCRUMBS -->
         <center>
@@ -139,7 +139,7 @@
                                     <td><a id="{{single_consultation['parent_record.patient.id']}}">{{ single_consultation['parent_record.patient.first_name'] }} {{ single_consultation['parent_record.patient.middle_name'] }} {{ single_consultation['parent_record.patient.last_name'] }} {{ single_consultation['parent_record.patient.suffix'] }}</a>
                                     <input type="hidden" value="{{single_consultation['id']}}"></td>
                                     <td>{{ single_consultation['parent_record.hospital.name'] }}</td>
-                                    <td id="{{single_consultation['parent_record.doctor.id']}}">{{ single_consultation['parent_record.doctor.username.first_name'] }} {{ single_consultation['parent_record.doctor.username.middle_name'] }} {{ single_consultation['parent_record.doctor.username.last_name'] }} {{ single_consultation['parent_record.doctor.username.suffix'] }}</td>
+                                    <td><input type="hidden" name="docId" value="{{single_consultation['parent_record.doctor.id']}}"> {{ single_consultation['parent_record.doctor.username.first_name'] }} {{ single_consultation['parent_record.doctor.username.middle_name'] }} {{ single_consultation['parent_record.doctor.username.last_name'] }} {{ single_consultation['parent_record.doctor.username.suffix'] }}</td>
                                     <td>
                                         <select class="form-control change-status" name="{{ single_consultation['id'] }}">
                                             {% if single_consultation['status'] === 'Waiting' %}
@@ -280,7 +280,7 @@
                     <div class="container-fluid">
                         <div class="row">
                             <div class="col-xs-12">
-                                <form id="edit-daily-consultation-form" class="form-horizontal" method="POST" action="/edit_daily_consultation">
+                                <form id="edit-daily-consultation-form" class="form-horizontal">
                                     <fieldset>
                                         <input type="hidden" id="edit-daily-cc-id" name="consultation_id">
                                         <div class="form-group">
@@ -317,9 +317,9 @@
                                                 <div class="col-sm-9">
                                                     {% if session.doctor == null %}
                                                     <select class="form-control" id="edit-hidden-doctor" name="doctor" required>
-                                                      <option value="" selected disabled>Select Doctor</option>
+                                                      <option value="" disabled>Select Doctor</option>
                                                         {% for doctor in doctors %}
-                                                            <option value="{{doctor.id}}">{{doctor['username.first_name']}} {{doctor['username.middle_name']}} {{doctor['username.last_name']}}</option>
+                                                            <option value="{{doctor.id}}">{{doctor['username.first_name']}} {{doctor['username.middle_name']}} {{doctor['username.last_name']}} {{doctor['username.suffix']}}</option>
                                                         {% endfor %}
 
                                                     </select>
@@ -358,7 +358,7 @@
 
 </body>
 <script>
-     $(function() {
+    $(function() {
         var patients  =  [
             {% for patient in patients %}
                 {
@@ -400,25 +400,12 @@
         });
     });
 </script>
-
+<script src="/socket.io/socket.io.js"></script>
 <script type="text/javascript">
 
     $('#select-doctor-queue').change(function () {
         var valid_time = new Date($("#queue-datepicker").val());
         window.location.replace('/daily_consultation_list/' + $(this).val() + '/' + valid_time.getTime());
-    });
-
-    $(".change-status").change(function () {
-        $.ajax({
-            type: "POST",
-            url: "/change_status" ,
-            data: {
-                'con-id': $(this).attr('name'),
-                'status': $(this).val()
-            }
-        }).done(function (data) {
-            window.location.reload();
-        });
     });
 
     $(document).ready(function() { //DO NOT CHANGEEEEE
@@ -465,7 +452,7 @@
                 $('#edit-daily-consultation-modal select[name="date_[year]"').val(date[2]);
                 $('#edit-patients-names-list').val($(this).parent().parent().children('td:nth-child(2)').children('a').text());
                 $('#edit-hospital').val(data[2]);
-                $('#edit-hidden-doctor').val($(this).parent().parent().children('td:nth-child(4)').attr('id'));
+                $('#edit-hidden-doctor').val($(this).parent().parent().children('td:nth-child(4)').children('input').val());
                 $('#edit-daily-cc-status').val($(this).parent().parent().children('td:nth-child(5)').children('select').val());
 
             {% elif session.doctor %}
@@ -481,6 +468,65 @@
         {% endif %}
 
         $("#daily-cc-date").val(new Date(date));
+        $(function () {
+            var socket = io();
+            socket.on('edited_consultation', function(data) {
+                if(data.doctor ===  "{{ doctor_on_queue }}" && data.date === "{{ date_on_queue }}") {
+                    queue_table = queue_table.rows().remove().draw();
+                    for (var i = data['daily_consultation_list'].length - 1; i >= 0; i--) {
+
+                        var single_daily_conslt = data['daily_consultation_list'][i];
+                        var docId = single_daily_conslt['parent_record.doctor.id'];
+                        var select_status = '<td><select class="form-control change-status" name="' + single_daily_conslt['id'] + '">';
+                        if(single_daily_conslt['status'] === 'Waiting') {
+                            select_status += '<option selected>Waiting</option>' +
+                                '<option>Done</option>' +
+                                '<option>Current</option>';
+                        } else if (single_daily_conslt['status'] === 'Done') {
+                            select_status += '<option>Waiting</option>' +
+                                '<option selected>Done</option>' +
+                                '<option>Current</option>';
+                        } else if (single_daily_conslt['status'] === 'Current') {
+                            select_status += '<option>Waiting</option>' +
+                                '<option>Done</option>' +
+                                '<option selected>Current</option>';
+                        }
+                        queue_table.row.add([
+                            single_daily_conslt['queue_no'],
+                            '<a id="' + single_daily_conslt['parent_record.patient.id'] + '">' + 
+                            single_daily_conslt['parent_record.patient.first_name'] + " " + 
+                            single_daily_conslt['parent_record.patient.middle_name'] + " " + 
+                            single_daily_conslt['parent_record.patient.last_name'] + " " + 
+                            single_daily_conslt['parent_record.patient.suffix'] + '</a>'+
+                            '<input type="hidden" value="' + single_daily_conslt['id'] + '">',
+                            
+                            single_daily_conslt['parent_record.hospital.name'],
+                            '<input type="hidden" name="docId" value="' + docId + '">' + 
+                            single_daily_conslt['parent_record.doctor.username.first_name'] + ' ' + 
+                            single_daily_conslt['parent_record.doctor.username.middle_name'] + ' ' + 
+                            single_daily_conslt['parent_record.doctor.username.last_name'] + ' ' + 
+                            single_daily_conslt['parent_record.doctor.username.suffix'] ,
+                            select_status
+                        ]).draw();
+                    }
+                }
+            });
+        });
+
+
+        $('#daily-queue-table tbody').on('change', 'tr td:nth-child(5) select', function(){
+            $.ajax({
+                type: "POST",
+                url: "/change_status" ,
+                data: {
+                    'con-id': $(this).attr('name'),
+                    'status': $(this).val()
+                }
+            }).done(function (data) {});
+        });
+        // $(".change-status").change(function () {
+            
+        // });
     });
 
     function formatDate(date) {
@@ -494,7 +540,22 @@
 
         return [month, day, year].join('/');
     }
-    
+    $('#edit-daily-consultation-form').submit(function(e) {
+        e.preventDefault();
+        $.ajax({
+            type: "POST",
+            url: "/edit_daily_consultation" ,
+            data: {
+                consultation_id: $("#edit-daily-cc-id").val(),
+                doctor: $("#edit-hidden-doctor").val(),
+                date: $("#edit-daily-cc-date").val(),
+                status: $("#edit-daily-cc-status").val(),
+                hospital: $("#edit-hospital").val()
+            }
+        }).done(function (data) {
+            $("#edit-daily-consultation-modal").modal("toggle");
+        });
+    });
 </script>
 
 </html>

@@ -150,6 +150,7 @@
     </div>
 
 </body>
+<script src="/socket.io/socket.io.js"></script>
 <script type="text/javascript">
     var iCnt;
     var date;
@@ -174,10 +175,30 @@
                 });
             }
         });
+        $(function () {
+            var socket = io();
+            socket.on('edited_consultation', function(data) {
+                console.log(data);
+                if(data.doctor ===  "{{ doctor_on_queue['username.id'] }}" && data.date === "{{ date_on_queue }}") {
+                    $("#daily-queue-table").find("tr:gt(0)").remove();
+                    iCnt = 1;
+                    for (var i = data['daily_consultation_list'].length - 1; i >= 0; i--) {
+                        var single_daily_conslt = data['daily_consultation_list'][i];
+                        $("#daily-queue-table > tbody:last-child").append(
+                            '<tr><td>' + iCnt + '</td>' +
+                            '<td>' + single_daily_conslt['parent_record.patient.first_name'] + " " + single_daily_conslt['parent_record.patient.middle_name'] + " " + single_daily_conslt['parent_record.patient.last_name'] + " " + single_daily_conslt['parent_record.patient.suffix'] + '</td>' +
+                            '<td>' + single_daily_conslt['parent_record.hospital.name'] + '</td>' +
+                            '<td>' + single_daily_conslt['status'] + '</td></tr>'
+                        );
+                        iCnt++;
+                    }
+                }
+            });
+        });
         $('#cancel-reorder-btn').attr('href', window.location.href.replace('reorder', 'daily_consultation_list'));
     });
 
-    $('#reorder-btn').on('click', function(){
+    $('#reorder-btn').on('click', function() {
         var queue = [];
         
         $('#daily-queue-table tbody').children('tr').each(function () {

@@ -356,8 +356,6 @@ router.post('/add_account', requireLoggedIn, requireSuperUser,
 
 		if(email_add === "") { email_add = null; }
 
-		if(suffix === "") { suffix = null; }
-
 		if(is_admin === 'Admin') {
 			is_admin = true;
 		} else {
