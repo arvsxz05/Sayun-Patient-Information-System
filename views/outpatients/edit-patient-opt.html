@@ -134,9 +134,10 @@
 <script type="text/javascript">
     $("#edit-opt-form").submit(function (event) {
         event.preventDefault();
+        {% if doctor %}
         edit_opt_meds_table.rows().remove().draw();
         edit_opt_med_procedures_table.rows().remove().draw();
-        
+        {% endif %}
         var key = $("#edit-p-id").val();
         var cu = $("#edit-c-id").val();
         {% if doctor %}

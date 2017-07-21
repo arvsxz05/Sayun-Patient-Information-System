@@ -190,7 +190,7 @@
                     <div class="container-fluid">
                         <div class="row">
                             <div class="col-xs-12">
-                                <form id="add-daily-consultation-form" class="form-horizontal" method="POST" action="/add_daily_consultation">
+                                <form id="add-daily-consultation-form" class="form-horizontal">
                                     <fieldset>
                                         <div class="form-group">
                                             <label class="col-sm-3 control-label" for="tags">Patient Name: </label>
@@ -204,6 +204,9 @@
                                         </div>
                                         <div id="daily-cc-div" class="hidden">
                                             <hr>
+                                            <div class="form-group">
+                                                <p id="add_daily_cc_error"></p>
+                                            </div>
                                             <div class="form-group">
                                                 <label class="col-sm-3 control-label" for="daily-cc-date">Date*</label>
                                                 <div class="col-sm-9">
@@ -511,6 +514,31 @@
                     }
                 }
             });
+
+            socket.on('new_consultation', function(data) {
+                if(data['doctor']['usernameId'] ===  "{{ doctor_on_queue }}" && data.date === "{{ date_on_queue }}") {
+                    queue_table.row.add([
+                        data.add['queue_no'],
+                        '<a id="' + data.add['parent_record']['patientId'] + '">' + 
+                        data.patient['first_name'] + " " + 
+                        data.patient['middle_name'] + " " + 
+                        data.patient['last_name'] + " " + 
+                        data.patient['suffix'] + '</a>'+
+                        '<input type="hidden" value="' + data.add['id'] + '">',
+                        
+                        data.add['parent_record']['hospitalName'],
+                        '<input type="hidden" name="docId" value="' + data.add['parent_record']['doctorId'] + '">' + 
+                        data.doctor['username.first_name'] + ' ' + 
+                        data.doctor['username.middle_name'] + ' ' + 
+                        data.doctor['username.last_name'] + ' ' + 
+                        data.doctor['username.suffix'],
+                        '<td><select class="form-control change-status" name="' + data.add['id'] + '">' +
+                        '<option selected>Waiting</option>' +
+                        '<option>Done</option>' +
+                        '<option>Current</option>'
+                    ]).draw();
+                }
+            });
         });
 
 
@@ -524,9 +552,6 @@
                 }
             }).done(function (data) {});
         });
-        // $(".change-status").change(function () {
-            
-        // });
     });
 
     function formatDate(date) {
@@ -554,6 +579,26 @@
             }
         }).done(function (data) {
             $("#edit-daily-consultation-modal").modal("toggle");
+        });
+    });
+
+    $('#add-daily-consultation-form').submit(function(e) {
+        e.preventDefault();
+        $.ajax({
+            type: "POST",
+            url: "/add_daily_consultation" ,
+            data: {
+                doctor: $("#hidden-doctor").val(),
+                date: $("#daily-cc-date").val(),
+                hospital: $("#hospital").val(),
+                p_id: $("#hidden_patient_id").val()
+            }
+        }).done(function (data) {
+            if(data.success) {
+                $("#add-daily-consultation-modal").modal("toggle");
+            } else {
+                $("#add_daily_cc_error").html(data.error);
+            }
         });
     });
 </script>

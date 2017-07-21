@@ -145,9 +145,10 @@
 
     $("#edit-ipt-form").submit(function (event) {
         event.preventDefault();
+        {% if doctor %}
         edit_ipt_meds_table.rows().remove().draw();
         edit_ipt_med_procedures_table.rows().remove().draw();
-        
+        {% endif %}
         var key = $("#edit-p-id").val();
         var cu = $("#edit-c-id").val();
         {% if doctor %}

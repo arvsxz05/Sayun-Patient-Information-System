@@ -637,13 +637,37 @@ module.exports = function(io) {
 				}]
 			}).then(daily_consultation_instance => {
 				Doctor.findOne({
+					raw: true,
 					where: {
 						id: req.body.doctor
 					},
-					attributes: ['usernameId']
+					attributes: ['usernameId'],
+					include: [{
+						model: User_Account,
+						as: 'username',
+						attributes: ['first_name', 'middle_name', 'last_name', 'suffix']
+					}]
 				}).then(doctor_instance => {
-					res.redirect('/daily_consultation_list/' + doctor_instance.usernameId + '/' + new Date(req.body.date).getTime());
-				})
+					Patient.findOne({
+						raw: true,
+						where: {
+							id: daily_consultation_instance['parent_record']['patientId']
+						},
+						attributes: ['id', 'first_name', 'middle_name', 'last_name', 'suffix']
+					}).then(patient_instance => {
+						io.emit('new_consultation', {
+							patient: patient_instance,
+							date: new Date(req.body.date.trim()).toDateString(),
+							doctor: doctor_instance,
+							add: daily_consultation_instance.dataValues
+						});
+					res.json({success: true});
+					}).catch(error => {
+						res.json({error: error});
+					});
+				});
+			}).catch(error => {
+				res.json({error: error});
 			});
 		});
 	});
