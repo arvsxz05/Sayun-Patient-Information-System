@@ -1112,7 +1112,7 @@
     $('#add-med-form').submit(function (e) {
         e.preventDefault();
         // server SIDE AJAX FOR ADDING A NEW IPT MED ROW TO EDIT IPT VIEW//
-        if(med_modal_caller == 'edit-ipt-add-medication-button') {
+        if(med_modal_caller == 'edit-ipt-add-med-button') {
             var cu = $('#edit-c-id').val();
             $.ajax({
                 type: "POST",
@@ -1140,7 +1140,7 @@
                 $('#add-medication-modal textarea').val("");
             });
         }
-        else if(med_modal_caller == 'edit-opt-add-medication-button') {
+        else if(med_modal_caller == 'edit-opt-add-med-button') {
             var cu = $('#edit-c-id').val();
             $.ajax({
                 type: "POST",
@@ -1168,7 +1168,7 @@
                 $('#add-medication-modal textarea').val("");
             });
         } 
-        else if(med_modal_caller == 'edit-cc-add-medication-button') {
+        else if(med_modal_caller == 'edit-cc-add-med-button') {
             var cu = $('#edit-cc-c-id').val();
             $.ajax({
                 type: "POST",

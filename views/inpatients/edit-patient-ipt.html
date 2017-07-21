@@ -86,7 +86,7 @@
                 <table id="edit-list-medication" class="table table-striped table-bordered" cellspacing="0" width="100%">
                     <thead>
                         <tr>
-                            <th><input type="checkbox" aria-label="..." id="select-all"/></th>
+                            <th><input type="checkbox" aria-label="..." id="edit-ipt-select-all-meds"/></th>
                             <th>Name</th>
                             <th>Dosage</th>
                             <th>Frequency</th>
@@ -99,8 +99,8 @@
                 </table>
             </div>
             <div class="button-group">
-                <button class="btn btn-red pull-right" type="submit" name="delete" value="true" id="delete">Delete</button>
-                <a href class="btn btn-lime pull-right" id="edit-ipt-add-medication-button" data-toggle="modal" data-target="#add-medication-modal">Add</a>
+                <a class="btn btn-blue pull-right btn-icon" onclick="edit_ipt_delete_med()" name="delete" value="true" id="delete"><span class="glyphicon glyphicon-trash"></span></a>
+                <a href class="btn btn-lime pull-right btn-icon" id="edit-ipt-add-med-button" data-toggle="modal" data-target="#add-medication-modal"><span class="glyphicon glyphicon-plus"></span></a>
             </div>
         </form>
         <!-- END OF MEDICATION LIST FOR IPT -->
@@ -113,7 +113,7 @@
                 <table id="edit-list-med-procedure" class="table table-striped table-bordered" cellspacing="0" width="100%">
                     <thead>
                         <tr>
-                            <th><input type="checkbox" aria-label="..." id="select-all"/></th>
+                            <th><input type="checkbox" aria-label="..." id="edit-ipt-select-all-med-procedures"/></th>
                             <th>Date</th>
                             <th>Description</th>
                             <th>Details</th>
@@ -124,8 +124,8 @@
                 </table>
             </div>
             <div class="button-group">
-                <button class="btn btn-red pull-right" type="submit" name="delete" value="true" id="delete-med-procedure-button">Delete</button>
-                <a href class="btn btn-lime pull-right" id="edit-ipt-add-med-procedure-button" data-toggle="modal" data-target="#add-med-procedure-modal">Add</a>
+                <a class="btn btn-blue pull-right btn-icon" onclick="edit_ipt_delete_med_procedure()" name="delete" value="true" id=""><span class="glyphicon glyphicon-trash"></span></a>
+                <a href class="btn btn-lime pull-right btn-icon" id="edit-ipt-add-med-procedure-button" data-toggle="modal" data-target="#add-med-procedure-modal"><span class="glyphicon glyphicon-plus"></span></a>
             </div>
         </form>
         <!-- END OF MEDICAL PROCEDURES LIST FOR IPT -->
@@ -279,4 +279,74 @@
     });
 
     
+    // DELETING ROWS FOR MEDS
+    {% if doctor %}
+    $('#edit-ipt-select-all-meds').change(function(){  //"select all" change 
+        var status = this.checked; // "select all" checked status
+        $('#edit-list-medication tbody input:checkbox').each(function(){ //iterate all listed checkbox items
+            this.checked = status; //change ".checkbox" checked status
+        });
+    });
+
+    $("#edit-list-medication tbody").on('click', ':checkbox', function(){
+        $('#edit-ipt-select-all-meds').prop('checked', $('#edit-list-medication tbody input:checkbox').length == $('#edit-list-medication tbody input:checkbox:checked').length);
+    });
+
+    function edit_ipt_delete_med(){
+        var med_rows= [];
+
+        $("#edit-list-medication tbody input:checkbox").each(function(){
+            var $this = $(this);
+            if($this.is(":checked")){
+                med_rows.push($this.parent().parent());
+            }
+        });
+
+        if(med_rows.length > 0 && confirm("Are you sure you want to delete Medication record/s? This cannot be undone.")){
+            for(var x = 0; x < med_rows.length; x++ ){
+                edit_ipt_meds_table.row(med_rows[x]).remove().draw();
+            }
+
+            $('#edit-ipt-select-all-meds').prop('checked', false);
+
+        }
+    }
+    {% endif %}
+    // 
+
+
+    // DELETING ROWS FOR MED PROCEDURES
+    {% if doctor %}
+    $('#edit-ipt-select-all-med-procedures').change(function(){  //"select all" change 
+        var status = this.checked; // "select all" checked status
+        $('#edit-list-med-procedure tbody input:checkbox').each(function(){ //iterate all listed checkbox items
+            this.checked = status; //change ".checkbox" checked status
+        });
+    });
+
+    $("#edit-list-med-procedure tbody").on('click', ':checkbox', function(){
+        $('#edit-ipt-select-all-med-procedures').prop('checked', $('#edit-list-med-procedure tbody input:checkbox').length == $('#edit-list-med-procedure tbody input:checkbox:checked').length);
+    });
+
+    function edit_ipt_delete_med_procedure(){
+        var med_proc_rows= [];
+
+        $("#edit-list-med-procedure tbody input:checkbox").each(function(){
+            var $this = $(this);
+            if($this.is(":checked")){
+                med_proc_rows.push($this.parent().parent());
+            }
+        });
+
+        if(med_proc_rows.length > 0 && confirm("Are you sure you want to delete Medical Procedure record/s? This cannot be undone.")){
+            for(var x = 0; x < med_proc_rows.length; x++ ){
+                edit_ipt_med_procedures_table.row(med_proc_rows[x]).remove().draw();
+            }
+
+            $('#edit-ipt-select-all-med-procedures').prop('checked', false);
+
+        }
+    }
+    {% endif %}
+    // 
 </script>
