@@ -871,6 +871,13 @@
             displayFormat: "mdy"
         });
 
+        $("#lab-date").dateDropdowns({
+            displayFormat: "mdy"
+        });
+
+        $("#edit-lab-date").dateDropdowns({
+            displayFormat: "mdy"
+        });
 
         
         $('#list-ipt-view-link').hide();
@@ -890,6 +897,11 @@
 
         $(".date-div select").addClass("form-control");
         $("#birthday select").prop("required", true);
+        $("#confinement-date-div select").prop("required", true);
+        $("#opt-date-div select").prop("required", true);
+        $("#cc-date-div select").prop("required", true);
+        $("#lab-date-div select").prop("required", true);
+        $("#edit-lab-date-div select").prop("required", true);
         $("select option[value='']:selected").attr('disabled',"disabled");
         
         $("#birthday select[name='date_[month]']").attr('name', 'bday_month');
