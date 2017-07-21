@@ -171,59 +171,59 @@
 
             <div class="col-xs-12"><br></div>
 
-            <div class="col-md-5">
-                    <div class="form-group">
-                        <label class="col-sm-5 control-label" for="e-mail">E-mail</label>
-                        <div class="col-sm-7">
-                            <input type="text" class="form-control" name="email" id="email" value="{{patient.email}}">
+            <div class="row">
+                <div class="col-md-5">
+                        <div class="form-group">
+                            <label class="col-sm-5 control-label" for="e-mail">E-mail</label>
+                            <div class="col-sm-7">
+                                <input type="text" class="form-control" name="email" id="email" value="{{patient.email}}">
+                            </div>
                         </div>
-                    </div>
-                    <div>
-                        <p id="error-email"></p>
-                    </div>
-                    <div class="form-group">
-                        <label class="col-sm-5 control-label" for="contact1">Contact No.*</label>
-                        <div class="col-sm-7">
-                            <input type="text" class="form-control" name="contact1" id="contact1" value="{{patient.phone_number}}">
+                        <div>
+                            <p id="error-email"></p>
                         </div>
-                    </div>
-                    <div class="form-group">
-                        <label class="col-sm-5 control-label" for="contact2">Alt. Contact No.</label>
-                        <div class="col-sm-7">
-                            <input type="text" class="form-control" name="contact2" id="contact2" value="{{patient.alt_cn}}">
+                        <div class="form-group">
+                            <label class="col-sm-5 control-label" for="contact1">Contact No.*</label>
+                            <div class="col-sm-7">
+                                <input type="text" class="form-control" name="contact1" id="contact1" value="{{patient.phone_number}}">
+                            </div>
                         </div>
-                    </div>
-            </div>
+                        <div class="form-group">
+                            <label class="col-sm-5 control-label" for="contact2">Alt. Contact No.</label>
+                            <div class="col-sm-7">
+                                <input type="text" class="form-control" name="contact2" id="contact2" value="{{patient.alt_cn}}">
+                            </div>
+                        </div>
+                </div>
 
-            <div class="col-md-6">
+                <div class="col-md-6">
 
-                    <div class="form-group">
-                        <label class="col-sm-5 control-label" for="emergency_person">Emergency Contact Person*</label>
-                        <div class="col-sm-7">
-                            <input type="text" class="form-control" name="emergency_person" id="emergency_person" value="{{patient.em_cp}}">
+                        <div class="form-group">
+                            <label class="col-sm-5 control-label" for="emergency_person">Emergency Contact Person*</label>
+                            <div class="col-sm-7">
+                                <input type="text" class="form-control" name="emergency_person" id="emergency_person" value="{{patient.em_cp}}">
+                            </div>
                         </div>
-                    </div>
-                    <div class="form-group">
-                        <label class="col-sm-5 control-label" for="emergency_contact">Emergency Contact No.*</label>
-                        <div class="col-sm-7">
-                            <input type="text" class="form-control" name="emergency_contact" id="emergency_contact" value="{{patient.emc_n}}">
+                        <div class="form-group">
+                            <label class="col-sm-5 control-label" for="emergency_contact">Emergency Contact No.*</label>
+                            <div class="col-sm-7">
+                                <input type="text" class="form-control" name="emergency_contact" id="emergency_contact" value="{{patient.emc_n}}">
+                            </div>
                         </div>
-                    </div>
-                    <div class="form-group">
-                        <label class="col-sm-5 control-label" for="contact_person_rel">Relationship*</label>
-                        <div class="col-sm-7">
-                            <input type="text" class="form-control" name="contact_person_rel" id="contact_person_rel" value="{{patient.rel_emcp}}">
+                        <div class="form-group">
+                            <label class="col-sm-5 control-label" for="contact_person_rel">Relationship*</label>
+                            <div class="col-sm-7">
+                                <input type="text" class="form-control" name="contact_person_rel" id="contact_person_rel" value="{{patient.rel_emcp}}">
+                            </div>
                         </div>
-                    </div>
-                
+                    
+                </div>
             </div>
             <!-- END OF PATIENT INFO DIVS -->
             <!-- BUTTONS -->
-            <div class="col-md-6 col-md-offset-6 button-group" style="margin-top:30px">
-                <div class="col-sm-7 col-sm-offset-5">     
-                    <button type="submit" class="btn btn-lime" id="save-btn">Save</button>    
-                    <a href="/account_list" class="btn btn-gray">Cancel</a>
-                </div>
+            <div class="row button-group" style="margin-top:30px"> 
+                <a href="/account_list" class="btn btn-gray pull-right">Cancel</a>    
+                <button type="submit" class="btn btn-lime pull-right" id="save-btn">Save</button>    
             </div>
             <!-- END OF BUTTONS -->
             

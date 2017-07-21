@@ -181,6 +181,10 @@ select{
     color: white !important;
 }
 
+.table-responsive{
+    border:none !important;
+}
+
 #snackbar {
     visibility: hidden;
     min-width: 250px;
