@@ -4,6 +4,7 @@
   "description": "First server set-up",
   "main": "server.js",
   "scripts": {
+    "start": "node server.js",
     "test": "mocha"
   },
   "repository": {

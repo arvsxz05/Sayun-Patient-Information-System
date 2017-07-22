@@ -10,13 +10,14 @@ const nunjucks = require('nunjucks');
 const Doctor = require('./models').Doctor;
 const User_Account = require('./models').User_Account;
 
-const port = 8000;
 var app = express(),
 	http = require('http'),
 	server = http.createServer(app),
 	io = require('socket.io').listen(server);
 
-server.listen(port, function() {
+app.set('port', (process.env.PORT || 8000))
+
+server.listen(app.get('port'), function() {
 	console.log('SPIS: Server Running!');
 });
 
