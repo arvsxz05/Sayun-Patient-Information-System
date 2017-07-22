@@ -2,8 +2,8 @@ if (!global.hasOwnProperty('db')) {
 	const Sequelize = require('sequelize');
 	var database = null;
 
-	if (process.env.HEROKU_POSTGRESQL_BRONZE_URL) {
-		database = new Sequelize(process.env.HEROKU_POSTGRESQL_BRONZE_URL, {
+	if (process.env.DATABASE_URL) {
+		database = new Sequelize(process.env.DATABASE_URL, {
 			dialect:  'postgres',
 			protocol: 'postgres',
 			port:     match[4],
