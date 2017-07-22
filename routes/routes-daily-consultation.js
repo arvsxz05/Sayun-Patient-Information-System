@@ -207,7 +207,7 @@ module.exports = function(io) {
 						attributes: ['name', 'type'],
 						raw: true
 					}).then(hospital_list => {
-						res.render('daily_consultation/daily-consultation-queue.html', {
+						res.render('../views/daily_consultation/daily-consultation-queue.html', {
 							daily_consultation_list: daily_consultation_list,
 							session: req.session,
 							patients: patient_list,
@@ -287,7 +287,7 @@ module.exports = function(io) {
 									attributes: ['name', 'type'],
 									raw: true
 								}).then(hospital_list => {
-									res.render('daily_consultation/daily-consultation-queue.html', {
+									res.render('../views/daily_consultation/daily-consultation-queue.html', {
 										daily_consultation_list: daily_consultation_list,
 										session: req.session,
 										patients: patient_list,
@@ -589,7 +589,7 @@ module.exports = function(io) {
 					}]
 				}).then(daily_consultation_list => {
 					// console.log(single_doctor);
-					res.render('daily_consultation/reorder-queue.html', {
+					res.render('../views/daily_consultation/reorder-queue.html', {
 						daily_consultation_list: daily_consultation_list,
 						session: req.session,
 						doctor_on_queue: single_doctor,

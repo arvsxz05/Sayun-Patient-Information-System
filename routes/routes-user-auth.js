@@ -49,7 +49,7 @@ router.get('/login',
 					email: result[0].email,
 				}
 
-				res.render('account/login.html', {
+				res.render('../views/account/login.html', {
 					instances : instances,
 					superuser: superuser,
 				});

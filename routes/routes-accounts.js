@@ -79,7 +79,7 @@ const upload = multer({
 /////////////////////// GET //////////////////////////
 
 router.get('/account_add', requireLoggedIn, requireSuperUser, function (req, res) {
-	res.render('account/add-account.html', {
+	res.render('../views/account/add-account.html', {
 		title_types: title_types
 	});
 });
@@ -106,7 +106,7 @@ router.get('/account_list', requireLoggedIn, requireSuperAdmin, function (req, r
 			});
 		}
 
-		res.render('account/list-accounts.html', {
+		res.render('../views/account/list-accounts.html', {
 			user_accounts: allAccounts,
 			superuser: req.session.superuser
 		});
@@ -157,7 +157,7 @@ router.get('/account_edit/:id', requireLoggedIn,
 						if(result) {
 							contact_nums = result.contact_numbers;
 							console.log(req.session);
-							res.render('account/view-edit-account.html', {
+							res.render('../views/account/view-edit-account.html', {
 								user: result,
 								type: type,
 								session: req.session,
@@ -206,7 +206,7 @@ router.get('/account_edit/:id', requireLoggedIn,
 							if(result) {
 								contact_nums = result.contact_numbers;
 								console.log(req.session);
-								res.render('account/view-edit-account.html', {
+								res.render('../views/account/view-edit-account.html', {
 									user: result,
 									type: type,
 									session: req.session,
@@ -405,7 +405,7 @@ router.post('/add_account', requireLoggedIn, requireSuperUser,
 						})
 						.catch(function(error) {
 							console.log(error);
-							res.render('account/add-account.html', {
+							res.render('../views/account/add-account.html', {
 								error: error
 							});
 						});
@@ -413,7 +413,7 @@ router.post('/add_account', requireLoggedIn, requireSuperUser,
 					res.redirect('/account_list');
 				}).catch(error => {
 					console.log(error);
-					res.render('account/add-account.html', {
+					res.render('../views/account/add-account.html', {
 						error: error
 					});
 				});
@@ -432,7 +432,7 @@ router.post('/add_account', requireLoggedIn, requireSuperUser,
 						})
 						.catch(function(error) {
 							console.log(error);
-							res.render('account/add-account.html', {
+							res.render('../views/account/add-account.html', {
 								error: error
 							});
 						});
@@ -440,7 +440,7 @@ router.post('/add_account', requireLoggedIn, requireSuperUser,
 					res.redirect('/account_list');
 				}).catch(error => {
 					console.log(error);
-					res.render('account/add-account.html', {
+					res.render('../views/account/add-account.html', {
 						error: error
 					});
 				});

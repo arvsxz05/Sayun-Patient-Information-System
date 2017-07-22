@@ -27,7 +27,7 @@ function logOut(req, res, next) {
 /////////////////////// GET //////////////////////////
 
 router.get('/adminlicense', logOut, function (req, res) {
-	res.render('spis_instance/su-login.html');
+	res.render('../views/spis_instance/su-login.html');
 });
 
 router.get('/spis_list', requireSuperUser, function (req, res){
@@ -38,7 +38,7 @@ router.get('/spis_list', requireSuperUser, function (req, res){
 		]
 	}).then(function (results) {
 		
-		res.render('spis_instance/list-SPIS.html', {
+		res.render('../views/spis_instance/list-SPIS.html', {
 			instances: results,
 			user: req.session.user
 		});

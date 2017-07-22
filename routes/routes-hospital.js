@@ -44,7 +44,7 @@ function requireAdmin(req, res, next) {
 /////////////////////// GET //////////////////////////
 
 router.get('/hcl_add', requireLoggedIn, requireAdmin, function (req, res) {
-	res.render('account/add-hcl.html');
+	res.render('../views/account/add-hcl.html');
 });
 
 router.get('/hcl_edit/:name', requireLoggedIn, requireAdmin, function (req, res) {
@@ -92,7 +92,7 @@ router.get('/hcl_list', requireLoggedIn, requireAdmin, function (req, res) {
 					active: result.active,
 				});
 			}
-			res.render('hospital/list-hospital.html', {
+			res.render('../views/hospital/list-hospital.html', {
 				hcls : allHCL,
 				admin : req.session.admin,
 				superuser : req.session.superuser
