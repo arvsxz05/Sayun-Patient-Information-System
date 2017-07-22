@@ -13,14 +13,6 @@ const Medication = require('../models/database').Medication;
 const multer = require('multer');
 const Sequelize = require('sequelize');
 
-const nunjucks = require('nunjucks');
-nunjucks.configure(__dirname + '../views', {
-    autoescape: true,
-    noCache: true,
-    watch: true,
-    express: express()
-});
-
 ///////////////////// MIDDLEWARES ////////////////////////
 
 function get_age(born, now) {

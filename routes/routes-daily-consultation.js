@@ -10,14 +10,6 @@ module.exports = function(io) {
 	const Patient = require('../models/database').Patient;
 	const User_Account = require('../models/database').User_Account;
 
-	const nunjucks = require('nunjucks');
-	nunjucks.configure(__dirname + '../views', {
-	    autoescape: true,
-	    noCache: true,
-	    watch: true,
-	    express: express()
-	});
-
 	//////////////////////////// MIDDLEWARES /////////////////////////////////
 
 	function requireLoggedIn(req, res, next) {
