@@ -106,7 +106,7 @@ router.get('/patient_list', requireLoggedIn, function (req, res) {
 
 		}
 
-		res.render('../views/patient/list-patients.html', {
+		res.render('patient/list-patients.html', {
 			patients: allPatients,
 			admin: req.session.admin,
 			superuser: req.session.superuser,
@@ -119,7 +119,7 @@ router.get('/patient_list', requireLoggedIn, function (req, res) {
 });
 
 router.get('/patient_add', requireLoggedIn, function (req, res) {
-	res.render('../views/patient/add-patient.html');
+	res.render('patient/add-patient.html');
 });
 
 router.get('/patient_edit/:id', requireLoggedIn, function (req, res) {
@@ -157,7 +157,7 @@ router.get('/patient_edit/:id', requireLoggedIn, function (req, res) {
 				    raw: true,
 				}).then(function (doctors) {
 
-					res.render('../views/patient/patient-info.html', {
+					res.render('patient/patient-info.html', {
 						patient: patient,
 						user: req.session.user,
 						doctor: req.session.doctor,
