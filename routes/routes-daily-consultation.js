@@ -2,13 +2,13 @@ module.exports = function(io) {
 	const express = require('express');
 	const router = express.Router();
 	const Sequelize = require('sequelize');
-	const Consultation = require('./models').Consultation;
-	const Check_Up = require('./models').Check_Up;
-	const Hospital = require('./models').Hospital;
-	const Doctor = require('./models').Doctor;
-	const Secretary = require('./models').Secretary;
-	const Patient = require('./models').Patient;
-	const User_Account = require('./models').User_Account;
+	const Consultation = require('../models/database').Consultation;
+	const Check_Up = require('../models/database').Check_Up;
+	const Hospital = require('../models/database').Hospital;
+	const Doctor = require('../models/database').Doctor;
+	const Secretary = require('../models/database').Secretary;
+	const Patient = require('../models/database').Patient;
+	const User_Account = require('../models/database').User_Account;
 
 	//////////////////////////// MIDDLEWARES /////////////////////////////////
 

@@ -1,18 +1,17 @@
 const express = require('express');
 const router = express.Router();
-const Patient = require('./models').Patient;
-const Hospital = require('./models').Hospital;
-const InPatient_Treatment = require('./models').InPatient_Treatment;
-const OutPatient_Treatment = require('./models').OutPatient_Treatment;
-const Consultation = require('./models').Consultation;
-const Doctor = require('./models').Doctor;
-const User_Account = require('./models').User_Account;
-const Check_Up = require('./models').Check_Up;
-const Laboratory = require('./models').Laboratory;
-const Medication = require('./models').Medication;
+const Patient = require('../models/database').Patient;
+const Hospital = require('../models/database').Hospital;
+const InPatient_Treatment = require('../models/database').InPatient_Treatment;
+const OutPatient_Treatment = require('../models/database').OutPatient_Treatment;
+const Consultation = require('../models/database').Consultation;
+const Doctor = require('../models/database').Doctor;
+const User_Account = require('../models/database').User_Account;
+const Check_Up = require('../models/database').Check_Up;
+const Laboratory = require('../models/database').Laboratory;
+const Medication = require('../models/database').Medication;
 const multer = require('multer');
 const Sequelize = require('sequelize');
-const Promise = require('sequelize').Promise;
 
 ///////////////////// MIDDLEWARES ////////////////////////
 

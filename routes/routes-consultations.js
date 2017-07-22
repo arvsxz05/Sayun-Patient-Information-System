@@ -1,14 +1,15 @@
 const express = require('express');
 const router = express.Router();
-const OutPatient_Treatment = require('./models').OutPatient_Treatment;
-const Check_Up = require('./models').Check_Up;
-const Doctor = require('./models').Doctor;
-const User_Account = require('./models').User_Account;
-const Medication = require('./models').Medication;
-const Medical_Procedure = require('./models').Medical_Procedure;
-const Billing_Item = require('./models').Billing_Item;
+const Consultation = require('../models/database').Consultation;
+const Check_Up = require('../models/database').Check_Up;
+const Doctor = require('../models/database').Doctor;
+const User_Account = require('../models/database').User_Account;
+const Medication = require('../models/database').Medication;
+const Medical_Procedure = require('../models/database').Medical_Procedure;
+const Billing_Item = require('../models/database').Billing_Item;
 const multer = require('multer');
 const fs = require('fs');
+
 
 ///////////////////// MIDDLEWARES ////////////////////////
 
@@ -29,13 +30,13 @@ function requireDoctor(req, res, next) {
 	next();
 }
 
-var addOPTfileQueue = {};
+var addCCfileQueue = {};
 
-const upload_file_opts = multer({
+const upload_file_cc = multer({
 	storage: multer.diskStorage({
 		destination: function (req, file, cb) {
-			if(file.fieldname == 'add-opt-attachments[]'){
-				var path = './static/uploads/OPTs';
+			if(file.fieldname == 'add-cc-attachments[]'){
+				var path = './static/uploads/consultations';
 				cb(null, path);
 			}
 		},
@@ -45,28 +46,25 @@ const upload_file_opts = multer({
 	}),
 });
 
-var upload_opt_success = upload_file_opts.array('add-opt-attachments[]');
+var upload_cc_success = upload_file_cc.array('add-cc-attachments[]');
 
-//////////////////////// GET ////////////////////////////////////
+/////////////////////////////// GET ////////////////////////////////////
 
-router.get('/opt_list/:patient_id',
+router.get('/clinic_consultation_list/:patient_id', requireLoggedIn,
 	function (req, res, next) {
-		var fileId = req.signedCookies.optFileId;
-		addOPTfileQueue[fileId] = null;
+		var fileId = req.signedCookies.ccFileId;
+		addCCfileQueue[fileId] = null;
 		fileId = Date.now() + "" + Math.floor(Math.random()*10);
-		res.cookie('optFileId', fileId, { signed: true });
-		addOPTfileQueue[fileId] = {filesArr: []};
+		res.cookie('ccFileId', fileId, { signed: true });
+		addCCfileQueue[fileId] = {filesArr: []};
 		next();
 	},
 	function (req, res) {
 		var patient_id = req.params.patient_id;
 
 		if(req.session.doctor) {
-			OutPatient_Treatment.findAll({
+			Consultation.findAll({
 				raw: true,
-				where: {
-					active: true,
-				},
 				include: [{
 			        model: Check_Up,
 			        where: {
@@ -79,21 +77,20 @@ router.get('/opt_list/:patient_id',
 						where: { id: req.session.doctor.id },
 						include: [{ model: User_Account, as: 'username'}]
 					}]
-			    }]
-			}).then(function (results) {
-				res.json({opt_list: results});
+			    }],
+			    where: {
+			    	active: true
+			    }
+			}).then(cc_list => {
+				res.json({cc_list: cc_list});
 			});
-		} else if(req.session.secretary) {
-			OutPatient_Treatment.findAll({
+		} else if (req.session.secretary) {
+			Consultation.findAll({
 				raw: true,
-				where: {
-					active: true,
-				},
 				include: [{
 			        model: Check_Up,
 			        where: {
 						patientId: patient_id,
-						active: true,
 					},
 					as: 'parent_record',
 					include: [{ 
@@ -101,8 +98,8 @@ router.get('/opt_list/:patient_id',
 						include: [{ model: User_Account, as: 'username'}]
 					}]
 			    }]
-			}).then(function (results) {
-				res.json({opt_list: results});
+			}).then(cc_list => {
+				res.json({cc_list: cc_list});
 			});
 		} else {
 			res.send("You are not given access here.");
@@ -110,135 +107,120 @@ router.get('/opt_list/:patient_id',
 	}
 );
 
-router.get('/opt_edit_json/:opt_id/:patient_id', function(req, res){
-	var key = req.params.opt_id;
+router.get('/clinic_consultation_edit_json/:cc_id/:patient_id', requireLoggedIn, function (req, res) {
+
+	var key = req.params.cc_id;
 	var patient_id = req.params.patient_id;
 
-	OutPatient_Treatment.findOne({
+	Consultation.findOne({
 		raw: true,
 		include: [{
-	        model: Check_Up,
-	        where: {
+			model: Check_Up,
+			where: {
 				patientId: patient_id,
-				active: true,
 			},
 			as: 'parent_record',
-			include: [{ 
+			include: [{
 				model: Doctor,
-				include: [{ model: User_Account, as: 'username'}]
+				include: [{
+					model: User_Account,
+					as: 'username',
+				}],
 			}],
-	    }],
-	    where: {
-	    	id: key,
-	    	active: true,
-	    }
-	}).then(opt_instance => {
-
-		if(opt_instance != null){
-			Medication.findAll({
+		}],
+		where: {
+			id: key,
+		}
+	}).then(consultation_instance => {
+		Medication.findAll({
+			where: {
+				checkUpId: consultation_instance['parent_record.id'],
+			},
+			raw: true,
+		}).then(medication_list => {
+			Medical_Procedure.findAll({
 				where: {
-					checkUpId: opt_instance['parent_record.id'],
+					checkUpId: consultation_instance['parent_record.id'],
 				},
 				raw: true,
-			}).then(medication_list => {
-				Medical_Procedure.findAll({
-					where: {
-						checkUpId: opt_instance['parent_record.id'],
-					},
-					raw: true,
-				}).then(procedures_list => {
-					res.json({
-						opt: opt_instance,
-						medications: medication_list,
-						med_procedures: procedures_list,
-					});
+			}).then(procedures_list => {
+				res.json({
+					consultation: consultation_instance,
+					medications: medication_list,
+					med_procedures: procedures_list,
 				});
 			});
-		} else{
-			res.json({
-				message: "This record doesn't exist."
-			})
-		}
-
-		
-	});
+		});
+	});	
 });
 
-router.get("/opt_delete/:opt_id", requireLoggedIn, function(req, res){
-	console.log("OPT DELETE");
+router.get("/clinic_consultation_delete/:cc_id", requireLoggedIn, function(req, res){
+	console.log("CC DELETE");
 	console.log(req.params);
-	var key = req.params.opt_id;
-	var opt, meds = [], med_procs = [], childRecords, hasChildRecords;
+	var key = req.params.cc_id;
+	var cc, hasChildRecords;
 
-	OutPatient_Treatment.findOne({
+	Consultation.findOne({
 		where: {
 			id: key,
 			active: true,
 		},
 		raw: true,
 		attributes: ['id', 'parentRecordId'],
-	}).then(function(result){
-		console.log( result );
-		opt = result;
+	}).then(function(cc_instance){
+		console.log(cc_instance);
 		Medication.findAll({
 			where: {
-				checkUpId: opt['parentRecordId'],
+				checkUpId: cc_instance['parentRecordId'],
 			},
 			raw: true,
 			attributes: ['id'],
-		}).then(function(results){
-
-			meds = results;
-
+		}).then(function(medication_list){
 			Medical_Procedure.findAll({
 				where: {
-					checkUpId: opt['parentRecordId'],
+					checkUpId: cc_instance['parentRecordId'],
 				},
 				raw: true,
 				attributes: ['id'],
-			}).then(function(results){
-
-				med_procs = results;
-
-				if(meds.length+med_procs.length > 0)
+			}).then(function(med_proc_list){
+				if(medication_list.length+med_proc_list.length > 0)
 					hasChildRecords = true;
 				else
 					hasChildRecords = false;
 				
 				res.json({
 					hasChildRecords: hasChildRecords,
-					meds_count: meds.length,
-					medical_procedure_count: med_procs.length,
+					meds_count: medication_list.length,
+					medical_procedure_count: med_proc_list.length,
 				});
 			});
 		});
 	});
 });
 
-//////////////////////// POST ////////////////////////////////////
+////////////////////////////// POST ////////////////////////////////////
 
-router.post('/opt_add', upload_file_opts.array('add-opt-attachments[]'), function (req, res) {
-	var fileId = req.signedCookies.optFileId;
-	var fields, includes;
+router.post('/clinic_consultation_add', requireLoggedIn, upload_file_cc.array('add-cc-attachments[]'), function (req, res) {
+	var fileId = req.signedCookies.ccFileId;
 
-	var date = req.body['opt-date'];
 	var hospital = req.body['hospital'];
-	var p_id = req.body['opt-p-id'];
+	var p_id = req.body['p-id'];
 	var doc = req.body['doctor'];
+	var date = req.body['date'];
 
 	if(req.session.doctor) {
+		var summary = req.body['summary'].trim();
+		var detailed = req.body['detailed-diagnosis'].trim();
+		var notes = req.body['notes'].trim();
 		var medication = [];
 		var medical_procedure = [];
 		var billing = [];
-		var summary = req.body['summary'].trim();
-		var details = req.body['detailed-diagnosis'].trim();
-		var notes = req.body['notes'].trim();
 
-		if(req.body['meds'] != null && req.body['meds'] != '') {
+		if(req.body['meds'] != null && req.body['meds'] != ''){
 			medication = req.body['meds'];
 		}
 
-		if(req.body['med_procedures'] != null && req.body['med_procedures'] != '') {
+		if(req.body['med_procedures'] != null && req.body['med_procedures'] != ''){
 			medical_procedure = req.body['med_procedures'];
 		}
 
@@ -249,11 +231,11 @@ router.post('/opt_add', upload_file_opts.array('add-opt-attachments[]'), functio
 		fields = {
 			date: date,
 			sum_of_diag: summary,
-			detailed_diag: details,
+			detailed_diag: detailed,
 			notes: notes,
-			attachments: addOPTfileQueue[fileId].filesArr,
+			attachments: addCCfileQueue[fileId].filesArr,
 			parent_record: {
-				check_up_type: "Out-Patient-Treatment",
+				check_up_type: "Consultation",
 				hospitalName: hospital,
 				patientId: p_id,
 				doctorId: doc,
@@ -267,14 +249,14 @@ router.post('/opt_add', upload_file_opts.array('add-opt-attachments[]'), functio
 				as: 'parent_record',
 				include: [{
 					model: Medication,
-					as: 'medication'
+					as: 'medication',
 				}, {
 					model: Medical_Procedure,
 					as: 'medical_procedure',
 				}, {
 					model: Billing_Item,
 					as: 'billing_items'
-				}],
+				}]
 			}]
 		};
 	} else if (req.session.secretary) {
@@ -282,7 +264,7 @@ router.post('/opt_add', upload_file_opts.array('add-opt-attachments[]'), functio
 			date: date,
 			attachments: [],
 			parent_record: {
-				check_up_type: "Out-Patient-Treatment",
+				check_up_type: "Consultation",
 				hospitalName: hospital,
 				patientId: p_id,
 				doctorId: doc
@@ -293,10 +275,10 @@ router.post('/opt_add', upload_file_opts.array('add-opt-attachments[]'), functio
 				model: Check_Up,
 				as: 'parent_record'
 			}]
-		}
+		};
 	}
-	OutPatient_Treatment.create(fields, includes).then(checkUp_data => {
-		addOPTfileQueue[fileId] = null;
+	Consultation.create(fields, includes).then(consultation_instance => {
+		addCCfileQueue[fileId] = null;
 		res.json({success: true});
 	}).catch(error => {
 		console.log(error);
@@ -304,32 +286,32 @@ router.post('/opt_add', upload_file_opts.array('add-opt-attachments[]'), functio
 	});
 });
 
-router.post('/upload_files_opt', requireLoggedIn, function (req, res) {
-	upload_opt_success (req, res, function (err) {
+router.post('/upload_files_cc_results', requireLoggedIn, function (req, res) {
+	upload_cc_success (req, res, function (err) {
 		if (err) {
 			return res.json({error: "Your upload failed. Please try again later."});
 		}
-		var fileId = req.signedCookies.optFileId;
-		addOPTfileQueue[fileId].filesArr.push(req.files[0].path);
+		var fileId = req.signedCookies.ccFileId;
+		addCCfileQueue[fileId].filesArr.push(req.files[0].path);
 		res.json({});
 	});
 });
 
-router.post('/opt_edit/:opt_id/:cu_id', function(req, res) {
-	var key = req.params.opt_id;
+router.post('/clinic_consultation_edit/:cc_id/:cu_id', function (req, res) {
+	var key = req.params.cc_id;
 	var cu_id = req.params.cu_id;
 	var date = null;
 
-	var date = req.body['date'];
+	date = req.body['date'];
 	var hospital = req.body['hospital'];
 	var doc = req.body['doctor'];
-
+	
 	if (req.session.doctor) {
-		var summary = req.body['summary'].trim();
-		var details = req.body['detailed-diagnosis'].trim();
-		var notes = req.body['notes'].trim();
+		var summary = req.body['summary'];
+		var details = req.body['detailed-diagnosis'];
+		var notes = req.body['notes'];
 
-		OutPatient_Treatment.update({
+		Consultation.update({
 			date: date,
 			sum_of_diag: summary,
 			detailed_diag: details,
@@ -338,7 +320,7 @@ router.post('/opt_edit/:opt_id/:cu_id', function(req, res) {
 			where:{
 				id: key,
 			}
-		}).then(updated_opt => {
+		}).then(updated_consultation => {
 			Check_Up.update({
 				hospitalName: hospital,
 				doctorId: doc,
@@ -352,19 +334,18 @@ router.post('/opt_edit/:opt_id/:cu_id', function(req, res) {
 				console.log(error);
 				res.json({error: error});
 			});
-
 		}).catch(function (error) {
 			console.log(error);
 			res.json({error: error});
 		});
 	} else if (req.session.secretary) {
-		OutPatient_Treatment.update({
+		Consultation.update({
 			date: date
 		},{
 			where:{
 				id: key,
 			}
-		}).then(updated_opt => {
+		}).then(updated_consultation => {
 			Check_Up.update({
 				hospitalName: hospital,
 				doctorId: doc,
@@ -385,56 +366,54 @@ router.post('/opt_edit/:opt_id/:cu_id', function(req, res) {
 	}
 });
 
-router.post('/delete_files_opt/:opt_id', requireLoggedIn, function (req, res) {
-	var opt_id = req.params.opt_id;
+router.post('/delete_files_cc/:cc_id', requireLoggedIn, function (req, res) {
+	var cc_id = req.params.cc_id;
 	console.log(req.body.key);
 	if (fs.existsSync(req.body.key)) {
 		fs.unlink(req.body.key);
 	}
-	OutPatient_Treatment.findOne({
+	Consultation.findOne({
 		where: {
-			id: opt_id
+			id: cc_id
 		}
-	}).then(opt_instance => {
-		if(opt_instance) {
-			var clone_arr_attachments = opt_instance.attachments.slice(0);
+	}).then(cc_instance => {
+		if(cc_instance) {
+			var clone_arr_attachments = cc_instance.attachments.slice(0);
 			var index_to_remove = clone_arr_attachments.indexOf(req.body.key);
 			if (index_to_remove > -1) {
 			    clone_arr_attachments.splice(index_to_remove, 1);
 			}
-			opt_instance.update({ attachments: clone_arr_attachments }).then(() => { return res.json({}); });
+			cc_instance.update({ attachments: clone_arr_attachments }).then(() => { return res.json({}); });
 		} else {
-			res.json({error: "Something went wrong..."});
+			res.json({});
 		}
 	});
 });
 
-router.post("/upload_files_edit_opt/:opt_id", requireLoggedIn, function (req, res) {
-	upload_opt_success (req, res, function (err) {
+router.post("/upload_files_edit_cc/:cc_id", requireLoggedIn, function (req, res) {
+	upload_cc_success (req, res, function (err) {
 		if (err) {
 			return res.json({error: "Your upload failed. Please try again later."});
 		}
-		OutPatient_Treatment.findOne({
+		Consultation.findOne({
 			where: {
-				id: req.params.opt_id
+				id: req.params.cc_id
 			}
-		}).then(opt_instance => {
-			if(opt_instance) {
-				var clone_arr_attachments = opt_instance.attachments.slice(0);
+		}).then(cc_instance => {
+			if(cc_instance) {
+				var clone_arr_attachments = cc_instance.attachments.slice(0);
 				clone_arr_attachments.push(req.files[0].path);
-				opt_instance.update({ attachments: clone_arr_attachments }).then(() => { return res.json({}); });
+				cc_instance.update({ attachments: clone_arr_attachments }).then(() => { return res.json({}); });
 			} else {
-				res.json({error: "Something went wrong..."});
+				res.json({});
 			}
 		});
 	});
 });
 
-router.post("/opt_delete_confirmed/:opt_id", requireLoggedIn, function(req, res){
-	console.log("OPT DELETE CONFIRMED");
-	console.log(req.params);
-	var key = req.params.opt_id;
-	OutPatient_Treatment.update({
+router.post("/clinic_consultation_delete_confirmed/:cc_id", requireLoggedIn, function(req, res){
+	var key = req.params.cc_id;
+	Consultation.update({
 		active: false,
 	}, {
 		where: {
@@ -442,16 +421,17 @@ router.post("/opt_delete_confirmed/:opt_id", requireLoggedIn, function(req, res)
 		},
 		returning: true,
 		raw: true,
-	}).then(function(opt_result){
+	}).then(function(cc_result){
 		Check_Up.update({
 			active: false,
 		}, {
 			where: {
-				id: opt_result[1][0]['parentRecordId'],
+				id: cc_result[1][0]['parentRecordId'],
 			},
 			returning: true,
 			raw: true,
 		}).then(function(check_up_result){
+
 			// Billing.destroy({
 			// 	where: {
 			// 		receiptId: check_up_result[1][0]['id']
@@ -461,7 +441,7 @@ router.post("/opt_delete_confirmed/:opt_id", requireLoggedIn, function(req, res)
 			// })
 		});
 	}).catch(function(error){
-		console.log("OUT PATIENT TREATMENT CONFIRMED");
+		console.log("CC PATIENT TREATMENT CONFIRMED");
 		console.log(error);
 		res.json({success: false});
 	});

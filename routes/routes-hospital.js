@@ -1,8 +1,8 @@
 const express = require('express');
 const router = new express.Router();
-const Hospital = require('./models').Hospital;
-const Check_Up = require('./models').Check_Up;
-const Laboratory = require('./models').Laboratory;
+const Hospital = require('../models/database').Hospital;
+const Check_Up = require('../models/database').Check_Up;
+const Laboratory = require('../models/database').Laboratory;
 
 ///////////////////// MIDDLEWARES ////////////////////////
 

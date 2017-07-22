@@ -1,8 +1,8 @@
 const express = require('express');
 const router = new express.Router();
 const bcrypt = require('bcrypt');
-const SPIS_Instance = require('./models').SPIS_Instance;
-const Superuser = require('./models').Superuser;
+const SPIS_Instance = require('../models/database').SPIS_Instance;
+const Superuser = require('../models/database').Superuser;
 
 ///////////////////// MIDDLEWARES ////////////////////////
 

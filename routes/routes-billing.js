@@ -1,12 +1,12 @@
 const express = require('express');
 const router = new express.Router();
-const Check_Up = require('./models').Check_Up;
-const Medication = require('./models').Medication;
-const Medical_Procedure = require('./models').Medical_Procedure;
-const Billing_Item = require('./models').Billing_Item;
-const InPatient_Treatment = require('./models').InPatient_Treatment;
-const OutPatient_Treatment = require('./models').OutPatient_Treatment;
-const Consultation = require('./models').Consultation;
+const Check_Up = require('../models/database').Check_Up;
+const Medication = require('../models/database').Medication;
+const Medical_Procedure = require('../models/database').Medical_Procedure;
+const Billing_Item = require('../models/database').Billing_Item;
+const InPatient_Treatment = require('../models/database').InPatient_Treatment;
+const OutPatient_Treatment = require('../models/database').OutPatient_Treatment;
+const Consultation = require('../models/database').Consultation;
 
 ///////////////////// MIDDLEWARES ////////////////////////
 

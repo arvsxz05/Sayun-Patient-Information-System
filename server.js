@@ -3,12 +3,11 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const consolidate = require('consolidate');
-const database = require('./database');
 const session = require('express-session');
 const flash = require('express-flash');
 const nunjucks = require('nunjucks');
-const Doctor = require('./models').Doctor;
-const User_Account = require('./models').User_Account;
+const Doctor = require('./models/database').Doctor;
+const User_Account = require('./models/database').User_Account;
 
 var app = express(),
 	http = require('http'),
@@ -43,18 +42,18 @@ app.use(flash());
 
 ///////////////////// MODULE ROUTES ////////////////////////
 
-app.use(require('./routes-user-auth'));
-app.use(require('./routes-accounts'));
-app.use(require('./routes-hospital'));
-app.use(require('./routes-spis-instance'));
-app.use(require('./routes-patient'));
-app.use(require('./routes-inpatient-treatment'));
-app.use(require('./routes-outpatient-treatment'));
-app.use(require('./routes-laboratories'));
-app.use(require('./routes-consultations'));
-app.use(require('./routes-medication'));
-app.use(require('./routes-billing'));
-app.use(require('./routes-daily-consultation')(io));
+app.use(require('./routes/routes-user-auth'));
+app.use(require('./routes/routes-accounts'));
+app.use(require('./routes/routes-hospital'));
+app.use(require('./routes/routes-spis-instance'));
+app.use(require('./routes/routes-patient'));
+app.use(require('./routes/routes-inpatient-treatment'));
+app.use(require('./routes/routes-outpatient-treatment'));
+app.use(require('./routes/routes-laboratories'));
+app.use(require('./routes/routes-consultations'));
+app.use(require('./routes/routes-medication'));
+app.use(require('./routes/routes-billing'));
+app.use(require('./routes/routes-daily-consultation')(io));
 
 ///////////////////// MIDDLEWARES ////////////////////////
 

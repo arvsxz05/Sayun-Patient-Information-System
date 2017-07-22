@@ -1,12 +1,12 @@
 const express = require('express');
 const router = new express.Router();
 const bcrypt = require('bcrypt');
-const User_Account = require('./models').User_Account;
-const SPIS_Instance = require('./models').SPIS_Instance;
-const Doctor = require('./models').Doctor;
-const Secretary = require('./models').Secretary;
-const Admin = require('./models').Admin;
-const Superuser = require('./models').Superuser;
+const User_Account = require('../models/database').User_Account;
+const SPIS_Instance = require('../models/database').SPIS_Instance;
+const Doctor = require('../models/database').Doctor;
+const Secretary = require('../models/database').Secretary;
+const Admin = require('../models/database').Admin;
+const Superuser = require('../models/database').Superuser;
 
 ///////////////////// MIDDLEWARES ////////////////////////
 

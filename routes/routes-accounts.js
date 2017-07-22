@@ -1,17 +1,17 @@
 const express = require('express');
 const router = new express.Router();
 const bcrypt = require('bcrypt');
-const User_Account = require('./models').User_Account;
-const Doctor = require('./models').Doctor;
-const Secretary = require('./models').Secretary;
-const Admin = require('./models').Admin;
-const SPIS_Instance = require('./models').SPIS_Instance;
+const User_Account = require('../models/database').User_Account;
+const Doctor = require('../models/database').Doctor;
+const Secretary = require('../models/database').Secretary;
+const Admin = require('../models/database').Admin;
+const SPIS_Instance = require('../models/database').SPIS_Instance;
 const multer = require('multer');
 const avatar = multer({dest: './static/uploads/avatars'});
 const signature = multer({dest: './static/uploads/signatures'});
-const Check_Up = require('./models').Check_Up;
+const Check_Up = require('../models/database').Check_Up;
 
-const title_types = require('./models').title_types;
+const title_types = require('../models/database').title_types;
 
 ///////////////////// MIDDLEWARES ////////////////////////
 

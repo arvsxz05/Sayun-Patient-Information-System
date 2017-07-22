@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
-const Laboratory = require('./models').Laboratory;
-const Hospital = require('./models').Hospital;
+const Laboratory = require('../models/database').Laboratory;
+const Hospital = require('../models/database').Hospital;
 const fs = require('fs');
 
 const multer = require('multer');

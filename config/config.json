@@ -2,5 +2,8 @@
 	"development": {
 		"url": "postgres://sayunsuperuser:s@yun@127.0.0.1:5432/spis",
 		"dialect": "pg"
+	},
+	"production": {
+	  "use_env_variable": "DATABASE_URL"
 	}
 }
