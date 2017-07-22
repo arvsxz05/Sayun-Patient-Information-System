@@ -341,6 +341,68 @@
                 }
             });
         }
+
+        $('#delete-cc-button').click(function(e){
+        // CONFIRM DIALOG DELETE
+        var key = $("#edit-cc-p-id").val();
+        $.ajax({
+            type: "GET",
+            url: "/clinic_consultation_delete/"+ key,
+        }).done(function (data) {
+            if(data.hasChildRecords) {
+                $.confirm({
+                    title: 'Move to Archive',
+                    content: 'The record you want to archive has ' + data.meds_count +' medication/s, '+
+                    data.medical_procedure_count+' medical procedure/s associated with it. Archive them first.',
+                    type: 'red',
+                    buttons: {
+                        OK: {
+                            text: 'OK',
+                            btnClass: 'btn-red',
+                            action: function () {
+                                // $.alert('Confirmed!');
+                            }
+                        }
+                    }
+                });
+            } else {
+                $.confirm({
+                    title: 'Move to Archive',
+                    content: 'Are you sure you want to move this record to archive?',
+                    buttons: {
+                        Confirm: {
+                            text: 'Confirm',
+                            btnClass: 'btn-blue',
+                            action: function () {
+                                $.ajax({
+                                    type: "POST",
+                                    url: "/clinic_consultation_delete_confirmed/"+key,
+                                }).done(function(data){
+                                    if(data.success){
+                                        $.alert({
+                                            title: 'Success',
+                                            content: 'Record successfully moved to archive!'
+                                        });
+                                        $('#list-cc-view').show();
+                                        $('#edit-cc-view').hide();
+                                        $('#list-cc-view-link').hide();
+                                    } else{
+                                        $.alert({
+                                            title: 'Error',
+                                            content: 'An error occured.'
+                                        });
+                                    }
+                                });
+                            }
+                        },
+                        Cancel: function () {
+                            // $.alert('Canceled!');
+                        },
+                    }
+                });
+            }
+        });
+    });
     }
     {% endif %}
     // 

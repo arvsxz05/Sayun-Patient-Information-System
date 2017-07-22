@@ -1039,7 +1039,6 @@
             "aoColumns": [
                 { "bSortable": true },
                 { "bSortable": true },
-                { "bSortable": true },
                 { "bSortable": true }
             ]    
         });
@@ -1048,7 +1047,6 @@
             "bSort": true, 
             "aaSorting": [],
             "aoColumns": [
-                { "bSortable": true },
                 { "bSortable": true },
                 { "bSortable": true },
                 { "bSortable": true },
@@ -1785,8 +1783,7 @@
             Medication_List_Table.row.add([
                 "<a onclick='edit_check_up(\"" + checkup_type + "\"," + data.meds[i]['id'] + ")'>" + checkup_date + "</a>",
                 data.meds[i]['parent_record.medication.name'],
-                data.meds[i]['parent_record.check_up_type'],
-                "{{user.first_name}} {{user.middle_name}} {{user.last_name}}"
+                data.meds[i]['parent_record.check_up_type']
             ]).draw();
            
             
@@ -1810,7 +1807,6 @@
                 "<a onclick='edit_check_up(\"" + checkup_type + "\"," + data.diagnoses[i]['id'] + ")'>" + checkup_date + "</a>",
                 data.diagnoses[i]['parent_record.check_up_type'],
                 data.diagnoses[i]['parent_record.hospitalName'],
-                "{{user.first_name}} {{user.middle_name}} {{user.last_name}}",
                 data.diagnoses[i].sum_of_diag,
             ]).draw();
         };

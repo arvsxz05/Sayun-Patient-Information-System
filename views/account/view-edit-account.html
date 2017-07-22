@@ -492,11 +492,16 @@
                             if(data.hasChildRecords){
                                 $.confirm({
                                     title: 'Move to Archive',
-                                    content: 'The record you want to archive has records associated with it. Archive them first.',
+                                    content: 'The record you want to archive has ' +data.ipt_count+ ' IPT/s, ' +data.opt_count+ ' OPT/s, ' +data.cc_count+ ' CC/s associated with it. Archive them first.',
+                                    type: 'red',
                                     buttons: {
-                                        OK: function () {
-                                            // $.alert('Confirmed!');
-                                        },
+                                        OK: {
+                                            text: 'OK',
+                                            btnClass: 'btn-red',
+                                            action: function () {
+                                                // $.alert('Confirmed!');
+                                            }
+                                        }
                                     }
                                 });
                                 
@@ -505,26 +510,29 @@
                                     title: 'Move to Archive',
                                     content: 'Are you sure you want to move this record to archive?',
                                     buttons: {
-                                        Confirm: function () {
+                                        Confirm: {
                                             // $.alert('Confirmed!');
-                                            $.ajax({
-                                                type: "POST",
-                                                url: "/account_delete_confirmed/"+key,
-                                            }).done(function(data){
-                                                if(data.success){
-                                                    $.alert({
-                                                        title: 'Success',
-                                                        content: 'Record successfully moved to archive!'
-                                                    });
-                                                    window.location.href = "/account_list";
-                                                } else{
-                                                    $.alert({
-                                                        title: 'Error',
-                                                        content: 'An error occured.'
-                                                    });
-                                                }
-                                            });
-
+                                            text: 'Confirm',
+                                            btnClass: 'btn-blue',
+                                            action: function (){
+                                                $.ajax({
+                                                    type: "POST",
+                                                    url: "/account_delete_confirmed/"+key,
+                                                }).done(function(data){
+                                                    if(data.success){
+                                                        $.alert({
+                                                            title: 'Success',
+                                                            content: 'Record successfully moved to archive!'
+                                                        });
+                                                        window.location.href = "/account_list";
+                                                    } else{
+                                                        $.alert({
+                                                            title: 'Error',
+                                                            content: 'An error occured.'
+                                                        });
+                                                    }
+                                                });
+                                            }
                                         },
                                         Cancel: function () {
                                             // $.alert('Canceled!');

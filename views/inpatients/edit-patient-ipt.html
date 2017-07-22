@@ -234,11 +234,17 @@
             if(data.hasChildRecords) {
                 $.confirm({
                     title: 'Move to Archive',
-                    content: 'The record you want to archive has records associated with it. Archive them first.',
+                    content: 'The record you want to archive has ' + data.meds_count +' medication/s, '+
+                    data.medical_procedure_count+' medical procedure/s associated with it. Archive them first.',
+                    type: 'red',
                     buttons: {
-                        OK: function () {
-                            // $.alert('Confirmed!');
-                        },
+                        OK: {
+                            text: 'OK',
+                            btnClass: 'btn-red',
+                            action: function () {
+                                // $.alert('Confirmed!');
+                            }
+                        }
                     }
                 });
             } else {
@@ -246,29 +252,30 @@
                     title: 'Move to Archive',
                     content: 'Are you sure you want to move this record to archive?',
                     buttons: {
-                        Confirm: function () {
-                            // $.alert('Confirmed!');
-
-                            $.ajax({
-                                type: "POST",
-                                url: "/ipt_delete_confirmed/"+key,
-                            }).done(function(data){
-                                if(data.success){
-                                    $.alert({
-                                        title: 'Success',
-                                        content: 'Record successfully moved to archive!'
-                                    });
-                                    $('#list-ipt-view').show();
-                                    $('#edit-ipt-view').hide();
-                                    $('#list-ipt-view-link').hide();
-                                } else{
-                                    $.alert({
-                                        title: 'Error',
-                                        content: 'An error occured.'
-                                    });
-                                }
-                            });
-
+                        Confirm: {
+                            text: 'Confirm',
+                            btnClass: 'btn-blue',
+                            action: function () {
+                                $.ajax({
+                                    type: "POST",
+                                    url: "/ipt_delete_confirmed/"+key,
+                                }).done(function(data){
+                                    if(data.success){
+                                        $.alert({
+                                            title: 'Success',
+                                            content: 'Record successfully moved to archive!'
+                                        });
+                                        $('#list-ipt-view').show();
+                                        $('#edit-ipt-view').hide();
+                                        $('#list-ipt-view-link').hide();
+                                    } else{
+                                        $.alert({
+                                            title: 'Error',
+                                            content: 'An error occured.'
+                                        });
+                                    }
+                                });
+                            }
                         },
                         Cancel: function () {
                             // $.alert('Canceled!');
