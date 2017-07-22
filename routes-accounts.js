@@ -543,7 +543,7 @@ router.post('/account_edit/:id', requireLoggedIn,
 				req.session.user.id = id;
 				//////////////////////////BEWARE/////////////////////////
 			}
-			if( req.body['user-type'] == 'Doctor'){
+			if( req.body['user-type'] == 'Doctor') {
 				console.log(sign);
 				var lnum = req.body.license_num.trim();
 				var pnum = req.body.ptr_num.trim();
