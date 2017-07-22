@@ -26,7 +26,7 @@ if (!global.hasOwnProperty('db')) {
 		Superuser: database.import(__dirname + '/superuser'),
 		SPIS_Instance: database.import(__dirname + '/spis_instance'),
 		Patient: database.import(__dirname + '/patient'),
-		InPatient_Treatment: database.import(__dirname + '/inpatient_Treatment'),
+		InPatient_Treatment: database.import(__dirname + '/inpatient_treatment'),
 		OutPatient_Treatment: database.import(__dirname + '/outpatient_treatment'),
 		Laboratory: database.import(__dirname + '/laboratory'),
 		Check_Up: database.import(__dirname + '/check_up'),
