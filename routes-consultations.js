@@ -6,7 +6,6 @@ const Doctor = require('./models').Doctor;
 const User_Account = require('./models').User_Account;
 const Medication = require('./models').Medication;
 const Medical_Procedure = require('./models').Medical_Procedure;
-const Billing = require('./models').Billing;
 const Billing_Item = require('./models').Billing_Item;
 const multer = require('multer');
 const fs = require('fs');
@@ -70,6 +69,7 @@ router.get('/clinic_consultation_list/:patient_id', requireLoggedIn,
 			        model: Check_Up,
 			        where: {
 						patientId: patient_id,
+						active: true,
 					},
 					as: 'parent_record',
 					include: [{ 
@@ -77,7 +77,10 @@ router.get('/clinic_consultation_list/:patient_id', requireLoggedIn,
 						where: { id: req.session.doctor.id },
 						include: [{ model: User_Account, as: 'username'}]
 					}]
-			    }]
+			    }],
+			    where: {
+			    	active: true
+			    }
 			}).then(cc_list => {
 				res.json({cc_list: cc_list});
 			});
@@ -151,6 +154,49 @@ router.get('/clinic_consultation_edit_json/:cc_id/:patient_id', requireLoggedIn,
 	});	
 });
 
+router.get("/clinic_consultation_delete/:cc_id", requireLoggedIn, function(req, res){
+	console.log("CC DELETE");
+	console.log(req.params);
+	var key = req.params.cc_id;
+	var cc, hasChildRecords;
+
+	Consultation.findOne({
+		where: {
+			id: key,
+			active: true,
+		},
+		raw: true,
+		attributes: ['id', 'parentRecordId'],
+	}).then(function(cc_instance){
+		console.log(cc_instance);
+		Medication.findAll({
+			where: {
+				checkUpId: cc_instance['parentRecordId'],
+			},
+			raw: true,
+			attributes: ['id'],
+		}).then(function(medication_list){
+			Medical_Procedure.findAll({
+				where: {
+					checkUpId: cc_instance['parentRecordId'],
+				},
+				raw: true,
+				attributes: ['id'],
+			}).then(function(med_proc_list){
+				if(medication_list.length+med_proc_list.length > 0)
+					hasChildRecords = true;
+				else
+					hasChildRecords = false;
+				
+				res.json({
+					hasChildRecords: hasChildRecords,
+					meds_count: medication_list.length,
+					medical_procedure_count: med_proc_list.length,
+				});
+			});
+		});
+	});
+});
 
 ////////////////////////////// POST ////////////////////////////////////
 
@@ -195,9 +241,6 @@ router.post('/clinic_consultation_add', requireLoggedIn, upload_file_cc.array('a
 				doctorId: doc,
 				medication: medication,
 				medical_procedure: medical_procedure,
-				receipt: {
-					billing_items: billing
-				}
 			}
 		};
 		includes = {
@@ -211,12 +254,8 @@ router.post('/clinic_consultation_add', requireLoggedIn, upload_file_cc.array('a
 					model: Medical_Procedure,
 					as: 'medical_procedure',
 				}, {
-					model: Billing,
-					as: 'receipt',
-					include: [{
-						model: Billing_Item,
-						as: 'billing_items'
-					}]
+					model: Billing_Item,
+					as: 'billing_items'
 				}]
 			}]
 		};
@@ -372,112 +411,7 @@ router.post("/upload_files_edit_cc/:cc_id", requireLoggedIn, function (req, res)
 	});
 });
 
-router.post("/clinic_consultation_edit_add_medication/:cu_id", requireLoggedIn, function (req, res) {
-	var key = req.params.cu_id;
-
-	Medication.create({
-		name: req.body['name'],
-		dosage: req.body['dosage'],
-		frequency: req.body['frequency'],
-		type: req.body['type'],
-		notes: req.body['notes'],
-		checkUpId: key
-	}).then(med_instance => {
-		Billing.findOne({
-			where: {
-				receiptId: key,
-			},
-			raw: true,
-		}).then(billing_instance => {
-			Billing_Item.create({
-				description: req.body['name'].trim(),
-				billingId: billing_instance['id'],
-			}).then(billing_item => {
-				res.json({id: med_instance.id});
-			});
-		});
-	});
-});
-
-router.post("/clinic_consultation_edit_add_medical_procedure/:cu_id", requireLoggedIn, function (req, res) {
-	var key = req.params.cu_id;
-
-	Medical_Procedure.create({
-		date: req.body['date'],
-		description: req.body['description'],
-		details: req.body['details'],
-		checkUpId: key,
-	}).then(procedure_instance => {
-		Billing.findOne({
-			where: {
-				receiptId: key,
-			},
-			raw: true,
-		}).then(billing_instance => {
-			Billing_Item.create({
-				description: req.body['description'].trim(),
-				billingId: billing_instance['id'],
-			}).then(billing_item => {
-				res.json({id: procedure_instance.id});
-			});
-		});
-	});
-});
-
-router.post("/clinic_consultation_delete/:cc_id", requireLoggedIn, function(req, res){
-	console.log("CC DELETE");
-	console.log(req.params);
-	var key = req.params.cc_id;
-	var cc, meds = [], med_procs = [], childRecords, hasChildRecords;
-
-	Consultation.findOne({
-		where: {
-			id: key,
-			active: true,
-		},
-		raw: true,
-		attributes: ['id', 'parentRecordId'],
-	}).then(function(result){
-		console.log( result );
-		cc = result;
-		Medication.findAll({
-			where: {
-				checkUpId: cc['parentRecordId'],
-			},
-			raw: true,
-			attributes: ['id'],
-		}).then(function(results){
-
-			meds = results;
-
-			Medical_Procedure.findAll({
-				where: {
-					checkUpId: cc['parentRecordId'],
-				},
-				raw: true,
-				attributes: ['id'],
-			}).then(function(results){
-
-				med_procs = results;
-
-				if(meds.length+med_procs.length > 0)
-					hasChildRecords = true;
-				else
-					hasChildRecords = false;
-				
-				res.json({
-					hasChildRecords: hasChildRecords,
-					meds_count: meds.length,
-					medical_procedure_count: med_procs.length,
-				});
-			});
-		});
-	});
-});
-
 router.post("/clinic_consultation_delete_confirmed/:cc_id", requireLoggedIn, function(req, res){
-	console.log("CC DELETE CONFIRMED");
-	console.log(req.params);
 	var key = req.params.cc_id;
 	Consultation.update({
 		active: false,
@@ -492,19 +426,19 @@ router.post("/clinic_consultation_delete_confirmed/:cc_id", requireLoggedIn, fun
 			active: false,
 		}, {
 			where: {
-				id: cc_result['parentRecordId'],
+				id: cc_result[1][0]['parentRecordId'],
 			},
 			returning: true,
 			raw: true,
 		}).then(function(check_up_result){
 
-			Billing.destroy({
-				where: {
-					receiptId: check_up_result['id']
-				}
-			}).then(function(billing_result){
+			// Billing.destroy({
+			// 	where: {
+			// 		receiptId: check_up_result[1][0]['id']
+			// 	}
+			// }).then(function(billing_result){
 				res.json({success: true});
-			})
+			// })
 		});
 	}).catch(function(error){
 		console.log("CC PATIENT TREATMENT CONFIRMED");

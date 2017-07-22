@@ -51,6 +51,8 @@ app.use(require('./routes-inpatient-treatment'));
 app.use(require('./routes-outpatient-treatment'));
 app.use(require('./routes-laboratories'));
 app.use(require('./routes-consultations'));
+app.use(require('./routes-medication'));
+app.use(require('./routes-billing'));
 app.use(require('./routes-daily-consultation')(io));
 
 ///////////////////// MIDDLEWARES ////////////////////////

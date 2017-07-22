@@ -278,6 +278,7 @@
 
     function edit_opt_delete_med(){
         var med_rows= [];
+        var med_ids = [];
 
         $("#edit-opt-list-medication tbody input:checkbox").each(function(){
             var $this = $(this);
@@ -286,13 +287,44 @@
             }
         });
 
-        if(med_rows.length > 0 && confirm("Are you sure you want to delete Medication record/s? This cannot be undone.")){
-            for(var x = 0; x < med_rows.length; x++ ){
-                edit_opt_meds_table.row(med_rows[x]).remove().draw();
-            }
+        if(med_rows.length > 0){
+            $.confirm({
+                title: "Delete Medication/s",
+                content: "Are you sure you want to delete Medication record/s? This cannot be undone.",
+                buttons: {
+                    Confirm: function () {
 
-            $('#edit-opt-select-all-meds').prop('checked', false);
+                        for(var x = 0; x < med_rows.length; x++ ){
+                            med_ids.push(med_rows[x].children('td:first').children('input').attr('id'));
+                        }
 
+                        $('#edit-opt-select-all-meds').prop('checked', false);
+
+                        $.ajax({
+                            type: "POST",
+                            url: "/medication_delete",
+                            data: {
+                                "medication" : med_ids,
+                            }
+                        }).done(function (data) {
+                            if(data.success){
+                                for(var x = 0; x < med_rows.length; x++ ){
+                                    edit_opt_meds_table.row(med_rows[x]).remove().draw();
+                                }
+                            }
+                            else{
+                                $.alert({
+                                    title: 'Error',
+                                    content: 'An error occured.'
+                                });
+                            }
+                        });
+                    },
+                    Cancel: function () {
+                        // $.alert('Canceled!');
+                    },
+                }
+            });
         }
     }
     {% endif %}
@@ -313,6 +345,7 @@
 
     function edit_opt_delete_med_procedure(){
         var med_proc_rows= [];
+        var med_proc_ids = [];
 
         $("#edit-opt-list-med-procedure tbody input:checkbox").each(function(){
             var $this = $(this);
@@ -321,15 +354,47 @@
             }
         });
 
-        if(med_proc_rows.length > 0 && confirm("Are you sure you want to delete Medical Procedure record/s? This cannot be undone.")){
-            for(var x = 0; x < med_proc_rows.length; x++ ){
-                edit_opt_med_procedures_table.row(med_proc_rows[x]).remove().draw();
-            }
+        if(med_proc_rows.length > 0){
+            $.confirm({
+                title: "Delete Medical Procedures/s",
+                content: "Are you sure you want to delete Medical Procedure record/s? This cannot be undone.",
+                buttons: {
+                    Confirm: function () {
 
-            $('#edit-opt-select-all-med-procedures').prop('checked', false);
+                        for(var x = 0; x < med_proc_rows.length; x++ ){
+                            med_proc_ids.push(med_proc_rows[x].children('td:first').children('input').attr('id'));
+                        }
 
+                        $('#edit-opt-select-all-med-procedures').prop('checked', false);
+
+                        $.ajax({
+                            type: "POST",
+                            url: "/medical_procedure_delete",
+                            data: {
+                                "medical_procedure" : med_proc_ids,
+                            }
+                        }).done(function (data) {
+                            if(data.success){
+                                for(var x = 0; x < med_proc_rows.length; x++ ){
+                                    edit_opt_med_procedures_table.row(med_proc_rows[x]).remove().draw();
+                                }
+                            }
+                            else{
+                                $.alert({
+                                    title: 'Error',
+                                    content: 'An error occured.'
+                                });
+                            }
+                        });
+                    },
+                    Cancel: function () {
+                        // $.alert('Canceled!');
+                    },
+                }
+            });
         }
     }
+
     {% endif %}
 
 </script>
