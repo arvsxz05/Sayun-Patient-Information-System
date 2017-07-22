@@ -4,6 +4,14 @@ const bcrypt = require('bcrypt');
 const SPIS_Instance = require('../models/database').SPIS_Instance;
 const Superuser = require('../models/database').Superuser;
 
+const nunjucks = require('nunjucks');
+nunjucks.configure(__dirname + '../views', {
+    autoescape: true,
+    noCache: true,
+    watch: true,
+    express: express()
+});
+
 ///////////////////// MIDDLEWARES ////////////////////////
 
 function requireSuperUser(req, res, next) {

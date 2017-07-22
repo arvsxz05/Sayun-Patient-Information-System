@@ -4,6 +4,14 @@ const Hospital = require('../models/database').Hospital;
 const Check_Up = require('../models/database').Check_Up;
 const Laboratory = require('../models/database').Laboratory;
 
+const nunjucks = require('nunjucks');
+nunjucks.configure(__dirname + '../views', {
+    autoescape: true,
+    noCache: true,
+    watch: true,
+    express: express()
+});
+
 ///////////////////// MIDDLEWARES ////////////////////////
 
 function requireLoggedIn(req, res, next) {

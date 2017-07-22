@@ -9,12 +9,11 @@ const Admin = require('../models/database').Admin;
 const Superuser = require('../models/database').Superuser;
 
 const nunjucks = require('nunjucks');
-app.set('views', __dirname + '../views')
-nunjucks.configure(app.get('views'), {
+nunjucks.configure(__dirname + '../views', {
     autoescape: true,
     noCache: true,
     watch: true,
-    express: app
+    express: express()
 });
 
 ///////////////////// MIDDLEWARES ////////////////////////
