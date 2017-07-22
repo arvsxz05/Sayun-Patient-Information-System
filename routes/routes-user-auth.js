@@ -8,6 +8,15 @@ const Secretary = require('../models/database').Secretary;
 const Admin = require('../models/database').Admin;
 const Superuser = require('../models/database').Superuser;
 
+const nunjucks = require('nunjucks');
+app.set('views', __dirname + '../views')
+nunjucks.configure(app.get('views'), {
+    autoescape: true,
+    noCache: true,
+    watch: true,
+    express: app
+});
+
 ///////////////////// MIDDLEWARES ////////////////////////
 
 function requireLoggedIn(req, res, next) {
