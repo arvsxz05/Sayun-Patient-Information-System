@@ -12,7 +12,7 @@ if (!global.hasOwnProperty('db')) {
 		});
 	} else {
 		var connString = 'postgres://sayunsuperuser:s@yun@127.0.0.1:5432/spis';
-		database = new Sequelize(connString)
+		database = new Sequelize(connString);
 	}
 
 	global.db = {
