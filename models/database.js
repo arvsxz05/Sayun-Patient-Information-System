@@ -3,13 +3,7 @@ if (!global.hasOwnProperty('db')) {
 	var database = null;
 
 	if (process.env.DATABASE_URL) {
-		database = new Sequelize(process.env.DATABASE_URL, {
-			dialect:  'postgres',
-			protocol: 'postgres',
-			port:     match[4],
-			host:     match[3],
-			logging:  true //false
-		});
+		database = new Sequelize(process.env.DATABASE_URL);
 	} else {
 		var connString = 'postgres://sayunsuperuser:s@yun@127.0.0.1:5432/spis';
 		database = new Sequelize(connString);
