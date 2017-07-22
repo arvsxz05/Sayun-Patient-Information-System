@@ -219,7 +219,7 @@
         return abort;
     });
 
-    $('#edit-ipt-attachments').on('fileloaded', function (event, file, previewId, index, reader) {
+    $('#edit-ipt-attachments').on('filebatchselected', function(event, files) {
         $('#edit-ipt-attachments').fileinput('upload');
     });
     {% endif %}

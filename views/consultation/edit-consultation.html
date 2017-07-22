@@ -205,7 +205,7 @@
         return abort;
     });
 
-    $('#edit-cc-attachments').on('fileloaded', function (event, file, previewId, index, reader) {
+    $('#edit-cc-attachments').on('filebatchselected', function (event, file, previewId, index, reader) {
         $('#edit-cc-attachments').fileinput('upload');
     });
     {% endif %}
@@ -276,8 +276,6 @@
         }
     }
     {% endif %}
-    // 
-
 
     // DELETING ROWS FOR MED PROCEDURES
     {% if doctor %}

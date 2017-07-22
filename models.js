@@ -13,6 +13,7 @@ const medication_types = ['Maintenance', 'Non-Maintenance'];
 const billing_status_types = ['Fully Paid', 'Partially Paid', 'Deferred', 'Waived'];
 const civil_status_types = ['Single', 'Married', 'Divorced', 'Separated', 'Widowed'];
 const queue_status_types = ['Waiting', 'Done', 'Current'];
+const billing_item_edited_type = ['Doctor', 'Secretary'];
 
 const User_Account = database.define('user_account', {
 	id: {
@@ -559,14 +560,27 @@ const Billing_Item = database.define('billing_item', {
 		type: Sequelize.FLOAT,
 		allowNull: false,
 		defaultValue: 0
+	},
+	last_edited: {
+		type: Sequelize.ENUM,
+		values: billing_item_edited_type,
+		allowNull: false,
+		defaultValue: "Secretary"
 	}
 });
 
-const Billing = database.define('billing');
+User_Account.hasMany(Billing_Item, {
+	foreignKey: {
+		name: 'issued_by',
+		allowNull: true
+	}
+})
 
-Laboratory.hasOne(Billing, {as: 'receipt'});
-Billing.hasMany(Billing_Item, {as: 'billing_items', onDelete: 'CASCADE'});
-Check_Up.hasOne(Billing, {as: 'receipt'});
+Laboratory.hasMany(Billing_Item, {as: 'billing_items'});
+Check_Up.hasMany(Billing_Item, {as: 'billing_items'});
+
+Medication.hasOne(Billing_Item, {as: 'receipt', onDelete: 'CASCADE'});
+Medical_Procedure.hasOne(Billing_Item, {as: 'receipt', onDelte: 'CASCADE'});
 
 const Consultation = database.define('consultation', {
 	date: {
@@ -639,5 +653,4 @@ module.exports.Medication = Medication;
 module.exports.Medical_Procedure = Medical_Procedure;
 module.exports.title_types = title_types;
 module.exports.Consultation = Consultation;
-module.exports.Billing = Billing;
 module.exports.Billing_Item = Billing_Item;

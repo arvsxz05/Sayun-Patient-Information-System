@@ -94,7 +94,7 @@
             return abort;
         });
 
-        $('#lab-edit-attachments').on('fileloaded', function(event, file, previewId, index, reader) {
+        $('#lab-edit-attachments').on('filebatchselected', function(event, files) {
             $('#lab-edit-attachments').fileinput('upload');
         });
 
