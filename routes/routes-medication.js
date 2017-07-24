@@ -122,6 +122,9 @@ router.get('/patient_medication_list/:patient_id', requireLoggedIn, requireDocto
 // IPT MEDICAL AND MEDICAL PROCEDURE
 router.post("/ipt_edit_add_medication/:cu_id", requireLoggedIn, requireDoctor, function (req, res) {
 	var key = req.params.cu_id;
+
+	console.log("IN HERE CALLED ADD MEDICATION");
+
 	Medication.create({
 		name: req.body['name'],
 		dosage: req.body['dosage'],
@@ -130,20 +133,15 @@ router.post("/ipt_edit_add_medication/:cu_id", requireLoggedIn, requireDoctor, f
 		notes: req.body['notes'],
 		checkUpId: key
 	}).then(med_instance => {
-		// Billing.findOne({
-		// 	where: {
-		// 		receiptId: key,
-		// 	},
-		// 	raw: true,
-		// }).then(billing_instance =>{
 		Billing_Item.create({
 			description: req.body['name'].trim(),
-			checkUpId: med_instance['checkUpId'],
 			receiptId: med_instance['id'],
+			checkUpId: med_instance['checkUpId'],
+			last_edited: req.session.user.id,
+			issued_by: req.session.user.id,
 		}).then(billing_item => {
 			res.json({id: med_instance.id});
 		});
-		// });
 	});
 });
 
@@ -155,19 +153,15 @@ router.post("/ipt_edit_add_medical_procedure/:cu_id", requireLoggedIn, requireDo
 		details: req.body['details'],
 		checkUpId: key,
 	}).then(procedure_instance => {
-		// Billing.findOne({
-		// 	where: {
-		// 		receiptId: key,
-		// 	},
-		// 	raw: true,
-		// }).then(billing_instance => {
-		// 	Billing_Item.create({
-		// 		description: req.body['description'].trim(),
-		// 		billingId: billing_instance['id'],
-		// 	}).then(billing_item => {
-				res.json({id: procedure_instance.id});
-		// 	});
-		// });
+		Billing_Item.create({
+			description: req.body['description'].trim(),
+			receiptId: procedure_instance['id'],
+			checkUpId: procedure_instance['checkUpId'],
+			last_edited: req.session.user.id,
+			issued_by: req.session.user.id,
+		}).then(billing_item => {
+			res.json({id: procedure_instance.id});
+		});
 	});
 });
 //END OF IPT
@@ -183,19 +177,15 @@ router.post("/opt_edit_add_medication/:cu_id", requireLoggedIn, requireDoctor, f
 		notes: req.body['notes'].trim(),
 		checkUpId: key,
 	}).then(med_instance => {
-		// Billing.findOne({
-		// 	where: {
-		// 		receiptId: key,
-		// 	},
-		// 	raw: true,
-		// }).then(billing_instance => {
-		// 	Billing_Item.create({
-		// 		description: req.body['name'].trim(),
-		// 		billingId: billing_instance['id'],
-		// 	}).then(billing_item => {
-				res.json({id: med_instance.id});
-		// 	});
-		// });
+		Billing_Item.create({
+			description: req.body['name'].trim(),
+			receiptId: med_instance['id'],
+			checkUpId: med_instance['checkUpId'],
+			last_edited: req.session.user.id,
+			issued_by: req.session.user.id,
+		}).then(billing_item => {
+			res.json({id: med_instance.id});
+		});
 	});
 });
 
@@ -207,28 +197,21 @@ router.post("/opt_edit_add_medical_procedure/:cu_id", requireLoggedIn, requireDo
 		details: req.body['details'].trim(),
 		checkUpId: key,
 	}).then(procedure_instance => {
-		// Billing.findOne({
-		// 	where: {
-		// 		receiptId: key,
-		// 	},
-		// 	raw: true,
-		// }).then(billing_instance => {
-		// 	Billing_Item.create({
-		// 		description: req.body['description'].trim(),
-		// 		billingId: billing_instance['id'],
-		// 	}).then(billing_item => {
-				res.json({id: procedure_instance.id});
-		// 	});
-		// });
+		Billing_Item.create({
+			description: req.body['description'].trim(),
+			receiptId: procedure_instance['id'],
+			checkUpId: procedure_instance['checkUpId'],
+			last_edited: req.session.user.id,
+			issued_by: req.session.user.id,
+		}).then(billing_item => {
+			res.json({id: procedure_instance.id});
+		});
 	});
 });
 // END OF OPT
 
 //CC MEDICATION AND MEDICAL PROCEDURE
 router.post("/clinic_consultation_edit_add_medication/:cu_id", requireLoggedIn, requireDoctor, function (req, res) {
-
-	console.log("CC EDIT ADD MEDICATION");
-
 	var key = req.params.cu_id;
 
 	Medication.create({
@@ -239,27 +222,20 @@ router.post("/clinic_consultation_edit_add_medication/:cu_id", requireLoggedIn, 
 		notes: req.body['notes'],
 		checkUpId: key
 	}).then(med_instance => {
-		// Billing.findOne({
-		// 	where: {
-		// 		receiptId: key,
-		// 	},
-		// 	raw: true,
-		// }).then(billing_instance => {
-		// 	Billing_Item.create({
-		// 		description: req.body['name'].trim(),
-		// 		billingId: billing_instance['id'],
-		// 	}).then(billing_item => {
-				res.json({id: med_instance.id});
-		// 	});
-		// });
+		Billing_Item.create({
+			description: req.body['name'].trim(),
+			receiptId: med_instance['id'],
+			checkUpId: med_instance['checkUpId'],
+			last_edited: req.session.user.id,
+			issued_by: req.session.user.id,
+		}).then(billing_item => {
+			res.json({id: med_instance.id});
+		});
 	});
 });
 
 router.post("/clinic_consultation_edit_add_medical_procedure/:cu_id", requireLoggedIn, requireDoctor, function (req, res) {
 	var key = req.params.cu_id;
-
-	console.log("CC EDIT ADD MEDICATION LIST");
-
 
 	Medical_Procedure.create({
 		date: req.body['date'],
@@ -267,24 +243,20 @@ router.post("/clinic_consultation_edit_add_medical_procedure/:cu_id", requireLog
 		details: req.body['details'],
 		checkUpId: key,
 	}).then(procedure_instance => {
-		// Billing.findOne({
-		// 	where: {
-		// 		receiptId: key,
-		// 	},
-		// 	raw: true,
-		// }).then(billing_instance => {
-		// 	Billing_Item.create({
-		// 		description: req.body['description'].trim(),
-		// 		billingId: billing_instance['id'],
-		// 	}).then(billing_item => {
-				res.json({id: procedure_instance.id});
-		// 	});
-		// });
+		Billing_Item.create({
+			description: req.body['description'].trim(),
+			receiptId: procedure_instance['id'],
+			checkUpId: procedure_instance['checkUpId'],
+			last_edited: req.session.user.id,
+			issued_by: req.session.user.id,
+		}).then(billing_item => {
+			res.json({id: procedure_instance.id});
+		});
 	});
 });
 // END OF CC
 
-router.post("/medication_edit/:med_id", requireLoggedIn, requireDoctor, function (req, res) {
+router.post("/edit_medication/:med_id", requireLoggedIn, requireDoctor, function (req, res) {
 	var key = req.params.med_id;
 	var name = req.body['name'].trim();
 
@@ -311,11 +283,13 @@ router.post("/medication_edit/:med_id", requireLoggedIn, requireDoctor, function
 			console.log(updated_med_instance[1][0]['name']);
 			if(med_instance['name'] != updated_med_instance[1][0]['name']){
 				Billing_Item.update({
-					description: name
+					description: name,
+					last_edited: req.session.user.id,
 				}, {
 					where: {
 						checkUpId: med_instance['checkUpId'],
 						receiptId: med_instance['id'],
+						description: med_instance['name']
 					}
 				}).then(billing_item => {
 					res.json({id: med_instance.id});
@@ -325,23 +299,9 @@ router.post("/medication_edit/:med_id", requireLoggedIn, requireDoctor, function
 			}
 		});
 	});
-
-	// Medication.update({
-	// 	name: req.body['name'].trim(),
-	// 	dosage: req.body['dosage'].trim(),
-	// 	frequency: req.body['frequency'].trim(),
-	// 	type: req.body['type'],
-	// 	notes: req.body['notes'].trim()
-	// },{
-	// 	where: {
-	// 		id: key,
-	// 	}
-	// }).then(med_instance => {
-	// 	res.json({id: med_instance.id});
-	// });
 });
 
-router.post("/medical_procedure_edit/:medproc_id", requireLoggedIn, requireDoctor, function (req, res) {
+router.post("/edit_medical_procedure/:medproc_id", requireLoggedIn, requireDoctor, function (req, res) {
 	var key = req.params.medproc_id;
 	var desc = req.body['description'].trim();
 	Medical_Procedure.findOne({
@@ -360,23 +320,18 @@ router.post("/medical_procedure_edit/:medproc_id", requireLoggedIn, requireDocto
 			}
 		}).then(updated_procedure_instance => {
 			if(procedure_instance['description'] != updated_procedure_instance['description']){
-				// Billing.findOne({
-				// 	where: {
-				// 		receiptId: updated_procedure_instance['checkUpId'],
-				// 	},
-				// 	raw: true,
-				// }).then(billing_instance => {
-				// 	Billing_Item.update({
-				// 		description: desc
-				// 	}, {
-				// 		where: {
-				// 			billingId: billing_instance['id'],
-				// 			description: procedure_instance['name'],
-				// 		}
-				// 	}).then(billing_item => {
-						res.json({id: procedure_instance.id});
-				// 	});
-				// });
+				Billing_Item.update({
+					description: desc,
+					last_edited: req.session.user.id,
+				}, {
+					where: {
+						checkUpId: procedure_instance['checkUpId'],
+						receiptId: procedure_instance['id'],
+						description: procedure_instance['description'],
+					}
+				}).then(billing_item => {
+					res.json({id: procedure_instance.id});
+				});
 			} else{
 				res.json({id: procedure_instance.id});
 			}
@@ -388,61 +343,61 @@ router.post("/medication_delete", requireLoggedIn, requireDoctor, function (req,
 
 	var key = req.body['medication'];
 	
-	Medication.destroy({
+	Medication.findOne({
 		where: {
 			id: key
 		},
-		returning: true,
 		raw: true
-	}).then(function(deleted_medication){
-		console.log(deleted_medication);
-		// Billing_Item.destroy({
-		// 	where: {
-		// 		receiptId: deleted_medication[1][0]['checkUpId']
-		// 	},
-		// 	returning: true,
-		// 	raw: true,
-		// }).then(function(deleted_billing){
-
-		// 	if(deleted_billing){
+	}).then(medication_instance =>{
+		Medication.destroy({
+			where: {
+				id: key
+			}
+		}).then(function(deleted_medication){
+			Billing_Item.destroy({
+				where: {
+					receiptId: medication_instance['id'],
+					description: medication_instance['name'],
+				},
+			}).then(function(deleted_billing){
 				res.json({
 					success: true
 				});
-		// 	} else{
-		// 		res.json({
-		// 			success: false
-		// 		});
-		// 	}
-		// });
+			});
+		});
 	});
 });
 
 router.post("/medical_procedure_delete", requireLoggedIn, requireDoctor, function (req, res) {
 	var key = req.body['medical_procedure'];
-	Medical_Procedure.destroy({
+	Medical_Procedure.findOne({
 		where: {
 			id: key
 		},
-		returning: true,
-		raw: true,
-	}).then(function(deleted_medical_procedure){
-		// Billing.destroy({
-		// 	where: {
-		// 		receiptId: deleted_medical_procedure[1][0]['checkUpId']
-		// 	},
-		// 	returning: true,
-		// 	raw: true,
-		// }).then(function(deleted_billing){
-		// 	if(deleted_billing){
-				res.json({
-					success: true
-				});
-		// 	} else{
-		// 		res.json({
-		// 			success: false
-		// 		});
-		// 	}
-		// });
+		raw: true
+	}).then(medical_procedure => {
+		Medical_Procedure.destroy({
+			where: {
+				id: key
+			}
+		}).then(function(deleted_medical_procedure){
+			Billing_Item.destroy({
+				where: {
+					receiptId: medical_procedure['id'],
+					description: medical_procedure['description']
+				}
+			}).then(function(deleted_billing){
+				if(deleted_billing){
+					res.json({
+						success: true
+					});
+				} else{
+					res.json({
+						success: false
+					});
+				}
+			});
+		});
 	});
 });
 

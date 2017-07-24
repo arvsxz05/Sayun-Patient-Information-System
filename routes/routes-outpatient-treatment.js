@@ -147,10 +147,17 @@ router.get('/opt_edit_json/:opt_id/:patient_id', function(req, res){
 					},
 					raw: true,
 				}).then(procedures_list => {
-					res.json({
-						opt: opt_instance,
-						medications: medication_list,
-						med_procedures: procedures_list,
+					Billing_Item.findAll({
+						where: {
+							checkUpId: opt_instance['parent_record.id'],
+						}
+					}).then(billing_items_list => {
+						res.json({
+							opt: opt_instance,
+							medications: medication_list,
+							med_procedures: procedures_list,
+							billing_items: billing_items_list
+						});
 					});
 				});
 			});
@@ -297,7 +304,37 @@ router.post('/opt_add', upload_file_opts.array('add-opt-attachments[]'), functio
 	}
 	OutPatient_Treatment.create(fields, includes).then(checkUp_data => {
 		addOPTfileQueue[fileId] = null;
-		res.json({success: true});
+		var itemsProcessed = 0;
+		checkUp_data.parent_record.medication.forEach(function (medication_item) {
+			console.log(medication_item.dataValues.id);
+			Billing_Item.create({
+				description: medication_item.dataValues.name,
+				last_edited: req.session.user.id,
+				checkUpId: medication_item.dataValues.checkUpId,
+				receiptId: medication_item.dataValues.id,
+				issued_by: req.session.user.id,
+			}).then(billing_item_instance => {
+				itemsProcessed++;
+				if(itemsProcessed === checkUp_data.parent_record.medication.length) {
+					itemsProcessed = 0;
+					checkUp_data.parent_record.medical_procedure.forEach(function (medical_procedure_item) {
+						console.log(medical_procedure_item.dataValues.id);
+						Billing_Item.create({
+							description: medical_procedure_item.dataValues.description,
+							last_edited: req.session.user.id,
+							checkUpId: medical_procedure_item.dataValues.checkUpId,
+							receiptId: medical_procedure_item.dataValues.id,
+							issued_by: req.session.user.id,
+						}).then(billing_item_instance => {
+							itemsProcessed++;
+							if(itemsProcessed === checkUp_data.parent_record.medical_procedure.length) {
+								res.json({success: true});
+							}
+						});
+					});
+				}
+			});
+		});
 	}).catch(error => {
 		console.log(error);
 		res.json({error: 'Something went wrong. Please try again later.'});

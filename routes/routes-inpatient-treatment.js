@@ -150,10 +150,17 @@ router.get('/ipt_edit_json/:ipt_id/:patient_id', function (req, res) {
 					},
 					raw: true,
 				}).then(procedures_list => {
-					res.json({
-						ipt: ipt_instance,
-						medications: medication_list,
-						med_procedures: procedures_list,
+					Billing_Item.findAll({
+						where: {
+							checkUpId: ipt_instance['parent_record.id'],
+						}
+					}).then(billing_items_list => {
+						res.json({
+							ipt: ipt_instance,
+							medications: medication_list,
+							med_procedures: procedures_list,
+							billing_items: billing_items_list
+						});
 					});
 				});
 			});
@@ -274,9 +281,6 @@ router.post('/ipt_add', requireLoggedIn, upload_file_ipts.array('add-ipt-attachm
 				}, {
 					model: Medical_Procedure,
 					as: 'medical_procedure',
-				}, {
-					model: Billing_Item,
-					as: 'billing_items'
 				}],
 			}]
 		};
@@ -303,7 +307,37 @@ router.post('/ipt_add', requireLoggedIn, upload_file_ipts.array('add-ipt-attachm
 
 	InPatient_Treatment.create(fields, includes).then(checkUp_data => {
 		addIPTfileQueue[fileId] = null;
-		res.json({success: true});
+		var itemsProcessed = 0;
+		checkUp_data.parent_record.medication.forEach(function (medication_item) {
+			console.log(medication_item.dataValues.id);
+			Billing_Item.create({
+				description: medication_item.dataValues.name,
+				last_edited: req.session.user.id,
+				checkUpId: medication_item.dataValues.checkUpId,
+				receiptId: medication_item.dataValues.id,
+				issued_by: req.session.user.id,
+			}).then(billing_item_instance => {
+				itemsProcessed++;
+				if(itemsProcessed === checkUp_data.parent_record.medication.length) {
+					itemsProcessed = 0;
+					checkUp_data.parent_record.medical_procedure.forEach(function (medical_procedure_item) {
+						console.log(medical_procedure_item.dataValues.id);
+						Billing_Item.create({
+							description: medical_procedure_item.dataValues.description,
+							last_edited: req.session.user.id,
+							checkUpId: medical_procedure_item.dataValues.checkUpId,
+							receiptId: medical_procedure_item.dataValues.id,
+							issued_by: req.session.user.id,
+						}).then(billing_item_instance => {
+							itemsProcessed++;
+							if(itemsProcessed === checkUp_data.parent_record.medical_procedure.length) {
+								res.json({success: true});
+							}
+						});
+					});
+				}
+			});
+		});
 	}).catch(error => {
 		console.log(error);
 		res.json({error: 'Something went wrong. Please try again later.'});
@@ -384,9 +418,6 @@ router.post('/ipt_edit/:ipt_id/:cu_id', function (req, res) {
 					message: "This record doesn't exist."
 				});
 			}
-
-			
-
 		}).catch(function (error) {
 			console.log(error);
 			res.json({error: error});
@@ -510,8 +541,6 @@ router.post("/ipt_delete_confirmed/:ipt_id", requireLoggedIn, function(req, res)
 				res.json({success: true});
 			// })
 		});
-
-		res.json({success: true});
 	}).catch(function(error){
 		console.log(error);
 		res.json({success: false});

@@ -10,12 +10,16 @@ module.exports = function(database, DataTypes) {
 			type: DataTypes.FLOAT,
 			allowNull: false,
 			defaultValue: 0
-		}//,
+		},//,
 		// last_edited: {
 		// 	type: DataTypes.ENUM,
 		// 	values: billing_item_edited_type,
 		// 	allowNull: false,
 		// 	defaultValue: "Secretary"
 		// }
+		receiptId: {
+			type: DataTypes.INTEGER,
+			allowNull: true,
+		}
 	});
 }

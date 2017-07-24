@@ -218,7 +218,7 @@ function show_billing(div, caller) {
         if(files.length != 0) {
             $(".unique-name-add-ipt").click();
         } else {
-            var medication = [], med_procedure = [], billings = [];
+            var medication = [], med_procedure = [], billing_item = [];
 
             for(var i = 0; i < add_ipt_meds_table.rows().data().length; i++){
                 var name = add_ipt_meds_table.rows().data()[i][1];
@@ -229,10 +229,6 @@ function show_billing(div, caller) {
                     type: add_ipt_meds_table.rows().data()[i][4],
                     notes: add_ipt_meds_table.rows().data()[i][5],
                 });
-
-                billings.push({
-                    description: name.substring(3, name.length-4)
-                });
             }
 
             for(var i = 0; i < add_ipt_med_procedures_table.rows().data().length; i++){
@@ -242,9 +238,15 @@ function show_billing(div, caller) {
                     description: add_ipt_med_procedures_table.rows().data()[i][2],
                     details: add_ipt_med_procedures_table.rows().data()[i][3],
                 });
+            }
+            console.log("in here add_ipt_billing_table");
+            for(var i = 0; i < add_ipt_billing_table.rows().data().length; i++){
+                billing_item.push({
+                    description: add_ipt_billing_table.rows().data()[i][1],
+                    amount: add_ipt_billing_table.rows().data()[i][2],
+                    last_edited: "Doctor",
+                    issued_by: "{{session.user}}",
 
-                billings.push({
-                    description: add_ipt_med_procedures_table.rows().data()[i][2]
                 });
             }
 
@@ -262,7 +264,7 @@ function show_billing(div, caller) {
                     'p-id': $("#ipt-p-id").val(),
                     'meds':  medication,
                     'med_procedures': med_procedure,
-                    'billings': billings,
+                    'billings': billing_item,
                 }
             }).done(function (data) {
                 if(data.success) {
