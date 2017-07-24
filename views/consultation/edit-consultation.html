@@ -290,18 +290,18 @@
         $('#edit-cc-select-all-med-procedures').prop('checked', $('#edit-cc-list-med-procedure tbody input:checkbox').length == $('#edit-cc-list-med-procedure tbody input:checkbox:checked').length);
     });
 
-    function edit_cc_delete_med_procedure(){
+    function edit_cc_delete_med_procedure() {
         var med_proc_rows= [];
         var med_proc_ids = [];
 
         $("#edit-cc-list-med-procedure tbody input:checkbox").each(function(){
             var $this = $(this);
-            if($this.is(":checked")){
+            if($this.is(":checked")) {
                 med_proc_rows.push($this.parent().parent());
             }
         });
 
-        if(med_proc_rows.length > 0){
+        if(med_proc_rows.length > 0) {
 
             $.confirm({
                 title: "Delete Medical Procedures/s",
@@ -309,7 +309,7 @@
                 buttons: {
                     Confirm: function () {
 
-                        for(var x = 0; x < med_proc_rows.length; x++ ){
+                        for(var x = 0; x < med_proc_rows.length; x++ ) {
                             med_proc_ids.push(med_proc_rows[x].children('td:first').children('input').attr('id'));
                         }
                         
@@ -323,7 +323,7 @@
                             }
                         }).done(function (data) {
                             if(data.success){
-                                for(var x = 0; x < med_proc_rows.length; x++ ){
+                                for(var x = 0; x < med_proc_rows.length; x++ ) {
                                     edit_cc_med_procedures_table.row(med_proc_rows[x]).remove().draw();
                                 }
                             }
@@ -341,8 +341,10 @@
                 }
             });
         }
-
-        $('#delete-cc-button').click(function(e){
+    }
+    {% endif %}
+    
+    $('#delete-cc-button').click(function(e) {
         // CONFIRM DIALOG DELETE
         var key = $("#edit-cc-p-id").val();
         $.ajax({
@@ -403,7 +405,4 @@
             }
         });
     });
-    }
-    {% endif %}
-    // 
 </script>

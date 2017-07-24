@@ -52,7 +52,8 @@ module.exports = function(io) {
 					status: {
 						$ne: null,
 						$in: ['Waiting', 'Current']
-					}
+					},
+					active: true
 				},
 				include: [{
 					model: Check_Up,
@@ -161,7 +162,8 @@ module.exports = function(io) {
 					status: {
 						$ne: null,
 						$in: ['Waiting', 'Current']
-					}
+					},
+					active: true
 				},
 				include: [{
 					model: Check_Up,
@@ -232,7 +234,8 @@ module.exports = function(io) {
 							status: {
 								$ne: null,
 								$in: ['Waiting', 'Current']
-							}
+							},
+							active: true
 						},
 						include: [{
 							model: Check_Up,
@@ -329,7 +332,8 @@ module.exports = function(io) {
 								status: {
 									$in: ['Waiting', 'Current']
 								},
-								date: consultation_instance.date
+								date: consultation_instance.date,
+								active: true
 							}, include: [{
 								model: Check_Up,
 								as: 'parent_record',
@@ -386,6 +390,7 @@ module.exports = function(io) {
 						status: {
 							$in: ['Waiting', 'Current']
 						},
+						active: true
 					},
 					include: [{
 						model: Check_Up,
@@ -401,7 +406,8 @@ module.exports = function(io) {
 						status: {
 							$in: ['Waiting', 'Current']
 						},
-						date: consultation_instance.date
+						date: consultation_instance.date,
+						active: true
 					}, include: [{
 						model: Check_Up,
 						as: 'parent_record',
@@ -563,7 +569,8 @@ module.exports = function(io) {
 						status: {
 							$ne: null,
 							$in: ['Waiting', 'Current']
-						}
+						},
+						active: true
 					},
 					include: [{
 						model: Check_Up,
@@ -612,6 +619,7 @@ module.exports = function(io) {
 				status: {
 					$in: ['Waiting', 'Current']
 				},
+				active: true
 			},
 			include: [{
 				model: Check_Up,
