@@ -41,6 +41,8 @@
     var edit_ipt_billing_table;
 
     function add_IPT() {
+        var currDate = getCurrDate().split("/");
+
         $('#list-ipt-view').hide();
         $('#add-ipt-view').show();
         $('#edit-ipt-view').hide();
@@ -50,6 +52,16 @@
         $('#add-ipt-view select').val("");
         $('#add-ipt-view input').not('#doctor').not('#hidden-doctor').not('#ipt-p-id').val("");
         $('#add-ipt-view textarea').val("");
+
+        $add_ipt_billing.css('width', $add_ipt_billing.parent().css('width'));
+
+        $('#confinement-date-div select[name="date_[year]"]').val(currDate[0]);
+
+        $('#confinement-date-div select[name="date_[month]"]').val(currDate[1]);
+
+        $('#confinement-date-div select[name="date_[day]"]').val(currDate[2]);
+
+        $('#confinement-date').val(currDate[0] + "-" + currDate[1] +"-" + currDate[2]);
 
         edit_med_id = null;
         edit_med_procedure_id = null;
@@ -134,9 +146,12 @@
         $('#edit-ipt-view').show();
         $('#list-ipt-view-link').show();
 
+        $('#edit-ipt-billing-container').css('width', $('#edit-ipt-billing-container').parent().css('width'));
+
         if(edit_ipt_meds_table instanceof $.fn.dataTable.Api) {
             edit_ipt_meds_table.destroy();
             edit_ipt_med_procedures_table.destroy();
+            edit_ipt_billing_table.destroy();
         }
         {% if doctor %}
         edit_ipt_meds_table = $('#edit-list-medication').DataTable({
@@ -191,8 +206,23 @@
             $('#edit-med-procedure-details').val(data[3]);
         });
 
+        edit_ipt_billing_table = $('#edit-ipt-billing-information').DataTable({
+            "bSort": true, 
+            "aaSorting": [],
+            "paging":   false,
+            "ordering": false,
+            "info":     false,
+            "searching": false,
+            "aoColumns": [
+                { "bSortable": false },
+                { "bSortable": true },
+                { "bSortable": true }
+            ]    
+        });
+
         edit_ipt_meds_table.rows().remove().draw();
         edit_ipt_med_procedures_table.rows().remove().draw();
+        edit_ipt_billing_table.rows().remove().draw();
 
         {% endif %}
 

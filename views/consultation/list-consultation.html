@@ -33,6 +33,8 @@
     var edit_cc_med_procedures_table;
 
     function add_CC() {
+        var currDate = getCurrDate().split("/");
+
         $('#list-cc-view').hide();
         $('#add-cc-view').show();
         $('#edit-cc-view').hide();
@@ -41,6 +43,14 @@
         $('#add-cc-view select').val("");
         $('#add-cc-view input').not('#cc-doctor').not('#hidden-cc-doctor').not('#cc-p-id').val("");
         $('#add-cc-view textarea').val("");
+
+        $('#cc-date-div select[name="date_[year]"]').val(currDate[0]);
+
+        $('#cc-date-div select[name="date_[month]"]').val(currDate[1]);
+
+        $('#cc-date-div select[name="date_[day]"]').val(currDate[2]);
+
+        $('#cc-date').val(currDate[0] + "-" + currDate[1] +"-" + currDate[2]);
 
         edit_med_id = null;
         edit_med_procedure_id = null;

@@ -26,10 +26,20 @@
 
 		<script type="text/javascript">
 			function add_lab() {
+				var currDate = getCurrDate().split("/");
+
 	            $('#list-lab-view').hide();
 	            $('#add-lab-view').show();
 	            $('#edit-lab-view').hide();
 	            $('#list-lab-view-link').show();
+
+	            $('#lab-date-div select[name="date_[year]"]').val(currDate[0]);
+
+		        $('#lab-date-div select[name="date_[month]"]').val(currDate[1]);
+
+		        $('#lab-date-div select[name="date_[day]"]').val(currDate[2]);
+
+		        $('#lab-date').val(currDate[0] + "-" + currDate[1] +"-" + currDate[2]);
 	        }
 
 	        function edit_Lab (lab_id) {

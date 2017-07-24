@@ -127,27 +127,29 @@
         
         </div>
         <!-- BILLING FOR IPT -->
-        <div class="col-md-4" style="display: fixed;">
-            <hr>
-            <b><legend onclick="show_billing('add-ipt-billing', this)" style="cursor: pointer;">▸ Show Billing Information</legend></b>
-            <div id="add-ipt-billing" style="display: none">
-                <div class="table-responsive">
-                    <table id="add-ipt-billing-information" class="table table-striped table-bordered" cellspacing="0" width="100%">
-                        <thead>
-                            <tr>
-                                <th><input type="checkbox" aria-label="..." id="add-ipt-select-all-billing-items"/></th>
-                                <th>Description</th>
-                                <th>Amount</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                        </tbody>
-                    </table>
-                </div>
+        <div class="col-md-4" >
+            <div id="add-ipt-billing-container">
                 <hr>
+                <b><legend onclick="show_billing('add-ipt-billing', this)" style="cursor: pointer;">▸ Show Billing Information</legend></b>
+                <div id="add-ipt-billing" style="display: none">
+                    <div class="table-responsive">
+                        <table id="add-ipt-billing-information" class="table table-striped table-bordered" cellspacing="0" width="100%">
+                            <thead>
+                                <tr>
+                                    <th><input type="checkbox" aria-label="..." id="add-ipt-select-all-billing-items"/></th>
+                                    <th>Description</th>
+                                    <th>Amount</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
+                    </div>
+                    <hr>
+                </div>
             </div>
         </div>
-    <!-- END OF BILLING FOR IPT -->
+        <!-- END OF BILLING FOR IPT -->
         <div class="button-group hidden-md hidden-lg">
             <a onclick="view_IPT()" class="btn btn-gray pull-right">Cancel</a>
             <button type="submit" class="btn btn-lime pull-right" id="save-btn">Save</button>    
@@ -156,6 +158,26 @@
 </div>
 
 <script type="text/javascript">
+var $window = $(window),
+       $add_ipt_billing = $('#add-ipt-billing-container'),
+       elTop = 408;
+
+   $window.scroll(function() {
+        $add_ipt_billing.css('top', '0px');
+        $add_ipt_billing.toggleClass('affix', $window.scrollTop() > elTop);
+        $add_ipt_billing.css('width', $add_ipt_billing.parent().css('width'));
+
+        $('#edit-ipt-billing-container').css('top', '0px');
+        $('#edit-ipt-billing-container').toggleClass('affix', $window.scrollTop() > elTop);
+       $('#edit-ipt-billing-container').css('width', $('#edit-ipt-billing-container').parent().css('width'));
+        if($window.scrollTop() > elTop){
+            console.log("pota");
+            $('#edit-ipt-billing-container').addClass('affix');
+        }
+        else{
+           $('#edit-ipt-billing-container').removeClass('affix');
+        }
+    });
 
 function show_billing(div, caller) {
     if($('#' + div).css('display') == 'none'){

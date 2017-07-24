@@ -137,12 +137,32 @@
         {% endif %}
     </div>
     <!-- BILLING FOR IPT -->
-    <div class="col-md-4"></div>
+    <div class="col-md-4">
+        <div id="edit-ipt-billing-container">
+            <hr>
+            <b><legend onclick="show_billing('edit-ipt-billing', this)" style="cursor: pointer;">▸ Show Billing Information</legend></b>
+            <div id="edit-ipt-billing" style="display: none">
+                <div class="table-responsive">
+                    <table id="edit-ipt-billing-information" class="table table-striped table-bordered" cellspacing="0" width="100%">
+                        <thead>
+                            <tr>
+                                <th><input type="checkbox" aria-label="..." id="edit-ipt-select-all-billing-items"/></th>
+                                <th>Description</th>
+                                <th>Amount</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                </div>
+                <hr>
+            </div>
+        </div>
+    </div>
     <!-- END OF BILLING FOR IPT -->
 </div>
 
 <script type="text/javascript">
-
     $("#edit-ipt-form").submit(function (event) {
         event.preventDefault();
         {% if doctor %}

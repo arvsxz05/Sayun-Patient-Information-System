@@ -1136,6 +1136,17 @@
                     $('#add-med-type').val(),
                     $('#add-med-instructions').val()
                 ]).draw();
+
+                edit_ipt_billing_table.row.add([
+                    '<input type="checkbox"  id="from-db" name="med-bill-' + data.id +'"></input>',
+                    $('#add-med-name').val(),
+                    "0"
+                ]).draw();
+
+                $('#edit-ipt-billing').parent().children('b').children().text("▾ Hide Billing Information");
+                $('#edit-ipt-billing').slideDown(600);
+
+
                 showSnackBar('Medication for this IPT Record was successfully added.');
                 $('#add-medication-modal').modal('toggle');
                 $('#add-medication-modal input').val("");
@@ -1901,6 +1912,19 @@
         x.innerHTML = str;
         x.className = "show";
         setTimeout(function(){ x.className = x.className.replace("show", ""); }, 3000);
+    }
+
+    function getCurrDate() {
+        var d = new Date();
+
+        var month = d.getMonth()+1;
+        var day = d.getDate();
+
+        var currDate = d.getFullYear() + '/' +
+            ((''+month).length<2 ? '0' : '') + month + '/' +
+            ((''+day).length<2 ? '0' : '') + day;
+
+        return currDate;
     }
 
 </script>
