@@ -130,6 +130,9 @@
 	</div>
 </body>
 <script type="text/javascript">
+	var d = new Date();
+    var n = d.getDate(), m = d.getMonth(), o = d.getFullYear();
+    var p = new Date(o, m, n).getTime();
 	$(window).ready(function() {
 		var cw = $('.feature-icon').width();
 		$('.feature-icon').css({'height':cw+'px'});
@@ -143,9 +146,9 @@
 		$('.feature-icon .fa').css({'margin-top':(cw*0.27)+'px'});
 	});
 	{% if doctor %}
-	$("#daily_const_id").attr('href', $("#daily_const_id").attr('href') + '{{ user.id }}/'+ Date.now());
+	$("#daily_const_id").attr('href', $("#daily_const_id").attr('href') + '{{ user.id }}/'+ p);
 	{% elif secretary %}
-	$("#daily_const_id").attr('href', $("#daily_const_id").attr('href') + '{{ firstDoctor }}/'+ Date.now());
+	$("#daily_const_id").attr('href', $("#daily_const_id").attr('href') + '{{ firstDoctor }}/'+ p);
 	{% endif %}
 </script>
 </html>
