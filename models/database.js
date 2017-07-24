@@ -57,10 +57,17 @@ if (!global.hasOwnProperty('db')) {
 			allowNull: true
 		}
 	});
+	global.db.User_Account.hasMany(global.db.Billing_Item, {
+		foreignKey: {
+			name: 'last_edited',
+			allowNull: false
+		}
+	});
+
 	global.db.Laboratory.hasMany(global.db.Billing_Item, {as: 'billing_items'});
 	global.db.Check_Up.hasMany(global.db.Billing_Item, {as: 'billing_items'});
-	global.db.Medication.hasOne(global.db.Billing_Item, {as: 'receipt', onDelete: 'CASCADE'});
-	global.db.Medical_Procedure.hasOne(global.db.Billing_Item, {as: 'receipt', onDelte: 'CASCADE'});
+	// global.db.Medication.hasOne(global.db.Billing_Item, {as: 'receipt', onDelete: 'CASCADE'});
+	// global.db.Medical_Procedure.hasOne(global.db.Billing_Item, {as: 'receipt', onDelete: 'CASCADE'});
 	global.db.Consultation.belongsTo(global.db.Check_Up, {as: 'parent_record'});
 }
 
