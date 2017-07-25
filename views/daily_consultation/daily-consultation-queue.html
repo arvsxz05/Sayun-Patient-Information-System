@@ -20,6 +20,8 @@
     <script type="text/javascript" src="../../static/js/dataTables.bootstrap.min.js"></script>
     <script type="text/javascript" src="../../static/js/jquery.tablednd.js"></script>
     <script src="../../static/js/1.12.1-jquery-ui.js"></script>
+    <link rel="stylesheet" href="../../static/css/jquery-confirm.min.css">
+    <script src="../../static/js/jquery-confirm.min.js"></script>
     <style>
 
         .myDragClass {
@@ -346,6 +348,7 @@
                                     </fieldset>
                                     <div class="button-group">
                                         <a class="btn btn-gray pull-right" data-dismiss="modal">Cancel</a>
+                                        <a class="btn btn-danger pull-right" id="delete-daily-cc">Delete</a>
                                         <button type="submit" class="btn btn-lime pull-right">Save</button>
                                     </div>
                                 </form>
@@ -601,6 +604,61 @@
             }
         });
     });
+    $('#delete-daily-cc').click(function(e) {
+        // CONFIRM DIALOG DELETE
+        var key = $("#edit-daily-cc-id").val();
+        $.ajax({
+            type: "GET",
+            url: "/clinic_consultation_delete/" + key,
+        }).done(function (data) {
+            if(data.hasChildRecords) {
+                $.confirm({
+                    title: 'Delete Daily Consultation',
+                    content: 'The record you want to archive has ' + data.meds_count +' medication/s, '+
+                    data.medical_procedure_count+' medical procedure/s associated with it. Archive them first.',
+                    type: 'red',
+                    buttons: {
+                        OK: {
+                            text: 'OK',
+                            btnClass: 'btn-danger',
+                            action: function () {}
+                        }
+                    }
+                });
+            } else {
+                $.confirm({
+                    title: 'Move to Archive',
+                    content: 'Are you sure you want to delete ' + $("#edit-patients-names-list").val() + ' from this queue? This cannot be undone.',
+                    type: 'red',
+                    buttons: {
+                        Confirm: {
+                            text: 'Confirm',
+                            btnClass: 'btn-danger',
+                            action: function () {
+                                $.ajax({
+                                    type: "POST",
+                                    url: "/delete_daily_consultation/" + key,
+                                }).done(function(data) {
+                                    if(data.success){
+                                        $.alert({
+                                            title: 'Success',
+                                            content: $("#edit-patients-names-list").val() + ' successfully removed from queue.'
+                                        });
+                                        $("#edit-daily-consultation-modal").modal("toggle");
+                                    } else{
+                                        $.alert({
+                                            title: 'Error',
+                                            content: 'An error occured.'
+                                        });
+                                    }
+                                });
+                            }
+                        },
+                        Cancel: {},
+                    }
+                });
+            }
+        });
+    });
 </script>
-
 </html>
