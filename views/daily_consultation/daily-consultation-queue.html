@@ -94,7 +94,7 @@
             <div class="row feature-row" style="padding-top: 20px">
                 <div class="col-sm-10 col-sm-offset-1">
                     <div class="row form-horizontal">
-                        <div class="col-sm-6 col-md-4">
+                        <div class="col-sm-4">
                             {% if session.doctor == null %}
                                 <div class="form-group">
                                     <label class="col-sm-3 control-label">Doctor</label>
@@ -110,10 +110,20 @@
                                         </select>
                                     </div>
                                 </div>
-                                
                             {% endif %}
                         </div>
-                        <div class="col-sm-6 col-md-4 col-md-offset-4">
+                        <div class="col-sm-4">
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">Status</label>
+                                <div class="col-sm-9">
+                                    <select class="form-control" id="queue_status">
+                                        <option value="Waiting/Current" selected>Waiting/Current</option>
+                                        <option value="Done">Done</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-4">
                             <div class="form-group">
                                 <label class="col-sm-3 control-label">Date</label>
                                 <div class="col-sm-9">
@@ -412,6 +422,12 @@
     $('#select-doctor-queue').change(function () {
         var valid_time = new Date($("#queue-datepicker").val());
         window.location.replace('/daily_consultation_list/' + $(this).val() + '/' + valid_time.getTime());
+    });
+
+    $('#queue_status').change(function () {
+        if($(this).val() === 'Done') {
+            window.location.replace(window.location.href + '/done');
+        }
     });
 
     $(document).ready(function() { //DO NOT CHANGEEEEE

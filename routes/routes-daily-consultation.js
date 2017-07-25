@@ -860,5 +860,129 @@ module.exports = function(io) {
 		});
 	});
 
+	router.get('/daily_consultation_list/:doc_username/:date/done', requireLoggedIn, function (req, res) {
+		var date = parseInt(req.params.date);
+		var doctor = req.params.doc_username;
+		if (req.session.doctor) {
+			Consultation.findAll({
+				raw: true,
+				where: {
+					date: formatDate(date),
+					status: {
+						$ne: null,
+						$in: ['Done']
+					},
+					active: true
+				},
+				include: [{
+					model: Check_Up,
+					as: 'parent_record',
+					required: true,
+					attributes: ['id', 'hospitalName', 'doctorId', 'patientId'],
+					include: [{
+						model: Hospital,
+						attributes: ['name']
+					}, {
+						model: Doctor,
+						required: true,
+						where: {
+							id: req.session.doctor.id
+						},
+						attributes: ['id'],
+						include: {
+							model: User_Account,
+							as: 'username',
+							attributes: ['id', 'title', 'first_name', 'middle_name', 'last_name', 'suffix']
+						}
+					}, {
+						model: Patient,
+						required: true,
+						where: {
+							spisInstanceLicenseNo: req.session.spisinstance.license_no
+						},
+						attributes: ['id', 'first_name', 'middle_name', 'last_name', 'suffix']
+					}]
+				}]
+			}).then(daily_consultation_list => {
+				res.render('daily_consultation/done_queue.html', {
+					daily_consultation_list: daily_consultation_list,
+					session: req.session,
+					doctor_on_queue: req.session.user.id,
+					date_on_queue: new Date(date).toDateString()
+				});
+			});
+		} else if (req.session.secretary) {
+			Doctor.findOne({
+				where: {
+					usernameId: doctor
+				}
+			}).then(single_doctor => {
+				if (single_doctor) {
+					Consultation.findAll({
+						raw: true,
+						where: {
+							date: formatDate(date),
+							status: {
+								$ne: null,
+								$in: ['Done']
+							},
+							active: true
+						},
+						include: [{
+							model: Check_Up,
+							required: true,
+							as: 'parent_record',
+							include: [{
+								model: Hospital,
+								attributes: ['name']
+							}, {
+								model: Doctor,
+								required: true,
+								include: {
+									model: User_Account,
+									required: true,
+									as: 'username',
+									where: {
+										id: doctor
+									},
+									attributes: ['id', 'title', 'first_name', 'middle_name', 'last_name', 'suffix']
+								}
+							}, {
+								model: Patient,
+								required: true,
+								where: {
+									spisInstanceLicenseNo: req.session.spisinstance.license_no
+								},
+								attributes: ['id', 'first_name', 'middle_name', 'last_name', 'suffix']
+							}]
+						}]
+					}).then(daily_consultation_list => {
+						Doctor.findAll({
+							raw: true,
+							include: [{
+								model: User_Account,
+								as: 'username',
+								where: {
+									spisInstanceLicenseNo: req.session.spisinstance.license_no
+								}
+							}]
+						}).then(doctor_list => {
+							
+								res.render('daily_consultation/done_queue.html', {
+									daily_consultation_list: daily_consultation_list,
+									session: req.session,
+									doctors: doctor_list,
+									doctor_on_queue: doctor,
+									date_on_queue: new Date(date).toDateString()
+								});
+						});
+					});
+				} else {
+					res.send('Doctor not found!');
+				}
+			});
+		}
+	});
+
 	return router;
 }
