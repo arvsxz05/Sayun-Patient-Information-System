@@ -409,7 +409,6 @@ router.post('/patient_add', requireLoggedIn, upload.fields([{name: 'photo', maxC
 	var nationality = req.body['nationality'];
 	var referral = req.body['referral'];
 	var insurance = req.body['insurance'];
-	var surgeries = req.body['surgeries'];
 	var address = req.body['address'];
 	var email = req.body['email'];
 	var contact1 = req.body['contact1'];
@@ -459,7 +458,6 @@ router.post('/patient_add', requireLoggedIn, upload.fields([{name: 'photo', maxC
 		expiration: expiration,
 		company_name: company_name,
 		insurance: insurance,
-		prior_surgeries: surgeries
 	}).then(function (item) {
 		res.redirect("/patient_list");
 	}).catch(function (error) {
@@ -515,7 +513,6 @@ router.post('/patient_edit/:id', requireLoggedIn, upload.fields([{name: 'photo',
 			expiration: expiration,
 			company_name: req.body['company'].trim(),
 			// insurance: req.body['insurance'].trim(),
-			prior_surgeries: req.body['surgeries'].trim()
 		};
 	} else {
 		patient_obj = {
@@ -540,7 +537,6 @@ router.post('/patient_edit/:id', requireLoggedIn, upload.fields([{name: 'photo',
 			expiration: expiration,
 			company_name: req.body['company'].trim(),
 			// insurance: req.body['insurance'].trim(),
-			prior_surgeries: req.body['surgeries'].trim(),
 			photo: photo
 		};
 	}
@@ -570,6 +566,7 @@ router.post('/patient_edit_notes/:id', requireLoggedIn, function (req, res) {
 	var imm_fam_hh = req.body['immediate-family-hh'];
 	var prev_medproc = req.body['prev-med-proc'];
 	var gen_notes = req.body['general-notes'];
+	var surgeries = req.body['surgeries'];
 
 	Patient.update({
 		f_allergies: f_allergies,

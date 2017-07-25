@@ -132,6 +132,8 @@ router.post("/ipt_edit_add_medication/:cu_id", requireLoggedIn, requireDoctor, f
 		type: req.body['type'],
 		notes: req.body['notes'],
 		checkUpId: key
+	}, {
+		raw: true
 	}).then(med_instance => {
 		Billing_Item.create({
 			description: req.body['name'].trim(),
@@ -139,8 +141,13 @@ router.post("/ipt_edit_add_medication/:cu_id", requireLoggedIn, requireDoctor, f
 			checkUpId: med_instance['checkUpId'],
 			last_edited: req.session.user.id,
 			issued_by: req.session.user.id,
+		}, {
+			raw: true
 		}).then(billing_item => {
-			res.json({id: med_instance.id});
+			res.json({
+				medication_id: med_instance.id,
+				billing_item_id: billing_item.id
+			});
 		});
 	});
 });
@@ -152,6 +159,8 @@ router.post("/ipt_edit_add_medical_procedure/:cu_id", requireLoggedIn, requireDo
 		description: req.body['description'],
 		details: req.body['details'],
 		checkUpId: key,
+	}, {
+		raw: true
 	}).then(procedure_instance => {
 		Billing_Item.create({
 			description: req.body['description'].trim(),
@@ -159,8 +168,13 @@ router.post("/ipt_edit_add_medical_procedure/:cu_id", requireLoggedIn, requireDo
 			checkUpId: procedure_instance['checkUpId'],
 			last_edited: req.session.user.id,
 			issued_by: req.session.user.id,
+		}, {
+			raw: true
 		}).then(billing_item => {
-			res.json({id: procedure_instance.id});
+			res.json({
+				medical_procedure_id: procedure_instance.id,
+				billing_item_id: billing_item.id,
+			});
 		});
 	});
 });
@@ -176,6 +190,8 @@ router.post("/opt_edit_add_medication/:cu_id", requireLoggedIn, requireDoctor, f
 		type: req.body['type'],
 		notes: req.body['notes'].trim(),
 		checkUpId: key,
+	}, {
+		raw: true
 	}).then(med_instance => {
 		Billing_Item.create({
 			description: req.body['name'].trim(),
@@ -183,8 +199,13 @@ router.post("/opt_edit_add_medication/:cu_id", requireLoggedIn, requireDoctor, f
 			checkUpId: med_instance['checkUpId'],
 			last_edited: req.session.user.id,
 			issued_by: req.session.user.id,
+		}, {
+			raw: true
 		}).then(billing_item => {
-			res.json({id: med_instance.id});
+			res.json({
+				medication_id: med_instance.id,
+				billing_item_id: billing_item.id,
+			});
 		});
 	});
 });
@@ -196,6 +217,8 @@ router.post("/opt_edit_add_medical_procedure/:cu_id", requireLoggedIn, requireDo
 		description: req.body['description'].trim(),
 		details: req.body['details'].trim(),
 		checkUpId: key,
+	}, {
+		raw: true
 	}).then(procedure_instance => {
 		Billing_Item.create({
 			description: req.body['description'].trim(),
@@ -203,8 +226,13 @@ router.post("/opt_edit_add_medical_procedure/:cu_id", requireLoggedIn, requireDo
 			checkUpId: procedure_instance['checkUpId'],
 			last_edited: req.session.user.id,
 			issued_by: req.session.user.id,
+		}, {
+			raw: true
 		}).then(billing_item => {
-			res.json({id: procedure_instance.id});
+			res.json({
+				medical_procedure_id: procedure_instance.id,
+				billing_item_id: billing_item.id,
+			});
 		});
 	});
 });
@@ -221,6 +249,8 @@ router.post("/clinic_consultation_edit_add_medication/:cu_id", requireLoggedIn, 
 		type: req.body['type'],
 		notes: req.body['notes'],
 		checkUpId: key
+	}, {
+		raw: true,
 	}).then(med_instance => {
 		Billing_Item.create({
 			description: req.body['name'].trim(),
@@ -228,8 +258,13 @@ router.post("/clinic_consultation_edit_add_medication/:cu_id", requireLoggedIn, 
 			checkUpId: med_instance['checkUpId'],
 			last_edited: req.session.user.id,
 			issued_by: req.session.user.id,
+		}, {
+			raw: true,
 		}).then(billing_item => {
-			res.json({id: med_instance.id});
+			res.json({
+				medication_id: med_instance.id,
+				billing_item_id: billing_item.id,
+			});
 		});
 	});
 });
@@ -242,6 +277,8 @@ router.post("/clinic_consultation_edit_add_medical_procedure/:cu_id", requireLog
 		description: req.body['description'],
 		details: req.body['details'],
 		checkUpId: key,
+	}, {
+		raw: true,
 	}).then(procedure_instance => {
 		Billing_Item.create({
 			description: req.body['description'].trim(),
@@ -249,8 +286,13 @@ router.post("/clinic_consultation_edit_add_medical_procedure/:cu_id", requireLog
 			checkUpId: procedure_instance['checkUpId'],
 			last_edited: req.session.user.id,
 			issued_by: req.session.user.id,
+		}, {
+			raw: true,
 		}).then(billing_item => {
-			res.json({id: procedure_instance.id});
+			res.json({
+				medical_procedure_id: procedure_instance.id,
+				billing_item_id: billing_item.id,
+			});
 		});
 	});
 });
