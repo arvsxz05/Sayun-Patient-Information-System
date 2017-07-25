@@ -130,6 +130,30 @@
 	</div>
 </body>
 <script type="text/javascript">
+	$( document ).on('ready', function() {
+		console.log("ready");
+	    var heights = $(".feature").map(function() {
+	        return $(this).height();
+	    }).get(),
+
+	    maxHeight = Math.max.apply(null, heights);
+
+	    $(".feature").height(maxHeight);
+	});
+
+	$( window ).on('resize', function() {
+		console.log("aaa");
+		$(".feature").css('height', 'auto');
+
+	  	var heights = $(".feature").map(function() {
+	        return $(this).height();
+	    }).get(),
+
+	    maxHeight = Math.max.apply(null, heights);
+
+	    $(".feature").height(maxHeight);
+	});
+
 	var d = new Date();
     var n = d.getDate(), m = d.getMonth(), o = d.getFullYear();
     var p = new Date(o, m, n).getTime();
@@ -150,5 +174,7 @@
 	{% elif secretary %}
 	$("#daily_const_id").attr('href', $("#daily_const_id").attr('href') + '{{ firstDoctor }}/'+ p);
 	{% endif %}
+
+
 </script>
 </html>

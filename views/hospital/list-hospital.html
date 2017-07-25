@@ -60,21 +60,21 @@
 						                <!-- <th><input type="checkbox" aria-label="..." id="select-all"/></th> -->
 						                <th>Name</th>
 						                <th>Address</th>
-						                <th>
-						                	<select id="type-filter" required>
+						                <th>Type
+						                	<!-- <select id="type-filter" required>
 					                          	<option value="all">Type</option>
 					                          	<option value="hospital">Hospital</option>
 					                          	<option value="clinic">Clinic</option>
 					                          	<option value="laboratory">Laboratory</option>
 					                          	<option value="others">Others</option>
-				                        	</select>
+				                        	</select> -->
 						                </th>
 						                <th>Contact Numbers</th>
 						                <th>
-						                	<select id="type-filter" required>
-					                          	<option value="all">Status</option>
+						                	<select id="status-filter" style="border: none;">
+					                          	<option value="all">All</option>
 					                          	<option value="active">Active</option>
-					                          	<option value="deactivated">Deactivated</option>
+					                          	<option value="deactivated">Inactive</option>
 				                        	</select>
 						                </th>
 						            </tr>
@@ -166,7 +166,7 @@
 			                                    <label class="col-sm-3 control-label">Type*</label>
 			                                    <div class="col-sm-9">
 			                                        <select class="form-control" id="type" name="type" required>
-			                                          <option value="">----</option>
+			                                          <option value="" disabled>Select Type</option>
 			                                          <option value="Clinic">Clinic</option>
 			                                          <option value="Hospital">Hospital</option>
 			                                          <option value="Laboratory">Laboratory</option>
@@ -176,7 +176,7 @@
 			                                </div>
 		       							</fieldset>
 		       							<div class="button-group">
-				                            <a href="" class="btn btn-gray pull-right">Cancel</a>
+				                            <a data-dismiss="modal" class="btn btn-gray pull-right">Cancel</a>
 				                            <button type="submit" class="btn btn-lime pull-right" id="save-hospital">Save</button>   
 				                        </div>
 		       						</form>
@@ -237,7 +237,7 @@
 			                                    <label class="col-sm-3 control-label">Type*</label>
 			                                    <div class="col-sm-9">
 			                                        <select class="form-control" name="edit-type" id="edit-type" required>
-			                                          <option value="">----</option>
+			                                          <option value="" disabled>Select Type</option>
 			                                          <option value="Clinic">Clinic</option>
 			                                          <option value="Hospital">Hospital</option>
 			                                          <option value="Laboratory">Laboratory</option>
@@ -247,7 +247,7 @@
 			                                </div>
 		       							</fieldset>
 		       							<div class="button-group">
-				                            <a href="" class="btn btn-gray pull-right">Cancel</a>
+				                            <a data-dismiss="modal" class="btn btn-gray pull-right">Cancel</a>
 				                            <button type="submit" class="btn btn-lime pull-right" id="edit-hlc-button">Save</button>
 				                        </div>
 		       						</form>
@@ -265,12 +265,13 @@
 	var next = 1;
 	var key;
 	var names = [];
+	var table;
 
 	$('#add-hlc-button').click(function(){
 		next = 1;
 	});
 	$(document).ready(function() {
-	    $('#list-hospital').DataTable({
+	    table = $('#list-hospital').DataTable({
 	    	"bSort": true, 
             "aaSorting": [],
 		    "aoColumns": [
@@ -281,7 +282,16 @@
                 { "bSortable": false }
             ]    
 		});
+		var status = $('#status-filter').find("option:selected").html();
+
+	    if(status == "All"){
+	    	table.columns(4).search('').draw();
+	    }
+	    else{
+	       	table.columns(4).search('^'+ status + '$', true, false).draw();
+	    }
 	});
+
 	$(document).ready(function(){  
 	    $("#b1").click(function(e){
 	        e.preventDefault();
@@ -462,6 +472,15 @@
 	// 		}
 	// 	});
 	// });
+	$("#status-filter").on("change", function(){
+       var status = $(this).find("option:selected").html();
 
+       if(status == "All"){
+    		table.columns(4).search('').draw();
+       }
+       else{
+       		table.columns(4).search('^'+ status + '$', true, false).draw();
+       }
+    }); 
 </script>
 </html>

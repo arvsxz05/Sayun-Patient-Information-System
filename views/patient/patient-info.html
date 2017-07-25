@@ -112,7 +112,31 @@
                         <!-- END OF PATIENT INFO -->
                         <!-- NOTES -->
                         <div class="tab-pane" id="notes">
-                            {% include "../patient/edit-patient-notes.html" %}
+                            <div class="row">
+                                <div class="col-xs-10 col-xs-offset-1"> 
+                                    <!-- BASIC PATIENT INFO -->
+                                    <div class="row" style="margin-top: 40px">
+                                        <div class="col-md-7">
+                                            <div class="row form-group">
+                                                <label class="col-sm-3 control-label" for="patient-id">Patient ID</label>
+                                                <div class="col-sm-6">
+                                                    <input type="text" class="form-control" id="patient-id" value="{{patient.id}}" disabled>
+                                                </div>
+                                            </div>                                       
+                                            <div class="row form-group">
+                                                <label class="col-sm-3 control-label" for="patient-id">Patient Name</label>
+                                                <div class="col-sm-6">
+                                                    <input type="text" class="form-control" id="patient-id" value="{{patient.first_name}} {{patient.middle_name}} {{patient.last_name}}" disabled>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <hr>
+                                    <!-- END OF BASIC PATIENT INFO -->
+                                    {% include "../patient/edit-patient-notes.html" %}                                 
+                                </div>
+                            </div>
                         </div>
                         <!-- END OF NOTES -->
                         <!-- CONSULTATIONS -->

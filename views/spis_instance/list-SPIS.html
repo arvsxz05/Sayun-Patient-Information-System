@@ -7,12 +7,12 @@
 	<link rel="stylesheet" 	type="text/css" 		href="../../static/css/bootstrap.min.css">
 	<link rel="stylesheet" 	type="text/css" 		href="../../static/css/styles.css">
 	<link rel="stylesheet" 	type="text/css"			href="../../static/css/font-awesome.min.css">
-	<link rel="stylesheet" 	type="text/css" 		href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
-	<link rel="stylesheet" 	type="text/css" 		href="https://cdn.datatables.net/1.10.15/css/dataTables.bootstrap.min.css">
+	<link rel="stylesheet" 	type="text/css" 		href="../../static/css/bootstrap.min.3.3.7.css">
+	<link rel="stylesheet" 	type="text/css" 		href="../../static/css/dataTables.bootstrap.min.css">
 	<script 				type="text/javascript" 	src="../../static/js/jquery.js"></script>
 	<script 				type="text/javascript" 	src="../../static/js/bootstrap.min.js"></script>
-	<script 				type="text/javascript"	src="https://cdn.datatables.net/1.10.15/js/jquery.dataTables.min.js"></script>
-	<script 				type="text/javascript"  src="https://cdn.datatables.net/1.10.15/js/dataTables.bootstrap.min.js"></script>
+	<script 				type="text/javascript"	src="../../static/js/jquery.dataTables.min.js"></script>
+	<script 				type="text/javascript"  src="../../static/js/dataTables.bootstrap.min.js"></script>
 </head>
 <body>
 	<!-- NAVIGATION -->
@@ -55,14 +55,13 @@
 						<table id="list-SPIS" class="table table-striped table-bordered" cellspacing="0" width="100%">
 					        <thead>
 					            <tr>
-					                <th><input type="checkbox" aria-label="..." id="select-all"/></th>
 					                <th>SPIS Account</th>
 					                <th>Description</th>
 					                <th>
 					                	<select id="status-filter" style="border: none;">
 				                          	<option value="all">All</option>
 				                          	<option value="active">Active</option>
-				                          	<option value="archived">Deactivated</option>
+				                          	<option value="archived">Inactive</option>
 			                        	</select>
 			                       	</th>
 					            </tr>
@@ -70,7 +69,6 @@
 					        <tbody>
 					        	{% for single_instance in instances %}
 						            <tr>
-						                <td><input type="checkbox" aria-label="..." id=""/></td>
 						                <td>
 						                <a data-toggle="modal" class="edit-toggle" data-target="#edit-spis" href="/instance_edit/{{ single_instance.license_no }}" id="{{ single_instance.license_no }}">
 						                {{ single_instance.license_no }}
@@ -104,24 +102,24 @@
 		       			<div class="container-fluid">
 		       				<div class="row">
 		       					<div class="col-xs-12">
-		       						<form class="form-horizontal" method="POST" action="/instance_add">
+		       						<form id="add-instance-form" class="form-horizontal" method="POST" action="/instance_add">
 		       							<fieldset>
 			                                <div class="form-group">
 			                                	<label class="col-sm-3 control-label" for="status">Status*</label>
 			                                    <div class="col-sm-9">
 			                                        <label class="radio-inline"><input type="radio" name="status" id="status-active" checked disabled>Active</label>
-													<label class="radio-inline"><input type="radio" name="status" id="status-deactived" disabled>Deactivated</label>
+													<label class="radio-inline"><input type="radio" name="status" id="status-deactived" disabled>Inactive</label>
 			                                    </div>
 			                                </div>
 			                                <div class="form-group">
-			                                    <label class="col-sm-3 control-label" for="address">Description</label>
+			                                    <label class="col-sm-3 control-label" for="address">Description*</label>
 			                                    <div class="col-sm-9">
-			                                        <textarea class="form-control" name="description" id="description" height="100"></textarea>
+			                                        <textarea class="form-control" name="description" id="description" height="100" required></textarea>
 			                                    </div>
 			                                </div>
 		       							</fieldset>
 		       							<div class="button-group">
-				                            <a href="" class="btn btn-gray pull-right">Cancel</a>
+				                            <a data-dismiss="modal" class="btn btn-gray pull-right">Cancel</a>
 				                            <button type="submit" class="btn btn-lime pull-right" id="save-instance">Save</button>    
 				                        </div>
 		       						</form>
@@ -147,24 +145,24 @@
 		       			<div class="container-fluid">
 		       				<div class="row">
 		       					<div class="col-xs-12">
-		       						<form class="form-horizontal" method="POST" action="/instance_edit">
+		       						<form id="edit-instance-form" class="form-horizontal" method="POST" action="/instance_edit">
 		       							<fieldset>
 			                                <div class="form-group">
 			                                	<label class="col-sm-3 control-label" for="edit-status">Status*</label>
 			                                    <div class="col-sm-9">
 			                                        <label class="radio-inline"><input type="radio" name="edit_status" id="edit_status_active" checked>Active</label>
-													<label class="radio-inline"><input type="radio" name="edit_status" id="edit_status_deactived">Deactivated</label>
+													<label class="radio-inline"><input type="radio" name="edit_status" id="edit_status_deactived">Inactive</label>
 			                                    </div>
 			                                </div>
 			                                <div class="form-group">
-			                                    <label class="col-sm-3 control-label" for="edit-address">Description</label>
+			                                    <label class="col-sm-3 control-label" for="edit-address">Description*</label>
 			                                    <div class="col-sm-9">
-			                                        <textarea class="form-control" name="edit_description" id="edit_description" height="100"></textarea>
+			                                        <textarea class="form-control" name="edit_description" id="edit_description" height="100" required></textarea>
 			                                    </div>
 			                                </div>
 		       							</fieldset>
 		       							<div class="button-group">
-				                            <a href="" class="btn btn-gray pull-right">Cancel</a>
+				                            <a data-dismiss="modal" class="btn btn-gray pull-right">Cancel</a>
 				                            <button type="submit" class="btn btn-lime pull-right" id="edit-instance-button">Save</button>    
 				                        </div>
 		       						</form>
@@ -181,8 +179,9 @@
 </body>
 <script type="text/javascript">
 	var key;
+	var table;
 	$(document).ready(function() {
-	    $('#list-SPIS').DataTable({
+	    table = $('#list-SPIS').DataTable({
 	    	"bSort": true, 
             "aaSorting": [[0]],
 		   	"aoColumns": [
@@ -192,6 +191,15 @@
                 { "bSortable": false },
             ], 
 		});
+
+		var status = $('#status-filter').find("option:selected").html();
+
+	    if(status == "All"){
+	    	table.columns(2).search('').draw();
+	    }
+	    else{
+	       	table.columns(2).search('^'+ status + '$', true, false).draw();
+	    }
 	});
 
 	$(".edit-toggle").click(function (){
@@ -215,7 +223,7 @@
 	});
 
 	// Add Instance 
-	$("#save-instance").click(function(e){
+	$("#add-instance-form").submit(function(e){
 		e.preventDefault();
 		var desc = $("#description").val();
 
@@ -234,7 +242,7 @@
 	});
 
 	// Edit Instance
-	$("#edit-instance-button").click(function(e){
+	$("#edit-instance-form").submit(function(e){
 		e.preventDefault();
 		var desc = $("#edit_description").val();
 		var status = "Inactive";
@@ -258,5 +266,18 @@
 		});
 		
 	});
+
+
+	$("#status-filter").on("change", function(){
+       var status = $(this).find("option:selected").html();
+
+       if(status == "All"){
+    		table.columns(2).search('').draw();
+       }
+       else{
+       		table.columns(2).search('^'+ status + '$', true, false).draw();
+       }
+    }); 
+
 </script>
 </html>
