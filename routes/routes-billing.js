@@ -54,8 +54,8 @@ router.get('/billing_list/:check_up_id', requireLoggedIn, function(req, res){
 
 ///////////////////////////POST//////////////////////////////
 
-router.post('/billing_item_add/:billing_id', requireLoggedIn, requireDoctor, function(req, res){
-	var key = req.params.billing_id;
+router.post('/billing_item_add_check_up/:check_up_id', requireLoggedIn, requireDoctor, function(req, res){
+	var key = req.params.check_up_id;
 
 	console.log("IN BILLING ITEM ADD");
 	console.log(req.body);
@@ -65,12 +65,16 @@ router.post('/billing_item_add/:billing_id', requireLoggedIn, requireDoctor, fun
 
 	if(amount != "" && amount != undefined){
 		amount = parseInt(amount);
+	} else{
+		amount = 0;
 	}
 
 	Billing_Item.create({
 		description: desc,
 		amount: amount,
-		billingId: key,
+		checkUpId: key,
+		last_edited: req.session.user.id,
+		issued_by: req.session.user.id,
 	}).then(function(billing_item_instance){
 		if(billing_item_instance){
 			res.send({
@@ -84,42 +88,67 @@ router.post('/billing_item_add/:billing_id', requireLoggedIn, requireDoctor, fun
 	});
 });
 
+router.post('/billing_item_add_laboratory/:lab_id', requireLoggedIn, requireDoctor, function(req, res){
+	var key = req.params.lab_id;
+
+	console.log("IN BILLING ITEM ADD");
+	console.log(req.body);
+
+	var desc = req.body['description'];
+	var amount = req.body['amount'];
+
+	if(amount != "" && amount != undefined){
+		amount = parseInt(amount);
+	} else{
+		amount = 0;
+	}
+
+	Billing_Item.create({
+		description: desc,
+		amount: amount,
+		laboratoryId: key,
+		last_edited: req.session.user.id,
+		issued_by: req.session.user.id,
+	}).then(function(billing_item_instance){
+		if(billing_item_instance){
+			res.send({
+				success: true
+			});
+		} else{
+			res.send({
+				success: false
+			});
+		}
+	});
+});
+
+
 router.post('/billing_item_edit/:billing_item_id', requireLoggedIn, function(req, res){
 	var key = billing_item_id;
-	if(req.session.doctor){
 
-		var description = req.body['description'];
-		var amount = req.body['amount'];
+	var description = req.body['description'];
+	var amount = req.body['amount'];
 
-		Billing_Item.update({
-			description: description,
-			amount: amount,
-		}, {
-			where: {
-				id: key
-			}
-		}).then(function(updated_billing_item){
-			res.json({
-				success: true
-			});
-		});
-
+	if(amount != "" && amount != undefined){
+		amount = parseInt(amount);
 	} else{
-
-		var amount = req.body['amount'];
-
-		Billing_Item.update({
-			amount: amount
-		}, {
-			where: {
-				id: key
-			}
-		}).then(function(updated_billing_item){
-			res.json({
-				success: true
-			});
-		});
+		amount = 0;
 	}
+
+	Billing_Item.update({
+		description: description,
+		amount: amount,
+		last_edited: req.session.user.id,
+	}, {
+		where: {
+			id: key
+		}
+	}).then(function(updated_billing_item){
+		res.json({
+			success: true
+		});
+	});
+
 });
 
 router.post('/billing_item_delete/:billing_item_id', requireLoggedIn, requireDoctor, function(req, res){

@@ -113,6 +113,7 @@ router.get('/ipt_list/:patient_id', requireLoggedIn,
 router.get('/ipt_edit_json/:ipt_id/:patient_id', function (req, res) {
 	var key = req.params.ipt_id;
 	var patient_id = req.params.patient_id, result;
+	var billing_items1 = [], billing_items2 = [];
 
 	InPatient_Treatment.findOne({
 		raw: true,
@@ -144,25 +145,51 @@ router.get('/ipt_edit_json/:ipt_id/:patient_id', function (req, res) {
 				},
 				raw: true,
 			}).then(medication_list => {
-				Medical_Procedure.findAll({
+				var meds_id = [];
+				for(var i = 0; i < medication_list.length; i++){
+					meds_id.push(medication_list[i].id);
+				}
+				Billing_Item.findAll({
 					where: {
-						checkUpId: ipt_instance['parent_record.id'],
+						receiptId: meds_id,
 					},
-					raw: true,
-				}).then(procedures_list => {
-					Billing_Item.findAll({
+					raw: true
+				}).then(meds_billing_items => {
+					billing_items1 = meds_billing_items;
+					for(var i = 0; i < meds_billing_items.length; i++){
+						billing_items1[i]['type'] = "Medication";
+					}
+					Medical_Procedure.findAll({
 						where: {
 							checkUpId: ipt_instance['parent_record.id'],
+						},
+						raw: true,
+					}).then(procedures_list => {
+						var medprocs_id = [];
+						for(var i = 0; i < procedures_list.length; i++){
+							medprocs_id.push(procedures_list[i].id);
 						}
-					}).then(billing_items_list => {
-						res.json({
-							ipt: ipt_instance,
-							medications: medication_list,
-							med_procedures: procedures_list,
-							billing_items: billing_items_list
+						Billing_Item.findAll({
+							where: {
+								receiptId: medprocs_id,
+							}
+						}).then(medproc_billing_items => {
+							billing_items2 = medproc_billing_items;
+							for(var i = 0; i < medproc_billing_items.length; i++){
+								billing_items2[i]['type'] = "Medical Procedure";
+							}
+							res.json({
+								ipt: ipt_instance,
+								medications: medication_list,
+								med_procedures: procedures_list,
+								billing_items: billing_items1.concat(billing_items2),
+							});
 						});
 					});
+
+
 				});
+
 			});
 		} else {
 			res.send({
@@ -308,36 +335,57 @@ router.post('/ipt_add', requireLoggedIn, upload_file_ipts.array('add-ipt-attachm
 	InPatient_Treatment.create(fields, includes).then(checkUp_data => {
 		addIPTfileQueue[fileId] = null;
 		var itemsProcessed = 0;
-		checkUp_data.parent_record.medication.forEach(function (medication_item) {
-			console.log(medication_item.dataValues.id);
-			Billing_Item.create({
-				description: medication_item.dataValues.name,
-				last_edited: req.session.user.id,
-				checkUpId: medication_item.dataValues.checkUpId,
-				receiptId: medication_item.dataValues.id,
-				issued_by: req.session.user.id,
-			}).then(billing_item_instance => {
-				itemsProcessed++;
-				if(itemsProcessed === checkUp_data.parent_record.medication.length) {
-					itemsProcessed = 0;
-					checkUp_data.parent_record.medical_procedure.forEach(function (medical_procedure_item) {
-						console.log(medical_procedure_item.dataValues.id);
-						Billing_Item.create({
-							description: medical_procedure_item.dataValues.description,
-							last_edited: req.session.user.id,
-							checkUpId: medical_procedure_item.dataValues.checkUpId,
-							receiptId: medical_procedure_item.dataValues.id,
-							issued_by: req.session.user.id,
-						}).then(billing_item_instance => {
-							itemsProcessed++;
-							if(itemsProcessed === checkUp_data.parent_record.medical_procedure.length) {
-								res.json({success: true});
-							}
-						});
-					});
-				}
+		if(checkUp_data.parent_record.medication.length > 0){
+			checkUp_data.parent_record.medication.forEach(function (medication_item) {
+				Billing_Item.create({
+					description: medication_item.dataValues.name,
+					last_edited: req.session.user.id,
+					checkUpId: medication_item.dataValues.checkUpId,
+					receiptId: medication_item.dataValues.id,
+					issued_by: req.session.user.id,
+				}).then(billing_item_instance => {
+					itemsProcessed++;
+					if(itemsProcessed === checkUp_data.parent_record.medication.length) {
+						itemsProcessed = 0;
+						if(checkUp_data.parent_record.medical_procedure.length > 0){
+							checkUp_data.parent_record.medical_procedure.forEach(function (medical_procedure_item) {
+								Billing_Item.create({
+									description: medical_procedure_item.dataValues.description,
+									last_edited: req.session.user.id,
+									checkUpId: medical_procedure_item.dataValues.checkUpId,
+									receiptId: medical_procedure_item.dataValues.id,
+									issued_by: req.session.user.id,
+								}).then(billing_item_instance => {
+									itemsProcessed++;
+									if(itemsProcessed === checkUp_data.parent_record.medical_procedure.length) {
+										res.json({success: true});
+									}
+								});
+							});
+						} else{
+							res.json({success: true});
+						}
+					}
+				});
 			});
-		});
+		} else if(checkUp_data.parent_record.medical_procedure.length > 0){
+			checkUp_data.parent_record.medical_procedure.forEach(function (medical_procedure_item) {
+				Billing_Item.create({
+					description: medical_procedure_item.dataValues.description,
+					last_edited: req.session.user.id,
+					checkUpId: medical_procedure_item.dataValues.checkUpId,
+					receiptId: medical_procedure_item.dataValues.id,
+					issued_by: req.session.user.id,
+				}).then(billing_item_instance => {
+					itemsProcessed++;
+					if(itemsProcessed === checkUp_data.parent_record.medical_procedure.length) {
+						res.json({success: true});
+					}
+				});
+			});
+		} else{
+			res.json({success: true});
+		}
 	}).catch(error => {
 		console.log(error);
 		res.json({error: 'Something went wrong. Please try again later.'});

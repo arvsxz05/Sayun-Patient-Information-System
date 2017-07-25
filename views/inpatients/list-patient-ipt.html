@@ -66,12 +66,12 @@
         edit_med_id = null;
         edit_med_procedure_id = null;
 
+        {% if doctor %}
         if(add_ipt_meds_table instanceof $.fn.dataTable.Api) {
             add_ipt_meds_table.destroy();
             add_ipt_med_procedures_table.destroy();
             add_ipt_billing_table.destroy();
         }
-        {% if doctor %}
         add_ipt_meds_table = $('#list-medication').DataTable({
             "bSort": true, 
             "aaSorting": [],
@@ -148,12 +148,16 @@
 
         $('#edit-ipt-billing-container').css('width', $('#edit-ipt-billing-container').parent().css('width'));
 
+        $('#edit-ipt-view select').val("");
+        $('#edit-ipt-view input').not('#edit-doctor').not('#hidden-edit-doctor').not('#ipt-p-id').val("");
+        $('#edit-ipt-view textarea').val("");
+
+        {% if doctor %}
         if(edit_ipt_meds_table instanceof $.fn.dataTable.Api) {
             edit_ipt_meds_table.destroy();
             edit_ipt_med_procedures_table.destroy();
             edit_ipt_billing_table.destroy();
-        }
-        {% if doctor %}
+        }  
         edit_ipt_meds_table = $('#edit-list-medication').DataTable({
             "bSort": true, 
             "aaSorting": [[0]],
@@ -323,6 +327,29 @@
                 uploadClass: 'btn btn-xs btn-default unique-name-edit-ipt hidden',
             });
             {% endif %}
+
+            console.log(data);
+
+            for (var i = data['billing_items'].length - 1; i >= 0; i--) {
+                if(data['billing_items'][i].type == "Medication"){
+                    edit_ipt_billing_table.row.add([
+                        '<input type="checkbox" id="' + data['billing_items'][i].id + 
+                        '" name="med-bill-' + data['billing_items'][i].receiptId + '"></input>',
+                        '<a>' + data['billing_items'][i].description + '</a>',
+                        data['billing_items'][i].amount
+                    ]).draw();
+                }
+                else{
+                    edit_ipt_billing_table.row.add([
+                        '<input type="checkbox" id="' + data['billing_items'][i].id + 
+                        '" name="med-procedure-bill-' + data['billing_items'][i].receiptId + '"></input>',
+                        '<a>' + data['billing_items'][i].description + '</a>',
+                        data['billing_items'][i].amount
+                    ]).draw();
+                }
+                
+            }
+
         });
     }
 </script>

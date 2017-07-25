@@ -163,20 +163,34 @@ var $window = $(window),
        elTop = 408;
 
    $window.scroll(function() {
-        $add_ipt_billing.css('top', '0px');
-        $add_ipt_billing.toggleClass('affix', $window.scrollTop() > elTop);
-        $add_ipt_billing.css('width', $add_ipt_billing.parent().css('width'));
+        if( $('#users-device-size').find('div:visible').first().attr('id') == 'xs' || $('#users-device-size').find('div:visible').first().attr('id') == 'sm') {
+            
+            $add_ipt_billing.css('top', 'auto');
+            $add_ipt_billing.css('width', 'auto');
+            $add_ipt_billing.removeClass('affix');
 
-        $('#edit-ipt-billing-container').css('top', '0px');
-        $('#edit-ipt-billing-container').toggleClass('affix', $window.scrollTop() > elTop);
-       $('#edit-ipt-billing-container').css('width', $('#edit-ipt-billing-container').parent().css('width'));
-        if($window.scrollTop() > elTop){
-            console.log("pota");
-            $('#edit-ipt-billing-container').addClass('affix');
+            $('#edit-ipt-billing-container').css('top', 'auto');
+            $('#edit-ipt-billing-container').css('width', 'auto');
+            $('#edit-ipt-billing-container').removeClass('affix');
+            
         }
         else{
-           $('#edit-ipt-billing-container').removeClass('affix');
+            $add_ipt_billing.css('top', '0px');
+            $add_ipt_billing.toggleClass('affix', $window.scrollTop() > elTop);
+            $add_ipt_billing.css('width', $add_ipt_billing.parent().css('width'));
+
+            $('#edit-ipt-billing-container').css('top', '0px');
+            $('#edit-ipt-billing-container').toggleClass('affix', $window.scrollTop() > elTop);
+            $('#edit-ipt-billing-container').css('width', $('#edit-ipt-billing-container').parent().css('width'));
+            if($window.scrollTop() > elTop){
+                console.log("pota");
+                $('#edit-ipt-billing-container').addClass('affix');
+            }
+            else{
+               $('#edit-ipt-billing-container').removeClass('affix');
+            }
         }
+        
     });
 
 function show_billing(div, caller) {

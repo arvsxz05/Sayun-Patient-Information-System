@@ -54,6 +54,12 @@
 </head>
 <body>
     <div class="se-pre-con"></div>
+    <div id="users-device-size">
+      <div id="xs" class="visible-xs"></div>
+      <div id="sm" class="visible-sm"></div>
+      <div id="md" class="visible-md"></div>
+      <div id="lg" class="visible-lg"></div>
+    </div>
     <!-- NAVIGATION -->
     <nav class="navbar navbar-inverse">
       <div class="container-fluid">
@@ -1453,6 +1459,15 @@
                     $('#edit-med-type').val(),
                     $('#edit-med-instructions').val()
                 ]).draw();
+
+                // console.log(.html());
+
+                var bill_name = edit_med_id;
+                edit_ipt_billing_table.row($("[name='med-bill-" + edit_med_id + "']").parent().parent()).data([
+                    $("[name='med-bill-" + edit_med_id + "']").parent().html(),
+                    $('#edit-med-name').val(),
+                    $("[name='med-bill-" + edit_med_id + "']").parent().parent().children("td:last").html()
+                    ]).draw();
             }
             else if(edit_med_caller_type == "OPT"){
                 edit_opt_meds_table.row(edit_med_caller).data([
@@ -1574,6 +1589,13 @@
                     $('#edit-med-procedure-description').val(),
                     $('#edit-med-procedure-details').val()
                 ]).draw();
+
+                var bill_name = edit_med_procedure_id;
+                edit_ipt_billing_table.row($("[name='med-procedure-bill-" + edit_med_procedure_id + "']").parent().parent()).data([
+                    $("[name='med-procedure-bill-" + edit_med_procedure_id + "']").parent().html(),
+                    $('#edit-med-procedure-description').val(),
+                    $("[name='med-procedure-bill-" + edit_med_procedure_id + "']").parent().parent().children("td:last").html()
+                    ]).draw();
             }
             else if(edit_med_procedure_caller_type == "OPT"){
                 edit_opt_med_procedures_table.row(edit_med_procedure_caller).data([
