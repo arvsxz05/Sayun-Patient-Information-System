@@ -1,7 +1,7 @@
 <div class="col-xs-12">
     <div class="col-md-10 col-md-offset-1">
         <h3>Patient Information
-        <a class="btn btn-blue" style="float: right; margin-top: -10px !important" id="delete-patient-button">Delete</a></h3>
+        <a class="btn btn-red" style="float: right; margin-top: -10px !important" id="delete-patient-button">Delete</a></h3>
         <form id="add-patient-form" class="form-horizontal" role="form" method="POST" action="/patient_edit/{{patient.id}}" enctype="multipart/form-data">
         <!-- UPLOAD PHOTO -->   
             <div class="col-md-4 col-md-push-8">
@@ -262,7 +262,7 @@
                         Confirm: {
                             // $.alert('Confirmed!');
                             text: 'Confirm',
-                            btnClass: 'btn-blue',
+                            btnClass: 'btn-red',
                             action: function () {
                                 $.ajax({
                                     type: "POST",

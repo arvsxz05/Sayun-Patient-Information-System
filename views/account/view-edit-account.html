@@ -55,7 +55,7 @@
                     </form>
                     <form id="edit-account-form" class="form-horizontal" role="form" method="POST" action="/account_edit/{{user.id}}" enctype="multipart/form-data">
                         <legend><b>Edit Account</b>
-                        <a class="btn btn-blue" style="float: right; margin-top: -10px !important" id="delete-account-button">Delete</a></legend>
+                        <a class="btn btn-red" style="float: right; margin-top: -10px !important" id="delete-account-button">Delete</a></legend>
                         <!-- photo and digital signature (if user type==doctor) -->
                         {% if messages.statusMessage %}
                         <div class="alert alert-success">
@@ -513,7 +513,7 @@
                                         Confirm: {
                                             // $.alert('Confirmed!');
                                             text: 'Confirm',
-                                            btnClass: 'btn-blue',
+                                            btnClass: 'btn-red',
                                             action: function (){
                                                 $.ajax({
                                                     type: "POST",

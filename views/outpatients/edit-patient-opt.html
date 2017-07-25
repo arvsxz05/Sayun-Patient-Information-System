@@ -5,7 +5,7 @@
             <input type="hidden" name="edit-p-id" id="edit-p-id">
             <input type="hidden" name="edit-c-id" id="edit-c-id">
             <legend><b>Edit Out-Patient Treatment</b>
-            <a class="btn btn-blue" style="float: right; margin-top: -10px !important" id="delete-opt-button">Delete</a></legend>
+            <a class="btn btn-red" style="float: right; margin-top: -10px !important" id="delete-opt-button">Delete</a></legend>
             <div class="form-group">
                 <label class="col-sm-4 control-label" for="edit-opt-date">Date</label>
                 <div class="col-sm-8 date-div" id="edit-opt-date-div">
@@ -90,7 +90,7 @@
                 </table>
             </div>
             <div class="button-group">
-                <a class="btn btn-blue pull-right btn-icon" onclick="edit_opt_delete_med()" name="delete" value="true" id="delete"><span class="glyphicon glyphicon-trash"></span></a>
+                <a class="btn btn-red pull-right btn-icon" onclick="edit_opt_delete_med()" name="delete" value="true" id="delete"><span class="glyphicon glyphicon-trash"></span></a>
                 <a href class="btn btn-lime pull-right btn-icon" id="edit-opt-add-med-button" data-toggle="modal" data-target="#add-medication-modal"><span class="glyphicon glyphicon-plus"></span></a>
             </div>
         </form>
@@ -114,7 +114,7 @@
                 </table>
             </div>
             <div class="button-group">
-                <a class="btn btn-blue pull-right btn-icon" onclick="edit_opt_delete_med_procedure()" name="delete" value="true" id=""><span class="glyphicon glyphicon-trash"></span></a>
+                <a class="btn btn-red pull-right btn-icon" onclick="edit_opt_delete_med_procedure()" name="delete" value="true" id=""><span class="glyphicon glyphicon-trash"></span></a>
                 <a href class="btn btn-lime pull-right btn-icon" id="edit-opt-add-med-procedure-button" data-toggle="modal" data-target="#add-med-procedure-modal"><span class="glyphicon glyphicon-plus"></span></a>
             </div>
         </form>
@@ -238,7 +238,7 @@
                         Confirm: {
                             // $.alert('Confirmed!');
                             text: 'Confirm',
-                            btnClass: 'btn-blue',
+                            btnClass: 'btn-red',
                             action: function () {
                                 $.ajax({
                                     type: "POST",
