@@ -126,9 +126,30 @@
         </div>
         {% endif %}
     </div>
-    <!-- BILLING FOR opt -->
-    <div class="col-md-4"></div>
-    <!-- END OF BILLING FOR opt -->
+    <!-- BILLING FOR IPT -->
+    <div class="col-md-4">
+        <div id="edit-opt-billing-container">
+            <hr>
+            <b><legend onclick="show_billing('edit-opt-billing', this)" style="cursor: pointer;">▸ Show Billing Information</legend></b>
+            <div id="edit-opt-billing" style="display: none">
+                <div class="table-responsive">
+                    <table id="edit-opt-billing-information" class="table table-striped table-bordered" cellspacing="0" width="100%">
+                        <thead>
+                            <tr>
+                                <th><input type="checkbox" aria-label="..." id="edit-opt-select-all-billing-items"/></th>
+                                <th>Description</th>
+                                <th>Amount</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                </div>
+                <hr>
+            </div>
+        </div>
+    </div>
+    <!-- END OF BILLING FOR IPT -->
 </div>
 
 <script type="text/javascript">
@@ -317,7 +338,9 @@
                         }).done(function (data) {
                             if(data.success){
                                 for(var x = 0; x < med_rows.length; x++ ){
+                                    var med_bill_name = 'med-bill-' + med_rows[x].children("td:first").children("input").attr('id');
                                     edit_opt_meds_table.row(med_rows[x]).remove().draw();
+                                    edit_opt_billing_table.row($("[name='" + med_bill_name + "']").parent().parent()).remove().draw();
                                 }
                             }
                             else{
@@ -384,7 +407,11 @@
                         }).done(function (data) {
                             if(data.success){
                                 for(var x = 0; x < med_proc_rows.length; x++ ){
+                                    var med_procedure_bill_name = 'med-procedure-bill-' + med_proc_rows[x].children("td:first").children("input").attr('id');
+
                                     edit_opt_med_procedures_table.row(med_proc_rows[x]).remove().draw();
+
+                                    edit_opt_billing_table.row($("[name='" + med_procedure_bill_name + "']").parent().parent()).remove().draw();
                                 }
                             }
                             else{

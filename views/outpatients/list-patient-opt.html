@@ -22,9 +22,11 @@
 <script type="text/javascript">
     var add_opt_meds_table;
     var add_opt_med_procedures_table;
+    var add_opt_billing_table;
 
     var edit_opt_meds_table;
     var edit_opt_med_procedures_table;
+    var edit_opt_billing_table;
 
 
     function edit_OPT(key){
@@ -32,6 +34,13 @@
         $('#add-opt-view').hide();
         $('#edit-opt-view').show();
         $('#list-opt-view-link').show();
+
+        $('#edit-opt-billing-container').css('width', $('#edit-opt-billing-container').parent().css('width'));
+
+        $('#edit-opt-view select').val("");
+        $('#edit-opt-view input').not('#edit-opt-doctor').not('#hidden-edit-doctor').not('#edit-p-id').not('#edit-c-id').val("");
+        $('#edit-opt-view textarea').val("");
+
 
         $.ajax({
             type: "GET",
@@ -55,6 +64,10 @@
 
             $('#edit-p-id').val(data['opt']['id']);
             $('#edit-c-id').val(data['opt']['parent_record.id']);
+
+            if(edit_opt_billing_table instanceof $.fn.dataTable.Api) {
+                edit_opt_billing_table.destroy();
+            } 
 
             if(edit_opt_meds_table instanceof $.fn.dataTable.Api) {
                 edit_opt_meds_table.destroy();
@@ -178,6 +191,44 @@
                 uploadClass: 'btn btn-xs btn-default unique-name-edit-opt hidden',
             });
             {% endif %}
+
+            edit_opt_billing_table = $('#edit-opt-billing-information').DataTable({
+                "bSort": true, 
+                "aaSorting": [],
+                "paging":   false,
+                "ordering": false,
+                "info":     false,
+                "searching": false,
+                "aoColumns": [
+                    { "bSortable": false },
+                    { "bSortable": true },
+                    { "bSortable": true }
+                ]    
+            });
+
+            edit_opt_billing_table.rows().remove().draw();
+
+            for (var i = data['billing_items'].length - 1; i >= 0; i--) {
+                console.log(data['billing_items'][i].type);
+                if(data['billing_items'][i].type == "Medication"){
+                    edit_opt_billing_table.row.add([
+                        '<input type="checkbox" id="' + data['billing_items'][i].id + 
+                        '" name="med-bill-' + data['billing_items'][i].receiptId + '"></input>',
+                        '<a>' + data['billing_items'][i].description + '</a>',
+                        data['billing_items'][i].amount
+                    ]).draw();
+                }
+                else{
+                    edit_opt_billing_table.row.add([
+                        '<input type="checkbox" id="' + data['billing_items'][i].id + 
+                        '" name="med-procedure-bill-' + data['billing_items'][i].receiptId + '"></input>',
+                        '<a>' + data['billing_items'][i].description + '</a>',
+                        data['billing_items'][i].amount
+                    ]).draw();
+                }
+                
+            }
+
         });
     }
 
@@ -189,9 +240,13 @@
         $('#edit-opt-view').hide();
         $('#list-opt-view-link').show();
 
+        $('#add-opt-billing-container').css('width', $('#add-opt-billing-container').parent().css('width'));
+
         $('#add-opt-view select').val("");
         $('#add-opt-view input').not('#hidden-opt-doctor').not('#opt-doctor').not('#opt-p-id').val("");
         $('#add-opt-view textarea').val("");
+
+        // $('#add-opt-billing-container').css('width', $('#add-opt-billing-container').parent().css('width'));
 
         $('#opt-date-div select[name="date_[year]"]').val(currDate[0]);
 
@@ -203,6 +258,10 @@
 
         edit_med_id = null;
         edit_med_procedure_id = null;
+
+        if(add_opt_meds_table instanceof $.fn.dataTable.Api) {
+            add_opt_billing_table.destroy();
+        }
 
         if(add_opt_meds_table instanceof $.fn.dataTable.Api) {
             add_opt_meds_table.destroy();
@@ -259,5 +318,21 @@
         add_opt_meds_table.rows().remove().draw();
         add_opt_med_procedures_table.rows().remove().draw();
         {% endif %}
+
+        add_opt_billing_table = $('#add-opt-billing-information').DataTable({
+            "bSort": true, 
+            "aaSorting": [],
+            "paging":   false,
+            "ordering": false,
+            "info":     false,
+            "searching": false,
+            "aoColumns": [
+                { "bSortable": false },
+                { "bSortable": true },
+                { "bSortable": true }
+            ]    
+        });
+
+        add_opt_billing_table.rows().remove().draw();
     }
 </script>

@@ -66,12 +66,16 @@
         edit_med_id = null;
         edit_med_procedure_id = null;
 
-        {% if doctor %}
+        if(add_ipt_billing_table instanceof $.fn.dataTable.Api) {
+            add_ipt_billing_table.destroy();
+        }
+
         if(add_ipt_meds_table instanceof $.fn.dataTable.Api) {
             add_ipt_meds_table.destroy();
             add_ipt_med_procedures_table.destroy();
-            add_ipt_billing_table.destroy();
         }
+
+        {% if doctor %}
         add_ipt_meds_table = $('#list-medication').DataTable({
             "bSort": true, 
             "aaSorting": [],
@@ -120,6 +124,11 @@
             $('#edit-med-procedure-details').val(data[3]);
         });
 
+        add_ipt_meds_table.rows().remove().draw();
+        add_ipt_med_procedures_table.rows().remove().draw();
+        
+        {% endif %}
+
         add_ipt_billing_table = $('#add-ipt-billing-information').DataTable({
             "bSort": true, 
             "aaSorting": [],
@@ -134,10 +143,7 @@
             ]    
         });
 
-        add_ipt_meds_table.rows().remove().draw();
-        add_ipt_med_procedures_table.rows().remove().draw();
         add_ipt_billing_table.rows().remove().draw();
-        {% endif %}
     }
 
     function edit_IPT (key) {
@@ -149,15 +155,19 @@
         $('#edit-ipt-billing-container').css('width', $('#edit-ipt-billing-container').parent().css('width'));
 
         $('#edit-ipt-view select').val("");
-        $('#edit-ipt-view input').not('#edit-doctor').not('#hidden-edit-doctor').not('#ipt-p-id').val("");
+        $('#edit-ipt-view input').not('#edit-doctor').not('#hidden-edit-doctor').not('#edit-p-id').not('#edit-c-id').val("");
         $('#edit-ipt-view textarea').val("");
 
-        {% if doctor %}
+        if(edit_ipt_billing_table instanceof $.fn.dataTable.Api) {
+            edit_ipt_billing_table.destroy();
+        }  
+        
         if(edit_ipt_meds_table instanceof $.fn.dataTable.Api) {
             edit_ipt_meds_table.destroy();
             edit_ipt_med_procedures_table.destroy();
-            edit_ipt_billing_table.destroy();
         }  
+
+        {% if doctor %}
         edit_ipt_meds_table = $('#edit-list-medication').DataTable({
             "bSort": true, 
             "aaSorting": [[0]],
@@ -210,6 +220,11 @@
             $('#edit-med-procedure-details').val(data[3]);
         });
 
+        edit_ipt_meds_table.rows().remove().draw();
+        edit_ipt_med_procedures_table.rows().remove().draw();
+
+        {% endif %}
+
         edit_ipt_billing_table = $('#edit-ipt-billing-information').DataTable({
             "bSort": true, 
             "aaSorting": [],
@@ -224,11 +239,7 @@
             ]    
         });
 
-        edit_ipt_meds_table.rows().remove().draw();
-        edit_ipt_med_procedures_table.rows().remove().draw();
         edit_ipt_billing_table.rows().remove().draw();
-
-        {% endif %}
 
         $.ajax({
             type: "GET",
@@ -256,7 +267,7 @@
             $('#edit-notes').val(data['ipt']['notes']);
             {% endif %}
             $('#edit-hospital option[value="' + data['ipt']['parent_record.hospitalName'] + '"]').prop('selected', 'true');
-            $('#edit-doctor option[value="' + data['ipt']['parent_record.doctor.id'] + '"]').prop('selected', 'true');
+            $('#hidden-edit-doctor option[value="' + data['ipt']['parent_record.doctor.id'] + '"]').prop('selected', 'true');
 
             $('#edit-p-id').val(data['ipt']['id']);
             $('#edit-c-id').val(data['ipt']['parent_record.id']);

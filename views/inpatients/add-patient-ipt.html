@@ -1,6 +1,6 @@
 <div class="row"  id="add-ipt-view">
-    <div class="form-container col-md-8" style="padding: 20px">
-        <form id="add-ipt-form" class="form-horizontal" role="form" method="POST">
+    <form id="add-ipt-form" class="form-horizontal" role="form" method="POST">
+        <div class="form-container col-md-8" style="padding: 20px">
             <input type="hidden" name="ipt-p-id" id="ipt-p-id" value="{{patient.id}}">
             <legend><b>Add In-Patient Treatment</b></legend>
             <div>
@@ -165,29 +165,71 @@ var $window = $(window),
    $window.scroll(function() {
         if( $('#users-device-size').find('div:visible').first().attr('id') == 'xs' || $('#users-device-size').find('div:visible').first().attr('id') == 'sm') {
             
-            $add_ipt_billing.css('top', 'auto');
-            $add_ipt_billing.css('width', 'auto');
-            $add_ipt_billing.removeClass('affix');
+            //IPT
+            $('#add-ipt-billing-container').css('top', 'auto');
+            $('#add-ipt-billing-container').css('width', 'auto');
+            $('#add-ipt-billing-container').removeClass('affix');
 
             $('#edit-ipt-billing-container').css('top', 'auto');
             $('#edit-ipt-billing-container').css('width', 'auto');
             $('#edit-ipt-billing-container').removeClass('affix');
+            // 
+
+            // OPT
+            $('#add-opt-billing-container').css('top', 'auto');
+            $('#add-opt-billing-container').css('width', 'auto');
+            $('#add-opt-billing-container').removeClass('affix');
+
+            $('#edit-opt-billing-container').css('top', 'auto');
+            $('#edit-opt-billing-container').css('width', 'auto');
+            $('#edit-opt-billing-container').removeClass('affix');
+            // 
             
         }
         else{
-            $add_ipt_billing.css('top', '0px');
-            $add_ipt_billing.toggleClass('affix', $window.scrollTop() > elTop);
-            $add_ipt_billing.css('width', $add_ipt_billing.parent().css('width'));
+            // IPT
+            $('#add-ipt-billing-container').css('top', '0px');
+            $('#add-ipt-billing-container').css('width', $('#add-ipt-billing-container').parent().css('width'));
 
             $('#edit-ipt-billing-container').css('top', '0px');
-            $('#edit-ipt-billing-container').toggleClass('affix', $window.scrollTop() > elTop);
+            // $('#edit-ipt-billing-container').toggleClass('affix', $window.scrollTop() > elTop);
             $('#edit-ipt-billing-container').css('width', $('#edit-ipt-billing-container').parent().css('width'));
+            // 
+
+
+            // OPT
+            $('#add-opt-billing-container').css('top', '0px');
+            $('#add-opt-billing-container').css('width', $('#add-opt-billing-container').parent().css('width'));
+
+            $('#edit-opt-billing-container').css('top', '0px');
+            $('#edit-opt-billing-container').css('width', $('#edit-opt-billing-container').parent().css('width'));
+
+            // 
+
+
+
             if($window.scrollTop() > elTop){
-                console.log("pota");
+                // IPT
+                $('#add-ipt-billing-container').addClass('affix');
                 $('#edit-ipt-billing-container').addClass('affix');
+                // 
+
+                // OPT
+                $('#add-opt-billing-container').addClass('affix');
+                $('#edit-opt-billing-container').addClass('affix');
+                // 
             }
             else{
-               $('#edit-ipt-billing-container').removeClass('affix');
+                // IPT
+                $('#add-ipt-billing-container').removeClass('affix');
+                $('#edit-ipt-billing-container').removeClass('affix');
+                // 
+
+                // OPT
+                $('#add-opt-billing-container').removeClass('affix');
+                $('#edit-opt-billing-container').removeClass('affix');
+
+                // 
             }
         }
         
