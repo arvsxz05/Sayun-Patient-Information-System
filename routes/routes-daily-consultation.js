@@ -717,17 +717,74 @@ module.exports = function(io) {
 		}).then(consultation_instance => {
 			if (consultation_instance) {
 				var queue_no = consultation_instance.queue_no;
-				// Check_Up.findOne({
-				// 	where: {
-				// 		id: consultation_instance.parentRecordId
-				// 	}
-				// }).then(check_up_instance => {
+				var date = consultation_instance.date,
+					doctorId = consultation_instance.parent_record.doctorId;
+
+				consultation_instance.parent_record.destroy();
+				consultation_instance.destroy();
+				Consultation.findAll({
+					where: {
+						queue_no: {
+							$gt: queue_no
+						},
+						status: {
+							$in: ['Waiting', 'Current']
+						},
+						date: date,
+						active: true
+					}, include: [{
+						model: Check_Up,
+						as: 'parent_record',
+						where: { doctorId: doctorId },
+						required: true
+					}]
+				}).then(consultation_below => {
+					var itemsProcessed = 0;
+					if(consultation_below.length > 0) {
+						consultation_below.forEach(function(t) {
+							t.update({ queue_no: Sequelize.literal('queue_no - 1')}).then(() => {
+								itemsProcessed++;
+								if(itemsProcessed === consultation_below.length) {
+									getDailyConsultation(doctorId, new Date(date).getTime(), req.session);
+									res.json({success: true});
+								}
+							});
+						});
+					} else {
+						getDailyConsultation(doctorId, new Date(date).getTime(), req.session);
+						res.json({success: true});
+					}
+				}).catch(function(error) {
+					console.log("/delete_daily_consultation");
+					console.log(error);
+					res.json({success: false});
+				});
+			} else {
+				res.json({error: "Consultation not found."});
+			}
+		});
+	});
+
+	
+	router.post("/clinic_consultation_delete_confirmed/:cc_id", requireLoggedIn, function(req, res){
+		var key = req.params.cc_id;
+		Consultation.findOne({
+			where: {
+				id: key
+			},
+			include: [{
+				model: Check_Up,
+				as: 'parent_record'
+			}]
+		}).then(consultation_instance => {
+			if (consultation_instance) {
+				if(consultation_instance.status && consultation_instance.status != 'Done') {
+					var queue_no = consultation_instance.queue_no;
 					var date = consultation_instance.date,
 						doctorId = consultation_instance.parent_record.doctorId;
 
 					consultation_instance.parent_record.destroy();
 					consultation_instance.destroy();
-				// }).then(() => {
 					Consultation.findAll({
 						where: {
 							queue_no: {
@@ -757,13 +814,48 @@ module.exports = function(io) {
 								});
 							});
 						} else {
-							getDailyConsultation(parent_record.doctorId, new Date(date).getTime(), req.session);
+							getDailyConsultation(doctorId, new Date(date).getTime(), req.session);
 							res.json({success: true});
 						}
+					}).catch(function(error) {
+						console.log("/clinic_consultation_delete_confirmed");
+						console.log(error);
+						res.json({success: false});
 					});
-				// });
+				} else {
+					Consultation.update({
+						active: false,
+					}, {
+						where: {
+							id: key,
+						},
+						returning: true,
+						raw: true,
+					}).then(function (cc_result) {
+						Check_Up.update({
+							active: false,
+						}, {
+							where: {
+								id: cc_result[1][0]['parentRecordId'],
+							},
+							returning: true,
+							raw: true,
+						}).then(function (check_up_result) {
+
+							// Billing.destroy({
+							// 	where: {
+							// 		receiptId: check_up_result[1][0]['id']
+							// 	}
+							// }).then(function(billing_result){
+								res.json({success: true});
+							// })
+						});
+					}).catch(function (error) {
+						res.json({success: false});
+					});
+				}
 			} else {
-				res.json({error: "Consultation not found."});
+				res.json({success: false});
 			}
 		});
 	});

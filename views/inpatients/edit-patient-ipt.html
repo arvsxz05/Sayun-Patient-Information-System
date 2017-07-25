@@ -331,7 +331,7 @@
             }
         });
 
-        if(med_rows.length > 0){
+        if(med_rows.length > 0) {
             $.confirm({
                 title: "Delete Medication/s",
                 content: "Are you sure you want to delete Medication record/s? This cannot be undone.",
@@ -343,14 +343,12 @@
                         }
 
                         $('#edit-ipt-select-all-meds').prop('checked', false);
-
-                        //
-
+                        console.log(med_ids);
                         $.ajax({
                             type: "POST",
                             url: "/medication_delete",
                             data: {
-                                "medical_procedure" : med_proc_ids,
+                                "medical_procedure" : med_ids,
                             }
                         }).done(function (data) {
                             if(data.success){

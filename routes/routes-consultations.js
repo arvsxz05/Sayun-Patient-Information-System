@@ -284,36 +284,60 @@ router.post('/clinic_consultation_add', requireLoggedIn, upload_file_cc.array('a
 	Consultation.create(fields, includes).then(consultation_instance => {
 		addCCfileQueue[fileId] = null;
 		var itemsProcessed = 0;
-		consultation_instance.parent_record.medication.forEach(function (medication_item) {
-			console.log(medication_item.dataValues.id);
-			Billing_Item.create({
-				description: medication_item.dataValues.name,
-				last_edited: req.session.user.id,
-				checkUpId: medication_item.dataValues.checkUpId,
-				receiptId: medication_item.dataValues.id,
-				issued_by: req.session.user.id,
-			}).then(billing_item_instance => {
-				itemsProcessed++;
-				if(itemsProcessed === consultation_instance.parent_record.medication.length) {
-					itemsProcessed = 0;
-					consultation_instance.parent_record.medical_procedure.forEach(function (medical_procedure_item) {
-						console.log(medical_procedure_item.dataValues.id);
-						Billing_Item.create({
-							description: medical_procedure_item.dataValues.description,
-							last_edited: req.session.user.id,
-							checkUpId: medical_procedure_item.dataValues.checkUpId,
-							receiptId: medical_procedure_item.dataValues.id,
-							issued_by: req.session.user.id,
-						}).then(billing_item_instance => {
-							itemsProcessed++;
-							if(itemsProcessed === consultation_instance.parent_record.medical_procedure.length) {
-								res.json({success: true});
-							}
-						});
-					});
-				}
+		if (consultation_instance.parent_record.medication.length > 0) {
+			consultation_instance.parent_record.medication.forEach(function (medication_item) {
+				console.log(medication_item.dataValues.id);
+				Billing_Item.create({
+					description: medication_item.dataValues.name,
+					last_edited: req.session.user.id,
+					checkUpId: medication_item.dataValues.checkUpId,
+					receiptId: medication_item.dataValues.id,
+					issued_by: req.session.user.id,
+				}).then(billing_item_instance => {
+					itemsProcessed++;
+					if(itemsProcessed === consultation_instance.parent_record.medication.length) {
+						itemsProcessed = 0;
+						if (consultation_instance.parent_record.medical_procedure.length > 0) {
+							consultation_instance.parent_record.medical_procedure.forEach(function (medical_procedure_item) {
+								console.log(medical_procedure_item.dataValues.id);
+								Billing_Item.create({
+									description: medical_procedure_item.dataValues.description,
+									last_edited: req.session.user.id,
+									checkUpId: medical_procedure_item.dataValues.checkUpId,
+									receiptId: medical_procedure_item.dataValues.id,
+									issued_by: req.session.user.id,
+								}).then(billing_item_instance => {
+									itemsProcessed++;
+									if(itemsProcessed === consultation_instance.parent_record.medical_procedure.length) {
+										res.json({success: true});
+									}
+								});
+							});
+						} else {
+							res.json({success: true});
+						}
+					}
+				});
 			});
-		});
+		} else if (consultation_instance.parent_record.medical_procedure.length > 0) {
+			consultation_instance.parent_record.medical_procedure.forEach(function (medical_procedure_item) {
+				console.log(medical_procedure_item.dataValues.id);
+				Billing_Item.create({
+					description: medical_procedure_item.dataValues.description,
+					last_edited: req.session.user.id,
+					checkUpId: medical_procedure_item.dataValues.checkUpId,
+					receiptId: medical_procedure_item.dataValues.id,
+					issued_by: req.session.user.id,
+				}).then(billing_item_instance => {
+					itemsProcessed++;
+					if(itemsProcessed === consultation_instance.parent_record.medical_procedure.length) {
+						res.json({success: true});
+					}
+				});
+			});
+		} else {
+			res.json({success: true});
+		}
 	}).catch(error => {
 		console.log(error);
 		res.json({error: 'Something went wrong. Please try again later.'});
@@ -442,42 +466,6 @@ router.post("/upload_files_edit_cc/:cc_id", requireLoggedIn, function (req, res)
 				res.json({});
 			}
 		});
-	});
-});
-
-router.post("/clinic_consultation_delete_confirmed/:cc_id", requireLoggedIn, function(req, res){
-	var key = req.params.cc_id;
-	Consultation.update({
-		active: false,
-	}, {
-		where: {
-			id: key,
-		},
-		returning: true,
-		raw: true,
-	}).then(function(cc_result){
-		Check_Up.update({
-			active: false,
-		}, {
-			where: {
-				id: cc_result[1][0]['parentRecordId'],
-			},
-			returning: true,
-			raw: true,
-		}).then(function(check_up_result){
-
-			// Billing.destroy({
-			// 	where: {
-			// 		receiptId: check_up_result[1][0]['id']
-			// 	}
-			// }).then(function(billing_result){
-				res.json({success: true});
-			// })
-		});
-	}).catch(function(error){
-		console.log("CC PATIENT TREATMENT CONFIRMED");
-		console.log(error);
-		res.json({success: false});
 	});
 });
 
