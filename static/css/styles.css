@@ -72,7 +72,7 @@ body{
 
 .form-container{
 	/*padding-bottom: 50px;*/
-	box-shadow: -60px 0px 100px -100px #000000, 60px 0px 100px -100px #000000;
+	/*box-shadow: -60px 0px 100px -100px #000000, 60px 0px 100px -100px #000000;*/
 }
 
 .control-label{

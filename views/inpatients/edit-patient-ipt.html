@@ -7,8 +7,8 @@
             <input type="hidden" name="edit-p-id" id="edit-p-id">
             <input type="hidden" name="edit-c-id" id="edit-c-id">
 
-            <legend><b>Edit In-Patient Treatment</b>
-            <a class="btn btn-red" style="float: right; margin-top: -10px !important" id="delete-ipt-button">Delete</a></legend>
+            <legend><b>Edit In-Patient Treatment</b></legend>
+            
             <div class="form-group">
                 <label class="col-sm-4 control-label" for="edit-confinement-date">Confinement Date*</label>
                 <div class="col-sm-8 date-div" id="edit-confinement-date-div">
@@ -75,6 +75,7 @@
 
             <div class="button-group">
                 <a onclick="view_IPT()" class="btn btn-gray pull-right">Cancel</a>
+                <a class="btn btn-red pull-right" id="delete-ipt-button">Delete</a>
                 <button type="submit" class="btn btn-lime pull-right" id="edit-btn">Save</button>    
             </div>
         </form>
@@ -348,13 +349,17 @@
                             type: "POST",
                             url: "/medication_delete",
                             data: {
-                                "medical_procedure" : med_ids,
+                                "medication" : med_ids,
                             }
                         }).done(function (data) {
                             if(data.success){
                                 for(var x = 0; x < med_rows.length; x++ ){
                                     edit_ipt_meds_table.row(med_rows[x]).remove().draw();
                                 }
+                                $.alert({
+                                    title: 'Delete Medication/s',
+                                    content: 'Delete has been successful.'
+                                });
                             }
                             else{
                                 $.alert({
@@ -423,6 +428,10 @@
                                 for(var x = 0; x < med_proc_rows.length; x++ ){
                                     edit_ipt_med_procedures_table.row(med_proc_rows[x]).remove().draw();
                                 }
+                                $.alert({
+                                    title: 'Delete Medication/s',
+                                    content: 'Delete has been successful.'
+                                });
                             }
                             else{
                                 $.alert({

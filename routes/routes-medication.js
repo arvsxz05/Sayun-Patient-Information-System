@@ -342,13 +342,17 @@ router.post("/edit_medical_procedure/:medproc_id", requireLoggedIn, requireDocto
 router.post("/medication_delete", requireLoggedIn, requireDoctor, function (req, res) {
 
 	var key = req.body['medication'];
+	var desc = [];
 	
-	Medication.findOne({
+	Medication.findAll({
 		where: {
 			id: key
 		},
 		raw: true
 	}).then(medication_instance =>{
+		for(var i = 0; i < medication_instance.length; i++){
+			desc.push(medication_instance[i].name);
+		}
 		Medication.destroy({
 			where: {
 				id: key
@@ -356,8 +360,9 @@ router.post("/medication_delete", requireLoggedIn, requireDoctor, function (req,
 		}).then(function(deleted_medication){
 			Billing_Item.destroy({
 				where: {
-					receiptId: medication_instance['id'],
-					description: medication_instance['name'],
+					receiptId: key,
+					checkUpId: medication_instance[0].checkUpId,
+					description: desc,
 				},
 			}).then(function(deleted_billing){
 				res.json({
@@ -370,12 +375,16 @@ router.post("/medication_delete", requireLoggedIn, requireDoctor, function (req,
 
 router.post("/medical_procedure_delete", requireLoggedIn, requireDoctor, function (req, res) {
 	var key = req.body['medical_procedure'];
-	Medical_Procedure.findOne({
+	var desc = [];
+	Medical_Procedure.findAll({
 		where: {
 			id: key
 		},
 		raw: true
 	}).then(medical_procedure => {
+		for(var i = 0; i < medical_procedure.length; i++){
+			desc.push(medical_procedure[i].description);
+		}
 		Medical_Procedure.destroy({
 			where: {
 				id: key
@@ -383,8 +392,9 @@ router.post("/medical_procedure_delete", requireLoggedIn, requireDoctor, functio
 		}).then(function(deleted_medical_procedure){
 			Billing_Item.destroy({
 				where: {
-					receiptId: medical_procedure['id'],
-					description: medical_procedure['description']
+					receiptId: key,
+					checkUpId: medical_procedure[0]['checkUpId'],
+					description: desc,
 				}
 			}).then(function(deleted_billing){
 				if(deleted_billing){
