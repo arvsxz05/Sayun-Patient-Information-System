@@ -614,10 +614,11 @@ module.exports = function(io) {
 	/////////////////////////////// POST ////////////////////////////////////
 
 	router.post('/add_daily_consultation', requireLoggedIn, function (req, res) {
-		// console.log(req.body.p_id);
+		var date = new Date(req.body.date);
+		var date_iso = date.toISOString();
 		Consultation.count({
 			where: {
-				date: req.body.date,
+				date: date_iso,
 				status: {
 					$in: ['Waiting', 'Current']
 				},
@@ -632,7 +633,7 @@ module.exports = function(io) {
 			Consultation.create({
 				queue_no: queue_no + 1,
 				status: 'Waiting',
-				date: req.body.date,
+				date: date_iso,
 				attachments: [],
 				parent_record: {
 					hospitalName: req.body.hospital,
@@ -667,7 +668,7 @@ module.exports = function(io) {
 					}).then(patient_instance => {
 						io.emit('new_consultation', {
 							patient: patient_instance,
-							date: new Date(req.body.date.trim()).toDateString(),
+							date: date.toDateString(),
 							doctor: doctor_instance,
 							add: daily_consultation_instance.dataValues
 						});
