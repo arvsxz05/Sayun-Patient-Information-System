@@ -4,24 +4,24 @@
 <head>
     <title>Daily Consultations</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" type="text/css" href="../../static/css/bootstrap.css">
-    <link rel="stylesheet" type="text/css" href="../../static/css/bootstrap.min.css">
-    <link rel="stylesheet" type="text/css" href="../../static/css/styles.css">
-    <link rel="stylesheet" type="text/css" href="../../static/css/font-awesome.min.css">
-    <link rel="stylesheet"  type="text/css"         href="../../static/css/bootstrap.min.3.3.7.css">
-    <link rel="stylesheet"  type="text/css"         href="../../static/css/dataTables.bootstrap.min.css">
-    <link rel="stylesheet" href="../../static/css/themes-smoothness-jquery-ui.css">
-    <script src = "../../static/js/jquery-1.10.2.js"></script>
-    <script src = "../../static/js/jquery-ui.js"></script>
-    <script type="text/javascript" src="../../static/js/jquery.js"></script>
-    <script type="text/javascript" src="../../static/js/bootstrap.min.js"></script>
-    <script type="text/javascript"  src="../../static/js/jquery.date-dropdowns.js"></script>
-    <script type="text/javascript" src="../../static/js/jquery.dataTables.min.js"></script>
-    <script type="text/javascript" src="../../static/js/dataTables.bootstrap.min.js"></script>
-    <script type="text/javascript" src="../../static/js/jquery.tablednd.js"></script>
-    <script src="../../static/js/1.12.1-jquery-ui.js"></script>
-    <link rel="stylesheet" href="../../static/css/jquery-confirm.min.css">
-    <script src="../../static/js/jquery-confirm.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="/static/css/bootstrap.css">
+    <link rel="stylesheet" type="text/css" href="/static/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="/static/css/styles.css">
+    <link rel="stylesheet" type="text/css" href="/static/css/font-awesome.min.css">
+    <link rel="stylesheet"  type="text/css"         href="/static/css/bootstrap.min.3.3.7.css">
+    <link rel="stylesheet"  type="text/css"         href="/static/css/dataTables.bootstrap.min.css">
+    <link rel="stylesheet" href="/static/css/themes-smoothness-jquery-ui.css">
+    <script src = "/static/js/jquery-1.10.2.js"></script>
+    <script src = "/static/js/jquery-ui.js"></script>
+    <script type="text/javascript" src="/static/js/jquery.js"></script>
+    <script type="text/javascript" src="/static/js/bootstrap.min.js"></script>
+    <script type="text/javascript"  src="/static/js/jquery.date-dropdowns.js"></script>
+    <script type="text/javascript" src="/static/js/jquery.dataTables.min.js"></script>
+    <script type="text/javascript" src="/static/js/dataTables.bootstrap.min.js"></script>
+    <script type="text/javascript" src="/static/js/jquery.tablednd.js"></script>
+    <script src="/static/js/1.12.1-jquery-ui.js"></script>
+    <link rel="stylesheet" href="/static/css/jquery-confirm.min.css">
+    <script src="/static/js/jquery-confirm.min.js"></script>
     <style>
 
         .myDragClass {
@@ -58,10 +58,10 @@
         <div class="container-fluid">
             <div class="navbar-header">
                 <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar">
-	        <span class="icon-bar"></span>
-	        <span class="icon-bar"></span>
-	        <span class="icon-bar"></span>                        
-	      </button>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>                        
+          </button>
                 <a class="navbar-brand" href="#">SPIS LOGO HERE</a>
             </div>
             <div class="collapse navbar-collapse" id="navbar">
@@ -155,9 +155,9 @@
                                     <td>
                                         <select class="form-control change-status" name="{{ single_consultation['id'] }}">
                                             {% if single_consultation['status'] === 'Waiting' %}
-    									    <option selected>Waiting</option>
-    									    <option>Done</option>
-    									    <option>Current</option>
+                                            <option selected>Waiting</option>
+                                            <option>Done</option>
+                                            <option>Current</option>
                                             {% elif single_consultation['status'] === 'Done' %}
                                             <option>Waiting</option>
                                             <option selected>Done</option>
@@ -167,7 +167,7 @@
                                             <option>Done</option>
                                             <option selected>Current</option>
                                             {% endif %}
-									   </select>
+                                       </select>
                                     </td>
                                 </tr>
                                 {% endfor %}
@@ -421,7 +421,7 @@
 
     $('#select-doctor-queue').change(function () {
         var valid_time = new Date($("#queue-datepicker").val());
-        window.location.replace('/daily_consultation_list/' + $(this).val() + '/' + valid_time.getTime());
+        window.location.replace('/daily_consultation_list/' + $(this).val() + '/' + valid_time.getDate() + '/' + valid_time.getMonth() + '/' + valid_time.getFullYear());
     });
 
     $('#queue_status').change(function () {
@@ -431,20 +431,29 @@
     });
 
     $(document).ready(function() { //DO NOT CHANGEEEEE
-        date = window.location.href.substring(window.location.href.lastIndexOf("/") + 1);
-        date = formatDate(parseInt(date));
+        var date_split = window.location.href.split('/'), day = date_split[date_split.length - 3], month = date_split[date_split.length - 2], year = date_split[date_split.length - 1];
+        date = new Date(parseInt(year), parseInt(month), parseInt(day));
+
+        {% if session.doctor %}
+        $("#reorder-btn").attr('href', $("#reorder-btn").attr('href') + '{{ session.user.id }}/'+ date.getDate() + '/' + date.getMonth() + '/' + date.getFullYear());
+        {% elif session.secretary %}
+        $("#reorder-btn").attr('href', $("#reorder-btn").attr('href') + $("#select-doctor-queue").val() + '/' + date.getDate() + '/' + date.getMonth() + '/' + date.getFullYear());
+        {% endif %}
+
+        date = formatDate(date);
 
         $("#edit-daily-cc-date").dateDropdowns({
             displayFormat: "mdy"
         });
+
         $(".date-div select").addClass("form-control");
 
         $( function() {
             $( "#queue-datepicker" ).datepicker({ 
                 dateFormat: 'mm/dd/yy',
                 onSelect: function(dateText, inst) { 
-                  var dateAsMilli = new Date(dateText);
-                  window.location.replace('/daily_consultation_list/{{doctor_on_queue}}/' + dateAsMilli.getTime());
+                    var dateAsMilli = new Date(dateText);
+                    window.location.replace('/daily_consultation_list/{{doctor_on_queue}}/' + dateAsMilli.getDate() + '/' + dateAsMilli.getMonth() + '/' + dateAsMilli.getFullYear());
                }
             }).datepicker("setDate", new Date(date));
         });
@@ -481,13 +490,6 @@
                 $('tbody tr td:nth-child(2) a').attr('href', '/patient_edit/' + $('tbody tr td:nth-child(2) a').attr('id') + '#consultations' + '-' + $('tbody tr td:nth-child(2) input').val());
             {% endif %}
         });
-
-
-        {% if session.doctor %}
-        $("#reorder-btn").attr('href', $("#reorder-btn").attr('href') + '{{ session.user.id }}/'+ new Date(date).getTime());
-        {% elif session.secretary %}
-        $("#reorder-btn").attr('href', $("#reorder-btn").attr('href') + $("#select-doctor-queue").val() + '/'+ new Date(date).getTime());
-        {% endif %}
 
         $("#daily-cc-date").val(new Date(date));
         $(function () {

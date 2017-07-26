@@ -151,14 +151,15 @@ module.exports = function(io) {
 
 	/////////////////////////////// GET ////////////////////////////////////
 
-	router.get('/daily_consultation_list/:doc_username/:date', requireLoggedIn, function (req, res) {
-		var date = parseInt(req.params.date);
+	router.get('/daily_consultation_list/:doc_username/:day_arg/:month_arg/:year_arg', requireLoggedIn, function (req, res) {
+		// console.log(req.params['year_arg'] + '/' + req.params['month_arg'] + '/' + req.params['day_arg']);
+		var date = new Date(parseInt(req.params.year_arg), parseInt(req.params.month_arg), parseInt(req.params.day_arg));
 		var doctor = req.params.doc_username;
 		if (req.session.doctor) {
 			Consultation.findAll({
 				raw: true,
 				where: {
-					date: formatDate(date),
+					date: date,
 					status: {
 						$ne: null,
 						$in: ['Waiting', 'Current']
@@ -215,7 +216,7 @@ module.exports = function(io) {
 							patients: patient_list,
 							hospitals: hospital_list,
 							doctor_on_queue: req.session.user.id,
-							date_on_queue: new Date(date).toDateString()
+							date_on_queue: date.toDateString()
 						});
 					});
 				});
@@ -230,7 +231,7 @@ module.exports = function(io) {
 					Consultation.findAll({
 						raw: true,
 						where: {
-							date: formatDate(date),
+							date: date,
 							status: {
 								$ne: null,
 								$in: ['Waiting', 'Current']
@@ -297,7 +298,7 @@ module.exports = function(io) {
 										doctors: doctor_list,
 										hospitals: hospital_list,
 										doctor_on_queue: doctor,
-										date_on_queue: new Date(date).toDateString()
+										date_on_queue: date.toDateString()
 									});
 								});
 							});
@@ -537,8 +538,9 @@ module.exports = function(io) {
 		});
 	});
 
-	router.get('/reorder/:doc_username/:date', requireLoggedIn, function (req, res) {
-		var date = parseInt(req.params.date.trim());
+	router.get('/reorder/:doc_username/:day_arg/:month_arg/:year_arg', requireLoggedIn, function (req, res) {
+		
+		var date = new Date(parseInt(req.params.year_arg), parseInt(req.params.month_arg), parseInt(req.params.day_arg));
 		var doctor = req.params.doc_username;
 		Doctor.findOne({
 			raw: true,
@@ -680,7 +682,8 @@ module.exports = function(io) {
 		});
 	});
 
-	router.post('/reorder/:doc_username/:date', requireLoggedIn, function (req, res) {
+	router.post('/reorder/:doc_username/:day_arg/:month_arg/:year_arg', requireLoggedIn, function (req, res) {
+		var date = new Date(parseInt(req.params.year_arg), parseInt(req.params.month_arg), parseInt(req.params.day_arg));
 		Doctor.findOne({
 			raw: true,
 			where: {
@@ -694,7 +697,7 @@ module.exports = function(io) {
 					Consultation.update({ queue_no: item.value }, { where: { id: item.key } }).then(() => {
 						itemsProcessed++;
 						if(itemsProcessed === reordered_queue.length) {
-							getDailyConsultation(single_doctor.id, parseInt(req.params.date), req.session);
+							getDailyConsultation(single_doctor.id, date, req.session);
 							res.json({});
 						}
 					});
@@ -860,8 +863,9 @@ module.exports = function(io) {
 		});
 	});
 
-	router.get('/daily_consultation_list/:doc_username/:date/done', requireLoggedIn, function (req, res) {
-		var date = parseInt(req.params.date);
+	router.get('/daily_consultation_list/:doc_username/:day_arg/:month_arg/:year_arg/done', requireLoggedIn, function (req, res) {
+		console.log(req.params.year_arg + "/" + req.params.month_arg + "/" + req.params.day_arg);
+		var date = new Date(parseInt(req.params.year_arg), parseInt(req.params.month_arg), parseInt(req.params.day_arg));
 		var doctor = req.params.doc_username;
 		if (req.session.doctor) {
 			Consultation.findAll({

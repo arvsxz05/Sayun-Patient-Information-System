@@ -227,7 +227,7 @@
 
     $('#select-doctor-queue').change(function () {
         var valid_time = new Date($("#queue-datepicker").val());
-        window.location.replace('/daily_consultation_list/' + $(this).val() + '/' + valid_time.getTime() + '/done');
+        window.location.replace('/daily_consultation_list/' + $(this).val() + '/' + valid_time.getDate() + '/' + valid_time.getMonth() + '/' + valid_time.getFullYear() + '/done');
     });
 
     $('#queue_status').change(function () {
@@ -237,9 +237,9 @@
     });
 
     $(document).ready(function() { //DO NOT CHANGEEEEE
-        var url_split = window.location.href.split("/");
-        date = url_split[url_split.length - 2];
-        date = formatDate(parseInt(date));
+        var date_split = window.location.href.split('/'), day = date_split[date_split.length - 4], month = date_split[date_split.length - 3], year = date_split[date_split.length - 2];
+        date = new Date(parseInt(year), parseInt(month), parseInt(day));
+        date = formatDate(date);
 
         $("#edit-daily-cc-date").dateDropdowns({
             displayFormat: "mdy"
@@ -252,7 +252,7 @@
                 dateFormat: 'mm/dd/yy',
                 onSelect: function(dateText, inst) { 
                   var dateAsMilli = new Date(dateText);
-                  window.location.replace('/daily_consultation_list/{{doctor_on_queue}}/' + dateAsMilli.getTime() + '/done');
+                  window.location.replace('/daily_consultation_list/{{doctor_on_queue}}/' + dateAsMilli.getDate() + '/' + dateAsMilli.getMonth() + '/' + dateAsMilli.getFullYear() +'/done');
                }
             }).datepicker("setDate", new Date(date));
         });
