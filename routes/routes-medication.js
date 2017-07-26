@@ -141,6 +141,7 @@ router.post("/ipt_edit_add_medication/:cu_id", requireLoggedIn, requireDoctor, f
 			checkUpId: med_instance['checkUpId'],
 			last_edited: req.session.user.id,
 			issued_by: req.session.user.id,
+			type: "Medication",
 		}, {
 			raw: true
 		}).then(billing_item => {
@@ -168,6 +169,7 @@ router.post("/ipt_edit_add_medical_procedure/:cu_id", requireLoggedIn, requireDo
 			checkUpId: procedure_instance['checkUpId'],
 			last_edited: req.session.user.id,
 			issued_by: req.session.user.id,
+			type: "Medical Procedure",
 		}, {
 			raw: true
 		}).then(billing_item => {
@@ -199,6 +201,7 @@ router.post("/opt_edit_add_medication/:cu_id", requireLoggedIn, requireDoctor, f
 			checkUpId: med_instance['checkUpId'],
 			last_edited: req.session.user.id,
 			issued_by: req.session.user.id,
+			type: "Medication",
 		}, {
 			raw: true
 		}).then(billing_item => {
@@ -226,6 +229,7 @@ router.post("/opt_edit_add_medical_procedure/:cu_id", requireLoggedIn, requireDo
 			checkUpId: procedure_instance['checkUpId'],
 			last_edited: req.session.user.id,
 			issued_by: req.session.user.id,
+			type: "Medical Procedure",
 		}, {
 			raw: true
 		}).then(billing_item => {
@@ -258,6 +262,7 @@ router.post("/clinic_consultation_edit_add_medication/:cu_id", requireLoggedIn, 
 			checkUpId: med_instance['checkUpId'],
 			last_edited: req.session.user.id,
 			issued_by: req.session.user.id,
+			type: "Medication",
 		}, {
 			raw: true,
 		}).then(billing_item => {
@@ -286,6 +291,7 @@ router.post("/clinic_consultation_edit_add_medical_procedure/:cu_id", requireLog
 			checkUpId: procedure_instance['checkUpId'],
 			last_edited: req.session.user.id,
 			issued_by: req.session.user.id,
+			type: "Medical Procedure",
 		}, {
 			raw: true,
 		}).then(billing_item => {

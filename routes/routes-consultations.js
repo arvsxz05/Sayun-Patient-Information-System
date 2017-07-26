@@ -294,6 +294,7 @@ router.post('/clinic_consultation_add', requireLoggedIn, upload_file_cc.array('a
 						checkUpId: medication_item.dataValues.checkUpId,
 						receiptId: medication_item.dataValues.id,
 						issued_by: req.session.user.id,
+						type: "Medication",
 					}).then(billing_item_instance => {
 						itemsProcessed++;
 						if(itemsProcessed === consultation_instance.parent_record.medication.length) {
@@ -307,6 +308,7 @@ router.post('/clinic_consultation_add', requireLoggedIn, upload_file_cc.array('a
 										checkUpId: medical_procedure_item.dataValues.checkUpId,
 										receiptId: medical_procedure_item.dataValues.id,
 										issued_by: req.session.user.id,
+										type: "Medical Procedure"
 									}).then(billing_item_instance => {
 										itemsProcessed++;
 										if(itemsProcessed === consultation_instance.parent_record.medical_procedure.length) {

@@ -278,9 +278,6 @@ router.post('/opt_add', upload_file_opts.array('add-opt-attachments[]'), functio
 				}, {
 					model: Medical_Procedure,
 					as: 'medical_procedure',
-				}, {
-					model: Billing_Item,
-					as: 'billing_items'
 				}],
 			}]
 		};
@@ -315,6 +312,7 @@ router.post('/opt_add', upload_file_opts.array('add-opt-attachments[]'), functio
 						checkUpId: medication_item.dataValues.checkUpId,
 						receiptId: medication_item.dataValues.id,
 						issued_by: req.session.user.id,
+						type: "Medication"
 					}).then(billing_item_instance => {
 						itemsProcessed++;
 						if(itemsProcessed === checkUp_data.parent_record.medication.length) {
@@ -328,6 +326,7 @@ router.post('/opt_add', upload_file_opts.array('add-opt-attachments[]'), functio
 										checkUpId: medical_procedure_item.dataValues.checkUpId,
 										receiptId: medical_procedure_item.dataValues.id,
 										issued_by: req.session.user.id,
+										type: "Medical Procedure"
 									}).then(billing_item_instance => {
 										itemsProcessed++;
 										if(itemsProcessed === checkUp_data.parent_record.medical_procedure.length) {

@@ -1198,7 +1198,7 @@
                 }
             }).done(function (data) {
                 edit_opt_meds_table.row.add([
-                    '<input type="checkbox" id="' + data.id + '" name="' + data.id + '"></input>',
+                    '<input type="checkbox" id="' + data['medication_id'] + '" name="' + data['medication_id'] + '"></input>',
                     '<a>' + $('#add-med-name').val() + '</a>',
                     $('#add-med-dosage').val(),
                     $('#add-med-frequency').val(),
@@ -1373,7 +1373,7 @@
                 }
             }).done(function (data) {
                 edit_opt_med_procedures_table.row.add([
-                    '<input type="checkbox" id="' + data.id + '" name="' + data.id + '"></input>',
+                    '<input type="checkbox" id="' + data['medical_procedure_id'] + '" name="' + data['medical_procedure_id'] + '"></input>',
                     '<a>' + $("#add-med-procedure-date select[name='date_[year]']").val() + '-' + 
                     $("#add-med-procedure-date select[name='date_[month]']").val() + '-' +
                     $("#add-med-procedure-date select[name='date_[day]']").val() + '</a>',
@@ -1527,12 +1527,12 @@
                     $('#edit-med-instructions').val()
                 ]).draw();
 
-                // var bill_name = edit_med_id;
-                // edit_opt_billing_table.row($("[name='med-bill-" + edit_med_id + "']").parent().parent()).data([
-                //     $("[name='med-bill-" + edit_med_id + "']").parent().html(),
-                //     $('#edit-med-name').val(),
-                //     $("[name='med-bill-" + edit_med_id + "']").parent().parent().children("td:last").html()
-                //     ]).draw();
+                var bill_name = edit_med_id;
+                edit_opt_billing_table.row($("[name='med-bill-" + edit_med_id + "']").parent().parent()).data([
+                    $("[name='med-bill-" + edit_med_id + "']").parent().html(),
+                    $('#edit-med-name').val(),
+                    $("[name='med-bill-" + edit_med_id + "']").parent().parent().children("td:last").html()
+                    ]).draw();
 
             }
             else if(edit_med_caller_type == "CC"){

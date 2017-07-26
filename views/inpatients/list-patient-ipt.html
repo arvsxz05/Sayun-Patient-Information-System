@@ -350,7 +350,7 @@
                         data['billing_items'][i].amount
                     ]).draw();
                 }
-                else{
+                else if(data['billing_items'][i].type == "Medical Procedure"){
                     edit_ipt_billing_table.row.add([
                         '<input type="checkbox" id="' + data['billing_items'][i].id + 
                         '" name="med-procedure-bill-' + data['billing_items'][i].receiptId + '"></input>',

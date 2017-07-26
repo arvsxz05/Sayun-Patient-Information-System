@@ -318,6 +318,7 @@ router.post('/ipt_add', requireLoggedIn, upload_file_ipts.array('add-ipt-attachm
 						checkUpId: medication_item.dataValues.checkUpId,
 						receiptId: medication_item.dataValues.id,
 						issued_by: req.session.user.id,
+						type: "Medication",
 					}).then(billing_item_instance => {
 						itemsProcessed++;
 						if(itemsProcessed === checkUp_data.parent_record.medication.length) {
@@ -330,6 +331,7 @@ router.post('/ipt_add', requireLoggedIn, upload_file_ipts.array('add-ipt-attachm
 										checkUpId: medical_procedure_item.dataValues.checkUpId,
 										receiptId: medical_procedure_item.dataValues.id,
 										issued_by: req.session.user.id,
+										type: "Medical Procedure",
 									}).then(billing_item_instance => {
 										itemsProcessed++;
 										if(itemsProcessed === checkUp_data.parent_record.medical_procedure.length) {
