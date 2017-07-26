@@ -372,6 +372,38 @@
                         </div>
                         <!-- END OF DIAGNOSES RESULTS -->
 
+                        <!-- BILLING RESULTS -->
+                        <div class="tab-pane" id="billing">
+                            <div class="row">
+                                <div class="col-xs-10 col-xs-offset-1"> 
+                                    <!-- BASIC PATIENT INFO -->
+                                    <div class="row" style="margin-top: 40px">
+                                        <div class="col-md-7">
+                                            <div class="row form-group">
+                                                <label class="col-sm-3 control-label" for="patient-id">Patient ID</label>
+                                                <div class="col-sm-6">
+                                                    <input type="text" class="form-control" id="patient-id" value="{{patient.id}}" disabled>
+                                                </div>
+                                            </div>                                       
+                                            <div class="row form-group">
+                                                <label class="col-sm-3 control-label" for="patient-id">Patient Name</label>
+                                                <div class="col-sm-6">
+                                                    <input type="text" class="form-control" id="patient-id" value="{{patient.first_name}} {{patient.middle_name}} {{patient.last_name}}" disabled>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- <a id="list-diagnoses-view-link" onclick="view_diagnoses()">Back to Diagnoses List</a> -->
+                                    <hr>
+                                    <!-- DIAGNOSES TABLE -->
+                                        {% include "../billing/list-billing.html" %}
+                                    <!-- END OF DIAGNOSES TABLE -->                    
+                                </div>
+                            </div>
+                        </div>
+                        <!-- END OF BILLING RESULTS -->
+
                     </div>
                 </div>
             </div>

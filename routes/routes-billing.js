@@ -32,25 +32,311 @@ function requireDoctor(req, res, next) {
 router.get('/billing_list/:check_up_id', requireLoggedIn, function(req, res){
 	var key = req.params.check_up_id;
 
-	Billing.findOne({
-		where: {
-			receiptId: key
-		},
-		raw: true
-	}).then(function(billing_instance){
-		Billing_Item.findAll({
+	if(req.session.doctor){
+		InPatient_Treatment.findAll({
+			raw: true,
 			where: {
-				billingId: billing_instance['id']
+				active: true
 			},
-			raw: true
-		}).then(function(billing_items_list){
-			console.log("IN BILLING ITEMS LIST");
-			res.json({
-				billing_items: billing_items_list
-			})
+			attributes: ['id', 'conf_date'],
+			include: [{
+				model: Check_Up,
+				as: 'parent_record',
+				required: true,
+				where: {
+					patientId: key,
+					active: true,
+					doctorId: req.session.doctor.id,
+				},
+				attributes: ['id', 'check_up_type', 'hospitalName', 'doctorId', 'patientId' ],
+				include: [{
+					model: Billing_Item,
+					as: 'billing_items',
+					required: true,
+				}]
+			}],
+		}).then(ipt_list => {
+			OutPatient_Treatment.findAll({
+				raw: true,
+				where: {
+					active: true,
+				},
+				attributes: ['id', 'date'],
+				include: [{
+					model: Check_Up,
+					as: 'parent_record',
+					required: true,
+					where: {
+						patientId: key,
+						active: true,
+						doctorId: req.session.doctor.id,
+					},
+					attributes: ['id', 'check_up_type', 'hospitalName', 'doctorId', 'patientId' ],
+					include: [{
+						model: Billing_Item,
+						as: 'billing_items',
+						required: true,
+					}]
+				}]
+			}).then(opt_list => {
+				Consultation.findAll({
+					raw: true,
+					attributes: ['id', 'date'],
+					where: {
+						active: true,
+					},
+					include: [{
+						model: Check_Up,
+						as: 'parent_record',
+						required: true,
+						where: {
+							patientId: key,
+							active: true,
+							doctorId: req.session.doctor.id,
+						},
+						attributes: ['id', 'check_up_type', 'hospitalName', 'doctorId', 'patientId' ],
+						include: [{
+							model: Billing_Item,
+							as: 'billing_items',
+							required: true,
+						}]
+					}],
+				}).then(cc_list =>{
+					console.log(ipt_list.concat(opt_list.concat(cc_list)));
+					res.json({
+						meds: ipt_list.concat(opt_list.concat(cc_list)),
+					});
+				});
+			});
 		});
-	})
+	} else{
+		InPatient_Treatment.findAll({
+			raw: true,
+			where: {
+				active: true
+			},
+			attributes: ['id', 'conf_date'],
+			include: [{
+				model: Check_Up,
+				as: 'parent_record',
+				required: true,
+				where: {
+					patientId: key,
+					active: true,
+				},
+				attributes: ['id', 'check_up_type', 'hospitalName', 'doctorId', 'patientId' ],
+				include: [{
+					model: Billing_Item,
+					as: 'billing_items',
+					required: true,
+				}]
+			}],
+		}).then(ipt_list => {
+			OutPatient_Treatment.findAll({
+				raw: true,
+				where: {
+					active: true,
+				},
+				attributes: ['id', 'date'],
+				include: [{
+					model: Check_Up,
+					as: 'parent_record',
+					required: true,
+					where: {
+						patientId: key,
+						active: true,
+					},
+					attributes: ['id', 'check_up_type', 'hospitalName', 'doctorId', 'patientId' ],
+					include: [{
+						model: Billing_Item,
+						as: 'billing_items',
+						required: true,
+					}]
+				}]
+			}).then(opt_list => {
+				Consultation.findAll({
+					raw: true,
+					attributes: ['id', 'date'],
+					where: {
+						active: true,
+					},
+					include: [{
+						model: Check_Up,
+						as: 'parent_record',
+						required: true,
+						where: {
+							patientId: key,
+							active: true,
+						},
+						attributes: ['id', 'check_up_type', 'hospitalName', 'doctorId', 'patientId' ],
+						include: [{
+							model: Billing_Item,
+							as: 'billing_items',
+							required: true,
+						}]
+					}],
+				}).then(cc_list =>{
+					console.log(ipt_list.concat(opt_list.concat(cc_list)));
+					res.json({
+						meds: ipt_list.concat(opt_list.concat(cc_list)),
+					});
+				});
+			});
+		});
+	}
 });
+
+router.get('/financial_report', requireLoggedIn, function(req, res){
+	var key = req.params.check_up_id;
+
+	if(req.session.doctor){
+		InPatient_Treatment.findAll({
+			raw: true,
+			where: {
+				active: true
+			},
+			attributes: ['id', 'conf_date'],
+			include: [{
+				model: Check_Up,
+				as: 'parent_record',
+				required: true,
+				where: {
+					active: true,
+					doctorId: req.session.doctor.id,
+				},
+				attributes: ['id', 'check_up_type', 'hospitalName', 'doctorId', 'patientId' ],
+				include: [{
+					model: Billing_Item,
+					as: 'billing_items',
+					required: true,
+				}]
+			}],
+		}).then(ipt_list => {
+			OutPatient_Treatment.findAll({
+				raw: true,
+				where: {
+					active: true,
+				},
+				attributes: ['id', 'date'],
+				include: [{
+					model: Check_Up,
+					as: 'parent_record',
+					required: true,
+					where: {
+						active: true,
+						doctorId: req.session.doctor.id,
+					},
+					attributes: ['id', 'check_up_type', 'hospitalName', 'doctorId', 'patientId' ],
+					include: [{
+						model: Billing_Item,
+						as: 'billing_items',
+						required: true,
+					}]
+				}]
+			}).then(opt_list => {
+				Consultation.findAll({
+					raw: true,
+					attributes: ['id', 'date'],
+					where: {
+						active: true,
+					},
+					include: [{
+						model: Check_Up,
+						as: 'parent_record',
+						required: true,
+						where: {
+							active: true,
+							doctorId: req.session.doctor.id,
+						},
+						attributes: ['id', 'check_up_type', 'hospitalName', 'doctorId', 'patientId' ],
+						include: [{
+							model: Billing_Item,
+							as: 'billing_items',
+							required: true,
+						}]
+					}],
+				}).then(cc_list =>{
+					console.log(ipt_list.concat(opt_list.concat(cc_list)));
+					res.json({
+						meds: ipt_list.concat(opt_list.concat(cc_list)),
+					});
+				});
+			});
+		});
+	} else{
+		InPatient_Treatment.findAll({
+			raw: true,
+			where: {
+				active: true
+			},
+			attributes: ['id', 'conf_date'],
+			include: [{
+				model: Check_Up,
+				as: 'parent_record',
+				required: true,
+				where: {
+					active: true,
+				},
+				attributes: ['id', 'check_up_type', 'hospitalName', 'doctorId', 'patientId' ],
+				include: [{
+					model: Billing_Item,
+					as: 'billing_items',
+					required: true,
+				}]
+			}],
+		}).then(ipt_list => {
+			OutPatient_Treatment.findAll({
+				raw: true,
+				where: {
+					active: true,
+				},
+				attributes: ['id', 'date'],
+				include: [{
+					model: Check_Up,
+					as: 'parent_record',
+					required: true,
+					where: {
+						active: true,
+					},
+					attributes: ['id', 'check_up_type', 'hospitalName', 'doctorId', 'patientId' ],
+					include: [{
+						model: Billing_Item,
+						as: 'billing_items',
+						required: true,
+					}]
+				}]
+			}).then(opt_list => {
+				Consultation.findAll({
+					raw: true,
+					attributes: ['id', 'date'],
+					where: {
+						active: true,
+					},
+					include: [{
+						model: Check_Up,
+						as: 'parent_record',
+						required: true,
+						where: {
+							active: true,
+						},
+						attributes: ['id', 'check_up_type', 'hospitalName', 'doctorId', 'patientId' ],
+						include: [{
+							model: Billing_Item,
+							as: 'billing_items',
+							required: true,
+						}]
+					}],
+				}).then(cc_list =>{
+					console.log(ipt_list.concat(opt_list.concat(cc_list)));
+					res.json({
+						meds: ipt_list.concat(opt_list.concat(cc_list)),
+					});
+				});
+			});
+		});
+	}
+});
+
 
 ///////////////////////////POST//////////////////////////////
 

@@ -36,6 +36,11 @@ router.get('/patient_medication_list/:patient_id', requireLoggedIn, requireDocto
 	var currResult;
 
 	InPatient_Treatment.findAll({
+		raw: true,
+		where: {
+			active: true
+		},
+		attributes: ['id', 'conf_date'],
 		include: [{
 			model: Check_Up,
 			as: 'parent_record',
@@ -55,13 +60,13 @@ router.get('/patient_medication_list/:patient_id', requireLoggedIn, requireDocto
 				}
 			}]
 		}],
-		raw: true,
-		where: {
-			active: true
-		},
-		attributes: ['id', 'conf_date'],
 	}).then(function(ipts){
 		OutPatient_Treatment.findAll({
+			raw: true,
+			where: {
+				active: true,
+			},
+			attributes: ['id', 'date'],
 			include: [{
 				model: Check_Up,
 				as: 'parent_record',
@@ -80,14 +85,14 @@ router.get('/patient_medication_list/:patient_id', requireLoggedIn, requireDocto
 						type: "Maintenance",
 					}
 				}]
-			}],
-			raw: true,
-			where: {
-				active: true,
-			},
-			attributes: ['id', 'date'],
+			}]
 		}).then(function(opts){
 			Consultation.findAll({
+				raw: true,
+				attributes: ['id', 'date'],
+				where: {
+					active: true,
+				},
 				include: [{
 					model: Check_Up,
 					as: 'parent_record',
@@ -107,8 +112,6 @@ router.get('/patient_medication_list/:patient_id', requireLoggedIn, requireDocto
 						}
 					}]
 				}],
-				raw: true,
-				attributes: ['id', 'date'],
 			}).then(function(ccs){
 				res.json({
 					meds: ipts.concat(opts.concat(ccs)),
