@@ -305,57 +305,61 @@ router.post('/opt_add', upload_file_opts.array('add-opt-attachments[]'), functio
 	OutPatient_Treatment.create(fields, includes).then(checkUp_data => {
 		addOPTfileQueue[fileId] = null;
 		var itemsProcessed = 0;
-		if(checkUp_data.parent_record.medication.length > 0){
-			checkUp_data.parent_record.medication.forEach(function (medication_item) {
-				console.log(medication_item.dataValues.id);
-				Billing_Item.create({
-					description: medication_item.dataValues.name,
-					last_edited: req.session.user.id,
-					checkUpId: medication_item.dataValues.checkUpId,
-					receiptId: medication_item.dataValues.id,
-					issued_by: req.session.user.id,
-				}).then(billing_item_instance => {
-					itemsProcessed++;
-					if(itemsProcessed === checkUp_data.parent_record.medication.length) {
-						itemsProcessed = 0;
-						if(checkUp_data.parent_record.medical_procedure.length > 0){
-							checkUp_data.parent_record.medical_procedure.forEach(function (medical_procedure_item) {
-								console.log(medical_procedure_item.dataValues.id);
-								Billing_Item.create({
-									description: medical_procedure_item.dataValues.description,
-									last_edited: req.session.user.id,
-									checkUpId: medical_procedure_item.dataValues.checkUpId,
-									receiptId: medical_procedure_item.dataValues.id,
-									issued_by: req.session.user.id,
-								}).then(billing_item_instance => {
-									itemsProcessed++;
-									if(itemsProcessed === checkUp_data.parent_record.medical_procedure.length) {
-										res.json({success: true});
-									}
+		if(req.session.doctor){
+			if(checkUp_data.parent_record.medication.length > 0){
+				checkUp_data.parent_record.medication.forEach(function (medication_item) {
+					console.log(medication_item.dataValues.id);
+					Billing_Item.create({
+						description: medication_item.dataValues.name,
+						last_edited: req.session.user.id,
+						checkUpId: medication_item.dataValues.checkUpId,
+						receiptId: medication_item.dataValues.id,
+						issued_by: req.session.user.id,
+					}).then(billing_item_instance => {
+						itemsProcessed++;
+						if(itemsProcessed === checkUp_data.parent_record.medication.length) {
+							itemsProcessed = 0;
+							if(checkUp_data.parent_record.medical_procedure.length > 0){
+								checkUp_data.parent_record.medical_procedure.forEach(function (medical_procedure_item) {
+									console.log(medical_procedure_item.dataValues.id);
+									Billing_Item.create({
+										description: medical_procedure_item.dataValues.description,
+										last_edited: req.session.user.id,
+										checkUpId: medical_procedure_item.dataValues.checkUpId,
+										receiptId: medical_procedure_item.dataValues.id,
+										issued_by: req.session.user.id,
+									}).then(billing_item_instance => {
+										itemsProcessed++;
+										if(itemsProcessed === checkUp_data.parent_record.medical_procedure.length) {
+											res.json({success: true});
+										}
+									});
 								});
-							});
-						} else{
+							} else{
+								res.json({success: true});
+							}
+						}
+					});
+				});
+			} else if(checkUp_data.parent_record.medical_procedure.length > 0){
+				checkUp_data.parent_record.medical_procedure.forEach(function (medical_procedure_item) {
+					console.log(medical_procedure_item.dataValues.id);
+					Billing_Item.create({
+						description: medical_procedure_item.dataValues.description,
+						last_edited: req.session.user.id,
+						checkUpId: medical_procedure_item.dataValues.checkUpId,
+						receiptId: medical_procedure_item.dataValues.id,
+						issued_by: req.session.user.id,
+					}).then(billing_item_instance => {
+						itemsProcessed++;
+						if(itemsProcessed === checkUp_data.parent_record.medical_procedure.length) {
 							res.json({success: true});
 						}
-					}
+					});
 				});
-			});
-		} else if(checkUp_data.parent_record.medical_procedure.length > 0){
-			checkUp_data.parent_record.medical_procedure.forEach(function (medical_procedure_item) {
-				console.log(medical_procedure_item.dataValues.id);
-				Billing_Item.create({
-					description: medical_procedure_item.dataValues.description,
-					last_edited: req.session.user.id,
-					checkUpId: medical_procedure_item.dataValues.checkUpId,
-					receiptId: medical_procedure_item.dataValues.id,
-					issued_by: req.session.user.id,
-				}).then(billing_item_instance => {
-					itemsProcessed++;
-					if(itemsProcessed === checkUp_data.parent_record.medical_procedure.length) {
-						res.json({success: true});
-					}
-				});
-			});
+			} else{
+				res.json({success: true});
+			}
 		} else{
 			res.json({success: true});
 		}

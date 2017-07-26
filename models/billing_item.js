@@ -1,5 +1,6 @@
 module.exports = function(database, DataTypes) {
 	const billing_item_edited_type = ['Doctor', 'Secretary'];
+	const billing_item_types = ["Medication", "Medical Procedure", "Others"];
 	
 	return database.define('billing_item', {
 		description: {
@@ -20,6 +21,12 @@ module.exports = function(database, DataTypes) {
 		receiptId: {
 			type: DataTypes.INTEGER,
 			allowNull: true,
+		},
+		type: {
+			type: DataTypes.ENUM,
+			values: billing_item_types,
+			allowNull: true,
+			defaultValue: "Others",
 		}
 	});
 }
