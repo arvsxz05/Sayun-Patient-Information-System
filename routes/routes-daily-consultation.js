@@ -614,6 +614,7 @@ module.exports = function(io) {
 	/////////////////////////////// POST ////////////////////////////////////
 
 	router.post('/add_daily_consultation', requireLoggedIn, function (req, res) {
+		console.log(req.body);
 		var date = new Date(req.body.date);
 		var date_iso = date.toISOString();
 		Consultation.count({
