@@ -354,7 +354,7 @@
                         }).done(function (data) {
                             if(data.success){
                                 for(var x = 0; x < med_rows.length; x++ ){
-                                     var med_bill_name = 'med-bill-' + med_rows[x].children("td:first").children("input").attr('id');
+                                    var med_bill_name = 'med-bill-' + med_rows[x].children("td:first").children("input").attr('id');
                                     edit_ipt_meds_table.row(med_rows[x]).remove().draw();
                                     edit_ipt_billing_table.row($("[name='" + med_bill_name + "']").parent().parent()).remove().draw();
                                 }

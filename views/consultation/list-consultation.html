@@ -28,9 +28,11 @@
 
     var add_cc_meds_table;
     var add_cc_med_procedures_table;
+    var add_cc_billing_table;
 
     var edit_cc_meds_table;
     var edit_cc_med_procedures_table;
+    var edit_cc_billing_table;
 
     function add_CC() {
         var currDate = getCurrDate().split("/");
@@ -54,6 +56,10 @@
 
         edit_med_id = null;
         edit_med_procedure_id = null;
+
+        if(add_cc_billing_table instanceof $.fn.dataTable.Api) {
+            add_cc_billing_table.destroy();
+        }
 
         if(add_cc_meds_table instanceof $.fn.dataTable.Api) {
             add_cc_meds_table.destroy();
@@ -112,6 +118,23 @@
         add_cc_meds_table.rows().remove().draw();
         add_cc_med_procedures_table.rows().remove().draw();
         {% endif %}
+
+        add_cc_billing_table = $('#add-cc-billing-information').DataTable({
+            "bSort": true, 
+            "aaSorting": [],
+            "paging":   false,
+            "ordering": false,
+            "info":     false,
+            "searching": false,
+            "aoColumns": [
+                { "bSortable": false },
+                { "bSortable": true },
+                { "bSortable": true }
+            ]    
+        });
+
+        add_cc_billing_table.rows().remove().draw();
+
     }
 
     function edit_CC (key) {
@@ -119,6 +142,12 @@
         $('#add-cc-view').hide();
         $('#edit-cc-view').show();
         $('#list-cc-view-link').show();
+
+        $('#edit-cc-billing-container').css('width', $('#edit-cc-billing-container').parent().css('width'));
+
+        $('#edit-cc-view select').val("");
+        $('#edit-cc-view input').not('#edit-cc-doctor').not('#hidden-cc-doctor').not('#edit-cc-p-id').not('#edit-cc-c-id').val("");
+        $('#edit-cc-view textarea').val("");
 
         $.ajax({
             type: "GET",
@@ -144,7 +173,11 @@
             $('#edit-cc-p-id').val(data['consultation']['id']);
             $('#edit-cc-c-id').val(data['consultation']['parent_record.id']);
 
-             if(edit_cc_meds_table instanceof $.fn.dataTable.Api) {
+            if(edit_cc_billing_table instanceof $.fn.dataTable.Api) {
+                edit_cc_billing_table.destroy();
+            }  
+
+            if(edit_cc_meds_table instanceof $.fn.dataTable.Api) {
                 edit_cc_meds_table.destroy();
                 edit_cc_med_procedures_table.destroy();
             }
@@ -264,6 +297,43 @@
                 uploadClass: 'btn btn-xs btn-default unique-name-edit-cc hidden',
             });
             {% endif %}
+
+            edit_cc_billing_table = $('#edit-cc-billing-information').DataTable({
+                "bSort": true, 
+                "aaSorting": [],
+                "paging":   false,
+                "ordering": false,
+                "info":     false,
+                "searching": false,
+                "aoColumns": [
+                    { "bSortable": false },
+                    { "bSortable": true },
+                    { "bSortable": true }
+                ]    
+            });
+
+            edit_cc_billing_table.rows().remove().draw();
+
+            for (var i = data['billing_items'].length - 1; i >= 0; i--) {
+                if(data['billing_items'][i].type == "Medication"){
+                    edit_cc_billing_table.row.add([
+                        '<input type="checkbox" id="' + data['billing_items'][i].id + 
+                        '" name="med-bill-' + data['billing_items'][i].receiptId + '"></input>',
+                        '<a>' + data['billing_items'][i].description + '</a>',
+                        data['billing_items'][i].amount
+                    ]).draw();
+                }
+                else if(data['billing_items'][i].type == "Medical Procedure"){
+                    edit_cc_billing_table.row.add([
+                        '<input type="checkbox" id="' + data['billing_items'][i].id + 
+                        '" name="med-procedure-bill-' + data['billing_items'][i].receiptId + '"></input>',
+                        '<a>' + data['billing_items'][i].description + '</a>',
+                        data['billing_items'][i].amount
+                    ]).draw();
+                }
+                
+            }
+
         });
     }
 </script>
