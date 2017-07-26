@@ -148,10 +148,18 @@
                                 {% for single_consultation in daily_consultation_list %}
                                 <tr>
                                     <td>{{ single_consultation['queue_no'] }}</td>
-                                    <td><a id="{{single_consultation['parent_record.patient.id']}}">{{ single_consultation['parent_record.patient.first_name'] }} {{ single_consultation['parent_record.patient.middle_name'] }} {{ single_consultation['parent_record.patient.last_name'] }} {{ single_consultation['parent_record.patient.suffix'] }}</a>
+                                    <td><a id="{{single_consultation['parent_record.patient.id']}}">{{ single_consultation['parent_record.patient.first_name'] }} 
+                                    {% if single_consultation['parent_record.patient.middle_name'] or single_consultation['parent_record.patient.middle_name'] != '' %}
+                                    {{ single_consultation['parent_record.patient.middle_name'] }} 
+                                    {% endif %}
+                                    {{ single_consultation['parent_record.patient.last_name'] }} {{ single_consultation['parent_record.patient.suffix'] }}</a>
                                     <input type="hidden" value="{{single_consultation['id']}}"></td>
                                     <td>{{ single_consultation['parent_record.hospital.name'] }}</td>
-                                    <td><input type="hidden" name="docId" value="{{single_consultation['parent_record.doctor.id']}}"> {{ single_consultation['parent_record.doctor.username.first_name'] }} {{ single_consultation['parent_record.doctor.username.middle_name'] }} {{ single_consultation['parent_record.doctor.username.last_name'] }} {{ single_consultation['parent_record.doctor.username.suffix'] }}</td>
+                                    <td><input type="hidden" name="docId" value="{{single_consultation['parent_record.doctor.id']}}">{{ single_consultation['parent_record.doctor.username.first_name'] }} 
+                                    {% if single_consultation['parent_record.doctor.username.middle_name'] or single_consultation['parent_record.doctor.username.middle_name'] != '' %}
+                                    {{ single_consultation['parent_record.doctor.username.middle_name'] }} 
+                                    {% endif %}
+                                    {{ single_consultation['parent_record.doctor.username.last_name'] }} {{ single_consultation['parent_record.doctor.username.suffix'] }}</td>
                                     <td>
                                         <select class="form-control change-status" name="{{ single_consultation['id'] }}">
                                             {% if single_consultation['status'] === 'Waiting' %}
@@ -229,7 +237,7 @@
                                             <div class="form-group">
                                                 <label class="col-sm-3 control-label" for="hospital">Hospital/Clinic*</label>
                                                 <div class="col-sm-9">
-                                                    <select class="form-control" id="hospital" name="hospital">
+                                                    <select class="form-control" id="hospital" name="hospital" required>
                                                       <option value="" selected disabled>Select Hospital/Clinic</option>
 
                                                         {% for hospital in hospitals %}
@@ -515,6 +523,8 @@
                                 '<option>Done</option>' +
                                 '<option selected>Current</option>';
                         }
+
+                        {% if single_daily_conslt['parent_record.doctor.username.suffix'] != null %}
                         queue_table.row.add([
                             single_daily_conslt['queue_no'],
                             '<a id="' + single_daily_conslt['parent_record.patient.id'] + '">' + 
@@ -529,9 +539,27 @@
                             single_daily_conslt['parent_record.doctor.username.first_name'] + ' ' + 
                             single_daily_conslt['parent_record.doctor.username.middle_name'] + ' ' + 
                             single_daily_conslt['parent_record.doctor.username.last_name'] + ' ' + 
-                            single_daily_conslt['parent_record.doctor.username.suffix'] ,
+                            single_daily_conslt['parent_record.doctor.username.suffix'],
                             select_status
                         ]).draw();
+                        {% else %}
+                        queue_table.row.add([
+                            single_daily_conslt['queue_no'],
+                            '<a id="' + single_daily_conslt['parent_record.patient.id'] + '">' + 
+                            single_daily_conslt['parent_record.patient.first_name'] + " " + 
+                            single_daily_conslt['parent_record.patient.middle_name'] + " " + 
+                            single_daily_conslt['parent_record.patient.last_name'] + " " + 
+                            single_daily_conslt['parent_record.patient.suffix'] + '</a>'+
+                            '<input type="hidden" value="' + single_daily_conslt['id'] + '">',
+                            
+                            single_daily_conslt['parent_record.hospital.name'],
+                            '<input type="hidden" name="docId" value="' + docId + '">' + 
+                            single_daily_conslt['parent_record.doctor.username.first_name'] + ' ' + 
+                            single_daily_conslt['parent_record.doctor.username.middle_name'] + ' ' + 
+                            single_daily_conslt['parent_record.doctor.username.last_name'],
+                            select_status
+                        ]).draw();
+                        {% endif %}
                     }
                 }
             });
@@ -620,6 +648,11 @@
             } else {
                 $("#add_daily_cc_error").html(data.error);
             }
+
+            $('#add-daily-consultation-form select').val("");
+            $('#add-daily-consultation-form input').val("");
+            $("#daily-cc-div").addClass("hidden");
+            $('#add-daily-cc-btn').attr('disabled', true);
         });
     });
     $('#delete-daily-cc').click(function(e) {

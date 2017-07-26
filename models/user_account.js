@@ -26,7 +26,7 @@ module.exports = function(database, DataTypes) {
 		},
 		middle_name: {
 			type: DataTypes.STRING(30),
-			allowNull: false,
+			allowNull: true,
 			set(val) {
 		    	this.setDataValue('middle_name', val.toUpperCase());
 		    }

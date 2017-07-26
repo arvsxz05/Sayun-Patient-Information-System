@@ -1236,13 +1236,24 @@
                 }
             }).done(function (data) {
                 edit_cc_meds_table.row.add([
-                    '<input type="checkbox" id="' + data.id + '" name="' + data.id + '"></input>',
+                    '<input type="checkbox" id="' + data['medication_id'] + '" name="' + data['medication_id'] + '"></input>',
                     '<a>' + $('#add-med-name').val() + '</a>',
                     $('#add-med-dosage').val(),
                     $('#add-med-frequency').val(),
                     $('#add-med-type').val(),
                     $('#add-med-instructions').val()
                 ]).draw();
+
+                edit_cc_billing_table.row.add([
+                    '<input type="checkbox"  id="' + data['billing_item_id'] + '" name="med-bill-' + data['medication_id'] +'"></input>',
+                    $('#add-med-name').val(),
+                    "0"
+                ]).draw();
+
+                $('#edit-cc-billing').parent().children('b').children().text("▾ Hide Billing Information");
+                $('#edit-cc-billing').slideDown(600);
+
+
                 showSnackBar('Medication for this Consultation was successfully added.');
                 $('#add-medication-modal').modal('toggle');
                 $('#add-medication-modal input').val("");
@@ -1306,6 +1317,15 @@
                     $('#add-med-type').val(),
                     $('#add-med-instructions').val()
                 ]).draw();
+
+                add_cc_billing_table.row.add([
+                    '<input type="checkbox" id="med-bill-' + cc_med_id_counter +'" name=""></input>',
+                    $('#add-med-name').val(),
+                    "0"
+                ]).draw();
+
+                $('#add-cc-billing').parent().children('b').children().text("▾ Hide Billing Information");
+                $('#add-cc-billing').slideDown(600);
 
                 $('#add-cc-select-all-meds').prop('checked', false);
                 cc_med_id_counter++;
@@ -1412,13 +1432,23 @@
                 }
             }).done(function (data) {
                 edit_cc_med_procedures_table.row.add([
-                    '<input type="checkbox" id="' + data.id + '" name="' + data.id + '"></input>', //idk UNSAON ANG NAME AND ID ANI FOR DELETION
+                    '<input type="checkbox" id="' + data['medical_procedure_id'] + '" name="' + data['medical_procedure_id'] + '"></input>', //idk UNSAON ANG NAME AND ID ANI FOR DELETION
                     '<a>' + $("#add-med-procedure-date select[name='date_[year]']").val() + '-' + 
                     $("#add-med-procedure-date select[name='date_[month]']").val() + '-' +
                     $("#add-med-procedure-date select[name='date_[day]']").val() + '</a>',
                     $('#add-med-procedure-description').val(),
                     $('#add-med-procedure-details').val()
                 ]).draw();
+
+                edit_cc_billing_table.row.add([
+                    '<input type="checkbox"  id="' + data['billing_item_id'] + '" name="med-procedure-bill-' + data['medical_procedure_id'] +'"></input>',
+                    $('#add-med-procedure-description').val(),
+                    "0"
+                ]).draw();
+
+                $('#edit-cc-billing').parent().children('b').children().text("▾ Hide Billing Information");
+                $('#edit-cc-billing').slideDown(600);
+
                 showSnackBar('Medical Procedure for this Consultation was successfully added.');
                 $('#add-med-procedure-modal').modal('toggle');
                 $('#add-med-procedure-modal input').val("");
@@ -1482,6 +1512,17 @@
                     $('#add-med-procedure-details').val()
                 ]).draw();
 
+
+                add_cc_billing_table.row.add([
+                    '<input type="checkbox" id="med-procedure-bill-' + cc_med_proc_id_counter +'" name=""></input>',
+                    $('#add-med-procedure-description').val(),
+                    "0"
+                ]).draw();
+
+                $('#add-cc-billing').parent().children('b').children().text("▾ Hide Billing Information");
+                $('#add-cc-billing').slideDown(600);
+
+
                 $('#add-cc-select-all-med-procedures').prop('checked', false);
                 cc_med_proc_id_counter++;
             }
@@ -1544,6 +1585,14 @@
                     $('#edit-med-type').val(),
                     $('#edit-med-instructions').val()
                 ]).draw();
+
+                var bill_name = edit_med_id;
+                edit_cc_billing_table.row($("[name='med-bill-" + edit_med_id + "']").parent().parent()).data([
+                    $("[name='med-bill-" + edit_med_id + "']").parent().html(),
+                    $('#edit-med-name').val(),
+                    $("[name='med-bill-" + edit_med_id + "']").parent().parent().children("td:last").html()
+                    ]).draw();
+
             }
             else{
                 meds.row(edit_med_caller).data([
@@ -1617,6 +1666,13 @@
                     $('#edit-med-type').val(),
                     $('#edit-med-instructions').val()
                 ]).draw();
+
+                var temp_id = 'med-bill-' + edit_med_caller.children('td:first').children("input").attr("id");
+                add_cc_billing_table.row($('#' + temp_id).parent().parent()).data([
+                    '<input type="checkbox" id="' + temp_id +'" name=""></input>',
+                    $('#edit-med-name').val(),
+                    "0"
+                    ]).draw();
             }
             else{
                 meds.row(edit_med_caller).data([
@@ -1684,6 +1740,13 @@
                     $('#edit-med-procedure-description').val(),
                     $('#edit-med-procedure-details').val()
                 ]).draw();
+
+                var bill_name = edit_med_procedure_id;
+                edit_cc_billing_table.row($("[name='med-procedure-bill-" + edit_med_procedure_id + "']").parent().parent()).data([
+                    $("[name='med-procedure-bill-" + edit_med_procedure_id + "']").parent().html(),
+                    $('#edit-med-procedure-description').val(),
+                    $("[name='med-procedure-bill-" + edit_med_procedure_id + "']").parent().parent().children("td:last").html()
+                    ]).draw();
             }
             else{
                 med_procedures.row(edit_med_procedure_caller).data([
@@ -1760,6 +1823,14 @@
                     $('#edit-med-procedure-description').val(),
                     $('#edit-med-procedure-details').val()
                 ]).draw();
+
+                var temp_id = 'med-procedure-bill-' + edit_med_procedure_caller.children('td:first').children("input").attr("id");
+                
+                add_cc_billing_table.row($('#' + temp_id).parent().parent()).data([
+                    '<input type="checkbox" id="' + temp_id +'" name=""></input>',
+                    $('#edit-med-procedure-description').val(),
+                    "0"
+                    ]).draw();
             }
             else{
                 med_procedures.row(edit_med_procedure_caller).data([

@@ -33,7 +33,6 @@ function requireDoctor(req, res, next) {
 router.get('/patient_medication_list/:patient_id', requireLoggedIn, requireDoctor, function(req, res) {
 
 	var key = req.params.patient_id;
-	var ipts = [], opts = [], ccs = [];
 	var currResult;
 
 	InPatient_Treatment.findAll({
@@ -51,6 +50,9 @@ router.get('/patient_medication_list/:patient_id', requireLoggedIn, requireDocto
 				model: Medication,
 				as: 'medication',
 				required: true,
+				where: {
+					type: "Maintenance",
+				}
 			}]
 		}],
 		raw: true,
@@ -58,9 +60,7 @@ router.get('/patient_medication_list/:patient_id', requireLoggedIn, requireDocto
 			active: true
 		},
 		attributes: ['id', 'conf_date'],
-	}).then(function(results){
-		ipts = results;
-
+	}).then(function(ipts){
 		OutPatient_Treatment.findAll({
 			include: [{
 				model: Check_Up,
@@ -76,6 +76,9 @@ router.get('/patient_medication_list/:patient_id', requireLoggedIn, requireDocto
 					model: Medication,
 					as: 'medication',
 					required: true,
+					where: {
+						type: "Maintenance",
+					}
 				}]
 			}],
 			raw: true,
@@ -83,9 +86,7 @@ router.get('/patient_medication_list/:patient_id', requireLoggedIn, requireDocto
 				active: true,
 			},
 			attributes: ['id', 'date'],
-		}).then(function(results){
-			opts = results;
-
+		}).then(function(opts){
 			Consultation.findAll({
 				include: [{
 					model: Check_Up,
@@ -101,13 +102,14 @@ router.get('/patient_medication_list/:patient_id', requireLoggedIn, requireDocto
 						model: Medication,
 						as: 'medication',
 						required: true,
+						where: {
+							type: "Maintenance",
+						}
 					}]
 				}],
 				raw: true,
 				attributes: ['id', 'date'],
-			}).then(function(results){
-				ccs = results;
-
+			}).then(function(ccs){
 				res.json({
 					meds: ipts.concat(opts.concat(ccs)),
 				})
