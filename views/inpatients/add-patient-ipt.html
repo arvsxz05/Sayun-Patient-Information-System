@@ -330,9 +330,8 @@ function show_billing(div, caller) {
                 billing_item.push({
                     description: add_ipt_billing_table.rows().data()[i][1],
                     amount: add_ipt_billing_table.rows().data()[i][2],
-                    last_edited: "Doctor",
+                    last_edited: "{{session.user}}",
                     issued_by: "{{session.user}}",
-
                 });
             }
 

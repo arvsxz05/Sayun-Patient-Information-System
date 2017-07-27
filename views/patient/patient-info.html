@@ -394,11 +394,11 @@
                                         </div>
                                     </div>
 
-                                    <!-- <a id="list-diagnoses-view-link" onclick="view_diagnoses()">Back to Diagnoses List</a> -->
+                                    <!-- <a id="list-billing-view-link" onclick="view_billing()">Back to Billing List</a> -->
                                     <hr>
-                                    <!-- DIAGNOSES TABLE -->
+                                    <!-- BILLING TABLE -->
                                         {% include "../billing/list-billing.html" %}
-                                    <!-- END OF DIAGNOSES TABLE -->                    
+                                    <!-- END OF BILLING TABLE -->                    
                                 </div>
                             </div>
                         </div>
@@ -723,6 +723,13 @@
                     url: "/patient_diagnoses_list/{{patient.id}}",
                 }).done(updateDiagnosesListRows);
             }
+
+            else if($('#billing').hasClass('active')){
+                $.ajax({
+                    type: "GET",
+                    url: "/patient_diagnoses_list/{{patient.id}}",
+                }).done(updateDiagnosesListRows);
+            }
         }
         else{
             $('a[href="#patient-info"]').tab('show');
@@ -747,6 +754,7 @@
     var CC_List_Table;
     var Medication_List_Table;
     var Diagnoses_List_Table;
+    var Billing_List_Table;
 
     (function($) {
       fakewaffle.responsiveTabs(['xs', 'sm']);
@@ -844,6 +852,13 @@
                         type: "GET",
                         url: "/patient_diagnoses_list/{{patient.id}}",
                     }).done(updateDiagnosesListRows);
+                }
+
+                else if($('#billing').hasClass('active')){
+                    $.ajax({
+                        type: "GET",
+                        url: "/billing_list/{{patient.id}}",
+                    }).done(updateBillingListRows);
                 }
 
                 $('#list-cc-view-link').hide();
