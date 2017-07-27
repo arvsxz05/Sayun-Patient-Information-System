@@ -371,6 +371,77 @@
         }
     }
     {% endif %}
+
+    // DELETING ROWS FOR BILLING
+    $('#edit-cc-select-all-billing-items').change(function(){  //"select all" change 
+        var status = this.checked; // "select all" checked status
+        $('#edit-cc-billing-information tbody input:checkbox').each(function(){ //iterate all listed checkbox items
+            this.checked = status; //change ".checkbox" checked status
+        });
+    });
+
+    $("#edit-cc-billing-information tbody").on('click', ':checkbox', function(){
+        $('#edit-cc-select-all-billing-items').prop('checked', $('#edit-cc-billing-information tbody input:checkbox').length == $('#edit-cc-billing-information tbody input:checkbox:checked').length);
+    });
+
+    function edit_cc_delete_billing(){
+        var bill_rows= [];
+        var bill_ids = [];
+
+        $("#edit-cc-billing-information tbody input:checkbox").each(function(){
+            var $this = $(this);
+            if($this.is(":checked")){
+                bill_rows.push($this.parent().parent());
+            }
+        });
+
+        if(bill_rows.length > 0) {
+            $.confirm({
+                title: "Delete Billing item/s",
+                content: "Are you sure you want to delete billing item record/s? This cannot be undone.",
+                buttons: {
+                    Confirm: function () {
+
+                        for(var x = 0; x < bill_rows.length; x++ ){
+                            bill_ids.push(bill_rows[x].children('td:first').children('input').attr('id'));
+                        }
+
+                        $('#edit-cc-select-all-billing-items').prop('checked', false);
+                        console.log(bill_ids);
+                        $.ajax({
+                            type: "POST",
+                            url: "/billing_item_delete",
+                            data: {
+                                "billing_items" : bill_ids,
+                            }
+                        }).done(function (data) {
+                            if(data.success){
+                                for(var x = 0; x < bill_rows.length; x++ ){
+                                    // var med_bill_name = 'med-bill-' + med_rows[x].children("td:first").children("input").attr('id');
+                                    edit_cc_billing_table.row(bill_rows[x]).remove().draw();
+                                    // edit_ipt_billing_table.row($("[name='" + med_bill_name + "']").parent().parent()).remove().draw();
+                                }
+                                $.alert({
+                                    title: 'Delete Billing item/s',
+                                    content: 'Delete has been successful.'
+                                });
+                            }
+                            else{
+                                $.alert({
+                                    title: 'Error',
+                                    content: 'An error occured.'
+                                });
+                            }
+                        });
+                    },
+                    Cancel: function () {
+                        // $.alert('Canceled!');
+                    },
+                }
+            });
+        }
+    }
+    // 
     
     $('#delete-cc-button').click(function(e) {
         // CONFIRM DIALOG DELETE

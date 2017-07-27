@@ -594,8 +594,8 @@ router.post('/billing_item_edit/:billing_item_id', requireLoggedIn, function(req
 	});
 });
 
-router.post('/billing_item_delete/:billing_item_id', requireLoggedIn, requireDoctor, function(req, res){
-	var key = req.params.billing_item_id;
+router.post('/billing_item_delete', requireLoggedIn, requireDoctor, function(req, res){
+	var key = req.body['billing_items'];
 	Billing_Item.destroy({
 		where: {
 			id: key

@@ -158,4 +158,41 @@
         console.log('File batch upload complete');
         $("#add-lab-form").submit();
     });
+
+
+    // DELETING ROWS FOR BILLING
+    $('#add-lab-select-all-billing-items').change(function(){  //"select all" change 
+        var status = this.checked; // "select all" checked status
+        $('#add-lab-billing-information tbody input:checkbox').each(function(){ //iterate all listed checkbox items
+            this.checked = status; //change ".checkbox" checked status
+        });
+    });
+
+    $("#add-lab-billing-information tbody").on('click', ':checkbox', function(){
+        $('#add-lab-select-all-billing-items').prop('checked', $('#add-lab-billing-information tbody input:checkbox').length == $('#add-lab-billing-information tbody input:checkbox:checked').length);
+    });
+
+    function add_lab_delete_billing(){
+        var bill_rows= [];
+
+        $("#add-lab-billing-information tbody input:checkbox").each(function(){
+            var $this = $(this);
+            if($this.is(":checked")){
+                bill_rows.push($this.parent().parent());
+            }
+        });
+
+        if(bill_rows.length > 0 && confirm("Are you sure you want to delete billing items? This cannot be undone.")){
+            for(var x = 0; x < bill_rows.length; x++ ){
+                // var med_bill_id = '#med-bill-' + med_rows[x].children("td:first").children("input").attr('id');
+                
+                add_lab_billing_table.row(bill_rows[x]).remove().draw();
+                // add_ipt_billing_table.row($(med_bill_id).parent().parent()).remove().draw();
+            }
+
+            $('#add-lab-select-all-billing-items').prop('checked', false);
+
+        }
+    }
+    // 
 </script>
