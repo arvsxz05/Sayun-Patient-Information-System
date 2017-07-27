@@ -84,7 +84,7 @@
             edit_med_caller = $(this).parent().parent();
             edit_med_caller_type = "CC";
 
-            $('#edit-medication-modal').modal('toggle');
+            $('#edit-medication-modal').modal('show');
             $('#edit-med-name').val(data[1].substring(data[1].indexOf(">") + 1, data[1].length-4));
             $('#edit-med-dosage').val(data[2]);
             $('#edit-med-frequency').val(data[3]);
@@ -107,7 +107,7 @@
 
             edit_med_procedure_caller_type = "CC";
             
-            $('#edit-med-procedure-modal').modal('toggle');
+            $('#edit-med-procedure-modal').modal('show');
             $('#edit-med-procedure-date select[name="date_[month]"').val(data[1].substring(data[1].indexOf(">") + 1, data[1].length-4).substring(5, 7));
             $('#edit-med-procedure-date select[name="date_[day]"').val(data[1].substring(data[1].indexOf(">") + 1, data[1].length-4).substring(8, 10));
             $('#edit-med-procedure-date select[name="date_[year]"').val(data[1].substring(data[1].indexOf(">") + 1, data[1].length-4).substring(0, 4));
@@ -134,6 +134,15 @@
                 { "bSortable": true },
                 { "bSortable": true }
             ]    
+        }).on('click', 'tbody tr td:nth-child(2) a', function () {
+            var data = add_cc_billing_table.row($(this).parent().parent()).data();
+            edit_billing_caller = $(this).parent().parent();
+
+            edit_billing_caller_type = "CC";
+            
+            $('#edit-billing-modal').modal('show');
+            $('#edit-billing-modal #edit-billing-description').val(data[1].substring(data[1].indexOf(">") + 1, data[1].length-4));
+            $('#edit-billing-modal #edit-billing-amount').val(data[2]);
         });
 
         add_cc_billing_table.rows().remove().draw();
@@ -316,6 +325,16 @@
                     { "bSortable": true },
                     { "bSortable": true }
                 ]    
+            }).on('click', 'tbody tr td:nth-child(2) a', function () {
+                var data = edit_cc_billing_table.row($(this).parent().parent()).data();
+                edit_billing_caller = $(this).parent().parent();
+
+                edit_billing_caller_type = "CC";
+                edit_billing_id = data[0].substring(data[0].indexOf("name") + 6, data[0].length - 10);
+                
+                $('#edit-billing-modal').modal('show');
+                $('#edit-billing-modal #edit-billing-description').val(data[1].substring(data[1].indexOf(">") + 1, data[1].length-4));
+                $('#edit-billing-modal #edit-billing-amount').val(data[2]);
             });
 
             edit_cc_billing_table.rows().remove().draw();

@@ -138,7 +138,10 @@
                             </tbody>
                         </table>
                     </div>
-                    <hr>
+                    <div class="button-group">
+                        <a class="btn btn-red pull-right btn-icon" onclick="add_cc_delete_billing()" name="delete" value="true" id=""><span class="glyphicon glyphicon-trash"></span></a>
+                        <a href class="btn btn-lime pull-right btn-icon" id="cc-add-billing-button" data-toggle="modal" data-target="#add-billing-modal"><span class="glyphicon glyphicon-plus"></span></a>
+                    </div>
                 </div>
             </div>
         </div>
@@ -202,8 +205,9 @@
             }
 
             for(var i = 0; i < add_cc_billing_table.rows().data().length; i++) {
+                var item = add_cc_billing_table.rows().data()[i][1];
                 billings.push({
-                    description: add_cc_billing_table.rows().data()[i][1],
+                    description: item.substring(item.indexOf(">") + 1, item.length - 4),
                     ammount: add_cc_billing_table.rows().data()[i][2],
                     last_edited: "{{user.id}}",
                     issued_by: "{{user.id}}",
@@ -237,8 +241,9 @@
         }
         {% else %}
         for(var i = 0; i < add_cc_billing_table.rows().data().length; i++) {
+            var item = add_cc_billing_table.rows().data()[i][1];
             billings.push({
-                description: add_cc_billing_table.rows().data()[i][1],
+                description: item.substring(item.indexOf(">") + 1, item.length - 4),
                 ammount: add_cc_billing_table.rows().data()[i][2],
                 last_edited: "{{user.id}}",
                 issued_by: "{{user.id}}",

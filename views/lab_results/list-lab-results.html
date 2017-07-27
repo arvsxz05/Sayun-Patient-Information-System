@@ -24,87 +24,171 @@
 </div>
 <!-- END OF LAB RESULTS TABLE -->
 
-		<script type="text/javascript">
-			function add_lab() {
-				var currDate = getCurrDate().split("/");
+<script type="text/javascript">
+	var add_lab_billing_table;
+    var edit_lab_billing_table;
 
-	            $('#list-lab-view').hide();
-	            $('#add-lab-view').show();
-	            $('#edit-lab-view').hide();
-	            $('#list-lab-view-link').show();
 
-	            $('#lab-date-div select[name="date_[year]"]').val(currDate[0]);
+	function add_lab() {
+		var currDate = getCurrDate().split("/");
 
-		        $('#lab-date-div select[name="date_[month]"]').val(currDate[1]);
+        $('#list-lab-view').hide();
+        $('#add-lab-view').show();
+        $('#edit-lab-view').hide();
+        $('#list-lab-view-link').show();
 
-		        $('#lab-date-div select[name="date_[day]"]').val(currDate[2]);
+        $('#add-lab-view input').not('#lab-patient-id').val("");
+        $('#add-lab-view select').val("");
+        $('#add-lab-view textarea').val("");
 
-		        $('#lab-date').val(currDate[0] + "-" + currDate[1] +"-" + currDate[2]);
-	        }
+        $('#lab-date-div select[name="date_[year]"]').val(currDate[0]);
 
-	        function edit_Lab (lab_id) {
-	        	$('#list-lab-view').hide();
-		        $('#add-lab-view').hide();
-		        $('#edit-lab-view').show();
-		        $('#list-lab-view-link').show();
+        $('#lab-date-div select[name="date_[month]"]').val(currDate[1]);
 
-		        var key = $("#" + lab_id).attr('value');
+        $('#lab-date-div select[name="date_[day]"]').val(currDate[2]);
 
-		    	$.ajax({
-		            type: "GET",
-		            url: "/laboratory_edit/"+key,
-		        }).done(function (data) {
-		        	var date = data.lab_result['date'].split("-");
-		        	$("#lab-edit-id").val(data.lab_result['id']);
-		        	$("#edit-lab-date-div select[name='date_[year]']").val(date[0]);
-		        	$("#edit-lab-date-div select[name='date_[month]']").val(date[1]);
-		        	$("#edit-lab-date-div select[name='date_[day]']").val(date[2]);
-		        	$("#edit-lab-date").val(data.lab_result['date']);
-		        	$("#lab-edit-hospital").val(data.lab_result['hospitalName']);
-		        	$("#lab-edit-description").val(data.lab_result['description']);
-		        	$("#lab-edit-notes").val(data.lab_result['notes']);
-		        	var edit_attachments_init = [], edit_attachments_config = [];
+        $('#lab-date').val(currDate[0] + "-" + currDate[1] +"-" + currDate[2]);
 
-		        	for (var i = data.lab_result.attachments.length - 1; i >= 0; i--) {
 
-		        		var file_path = "\\" + data.lab_result.attachments[i];
+        edit_billing_id = null;
 
-		        		edit_attachments_init.push(file_path);
 
-		        		var rev_file_path = file_path.split("").reverse().join("");
-		        		var rev_file_name = rev_file_path.substring(0, rev_file_path.indexOf('\\'));
-		        		var file_name = rev_file_name.split("").reverse().join("");
-		        		var mime_type = file_path.split('.').pop();
+        if(add_lab_billing_table instanceof $.fn.dataTable.Api) {
+            add_lab_billing_table.destroy();
+        }
 
-		        		var type_mapping = getMimeByExt(mime_type.toLowerCase());
+        add_lab_billing_table = $('#add-lab-billing-information').DataTable({
+            "bSort": true, 
+            "aaSorting": [],
+            "paging":   false,
+            "ordering": false,
+            "info":     false,
+            "searching": false,
+            "aoColumns": [
+                { "bSortable": false },
+                { "bSortable": true },
+                { "bSortable": true }
+            ]    
+        }).on('click', 'tbody tr td:nth-child(2) a', function () {
+            var data = add_lab_billing_table.row($(this).parent().parent()).data();
+            edit_billing_caller = $(this).parent().parent();
 
-		        		edit_attachments_config.push({
-		        			caption: file_name,
-		        			type: type_mapping,
-		        			url: '/delete_files_lab/' + data.lab_result['id'],	
-		        			key: data.lab_result.attachments[i]
-		        		});
-		        	};
+            edit_billing_caller_type = "Lab";
+            
+            $('#edit-billing-modal').modal('toggle');
+            $('#edit-billing-modal #edit-billing-description').val(data[1].substring(data[1].indexOf(">") + 1, data[1].length-4));
+            $('#edit-billing-modal #edit-billing-amount').val(data[2]);
+        });
 
-			        $("#lab-edit-attachments").fileinput({
-			            // showUpload: false,
-			            uploadUrl: '/upload_files_edit_lab_results/' + data.lab_result['id'],
-			            browseOnZoneClick: true,
-			            initialPreview: edit_attachments_init,
-			            initialPreviewAsData: true,
-			            initialPreviewConfig: edit_attachments_config,
-			            overwriteInitial: false,
-			            layoutTemplates: {
-			                actions: '<div class="file-actions">\n' +
-			                '    <div class="file-footer-buttons">\n' +
-			                '        {delete} {zoom} {other}' +
-			                '    </div>\n' +
-			                '    {drag}\n' +
-			                '    <div class="clearfix"></div>\n' +
-			                '</div>'
-			            },
-			            uploadClass: 'btn btn-xs btn-default unique-name-edit-lab hidden',
-			        });
-		        });
-		    }
-		</script>
+        add_lab_billing_table.rows().remove().draw();
+
+
+    }
+
+    function edit_Lab (lab_id) {
+    	$('#list-lab-view').hide();
+        $('#add-lab-view').hide();
+        $('#edit-lab-view').show();
+        $('#list-lab-view-link').show();
+
+        var key = $("#" + lab_id).attr('value');
+
+        if(edit_lab_billing_table instanceof $.fn.dataTable.Api) {
+            edit_lab_billing_table.destroy();
+        }
+
+        edit_lab_billing_table = $('#edit-lab-billing-information').DataTable({
+            "bSort": true, 
+            "aaSorting": [],
+            "paging":   false,
+            "ordering": false,
+            "info":     false,
+            "searching": false,
+            "aoColumns": [
+                { "bSortable": false },
+                { "bSortable": true },
+                { "bSortable": true }
+            ]    
+        }).on('click', 'tbody tr td:nth-child(2) a', function () {
+            var data = edit_lab_billing_table.row($(this).parent().parent()).data();
+            edit_billing_caller = $(this).parent().parent();
+
+            edit_billing_caller_type = "Lab";
+            edit_billing_id = data[0].substring(data[0].indexOf("name") + 6, data[0].length - 10);
+            
+            $('#edit-billing-modal').modal('toggle');
+            $('#edit-billing-modal #edit-billing-description').val(data[1].substring(data[1].indexOf(">") + 1, data[1].length-4));
+            $('#edit-billing-modal #edit-billing-amount').val(data[2]);
+        });
+
+        edit_lab_billing_table.rows().remove().draw();
+
+    	$.ajax({
+            type: "GET",
+            url: "/laboratory_edit/"+key,
+        }).done(function (data) {
+        	var date = data.lab_result['date'].split("-");
+        	$("#lab-edit-id").val(data.lab_result['id']);
+        	$("#edit-lab-date-div select[name='date_[year]']").val(date[0]);
+        	$("#edit-lab-date-div select[name='date_[month]']").val(date[1]);
+        	$("#edit-lab-date-div select[name='date_[day]']").val(date[2]);
+        	$("#edit-lab-date").val(data.lab_result['date']);
+        	$("#lab-edit-hospital").val(data.lab_result['hospitalName']);
+        	$("#lab-edit-description").val(data.lab_result['description']);
+        	$("#lab-edit-notes").val(data.lab_result['notes']);
+        	var edit_attachments_init = [], edit_attachments_config = [];
+
+        	for (var i = data.lab_result.attachments.length - 1; i >= 0; i--) {
+
+        		var file_path = "\\" + data.lab_result.attachments[i];
+
+        		edit_attachments_init.push(file_path);
+
+        		var rev_file_path = file_path.split("").reverse().join("");
+        		var rev_file_name = rev_file_path.substring(0, rev_file_path.indexOf('\\'));
+        		var file_name = rev_file_name.split("").reverse().join("");
+        		var mime_type = file_path.split('.').pop();
+
+        		var type_mapping = getMimeByExt(mime_type.toLowerCase());
+
+        		edit_attachments_config.push({
+        			caption: file_name,
+        			type: type_mapping,
+        			url: '/delete_files_lab/' + data.lab_result['id'],	
+        			key: data.lab_result.attachments[i]
+        		});
+        	};
+
+	        $("#lab-edit-attachments").fileinput({
+	            // showUpload: false,
+	            uploadUrl: '/upload_files_edit_lab_results/' + data.lab_result['id'],
+	            browseOnZoneClick: true,
+	            initialPreview: edit_attachments_init,
+	            initialPreviewAsData: true,
+	            initialPreviewConfig: edit_attachments_config,
+	            overwriteInitial: false,
+	            layoutTemplates: {
+	                actions: '<div class="file-actions">\n' +
+	                '    <div class="file-footer-buttons">\n' +
+	                '        {delete} {zoom} {other}' +
+	                '    </div>\n' +
+	                '    {drag}\n' +
+	                '    <div class="clearfix"></div>\n' +
+	                '</div>'
+	            },
+	            uploadClass: 'btn btn-xs btn-default unique-name-edit-lab hidden',
+	        });
+
+	        for (var i = data['billing_items'].length - 1; i >= 0; i--) {
+                edit_lab_billing_table.row.add([
+                    '<input type="checkbox" id="' + data['billing_items'][i].id + 
+                    '" name="' + data['billing_items'][i].id + '"></input>',
+                    '<a>' + data['billing_items'][i].description + '</a>',
+                    data['billing_items'][i].amount
+                ]).draw();
+                
+            }
+
+        });
+    }
+</script>

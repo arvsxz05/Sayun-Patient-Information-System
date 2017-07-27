@@ -200,6 +200,16 @@ var $window = $(window),
             $('#edit-cc-billing-container').css('width', 'auto');
             $('#edit-cc-billing-container').removeClass('affix');
             // 
+
+            // LAB
+            $('#add-lab-billing-container').css('top', 'auto');
+            $('#add-lab-billing-container').css('width', 'auto');
+            $('#add-lab-billing-container').removeClass('affix');
+
+            $('#edit-lab-billing-container').css('top', 'auto');
+            $('#edit-lab-billing-container').css('width', 'auto');
+            $('#edit-lab-billing-container').removeClass('affix');
+            // 
             
         }
         else{
@@ -231,6 +241,15 @@ var $window = $(window),
 
             // 
 
+            // LAB
+            $('#add-lab-billing-container').css('top', '0px');
+            $('#add-lab-billing-container').css('width', $('#add-lab-billing-container').parent().css('width'));
+
+            $('#edit-lab-billing-container').css('top', '0px');
+            $('#edit-lab-billing-container').css('width', $('#edit-lab-billing-container').parent().css('width'));
+
+            // 
+
 
 
             if($window.scrollTop() > elTop){
@@ -248,6 +267,11 @@ var $window = $(window),
                 $('#add-cc-billing-container').addClass('affix');
                 $('#edit-cc-billing-container').addClass('affix');
                 // 
+
+                // LAB
+                $('#add-lab-billing-container').addClass('affix');
+                $('#edit-lab-billing-container').addClass('affix');
+                //
             }
             else{
                 // IPT
@@ -264,6 +288,12 @@ var $window = $(window),
                 // CC
                 $('#add-cc-billing-container').removeClass('affix');
                 $('#edit-cc-billing-container').removeClass('affix');
+
+                // 
+
+                // LAB
+                $('#add-lab-billing-container').removeClass('affix');
+                $('#edit-lab-billing-container').removeClass('affix');
 
                 // 
             }
@@ -307,7 +337,7 @@ function show_billing(div, caller) {
         ipt_billing_id_counter = 1;
 
 
-        var billing_item = [];
+        var billings = [];
 
         {% if doctor %}
         var files = $('#add-ipt-attachments').fileinput('getFileStack');
@@ -337,8 +367,9 @@ function show_billing(div, caller) {
             }
             console.log("in here add_ipt_billing_table");
             for(var i = 0; i < add_ipt_billing_table.rows().data().length; i++){
-                billing_item.push({
-                    description: add_ipt_billing_table.rows().data()[i][1],
+                var item = add_ipt_billing_table.rows().data()[i][1];
+                billings.push({
+                    description: item.substring(item.indexOf(">") + 1, item.length - 4),
                     amount: add_ipt_billing_table.rows().data()[i][2],
                     last_edited: "{{user.id}}",
                     issued_by: "{{user.id}}",
@@ -359,7 +390,7 @@ function show_billing(div, caller) {
                     'p-id': $("#ipt-p-id").val(),
                     'meds':  medication,
                     'med_procedures': med_procedure,
-                    'billings': billing_item,
+                    'billings': billings,
                 }
             }).done(function (data) {
                 if(data.success) {
@@ -373,8 +404,9 @@ function show_billing(div, caller) {
         }
         {% else %}
         for(var i = 0; i < add_ipt_billing_table.rows().data().length; i++){
-            billing_item.push({
-                description: add_ipt_billing_table.rows().data()[i][1],
+            var item = add_ipt_billing_table.rows().data()[i][1];
+            billings.push({
+                description: item.substring(item.indexOf(">") + 1, item.length - 4),
                 amount: add_ipt_billing_table.rows().data()[i][2],
                 last_edited: "{{user.id}}",
                 issued_by: "{{user.id}}",

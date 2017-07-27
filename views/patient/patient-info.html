@@ -2020,86 +2020,76 @@
                     $('#add-billing-amount').val()
                 ]).draw();
 
-                showSnackBar('Billing item for this IPT Record was successfully added.');
+                showSnackBar('Billing item successfully added.');
                 $('#add-billing-modal').modal('toggle');
                 $('#add-billing-modal input').val("");
             });
         }
-        else if(billing_modal_caller == 'edit-opt-add-med-button') {
+        else if(billing_modal_caller == 'edit-opt-add-billing-button') {
             var cu = $('#edit-c-id').val();
             $.ajax({
                 type: "POST",
-                url: "/opt_edit_add_medication/"+cu,
+                url: "/billing_item_add_check_up/"+cu,
                 data: {                
-                    'name': $('#add-med-name').val(),
-                    'dosage': $('#add-med-dosage').val(),
-                    'frequency': $('#add-med-frequency').val(),
-                    'type': $('#add-med-type').val(),
-                    'notes': $('#add-med-instructions').val()
+                    'description': $('#add-billing-description').val(),
+                    'amount': $('#add-billing-amount').val(),
                 }
             }).done(function (data) {
-                edit_opt_meds_table.row.add([
-                    '<input type="checkbox" id="' + data['medication_id'] + '" name="' + data['medication_id'] + '"></input>',
-                    '<a>' + $('#add-med-name').val() + '</a>',
-                    $('#add-med-dosage').val(),
-                    $('#add-med-frequency').val(),
-                    $('#add-med-type').val(),
-                    $('#add-med-instructions').val()
-                ]).draw();
-
                 edit_opt_billing_table.row.add([
                     '<input type="checkbox"  id="' + data['billing_item_id'] + '" name="' + data['billing_item_id'] +'"></input>',
-                    $('#add-med-name').val(),
-                    "0"
+                    '<a>' + $('#add-billing-description').val() + '</a>',
+                    $('#add-billing-amount').val()
                 ]).draw();
 
-                $('#edit-opt-billing').parent().children('b').children().text("▾ Hide Billing Information");
-                $('#edit-opt-billing').slideDown(600);
-
-                showSnackBar('Medication for this OPT Record was successfully added.');
-                $('#add-medication-modal').modal('toggle');
-                $('#add-medication-modal input').val("");
-                $('#add-medication-modal select').val("");
-                $('#add-medication-modal textarea').val("");
+                showSnackBar('Billing item successfully added.');
+                $('#add-billing-modal').modal('toggle');
+                $('#add-billing-modal input').val("");
             });
         } 
-        else if(billing_modal_caller == 'edit-cc-add-med-button') {
+        else if(billing_modal_caller == 'edit-cc-add-billing-button') {
             var cu = $('#edit-cc-c-id').val();
+            alert(cu);
             $.ajax({
                 type: "POST",
-                url: "/clinic_consultation_edit_add_medication/"+cu,
+                url: "/billing_item_add_check_up/"+cu,
                 data: {                
-                    'name': $('#add-med-name').val(),
-                    'dosage': $('#add-med-dosage').val(),
-                    'frequency': $('#add-med-frequency').val(),
-                    'type': $('#add-med-type').val(),
-                    'notes': $('#add-med-instructions').val()
+                    'description': $('#add-billing-description').val(),
+                    'amount': $('#add-billing-amount').val(),
                 }
             }).done(function (data) {
-                edit_cc_meds_table.row.add([
-                    '<input type="checkbox" id="' + data['medication_id'] + '" name="' + data['medication_id'] + '"></input>',
-                    '<a>' + $('#add-med-name').val() + '</a>',
-                    $('#add-med-dosage').val(),
-                    $('#add-med-frequency').val(),
-                    $('#add-med-type').val(),
-                    $('#add-med-instructions').val()
-                ]).draw();
-
                 edit_cc_billing_table.row.add([
                     '<input type="checkbox"  id="' + data['billing_item_id'] + '" name="' + data['billing_item_id'] +'"></input>',
-                    $('#add-med-name').val(),
-                    "0"
+                    '<a>' + $('#add-billing-description').val() + '</a>',
+                    $('#add-billing-amount').val()
                 ]).draw();
 
-                $('#edit-cc-billing').parent().children('b').children().text("▾ Hide Billing Information");
-                $('#edit-cc-billing').slideDown(600);
+                showSnackBar('Billing item successfully added.');
+                $('#add-billing-modal').modal('toggle');
+                 $('#add-billing-modal input').val("");
+                 $('#add-billing-modal #add-billing-amount').val("0");
+            });
+        }
+        else if(billing_modal_caller == 'edit-lab-add-billing-button') {
+            var cu = $('#lab-edit-id').val();
+            // alert(cu);
+            $.ajax({
+                type: "POST",
+                url: "/billing_item_add_laboratory/"+cu,
+                data: {                
+                    'description': $('#add-billing-description').val(),
+                    'amount': $('#add-billing-amount').val(),
+                }
+            }).done(function (data) {
+                edit_lab_billing_table.row.add([
+                    '<input type="checkbox"  id="' + data['billing_item_id'] + '" name="' + data['billing_item_id'] +'"></input>',
+                    '<a>' + $('#add-billing-description').val() + '</a>',
+                    $('#add-billing-amount').val()
+                ]).draw();
 
-
-                showSnackBar('Medication for this Consultation was successfully added.');
-                $('#add-medication-modal').modal('toggle');
-                $('#add-medication-modal input').val("");
-                $('#add-medication-modal select').val("");
-                $('#add-medication-modal textarea').val("");
+                showSnackBar('Billing item successfully added.');
+                $('#add-billing-modal').modal('toggle');
+                 $('#add-billing-modal input').val("");
+                 $('#add-billing-modal #add-billing-amount').val("0");
             });
         }
         else { //IF ADDING IPT/OPT/CLINIC CONSULTATION ONLY, MEANING NO SERVER SIDE/DATABASE CONNECTION
@@ -2114,51 +2104,35 @@
 
                 ipt_billing_id_counter++;              
             }
-            else if(billing_modal_caller == 'opt-add-med-button'){
-                add_opt_meds_table.row.add([
-                    '<input type="checkbox" id="' + opt_med_id_counter +'" name=""></input>',
-                    '<a>' + $('#add-med-name').val() + '</a>',
-                    $('#add-med-dosage').val(),
-                    $('#add-med-frequency').val(),
-                    $('#add-med-type').val(),
-                    $('#add-med-instructions').val()
-                ]).draw();
-
+            else if(billing_modal_caller == 'opt-add-billing-button'){
                 add_opt_billing_table.row.add([
                     '<input type="checkbox" id="' + opt_billing_id_counter +'" name=""></input>',
-                    $('#add-med-name').val(),
-                    "0"
+                    '<a>' + $('#add-billing-description').val() + '</a>',
+                    $('#add-billing-amount').val()
                 ]).draw();
 
-                $('#add-opt-billing').parent().children('b').children().text("▾ Hide Billing Information");
-                $('#add-opt-billing').slideDown(600);
 
-                $('#add-opt-select-all-meds').prop('checked', false);
-                opt_med_id_counter++;
-                opt_billing_id_counter++;
+                opt_billing_id_counter++; 
             }
-            else if(billing_modal_caller == 'cc-add-med-button'){
-                add_cc_meds_table.row.add([
-                    '<input type="checkbox" id="' + cc_med_id_counter +'" name=""></input>',
-                    '<a>' + $('#add-med-name').val() + '</a>',
-                    $('#add-med-dosage').val(),
-                    $('#add-med-frequency').val(),
-                    $('#add-med-type').val(),
-                    $('#add-med-instructions').val()
-                ]).draw();
-
+            else if(billing_modal_caller == 'cc-add-billing-button'){
                 add_cc_billing_table.row.add([
                     '<input type="checkbox" id="' + cc_billing_id_counter +'" name=""></input>',
-                    $('#add-med-name').val(),
-                    "0"
+                    '<a>' + $('#add-billing-description').val() + '</a>',
+                    $('#add-billing-amount').val()
                 ]).draw();
 
-                $('#add-cc-billing').parent().children('b').children().text("▾ Hide Billing Information");
-                $('#add-cc-billing').slideDown(600);
 
-                $('#add-cc-select-all-meds').prop('checked', false);
-                cc_med_id_counter++;
-                cc_billing_id_counter++;
+                cc_billing_id_counter++; 
+            }
+            else if(billing_modal_caller == 'lab-add-billing-button'){
+                add_lab_billing_table.row.add([
+                    '<input type="checkbox" id="' + lab_billing_id_counter +'" name=""></input>',
+                    '<a>' + $('#add-billing-description').val() + '</a>',
+                    $('#add-billing-amount').val()
+                ]).draw();
+
+
+                lab_billing_id_counter++; 
             }
 
              $('#add-billing-modal').modal('toggle');
@@ -2174,75 +2148,36 @@
         e.preventDefault();
         // var med_name = $('#edit-med-name').val();
         if(edit_billing_id != undefined && edit_billing_id != null) {
+
+
             if(edit_billing_caller_type == "IPT"){
                 edit_ipt_billing_table.row(edit_billing_caller).data([
                     '<input type="checkbox" id="' + edit_billing_id + '" name="' + edit_billing_id + '"></input>',
                     '<a>' + $('#edit-billing-description').val() + '</a>',
                     $('#edit-billing-amount').val(),
                 ]).draw();
-
-                // console.log(.html());
-
-                // var bill_name = edit_med_id;
-                // edit_ipt_billing_table.row($("[name='med-bill-" + edit_med_id + "']").parent().parent()).data([
-                //     $("[name='med-bill-" + edit_med_id + "']").parent().html(),
-                //     $('#edit-med-name').val(),
-                //     $("[name='med-bill-" + edit_med_id + "']").parent().parent().children("td:last").html()
-                //     ]).draw();
             }
             else if(edit_billing_caller_type == "OPT"){
-                // edit_opt_meds_table.row(edit_med_caller).data([
-                //     '<input type="checkbox" id="' + edit_med_id + '" name="' + edit_med_id + '"></input>',
-                //     '<a>' + $('#edit-med-name').val() + '</a>',
-                //     $('#edit-med-dosage').val(),
-                //     $('#edit-med-frequency').val(),
-                //     $('#edit-med-type').val(),
-                //     $('#edit-med-instructions').val()
-                // ]).draw();
-
-                // var bill_name = edit_med_id;
-                // edit_opt_billing_table.row($("[name='med-bill-" + edit_med_id + "']").parent().parent()).data([
-                //     $("[name='med-bill-" + edit_med_id + "']").parent().html(),
-                //     $('#edit-med-name').val(),
-                //     $("[name='med-bill-" + edit_med_id + "']").parent().parent().children("td:last").html()
-                //     ]).draw();
-
+                edit_opt_billing_table.row(edit_billing_caller).data([
+                    '<input type="checkbox" id="' + edit_billing_id + '" name="' + edit_billing_id + '"></input>',
+                    '<a>' + $('#edit-billing-description').val() + '</a>',
+                    $('#edit-billing-amount').val(),
+                ]).draw();
             }
             else if(edit_billing_caller_type == "CC"){
-                // edit_cc_meds_table.row(edit_med_caller).data([
-                //     '<input type="checkbox" id="' + edit_med_id + '" name="' + edit_med_id + '"></input>',
-                //     '<a>' + $('#edit-med-name').val() + '</a>',
-                //     $('#edit-med-dosage').val(),
-                //     $('#edit-med-frequency').val(),
-                //     $('#edit-med-type').val(),
-                //     $('#edit-med-instructions').val()
-                // ]).draw();
-
-                // var bill_name = edit_med_id;
-                // edit_cc_billing_table.row($("[name='med-bill-" + edit_med_id + "']").parent().parent()).data([
-                //     $("[name='med-bill-" + edit_med_id + "']").parent().html(),
-                //     $('#edit-med-name').val(),
-                //     $("[name='med-bill-" + edit_med_id + "']").parent().parent().children("td:last").html()
-                //     ]).draw();
+                edit_cc_billing_table.row(edit_billing_caller).data([
+                    '<input type="checkbox" id="' + edit_billing_id + '" name="' + edit_billing_id + '"></input>',
+                    '<a>' + $('#edit-billing-description').val() + '</a>',
+                    $('#edit-billing-amount').val(),
+                ]).draw();
 
             }
             else if(edit_billing_caller_type == "Lab"){
-                // edit_cc_meds_table.row(edit_med_caller).data([
-                //     '<input type="checkbox" id="' + edit_med_id + '" name="' + edit_med_id + '">-</input>',
-                //     '<a>' + $('#edit-med-name').val() + '</a>',
-                //     $('#edit-med-dosage').val(),
-                //     $('#edit-med-frequency').val(),
-                //     $('#edit-med-type').val(),
-                //     $('#edit-med-instructions').val()
-                // ]).draw();
-
-                // var bill_name = edit_med_id;
-                // edit_cc_billing_table.row($("[name='med-bill-" + edit_med_id + "']").parent().parent()).data([
-                //     $("[name='med-bill-" + edit_med_id + "']").parent().html(),
-                //     $('#edit-med-name').val(),
-                //     $("[name='med-bill-" + edit_med_id + "']").parent().parent().children("td:last").html()
-                //     ]).draw();
-
+                edit_lab_billing_table.row(edit_billing_caller).data([
+                    '<input type="checkbox" id="' + edit_billing_id + '" name="' + edit_billing_id + '"></input>',
+                    '<a>' + $('#edit-billing-description').val() + '</a>',
+                    $('#edit-billing-amount').val(),
+                ]).draw();
             }
 
             $.ajax({

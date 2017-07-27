@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const Laboratory = require('../models/database').Laboratory;
 const Hospital = require('../models/database').Hospital;
+const Billing_Item = require('../models/database').Billing_Item;
 const fs = require('fs');
 
 const multer = require('multer');
@@ -75,17 +76,28 @@ router.get('/laboratory_edit/:lab_id', requireLoggedIn, function (req, res){
 		where: {
 			id: lab_id,
 			active: true,
-		}
+		},
+		raw: true,
 	}).then(lab_result => {
 
-		if(lab_result != null){
-			console.log(lab_result);
-			res.json({lab_result: lab_result});
-		} else{
-			res.json({
-				message: "This record doesn't exist."
-			})
-		}
+		Billing_Item.findAll({
+			where: {
+				laboratoryId: lab_result.id,
+			},
+			raw: true
+		}).then(billing_list => {
+			if(lab_result != null){
+				console.log(lab_result);
+				res.json({
+					lab_result: lab_result,
+					billing_items: billing_list,
+				});
+			} else{
+				res.json({
+					message: "This record doesn't exist."
+				})
+			}
+		});
 
 	});
 });
@@ -96,13 +108,28 @@ router.post('/laboratory_add', requireLoggedIn, upload_file_labs.array('add-lab-
 	var fileId = req.signedCookies.labFileId;
 	console.log(req.body);
 	if (req.body.notes.trim() === "") { req.body.notes = null; }
+
+	var billing_items = [];
+
+	if(req.body.billings != '' && req.body.billings != null){
+		billing_items = req.body.billings;
+	} else{
+		billing_items = [];
+	}
+
 	Laboratory.create({
 		date: req.body.date,
 		description: req.body.description,
 		hospitalName: req.body.hospital,
 		notes: req.body.notes,
 		attachments: addLabfileQueue[fileId].filesArr,
-		patientId: req.body.patient_id
+		patientId: req.body.patient_id,
+		billing_items: billing_items,
+	}, {
+		include: [{
+			model: Billing_Item,
+			as: 'billing_items',
+		}]
 	}).then(lab_instance => {
 		addLabfileQueue[fileId] = null;
 		res.json({success: true});

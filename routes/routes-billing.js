@@ -452,7 +452,6 @@ router.post('/billing_item_add_laboratory/:lab_id', requireLoggedIn, requireDoct
 	});
 });
 
-
 router.post('/billing_item_edit/:billing_item_id', requireLoggedIn, function(req, res){
 	var key = req.params.billing_item_id;
 
@@ -478,7 +477,6 @@ router.post('/billing_item_edit/:billing_item_id', requireLoggedIn, function(req
 			success: true
 		});
 	});
-
 });
 
 router.post('/billing_item_delete/:billing_item_id', requireLoggedIn, requireDoctor, function(req, res){
