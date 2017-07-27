@@ -59,33 +59,42 @@
 					                <th>Patient</th>
 					                <th>Type</th>
 					                <th>Clinic/Hospital</th>
-					                <th>Doctor</th>
+					                {% if not session.doctor %}
+					                	<th>Doctor</th>
+					                {% endif %}
 					                <th>Sum of Expenses</th>
 					            </tr>
 					        </thead>
 					        <tbody>
-<!-- 					        	{% for billing_total in billing_totals %}
-				        			<tr>
-				        				<td> 
-				        					<a href="/patient_edit/{{patient.id}}" class="edit-click" id="">
-				        						{{billing_total.id}}
-				        					</a>
-				        				</td>
-				        				<td>{{billing_total.last_name}}</td>
-				        				<td>{{billing_total.first_name}}</td>
-				        				<td>{{billing_total.middle_name}}</td>
-				        				<td>{{billing_total.sex}}
-				        				</td>
-				        				<td>{{billing_total.age}}</td>
-				        			</tr>
-				        		{% endfor %} -->
+					        {% for report in reports %}
+			        			<tr>
+			        				<td> 
+			        					<a href="/patient_edit/{{patient.id}}" class="edit-click" id="">
+			        						{{report.date}}
+			        					</a>
+			        				</td>
+			        				<td>{{report['parent_record.patient.first_name']}} {{report['parent_record.patient.middle_name']}} {{report['parent_record.patient.last_name']}}</td>
+			        				<td>{{report['parent_record.check_up_type']}}</td>
+			        				<td>{{report['parent_record.hospitalName']}}</td>
+
+			        				{% if not session.doctor %}
+			        					<td>{{report['parent_record.doctorId']}}</td>
+			        				{% endif %}
+		
+			        				<td>
+			        					{% for expense in expenses %}
+
+			        						{% if report['parent_record.id'] == expense.checkUpId %}
+			        							{{expense.sumOfColumn}}
+			        						{% endif %}
+
+			        					{% endfor %}
+			        				</td>
+			        			</tr>
+			        		{% endfor %}
 							</tbody>
 					    </table>
 					</div>
-					<div class="button-group">
-						<a class="btn btn-gray pull-right" href="">Cancel</a>
-                        <a class="btn btn-lime pull-right" type="button" href="/patient_add">Add</a>    
-                    </div>
 		        </div>
 		    </div>
 		</div>
@@ -93,18 +102,57 @@
 </body>
 <script type="text/javascript">
 	$(document).ready(function() {
-	    $('#patients-list').DataTable({
-	    	"bSort": true, 
-            "aaSorting": [[0]],
-		   	"aoColumns": [
-                { "bSortable": true },
-                { "bSortable": true },
-                { "bSortable": true },
-                { "bSortable": true },
-                { "bSortable": false },
-                { "bSortable": true }
-            ]    
-		});
+		var Financial_Report_List_Table;
+
+		if("{{session.doctor}}"){
+			Financial_Report_List_Table = $('#financial-report').DataTable({
+		    	"bSort": true, 
+	            "aaSorting": [[0]],
+			   	"aoColumns": [
+	                { "bSortable": true },
+	                { "bSortable": true },
+	                { "bSortable": true },
+	                { "bSortable": true },
+	                { "bSortable": true }
+	            ]    
+			});
+		} else{
+			Financial_Report_List_Table = $('#financial-report').DataTable({
+		    	"bSort": true, 
+	            "aaSorting": [[0]],
+			   	"aoColumns": [
+	                { "bSortable": true },
+	                { "bSortable": true },
+	                { "bSortable": true },
+	                { "bSortable": true },
+	                { "bSortable": true },
+	                { "bSortable": true }
+	            ]    
+			});
+		}
+
+		Financial_Report_List_Table = Financial_Report_List_Table.rows().remove().draw();
+
+		$.ajax({
+            type: "GET",
+            url: "/financial_report",
+        }).done(function(data){
+
+        	if(data.session.doctor){
+        		for (var i = data.reports.length - 1; i >= 0; i--) {
+		        
+
+		            Financial_Report_List_Table.row.add([
+		                "<a onclick='edit_check_up(\"" + checkup_type + "\"," + data.meds[i]['id'] + ")'>" + checkup_date + "</a>",
+		                data.meds[i]['parent_record.medication.name'],
+		                data.meds[i]['parent_record.check_up_type']
+		            ]).draw();
+		        };
+        	} else{
+
+        	}
+
+        });
 	});
 
 </script>
