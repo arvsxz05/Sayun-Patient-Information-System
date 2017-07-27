@@ -142,11 +142,9 @@ router.post("/ipt_edit_add_medication/:cu_id", requireLoggedIn, requireDoctor, f
 	}).then(med_instance => {
 		Billing_Item.create({
 			description: req.body['name'].trim(),
-			receiptId: med_instance['id'],
 			checkUpId: med_instance['checkUpId'],
 			last_edited: req.session.user.id,
 			issued_by: req.session.user.id,
-			type: "Medication",
 		}, {
 			raw: true
 		}).then(billing_item => {
@@ -170,11 +168,9 @@ router.post("/ipt_edit_add_medical_procedure/:cu_id", requireLoggedIn, requireDo
 	}).then(procedure_instance => {
 		Billing_Item.create({
 			description: req.body['description'].trim(),
-			receiptId: procedure_instance['id'],
 			checkUpId: procedure_instance['checkUpId'],
 			last_edited: req.session.user.id,
 			issued_by: req.session.user.id,
-			type: "Medical Procedure",
 		}, {
 			raw: true
 		}).then(billing_item => {
@@ -202,11 +198,9 @@ router.post("/opt_edit_add_medication/:cu_id", requireLoggedIn, requireDoctor, f
 	}).then(med_instance => {
 		Billing_Item.create({
 			description: req.body['name'].trim(),
-			receiptId: med_instance['id'],
 			checkUpId: med_instance['checkUpId'],
 			last_edited: req.session.user.id,
 			issued_by: req.session.user.id,
-			type: "Medication",
 		}, {
 			raw: true
 		}).then(billing_item => {
@@ -230,11 +224,9 @@ router.post("/opt_edit_add_medical_procedure/:cu_id", requireLoggedIn, requireDo
 	}).then(procedure_instance => {
 		Billing_Item.create({
 			description: req.body['description'].trim(),
-			receiptId: procedure_instance['id'],
 			checkUpId: procedure_instance['checkUpId'],
 			last_edited: req.session.user.id,
 			issued_by: req.session.user.id,
-			type: "Medical Procedure",
 		}, {
 			raw: true
 		}).then(billing_item => {
@@ -263,11 +255,9 @@ router.post("/clinic_consultation_edit_add_medication/:cu_id", requireLoggedIn, 
 	}).then(med_instance => {
 		Billing_Item.create({
 			description: req.body['name'].trim(),
-			receiptId: med_instance['id'],
 			checkUpId: med_instance['checkUpId'],
 			last_edited: req.session.user.id,
 			issued_by: req.session.user.id,
-			type: "Medication",
 		}, {
 			raw: true,
 		}).then(billing_item => {
@@ -292,11 +282,9 @@ router.post("/clinic_consultation_edit_add_medical_procedure/:cu_id", requireLog
 	}).then(procedure_instance => {
 		Billing_Item.create({
 			description: req.body['description'].trim(),
-			receiptId: procedure_instance['id'],
 			checkUpId: procedure_instance['checkUpId'],
 			last_edited: req.session.user.id,
 			issued_by: req.session.user.id,
-			type: "Medical Procedure",
 		}, {
 			raw: true,
 		}).then(billing_item => {
@@ -332,24 +320,7 @@ router.post("/edit_medication/:med_id", requireLoggedIn, requireDoctor, function
 			returning: true,
 			raw: true,
 		}).then(updated_med_instance => {
-			console.log(updated_med_instance);
-			console.log(updated_med_instance[1][0]['name']);
-			if(med_instance['name'] != updated_med_instance[1][0]['name']){
-				Billing_Item.update({
-					description: name,
-					last_edited: req.session.user.id,
-				}, {
-					where: {
-						checkUpId: med_instance['checkUpId'],
-						receiptId: med_instance['id'],
-						description: med_instance['name']
-					}
-				}).then(billing_item => {
-					res.json({id: med_instance.id});
-				});
-			} else{
-				res.json({id: med_instance.id});
-			}
+			res.json({id: med_instance.id});
 		});
 	});
 });
@@ -372,22 +343,7 @@ router.post("/edit_medical_procedure/:medproc_id", requireLoggedIn, requireDocto
 				id: key
 			}
 		}).then(updated_procedure_instance => {
-			if(procedure_instance['description'] != updated_procedure_instance['description']){
-				Billing_Item.update({
-					description: desc,
-					last_edited: req.session.user.id,
-				}, {
-					where: {
-						checkUpId: procedure_instance['checkUpId'],
-						receiptId: procedure_instance['id'],
-						description: procedure_instance['description'],
-					}
-				}).then(billing_item => {
-					res.json({id: procedure_instance.id});
-				});
-			} else{
-				res.json({id: procedure_instance.id});
-			}
+			res.json({id: procedure_instance.id});
 		});
 	});
 });
@@ -411,16 +367,8 @@ router.post("/medication_delete", requireLoggedIn, requireDoctor, function (req,
 				id: key
 			}
 		}).then(function(deleted_medication){
-			Billing_Item.destroy({
-				where: {
-					receiptId: key,
-					checkUpId: medication_instance[0].checkUpId,
-					description: desc,
-				},
-			}).then(function(deleted_billing){
-				res.json({
-					success: true
-				});
+			res.json({
+				success: true
 			});
 		});
 	});

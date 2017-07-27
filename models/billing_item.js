@@ -18,15 +18,15 @@ module.exports = function(database, DataTypes) {
 		// 	allowNull: false,
 		// 	defaultValue: "Secretary"
 		// }
-		receiptId: {
-			type: DataTypes.INTEGER,
-			allowNull: true,
-		},
-		type: {
-			type: DataTypes.ENUM,
-			values: billing_item_types,
-			allowNull: true,
-			defaultValue: "Others",
-		}
+		// receiptId: {
+		// 	type: DataTypes.INTEGER,
+		// 	allowNull: true,
+		// },
+		// type: {
+		// 	type: DataTypes.ENUM,
+		// 	values: billing_item_types,
+		// 	allowNull: true,
+		// 	defaultValue: "Others",
+		// }
 	});
 }

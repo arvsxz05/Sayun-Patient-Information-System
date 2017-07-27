@@ -299,12 +299,15 @@ function show_billing(div, caller) {
         ipt_med_id_counter = 1;
         ipt_med_proc_id_counter = 1;
 
+
+        var billing_item = [];
+
         {% if doctor %}
         var files = $('#add-ipt-attachments').fileinput('getFileStack');
         if(files.length != 0) {
             $(".unique-name-add-ipt").click();
         } else {
-            var medication = [], med_procedure = [], billing_item = [];
+            var medication = [], med_procedure = [];
 
             for(var i = 0; i < add_ipt_meds_table.rows().data().length; i++){
                 var name = add_ipt_meds_table.rows().data()[i][1];
@@ -330,8 +333,8 @@ function show_billing(div, caller) {
                 billing_item.push({
                     description: add_ipt_billing_table.rows().data()[i][1],
                     amount: add_ipt_billing_table.rows().data()[i][2],
-                    last_edited: "{{session.user}}",
-                    issued_by: "{{session.user}}",
+                    last_edited: "{{user.id}}",
+                    issued_by: "{{user.id}}",
                 });
             }
 
@@ -362,6 +365,15 @@ function show_billing(div, caller) {
             });
         }
         {% else %}
+        for(var i = 0; i < add_ipt_billing_table.rows().data().length; i++){
+            billing_item.push({
+                description: add_ipt_billing_table.rows().data()[i][1],
+                amount: add_ipt_billing_table.rows().data()[i][2],
+                last_edited: "{{user.id}}",
+                issued_by: "{{user.id}}",
+            });
+        }
+
         $.ajax({
             type: "POST",
             url: "/ipt_add",
@@ -417,10 +429,10 @@ function show_billing(div, caller) {
 
         if(med_rows.length > 0 && confirm("Are you sure you want to delete Medication record/s? This cannot be undone.")){
             for(var x = 0; x < med_rows.length; x++ ){
-                var med_bill_id = '#med-bill-' + med_rows[x].children("td:first").children("input").attr('id');
+                // var med_bill_id = '#med-bill-' + med_rows[x].children("td:first").children("input").attr('id');
                 
                 add_ipt_meds_table.row(med_rows[x]).remove().draw();
-                add_ipt_billing_table.row($(med_bill_id).parent().parent()).remove().draw();
+                // add_ipt_billing_table.row($(med_bill_id).parent().parent()).remove().draw();
             }
 
             $('#add-ipt-select-all-meds').prop('checked', false);
@@ -456,9 +468,9 @@ function show_billing(div, caller) {
 
         if(med_proc_rows.length > 0 && confirm("Are you sure you want to delete Medical Procedure record/s? This cannot be undone.")){
             for(var x = 0; x < med_proc_rows.length; x++ ){
-                var med_proc_bill_id = '#med-procedure-bill-' + med_proc_rows[x].children("td:first").children("input").attr('id');
+                // var med_proc_bill_id = '#med-procedure-bill-' + med_proc_rows[x].children("td:first").children("input").attr('id');
                 add_ipt_med_procedures_table.row(med_proc_rows[x]).remove().draw();
-                add_ipt_billing_table.row($(med_proc_bill_id).parent().parent()).remove().draw();
+                // add_ipt_billing_table.row($(med_proc_bill_id).parent().parent()).remove().draw();
             }
 
             $('#add-ipt-select-all-med-procedures').prop('checked', false);

@@ -306,6 +306,9 @@ router.post('/opt_add', upload_file_opts.array('add-opt-attachments[]'), functio
 	OutPatient_Treatment.create(fields, includes).then(checkUp_data => {
 		addOPTfileQueue[fileId] = null;
 		var itemsProcessed = 0;
+		res.json({
+			success:true
+		});
 	}).catch(error => {
 		console.log(error);
 		res.json({error: 'Something went wrong. Please try again later.'});
