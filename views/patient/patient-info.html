@@ -818,9 +818,10 @@
             else if($('#billing').hasClass('active')){
                 $.ajax({
                     type: "GET",
-                    url: "/patient_diagnoses_list/{{patient.id}}",
-                }).done(updateDiagnosesListRows);
+                    url: "/billing_list/{{patient.id}}",
+                }).done(updateBillingListRows);
             }
+
         }
         else{
             $('a[href="#patient-info"]').tab('show');
@@ -1211,15 +1212,18 @@
             ]    
         });
 
-        Diagnoses_List_Table = $('#patient-diagnoses-list').DataTable({
+        Billing_List_Table = $('#patient-billing-list').DataTable({
             "bSort": true, 
             "aaSorting": [],
             "aoColumns": [
                 { "bSortable": true },
                 { "bSortable": true },
                 { "bSortable": true },
-                { "bSortable": true }
-            ]    
+                {% if not doctor %}
+                { "bSortable": true },
+                {% endif %}
+                { "bSortable": true },
+            ]
         });
     });
 
@@ -1277,6 +1281,11 @@
     function view_diagnoses() {
         $('#list-diagnoses-view').show();
         $('#list-diagnoses-view-link').hide();
+    }
+
+    function view_billing() {
+        $('#list-billing-view').show();
+        $('#list-billing-view-link').hide();
     }
     
     {% if doctor %}
@@ -2320,6 +2329,13 @@
         }).done(updateDiagnosesListRows);
     });
 
+    $("#list-billing-view").on('show', function() {
+        $.ajax({
+            type: "GET",
+            url: "/billing_list/{{patient.id}}",
+        }).done(updateBillingListRows);
+    });
+
     function updateIPTListRows (data) {
         console.log("WHY HEsRE BESHIE")
         IPT_List_Table = IPT_List_Table.rows().remove().draw();
@@ -2423,6 +2439,35 @@
         };
     }
 
+    function updateBillingListRows (data) {
+        Billing_List_Table = Billing_List_Table.rows().remove().draw();
+
+        console.log(data);
+
+        if(data.session.doctor) {
+            for (var i = data.reports.length - 1; i >= 0; i--) {
+                var checkup_type = data.reports[i]['parent_record.check_up_type'];
+                Billing_List_Table.row.add([
+                    "<a onclick='edit_check_up(\"" + checkup_type + "\"," + data.reports[i]['id'] + ")'>" + data.reports[i]['date'] + "</a>",
+                        data.reports[i]['parent_record.check_up_type'],
+                        data.reports[i]['parent_record.hospitalName'],
+                        data.reports[i]['expense'],
+                ]).draw();
+            };
+        } else{
+            for (var i = data.reports.length - 1; i >= 0; i--) {
+                var checkup_type = data.reports[i]['parent_record.check_up_type'];
+                Billing_List_Table.row.add([
+                    "<a onclick='edit_check_up(\"" + checkup_type + "\"," + data.reports[i]['id'] + ")'>" + data.reports[i]['date'] + "</a>",
+                        data.reports[i]['parent_record.check_up_type'],
+                        data.reports[i]['parent_record.hospitalName'],
+                        data.reports[i]['doctorName'],
+                        data.reports[i]['expense'],
+                ]).draw();
+            };
+        }
+    }
+
     function edit_check_up(type, key) {
         if(type == 'Consultation'){
             window.location.href = window.location.href.substring(0, window.location.href.indexOf("#medication")) + '#consultations'
@@ -2481,7 +2526,10 @@
     });
 
     $("#tab-billing").click(function (e) {
-
+        $.ajax({
+            type: "GET",
+            url: "/billing_list/{{patient.id}}",
+        }).done(updateBillingListRows);
     });
 
     var med_modal_caller;
