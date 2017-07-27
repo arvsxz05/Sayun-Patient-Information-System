@@ -403,10 +403,12 @@ router.post('/billing_item_add_check_up/:check_up_id', requireLoggedIn, requireD
 		checkUpId: key,
 		last_edited: req.session.user.id,
 		issued_by: req.session.user.id,
+	}, {
+		raw: true,
 	}).then(function(billing_item_instance){
 		if(billing_item_instance){
 			res.send({
-				success: true
+				billing_item_id: billing_item_instance.id
 			});
 		} else{
 			res.send({
@@ -452,7 +454,7 @@ router.post('/billing_item_add_laboratory/:lab_id', requireLoggedIn, requireDoct
 
 
 router.post('/billing_item_edit/:billing_item_id', requireLoggedIn, function(req, res){
-	var key = billing_item_id;
+	var key = req.params.billing_item_id;
 
 	var description = req.body['description'];
 	var amount = req.body['amount'];

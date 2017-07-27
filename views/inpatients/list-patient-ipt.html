@@ -32,6 +32,10 @@
     var edit_med_caller_type;
     var edit_med_procedure_caller_type;
 
+    var edit_billing_caller;
+
+    var edit_billing_caller_type;
+
     var add_ipt_meds_table;
     var add_ipt_med_procedures_table;
     var add_ipt_billing_table;
@@ -66,6 +70,7 @@
 
         edit_med_id = null;
         edit_med_procedure_id = null;
+        edit_billing_id = null;
 
         if(add_ipt_billing_table instanceof $.fn.dataTable.Api) {
             add_ipt_billing_table.destroy();
@@ -146,6 +151,15 @@
                 { "bSortable": true },
                 { "bSortable": true }
             ]    
+        }).on('click', 'tbody tr td:nth-child(2) a', function () {
+            var data = add_ipt_billing_table.row($(this).parent().parent()).data();
+            edit_billing_caller = $(this).parent().parent();
+
+            edit_billing_caller_type = "IPT";
+            
+            $('#edit-billing-modal').modal('toggle');
+            $('#edit-billing-modal #edit-billing-description').val(data[1].substring(data[1].indexOf(">") + 1, data[1].length-4));
+            $('#edit-billing-modal #edit-billing-amount').val(data[2]);
         });
 
         add_ipt_billing_table.rows().remove().draw();
@@ -246,6 +260,16 @@
                 { "bSortable": true },
                 { "bSortable": true }
             ]    
+        }).on('click', 'tbody tr td:nth-child(2) a', function () {
+            var data = edit_ipt_billing_table.row($(this).parent().parent()).data();
+            edit_billing_caller = $(this).parent().parent();
+
+            edit_billing_caller_type = "IPT";
+            edit_billing_id = data[0].substring(data[0].indexOf("name") + 6, data[0].length - 10);
+            
+            $('#edit-billing-modal').modal('toggle');
+            $('#edit-billing-modal #edit-billing-description').val(data[1].substring(data[1].indexOf(">") + 1, data[1].length-4));
+            $('#edit-billing-modal #edit-billing-amount').val(data[2]);
         });
 
         edit_ipt_billing_table.rows().remove().draw();
