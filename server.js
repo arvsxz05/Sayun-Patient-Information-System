@@ -53,6 +53,7 @@ app.use(require('./routes/routes-laboratories'));
 app.use(require('./routes/routes-consultations'));
 app.use(require('./routes/routes-medication'));
 app.use(require('./routes/routes-billing'));
+app.use(require('./routes/routes-reports'));
 app.use(require('./routes/routes-daily-consultation')(io));
 
 ///////////////////// MIDDLEWARES ////////////////////////

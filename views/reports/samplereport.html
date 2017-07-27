@@ -1,0 +1,99 @@
+<html>
+
+<head>
+    <title>Daily Consultations</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="/static/css/bootstrap.css">
+    <link rel="stylesheet" type="text/css" href="/static/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="/static/css/styles.css">
+    <link rel="stylesheet" type="text/css" href="/static/css/font-awesome.min.css">
+    <link rel="stylesheet"  type="text/css"         href="/static/css/bootstrap.min.3.3.7.css">
+    <link rel="stylesheet" href="/static/css/themes-smoothness-jquery-ui.css">
+    <script src = "/static/js/jquery-1.10.2.js"></script>
+    <script src = "/static/js/jquery-ui.js"></script>
+    <script type="text/javascript" src="/static/js/jquery.js"></script>
+    <script type="text/javascript" src="/static/js/bootstrap.min.js"></script>
+    <script type="text/javascript"  src="/static/js/jquery.date-dropdowns.js"></script>
+    <script src="/static/js/1.12.1-jquery-ui.js"></script>
+    <style type="text/css">
+        .main-container {
+            padding-top: 30px;
+            padding-right: 30px;
+            padding-bottom: 30px;
+            padding-left: 30px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="main-container">
+        <br><br><br>
+        <center>
+            <h2>{{ ipt_instance['parent_record.hospitalName'] }}</h2>
+            <h4>{{ ipt_instance['parent_record.hospital.address'] }}</h4>
+            <h4>
+            {% for contact_num in ipt_instance['parent_record.hospital.contact_numbers'] %}
+            {{ contact_num }}
+            {% endfor %}
+            </h4>
+        </center>
+        <hr>
+
+        <div class="main-container">
+            <div class="row form-horizontal">
+                <div class="col-sm-4">
+                    <div class="form-group">
+                        <label class="col-sm-3 control-label">Date</label>
+                        <div class="col-sm-9">
+                            <input type="text" value="{{ ipt_instance['conf_date'] }}">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row feature-row" style="padding-top: 20px">
+                <div class="col-sm-10 col-sm-offset-1">
+                    <div class="row form-horizontal">
+                        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce sit amet tempor lacus. Donec ac eros ac leo volutpat aliquam non vitae arcu. Quisque tincidunt urna sed posuere tempus. Phasellus tristique, diam sed consectetur accumsan, mi dui ornare turpis, vel aliquam velit turpis sit amet lacus. Curabitur placerat egestas elementum. Aliquam et nibh sed ex laoreet elementum quis a velit. Sed vel eros at arcu sagittis vehicula. Aliquam massa neque, egestas nec pellentesque eu, condimentum in justo. Suspendisse potenti.</p>
+                    </div>
+                    <hr>
+                    <table id="daily-queue-table" class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Dosage</th>
+                                <th>Frequency</th>
+                                <th>Instructions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for medication in medication_list %}
+                            <tr>
+                                <td><p class="small">{{ medication['name'] }}</p></td>
+                                <td><p class="small">{{ medication['dosage'] }}</p></td>
+                                <td><p class="small">{{ medication['frequency'] }}</p></td>
+                                <td><p class="small">{{ medication['notes'] }}</p></td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+<script type="text/javascript">
+
+    function formatDate(date) {
+        var d = new Date(date),
+            month = '' + (d.getMonth() + 1),
+            day = '' + d.getDate(),
+            year = d.getFullYear();
+
+        if (month.length < 2) month = '0' + month;
+        if (day.length < 2) day = '0' + day;
+
+        return [month, day, year].join('/');
+    }
+</script>
+</html>
