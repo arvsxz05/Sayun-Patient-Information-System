@@ -82,6 +82,7 @@
     });
 
     $( "#add-lab-form" ).submit(function (event) {
+        lab_billing_id_counter = 1;
         var files = $('#add-lab-attachments').fileinput('getFileStack');
         if(files.length != 0) {
             $(".unique-name-add-lab").click();

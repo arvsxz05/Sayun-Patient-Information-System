@@ -145,10 +145,16 @@
                             </tbody>
                         </table>
                     </div>
-                    <hr>
+
+                    <div class="button-group">
+                        <a class="btn btn-red pull-right btn-icon" onclick="add_ipt_delete_billing()" name="delete" value="true" id=""><span class="glyphicon glyphicon-trash"></span></a>
+                        <a href class="btn btn-lime pull-right btn-icon" id="ipt-add-billing-button" data-toggle="modal" data-target="#add-billing-modal"><span class="glyphicon glyphicon-plus"></span></a>
+                    </div>
                 </div>
             </div>
         </div>
+
+        <div class="col-xs-12"><hr></div>
         <!-- END OF BILLING FOR IPT -->
         <div class="button-group hidden-md hidden-lg">
             <a onclick="view_IPT()" class="btn btn-gray pull-right">Cancel</a>
@@ -298,6 +304,7 @@ function show_billing(div, caller) {
         event.preventDefault();
         ipt_med_id_counter = 1;
         ipt_med_proc_id_counter = 1;
+        ipt_billing_id_counter = 1;
 
 
         var billing_item = [];
