@@ -391,22 +391,8 @@ router.post("/medical_procedure_delete", requireLoggedIn, requireDoctor, functio
 				id: key
 			}
 		}).then(function(deleted_medical_procedure){
-			Billing_Item.destroy({
-				where: {
-					receiptId: key,
-					checkUpId: medical_procedure[0]['checkUpId'],
-					description: desc,
-				}
-			}).then(function(deleted_billing){
-				if(deleted_billing){
-					res.json({
-						success: true
-					});
-				} else{
-					res.json({
-						success: false
-					});
-				}
+			res.json({
+				success: true
 			});
 		});
 	});
