@@ -46,6 +46,8 @@
         $('#add-cc-view input').not('#cc-doctor').not('#hidden-cc-doctor').not('#cc-p-id').val("");
         $('#add-cc-view textarea').val("");
 
+        $('#add-cc-billing-container').css('width', $('#add-cc-billing-container').parent().css('width'));
+
         $('#cc-date-div select[name="date_[year]"]').val(currDate[0]);
 
         $('#cc-date-div select[name="date_[month]"]').val(currDate[1]);
@@ -339,24 +341,18 @@
 
             edit_cc_billing_table.rows().remove().draw();
 
+            if(data['billing_items'].length > 0){
+                $('#edit-cc-billing').parent().children('b').children().text("▾ Hide Billing Information");
+                $('#edit-cc-billing').slideDown(600);
+            }
+
             for (var i = data['billing_items'].length - 1; i >= 0; i--) {
-                // if(data['billing_items'][i].type == "Medication"){
-                //     edit_cc_billing_table.row.add([
-                //         '<input type="checkbox" id="' + data['billing_items'][i].id + 
-                //         '" name="med-bill-' + data['billing_items'][i].receiptId + '"></input>',
-                //         '<a>' + data['billing_items'][i].description + '</a>',
-                //         data['billing_items'][i].amount
-                //     ]).draw();
-                // }
-                // else if(data['billing_items'][i].type == "Medical Procedure"){
-                    edit_cc_billing_table.row.add([
-                        '<input type="checkbox" id="' + data['billing_items'][i].id + 
-                        '" name="' + data['billing_items'][i].id + '"></input>',
-                        '<a>' + data['billing_items'][i].description + '</a>',
-                        data['billing_items'][i].amount
-                    ]).draw();
-                // }
-                
+                edit_cc_billing_table.row.add([
+                    '<input type="checkbox" id="' + data['billing_items'][i].id + 
+                    '" name="' + data['billing_items'][i].id + '"></input>',
+                    '<a>' + data['billing_items'][i].description + '</a>',
+                    data['billing_items'][i].amount
+                ]).draw();  
             }
 
         });

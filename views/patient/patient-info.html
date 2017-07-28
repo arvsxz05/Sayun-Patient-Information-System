@@ -1364,6 +1364,41 @@
                 { "bSortable": true },
             ]
         });
+
+        $.ajax({
+            type: "GET",
+            url: "/ipt_list/{{patient.id}}",
+        }).done(updateIPTListRows);
+
+        $.ajax({
+            type: "GET",
+            url: "/opt_list/{{patient.id}}",
+        }).done(updateOPTListRows);
+
+        $.ajax({
+            type: "GET",
+            url: "/lab_results_list/{{patient.id}}",
+        }).done(updateLabListRows);
+
+        $.ajax({
+            type: "GET",
+            url: "/clinic_consultation_list/{{patient.id}}",
+        }).done(updateCCListRows);
+
+        $.ajax({
+            type: "GET",
+            url: "/patient_medication_list/{{patient.id}}",
+        }).done(updateMedicationListRows);
+
+        $.ajax({
+            type: "GET",
+            url: "/patient_diagnoses_list/{{patient.id}}",
+        }).done(updateDiagnosesListRows);
+
+        $.ajax({
+            type: "GET",
+            url: "/billing_list/{{patient.id}}",
+        }).done(updateBillingListRows);
     });
 
 

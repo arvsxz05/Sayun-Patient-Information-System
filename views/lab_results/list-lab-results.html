@@ -1,36 +1,36 @@
 <!--LAB RESULTS TABLE -->
 <div class="row" id="list-lab-view">
-	<form>
-	    <div class="table-responsive">
-	        <h3>Laboratory Results List</h3>
-	        <table id="list-lab-result" class="table table-striped table-bordered" cellspacing="0" width="100%">
-		        <thead>
-		            <tr>
-		                <th>Date</th>
-		                <th>Laboratory</th>
-		                <th>Description</th>
-		                <th>Notes</th>
-		            </tr>
-		        </thead>
-		        <tbody>
-				</tbody>
-		    </table>
-	    </div>
-	    <div class="button-group">
-			<!-- <button class="btn btn-red pull-right" type="submit" name="delete" value="true" id="delete">Delete</button> -->
-	        <a class="btn btn-lime pull-right" onclick="add_lab()">Add</a>
-	    </div>
-	</form>
+    <form>
+        <div class="table-responsive">
+            <h3>Laboratory Results List</h3>
+            <table id="list-lab-result" class="table table-striped table-bordered" cellspacing="0" width="100%">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Laboratory</th>
+                        <th>Description</th>
+                        <th>Notes</th>
+                    </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+        </div>
+        <div class="button-group">
+            <!-- <button class="btn btn-red pull-right" type="submit" name="delete" value="true" id="delete">Delete</button> -->
+            <a class="btn btn-lime pull-right" onclick="add_lab()">Add</a>
+        </div>
+    </form>
 </div>
 <!-- END OF LAB RESULTS TABLE -->
 
 <script type="text/javascript">
-	var add_lab_billing_table;
+    var add_lab_billing_table;
     var edit_lab_billing_table;
 
 
-	function add_lab() {
-		var currDate = getCurrDate().split("/");
+    function add_lab() {
+        var currDate = getCurrDate().split("/");
 
         $('#list-lab-view').hide();
         $('#add-lab-view').show();
@@ -40,6 +40,8 @@
         $('#add-lab-view input').not('#lab-patient-id').val("");
         $('#add-lab-view select').val("");
         $('#add-lab-view textarea').val("");
+
+        $('#add-lab-billing-container').css('width', $('#add-lab-billing-container').parent().css('width'));
 
         $('#lab-date-div select[name="date_[year]"]').val(currDate[0]);
 
@@ -86,10 +88,16 @@
     }
 
     function edit_Lab (lab_id) {
-    	$('#list-lab-view').hide();
+        $('#list-lab-view').hide();
         $('#add-lab-view').hide();
         $('#edit-lab-view').show();
         $('#list-lab-view-link').show();
+
+        $('#edit-lab-billing-container').css('width', $('#edit-lab-billing-container').parent().css('width'));
+
+        $('#edit-lab-view select').val("");
+        $('#edit-lab-view input').not('#lab-edit-patient-id').not('#lab-edit-id').val("");
+        $('#edit-lab-view textarea').val("");
 
         var key = $("#" + lab_id).attr('value');
 
@@ -127,63 +135,68 @@
 
         edit_lab_billing_table.rows().remove().draw();
 
-    	$.ajax({
+        $.ajax({
             type: "GET",
             url: "/laboratory_edit/"+key,
         }).done(function (data) {
-        	var date = data.lab_result['date'].split("-");
-        	$("#lab-edit-id").val(data.lab_result['id']);
-        	$("#edit-lab-date-div select[name='date_[year]']").val(date[0]);
-        	$("#edit-lab-date-div select[name='date_[month]']").val(date[1]);
-        	$("#edit-lab-date-div select[name='date_[day]']").val(date[2]);
-        	$("#edit-lab-date").val(data.lab_result['date']);
-        	$("#lab-edit-hospital").val(data.lab_result['hospitalName']);
-        	$("#lab-edit-description").val(data.lab_result['description']);
-        	$("#lab-edit-notes").val(data.lab_result['notes']);
-        	var edit_attachments_init = [], edit_attachments_config = [];
+            var date = data.lab_result['date'].split("-");
+            $("#lab-edit-id").val(data.lab_result['id']);
+            $("#edit-lab-date-div select[name='date_[year]']").val(date[0]);
+            $("#edit-lab-date-div select[name='date_[month]']").val(date[1]);
+            $("#edit-lab-date-div select[name='date_[day]']").val(date[2]);
+            $("#edit-lab-date").val(data.lab_result['date']);
+            $("#lab-edit-hospital").val(data.lab_result['hospitalName']);
+            $("#lab-edit-description").val(data.lab_result['description']);
+            $("#lab-edit-notes").val(data.lab_result['notes']);
+            var edit_attachments_init = [], edit_attachments_config = [];
 
-        	for (var i = data.lab_result.attachments.length - 1; i >= 0; i--) {
+            for (var i = data.lab_result.attachments.length - 1; i >= 0; i--) {
 
-        		var file_path = "\\" + data.lab_result.attachments[i];
+                var file_path = "\\" + data.lab_result.attachments[i];
 
-        		edit_attachments_init.push(file_path);
+                edit_attachments_init.push(file_path);
 
-        		var rev_file_path = file_path.split("").reverse().join("");
-        		var rev_file_name = rev_file_path.substring(0, rev_file_path.indexOf('\\'));
-        		var file_name = rev_file_name.split("").reverse().join("");
-        		var mime_type = file_path.split('.').pop();
+                var rev_file_path = file_path.split("").reverse().join("");
+                var rev_file_name = rev_file_path.substring(0, rev_file_path.indexOf('\\'));
+                var file_name = rev_file_name.split("").reverse().join("");
+                var mime_type = file_path.split('.').pop();
 
-        		var type_mapping = getMimeByExt(mime_type.toLowerCase());
+                var type_mapping = getMimeByExt(mime_type.toLowerCase());
 
-        		edit_attachments_config.push({
-        			caption: file_name,
-        			type: type_mapping,
-        			url: '/delete_files_lab/' + data.lab_result['id'],	
-        			key: data.lab_result.attachments[i]
-        		});
-        	};
+                edit_attachments_config.push({
+                    caption: file_name,
+                    type: type_mapping,
+                    url: '/delete_files_lab/' + data.lab_result['id'],  
+                    key: data.lab_result.attachments[i]
+                });
+            };
 
-	        $("#lab-edit-attachments").fileinput({
-	            // showUpload: false,
-	            uploadUrl: '/upload_files_edit_lab_results/' + data.lab_result['id'],
-	            browseOnZoneClick: true,
-	            initialPreview: edit_attachments_init,
-	            initialPreviewAsData: true,
-	            initialPreviewConfig: edit_attachments_config,
-	            overwriteInitial: false,
-	            layoutTemplates: {
-	                actions: '<div class="file-actions">\n' +
-	                '    <div class="file-footer-buttons">\n' +
-	                '        {delete} {zoom} {other}' +
-	                '    </div>\n' +
-	                '    {drag}\n' +
-	                '    <div class="clearfix"></div>\n' +
-	                '</div>'
-	            },
-	            uploadClass: 'btn btn-xs btn-default unique-name-edit-lab hidden',
-	        });
+            $("#lab-edit-attachments").fileinput({
+                // showUpload: false,
+                uploadUrl: '/upload_files_edit_lab_results/' + data.lab_result['id'],
+                browseOnZoneClick: true,
+                initialPreview: edit_attachments_init,
+                initialPreviewAsData: true,
+                initialPreviewConfig: edit_attachments_config,
+                overwriteInitial: false,
+                layoutTemplates: {
+                    actions: '<div class="file-actions">\n' +
+                    '    <div class="file-footer-buttons">\n' +
+                    '        {delete} {zoom} {other}' +
+                    '    </div>\n' +
+                    '    {drag}\n' +
+                    '    <div class="clearfix"></div>\n' +
+                    '</div>'
+                },
+                uploadClass: 'btn btn-xs btn-default unique-name-edit-lab hidden',
+            });
 
-	        for (var i = data['billing_items'].length - 1; i >= 0; i--) {
+            if(data['billing_items'].length > 0){
+                $('#edit-lab-billing').parent().children('b').children().text("▾ Hide Billing Information");
+                $('#edit-lab-billing').slideDown(600);
+            }
+
+            for (var i = data['billing_items'].length - 1; i >= 0; i--) {
                 edit_lab_billing_table.row.add([
                     '<input type="checkbox" id="' + data['billing_items'][i].id + 
                     '" name="' + data['billing_items'][i].id + '"></input>',
