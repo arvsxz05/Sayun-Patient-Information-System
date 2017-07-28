@@ -67,8 +67,7 @@
 					        	{% for patient in patients %}
 				        			<tr>
 				        				<td> 
-				        					<a href="/patient_edit/{{patient.id}}" class="edit-click" id="">
-				        						{{patient.id}}
+				        					<a href="/patient_edit/{{patient.id}}" class="edit-click" id="{{patient.id}}">
 				        					</a>
 				        				</td>
 				        				<td>{{patient.last_name}}</td>
@@ -105,7 +104,21 @@
                 { "bSortable": true }
             ]    
 		});
+
+	    $('#patients-list a').each(function(){
+	    	$(this).text(pad($(this).attr('id'), 10));
+	    });
+	    
+
 	});
+
+
+
+	function pad(num, size) {
+	    var s = num+"";
+	    while (s.length < size) s = "0" + s;
+	    return s;
+	}
 
 </script>
 </html>

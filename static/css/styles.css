@@ -119,6 +119,15 @@ body{
     object-position: center !important;
 }
 
+#prescription-logo-upload{
+    max-width: 90%;
+    height: auto !important;
+    margin: 10px 5%;
+    object-fit: cover !important; 
+    object-position: center !important;
+    display: none;
+}
+
 .pull-right{
 	margin: 5px;
 }

@@ -49,27 +49,26 @@
         <!-- END OF BREADCRUMBS -->
 
         <div class="container-fluid">
-            <div class="row">
+            <!-- <form id="delete-account-form" method="POST" action="/account_delete/{{user.id}}"> </form> -->
+            <form id="edit-account-form" class="form-horizontal" role="form" method="POST" action="/account_edit/{{user.id}}" enctype="multipart/form-data">
                 <div class="col-sm-8 col-sm-offset-2 form-container">
-                    <form id="delete-account-form" method="POST" action="/account_delete/{{user.id}}"> 
-                    </form>
-                    <form id="edit-account-form" class="form-horizontal" role="form" method="POST" action="/account_edit/{{user.id}}" enctype="multipart/form-data">
+                    <div class="row">
                         <legend><b>Edit Account</b>
                         {% if session.superuser %}
                             <a class="btn btn-red" style="float: right; margin-top: -10px !important" id="delete-account-button">Delete</a>
                         {% endif %}
                         </legend>
-                        <!-- photo and digital signature (if user type==doctor) -->
                         {% if messages.statusMessage %}
                         <div class="alert alert-success">
                             {{ messages.statusMessage }}
                         </div>
                         {% endif %}
+                        <!-- photo and digital signature (if user type==doctor) -->
                         <div class="col-xs-12 col-md-5 col-md-push-7">
                             <div class="col-md-8 col-md-offset-2">
                                 <div class="form-group">
                                     <center><label>Photo:</label></center>
-                                    <img id='img-upload' src="{{user.photo}}">
+                                    <img id='img-upload' src="{{user.photo}}" onerror="this.src='../../static/img/user.png';">
                                     {% if session.user.id == user.id or session.superuser %}
                                     <div class="input-group">
                                         <span class="input-group-btn">
@@ -261,6 +260,20 @@
                                                 >
                                             </div>
                                         </div>
+                                        <div class="form-group">
+                                            <label class="col-sm-4 control-label" for="doctor-logo">Prescription Logo:</label>
+                                            <div class="col-sm-8">
+                                                <img id='prescription-logo-upload'/>
+                                                <div class="input-group">
+                                                    <span class="input-group-btn">
+                                                        <span class="btn btn-default btn-file">
+                                                            Browse… <input type="file" id="prescriptionLogoInp" name="logo">
+                                                        </span>
+                                                    </span>
+                                                    <input type="text" class="form-control" readonly>
+                                                </div>
+                                            </div>
+                                        </div>  
                                     </div>
                                 {% else %}
                                     <input class="hidden" name="user-type" value="Secretary"/>
@@ -274,15 +287,18 @@
                                 {% endif %}
                             </fieldset>
                         </div>
+                     </div>
+                     <div class="row">
+                        <hr>
                         {% if session.user.id == user.id or session.superuser %}
                         <div class="button-group">
                             <a href="/account_list" class="btn btn-gray pull-right">Cancel</a>
                             <button type="submit" class="btn btn-lime pull-right" id="save-btn">Save</button>
                         </div>
                         {% endif %}
-                    </form>
+                     </div>
                 </div>
-            </div>
+            </form>
         </div>
 
         {% if session.user.id == user.id or session.superuser %}

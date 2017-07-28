@@ -8,7 +8,7 @@
                 <div class="col-md-8 col-md-offset-1">
                     <div class="form-group">
                         <center><label>Photo:</label></center>
-                        <img id='img-upload' src="{{patient.photo}}" />
+                        <img id='img-upload' src="{{patient.photo}}" onerror="this.src='../../static/img/user.png';"/>
                         <div class="input-group">
                             <span class="input-group-btn">
                                 <span class="btn btn-default btn-file">

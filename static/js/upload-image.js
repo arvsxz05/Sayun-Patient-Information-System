@@ -26,11 +26,17 @@ $(document).ready( function() {
 		            $('#img-upload').attr('src', e.target.result);
 		        }
 	        }
-	        else{
+	        else if(selector == 2){
 	        	reader.onload = function (e) {
 		            $('#digital-sign-upload').attr('src', e.target.result);
 		        }
-	        }        
+	        } 
+	        else{	
+	        	reader.onload = function (e) {
+	        		$('#prescription-logo-upload').css('display', 'block');
+		            $('#prescription-logo-upload').attr('src', e.target.result);
+		        }
+	        }       
 	        reader.readAsDataURL(input.files[0]);
 	    } 
 	}
@@ -41,4 +47,7 @@ $(document).ready( function() {
 	$("#digitalSignInp").change(function(){
 	    readURL(this, 2);
 	}); 
+	$("#prescriptionLogoInp").change(function(){
+	    readURL(this, 3);
+	});
 });
