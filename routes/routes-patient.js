@@ -492,6 +492,7 @@ router.post('/patient_edit_notes/:id', requireLoggedIn, function (req, res) {
 		imm_fam_hh: imm_fam_hh,
 		prev_medproc: prev_medproc,
 		gen_notes: gen_notes,
+		prior_surgeries: surgeries,
 	}, {
 		where: {
 			id: key,
