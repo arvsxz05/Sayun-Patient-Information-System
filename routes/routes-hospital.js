@@ -95,7 +95,8 @@ router.get('/hcl_list', requireLoggedIn, requireAdmin, function (req, res) {
 			res.render('hospital/list-hospital.html', {
 				hcls : allHCL,
 				admin : req.session.admin,
-				superuser : req.session.superuser
+				superuser : req.session.superuser,
+				session: req.session
 			});
 	});
 });

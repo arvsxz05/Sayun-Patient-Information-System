@@ -108,7 +108,8 @@ router.get('/account_list', requireLoggedIn, requireSuperAdmin, function (req, r
 
 		res.render('account/list-accounts.html', {
 			user_accounts: allAccounts,
-			superuser: req.session.superuser
+			superuser: req.session.superuser,
+			session: req.session,
 		});
 	});
 });
@@ -410,7 +411,7 @@ router.post('/add_account', requireLoggedIn, requireSuperUser,
 							});
 						});
 					};
-					res.redirect('/account_list');
+					res.redirect('/account_edit/'+doctor_instance._previousDataValues.usernameId);
 				}).catch(error => {
 					console.log(error);
 					res.render('account/add-account.html', {
@@ -437,7 +438,7 @@ router.post('/add_account', requireLoggedIn, requireSuperUser,
 							});
 						});
 					};
-					res.redirect('/account_list');
+					res.redirect('/account_edit/'+secretary_instance.usernameId);
 				}).catch(error => {
 					console.log(error);
 					res.render('account/add-account.html', {

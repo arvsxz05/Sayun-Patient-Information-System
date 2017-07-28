@@ -228,9 +228,11 @@
                 }
             }).done(function (data) {
                 if(data.success) {
-                    $('#list-opt-view').show();
-                    $('#add-opt-view').hide();
+                    // $('#list-opt-view').show();
+                    // $('#add-opt-view').hide();
                     showSnackBar('OPT Record successfully added.');
+                    $(window).scrollTop(0);
+                    edit_OPT(data.opt_id);
                 } else {
                     $("#opt-error-response").text(data.error);
                 }
@@ -257,9 +259,11 @@
             }
         }).done(function (data) {
             if(data.success) {
-                $('#list-opt-view').show();
-                $('#add-opt-view').hide();
+                // $('#list-opt-view').show();
+                // $('#add-opt-view').hide();
                 showSnackBar('OPT Record successfully added.');
+                $(window).scrollTop(0);
+                edit_OPT(data.opt_id);
             } else {
                 $("#opt-error-response").text(data.error);
             }

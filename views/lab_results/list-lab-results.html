@@ -93,6 +93,10 @@
 
         var key = $("#" + lab_id).attr('value');
 
+        if(key == undefined){
+            key = lab_id;
+        }
+
         if(edit_lab_billing_table instanceof $.fn.dataTable.Api) {
             edit_lab_billing_table.destroy();
         }

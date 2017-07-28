@@ -132,7 +132,10 @@ router.post('/laboratory_add', requireLoggedIn, upload_file_labs.array('add-lab-
 		}]
 	}).then(lab_instance => {
 		addLabfileQueue[fileId] = null;
-		res.json({success: true});
+		res.json({
+			success: true,
+			lab_id: lab_instance.dataValues.id,
+		});
 	}).catch(error => {
 		console.log(error);
 		res.json({error: 'Something went wrong. Please try again later.'});

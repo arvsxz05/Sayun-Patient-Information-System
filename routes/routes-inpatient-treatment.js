@@ -310,11 +310,14 @@ router.post('/ipt_add', requireLoggedIn, upload_file_ipts.array('add-ipt-attachm
 		}
 	}
 
-	InPatient_Treatment.create(fields, includes).then(checkUp_data => {
+	InPatient_Treatment.create(fields, includes, {
+		raw: true
+	}).then(checkUp_data => {
 		addIPTfileQueue[fileId] = null;
 		var itemsProcessed = 0;
 		res.json({
-			success:true
+			success:true,
+			ipt_id: checkUp_data.dataValues.id,
 		});
 	}).catch(error => {
 		console.log(error);

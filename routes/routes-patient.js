@@ -110,6 +110,7 @@ router.get('/patient_list', requireLoggedIn, function (req, res) {
 			patients: allPatients,
 			admin: req.session.admin,
 			superuser: req.session.superuser,
+			session: req.session,
 		});
 
 	}).catch(function(req, res){
@@ -371,8 +372,10 @@ router.post('/patient_add', requireLoggedIn, upload.fields([{name: 'photo', maxC
 		expiration: expiration,
 		company_name: company_name,
 		insurance: insurance,
+	}, {
+		raw: true
 	}).then(function (item) {
-		res.redirect("/patient_list");
+		res.redirect("/patient_edit/"+item.dataValues.id);
 	}).catch(function (error) {
 		console.log(error);
 		res.json({"status" : "error"});

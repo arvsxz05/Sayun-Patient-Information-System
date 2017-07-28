@@ -285,11 +285,14 @@ router.post('/clinic_consultation_add', requireLoggedIn, upload_file_cc.array('a
 			}]
 		};
 	}
-	Consultation.create(fields, includes).then(consultation_instance => {
+	Consultation.create(fields, includes,{
+		raw: true,
+	}).then(consultation_instance => {
 		addCCfileQueue[fileId] = null;
 		var itemsProcessed = 0;
 		res.json({
-			success:true
+			success:true,
+			consultation_id: consultation_instance.dataValues.id,
 		});
 	}).catch(error => {
 		console.log(error);

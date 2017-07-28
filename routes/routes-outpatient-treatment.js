@@ -303,11 +303,14 @@ router.post('/opt_add', upload_file_opts.array('add-opt-attachments[]'), functio
 			}]
 		}
 	}
-	OutPatient_Treatment.create(fields, includes).then(checkUp_data => {
+	OutPatient_Treatment.create(fields, includes, {
+		raw: true,
+	}).then(checkUp_data => {
 		addOPTfileQueue[fileId] = null;
 		var itemsProcessed = 0;
 		res.json({
-			success:true
+			success:true,
+			opt_id: checkUp_data.dataValues.id,
 		});
 	}).catch(error => {
 		console.log(error);

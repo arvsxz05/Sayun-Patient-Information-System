@@ -139,13 +139,15 @@
                 }
             }).done(function (data) {
                 if(data.success) {
-                    $('#list-lab-view').show();
-                    $('#add-lab-view').hide();
-                    $('#edit-lab-view').hide();
+                    // $('#list-lab-view').show();
+                    // $('#add-lab-view').hide();
+                    // $('#edit-lab-view').hide();
                     showSnackBar('Lab Result successfully added.');
                     $('#add-lab-view input').not('#lab-patient-id').val("");
                     $('#add-lab-view select').val("");
                     $('#add-lab-view textarea').val("");
+                    $(window).scrollTop(0);
+                    edit_Lab(data.lab_id);
                 } else {
                     $("#lab-error-response").text(data.error);
                 }

@@ -231,9 +231,11 @@
                 }
             }).done(function (data) {
                 if(data.success) {
-                    $('#list-cc-view').show();
-                    $('#add-cc-view').hide();
+                    // $('#list-cc-view').show();
+                    // $('#add-cc-view').hide();
                     showSnackBar('Consultation successfully added.');
+                    $(window).scrollTop(0);
+                    edit_CC(data.consultation_id);
                 } else {
                     $("#cc-error-response").text(data.error);
                 }
@@ -260,9 +262,11 @@
             }
         }).done(function (data) {
             if(data.success) {
-                $('#list-cc-view').show();
-                $('#add-cc-view').hide();
+                // $('#list-cc-view').show();
+                // $('#add-cc-view').hide();
                 showSnackBar('Consultation successfully added.');
+                $(window).scrollTop(0);
+                edit_CC(data.consultation_id);
             } else {
                 $("#cc-error-response").text(data.error);
             }
