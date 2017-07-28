@@ -2446,23 +2446,23 @@
 
         if(data.session.doctor) {
             for (var i = data.reports.length - 1; i >= 0; i--) {
-                var checkup_type = data.reports[i]['parent_record.check_up_type'];
+                var checkup_type = data.reports[i]['check_up_type'];
                 Billing_List_Table.row.add([
                     "<a onclick='edit_check_up(\"" + checkup_type + "\"," + data.reports[i]['id'] + ")'>" + data.reports[i]['date'] + "</a>",
-                        data.reports[i]['parent_record.check_up_type'],
-                        data.reports[i]['parent_record.hospitalName'],
-                        data.reports[i]['expense'],
+                        data.reports[i]['check_up_type'],
+                        data.reports[i]['hospitalName'],
+                        data.reports[i]['sumOfColumn'],
                 ]).draw();
             };
-        } else{
+        } else {
             for (var i = data.reports.length - 1; i >= 0; i--) {
                 var checkup_type = data.reports[i]['parent_record.check_up_type'];
                 Billing_List_Table.row.add([
                     "<a onclick='edit_check_up(\"" + checkup_type + "\"," + data.reports[i]['id'] + ")'>" + data.reports[i]['date'] + "</a>",
-                        data.reports[i]['parent_record.check_up_type'],
-                        data.reports[i]['parent_record.hospitalName'],
-                        data.reports[i]['doctorName'],
-                        data.reports[i]['expense'],
+                        data.reports[i]['check_up_type'],
+                        data.reports[i]['hospitalName'],
+                        data.reports[i]['parent_record.doctor.username.first_name'] + " " + data.reports[i]['parent_record.doctor.username.middle_name'] + " " + data.reports[i]['parent_record.doctor.username.last_name'],
+                        data.reports[i]['sumOfColumn'],
                 ]).draw();
             };
         }

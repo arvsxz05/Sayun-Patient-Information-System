@@ -8,6 +8,7 @@ const InPatient_Treatment = require('../models/database').InPatient_Treatment;
 const OutPatient_Treatment = require('../models/database').OutPatient_Treatment;
 const Consultation = require('../models/database').Consultation;
 const User_Account = require('../models/database').User_Account;
+const Doctor = require('../models/database').Doctor;
 const Patient = require('../models/database').Patient;
 const Sequelize = require('sequelize');
 
@@ -32,470 +33,267 @@ function requireDoctor(req, res, next) {
 
 ///////////////////////////GET//////////////////////////////
 
-router.get('/billing_list/:patient_id', requireLoggedIn, function(req, res){
+router.get('/billing_list/:patient_id', requireLoggedIn, function(req, res) {
 	var key = req.params.patient_id;
 	var allRecords = [];
+	var checkup_where_option, include_option;
 
-	if(req.session.doctor){
-		InPatient_Treatment.findAll({
-			where: {
-				active: true
-			},
-			attributes: ['id', ['conf_date', 'date']],
-			raw: true,
-			include: [{
-				model: Check_Up,
-				as: 'parent_record',
-				required: true,
-				where: {
-					active: true,
-					doctorId: req.session.doctor.id,
-					patientId: key,
-				},
-				attributes: ['id', 'check_up_type', 'hospitalName', 'doctorId', 'patientId' ],
-				include: [{
-					model: Patient,
-					attributes: ['last_name', 'middle_name', 'first_name']
-				}]
-			}],
-		}).then(ipt_list => {
-			OutPatient_Treatment.findAll({
-				where: {
-					active: true,
-				},
-				attributes: ['id', 'date'],
-				raw: true,
-				include: [{
-					model: Check_Up,
-					as: 'parent_record',
-					required: true,
-					where: {
-						active: true,
-						doctorId: req.session.doctor.id,
-						patientId: key,
-					},
-					attributes: ['id', 'check_up_type', 'hospitalName', 'doctorId', 'patientId' ],
-					include: [{
-						model: Patient,
-						attributes: ['last_name', 'middle_name', 'first_name']
-					}]
-				}]
-			}).then(opt_list => {
-				Consultation.findAll({
-					attributes: ['id', 'date'],
-					where: {
-						active: true,
-					},
-					raw: true,
-					include: [{
-						model: Check_Up,
-						as: 'parent_record',
-						required: true,
-						where: {
-							active: true,
-							doctorId: req.session.doctor.id,
-							patientId: key,
-						},
-						attributes: ['id', 'check_up_type', 'hospitalName', 'doctorId', 'patientId' ],
-						include: [{
-							model: Patient,
-							attributes: ['last_name', 'middle_name', 'first_name']
-						}]
-					}],
-				}).then(cc_list =>{
-					allRecords = ipt_list.concat(opt_list.concat(cc_list));
-					var keys = [];
-
-					for(var i = 0; i < allRecords.length; i++){
-						keys.push(allRecords[i]['parent_record.id']);
-					}
-
-					Billing_Item.findAll({
-						raw: true,
-						attributes: [
-							[Sequelize.fn('SUM', Sequelize.col('amount')), 'sumOfColumn'],
-							'checkUpId',
-						],
-						group: ['billing_item.checkUpId'],
-						where: {
-							checkUpId: keys,
-						}
-					}).then(billing_sum => {
-
-						for(var i = 0; i < allRecords.length; i++){
-							allRecords[i]['expense'] = 0;
-							for(var j = 0; j < billing_sum.length; j++){
-								if(allRecords[i]['parent_record.id'] == billing_sum[j]['checkUpId']){
-									allRecords[i]['expense'] = billing_sum[j]['sumOfColumn'];
-								}
-							}
-
-						}
-
-						res.json({
-							reports: allRecords,
-							session: req.session,
-						});
-					});
-				});
-			});
-		});
-	} else{
-		InPatient_Treatment.findAll({
-			where: {
-				active: true
-			},
-			attributes: ['id', ['conf_date', 'date']],
-			raw: true,
-			include: [{
-				model: Check_Up,
-				as: 'parent_record',
-				required: true,
-				where: {
-					active: true,
-					patientId: key,
-				},
-				attributes: ['id', 'check_up_type', 'hospitalName', 'doctorId', 'patientId' ],
-				include: [{
-					model: Patient,
-					attributes: ['last_name', 'middle_name', 'first_name']
-				}]
-			}],
-		}).then(ipt_list => {
-			OutPatient_Treatment.findAll({
-				where: {
-					active: true,
-				},
-				attributes: ['id', 'date'],
-				raw: true,
-				include: [{
-					model: Check_Up,
-					as: 'parent_record',
-					required: true,
-					where: {
-						active: true,
-						patientId: key,
-					},
-					attributes: ['id', 'check_up_type', 'hospitalName', 'doctorId', 'patientId' ],
-					include: [{
-						model: Patient,
-						attributes: ['last_name', 'middle_name', 'first_name']
-					}]
-				}]
-			}).then(opt_list => {
-				Consultation.findAll({
-					attributes: ['id', 'date'],
-					where: {
-						active: true,
-					},
-					raw: true,
-					include: [{
-						model: Check_Up,
-						as: 'parent_record',
-						required: true,
-						where: {
-							active: true,
-							patientId: key,
-						},
-						attributes: ['id', 'check_up_type', 'hospitalName', 'doctorId', 'patientId' ],
-						include: [{
-							model: Patient,
-							attributes: ['last_name', 'middle_name', 'first_name']
-						}]
-					}],
-				}).then(cc_list =>{
-					allRecords = ipt_list.concat(opt_list.concat(cc_list));
-					var keys = [];
-
-					for(var i = 0; i < allRecords.length; i++){
-						keys.push(allRecords[i]['parent_record.id']);
-					}
-
-					Billing_Item.findAll({
-						raw: true,
-						attributes: [
-							[Sequelize.fn('SUM', Sequelize.col('amount')), 'sumOfColumn'],
-							'checkUpId',
-						],
-						group: ['billing_item.checkUpId'],
-						where: {
-							checkUpId: keys,
-						}
-					}).then(billing_sum => {
-						Doctor.findAll({
-							raw: true,
-							attributes: ['id'],
-							include: [{
-								model: User_Account,
-								as: 'username',
-								attributes: ['first_name', 'middle_name', 'last_name'],
-								where: {
-									active: true,
-								}
-							}]
-						}).then(doctors => {
-							for(var i = 0; i < allRecords.length; i++){
-								allRecords[i]['expense'] = 0;
-								for(var j = 0; j < billing_sum.length; j++){
-									if( allRecords[i]['parent_record.id'] == billing_sum[j]['checkUpId'] ){
-										allRecords[i]['expense'] = billing_sum[j]['sumOfColumn'];
-									}
-								}
-								for(var k = 0; k < doctors.length; k++){
-									if( allRecords[i]['parent_record.doctorId'] == doctors[k]['id'] ){
-										if(doctors[k]['username.middle_name'] != "" && doctors[k]['username.middle_name'] != undefined){
-											allRecords[i]['doctorName'] = doctors[k]['username.first_name']+" "+doctors[k]['username.middle_name']+" "+doctors[k]['username.last_name'];
-										} else{
-											allRecords[i]['doctorName'] = doctors[k]['username.first_name']+" "+doctors[k]['username.last_name'];
-										}
-									}
-								}
-							}
-
-							res.json({
-								reports: allRecords,
-								session: req.session,
-							});
-						});
-					});
-				});
-			});
-		});
+	if(req.session.doctor) {
+		checkup_where_option = {
+			active: true,
+			doctorId: req.session.doctor.id,
+			patientId: key,
+		};
+	} else if (req.session.secretary) {
+		checkup_where_option = {
+			active: true,
+			patientId: key,
+		};
 	}
-});
 
-router.get('/financial_report_json', requireLoggedIn, function(req, res){
-	var allRecords = [];
+	include_option = [{
+		model: Check_Up,
+		as: 'parent_record',
+		attributes: [],
+		required: true,
+		where: checkup_where_option,
+		include: [{
+			model: Billing_Item,
+			as: 'billing_items',
+			attributes: [],
+			required: true,
+		}, {
+			model: Doctor,
+			attributes: [],
+			include: [{
+				model: User_Account,
+				as: 'username',
+				attributes: ['first_name', 'middle_name', 'last_name', 'suffix']
+			}]
+		}]
+	}];
 
-	if(req.session.doctor){
-		InPatient_Treatment.findAll({
+	InPatient_Treatment.findAll({
+		attributes: [
+			'id', 
+			['conf_date', 'date'], 
+			'parent_record.check_up_type', 
+			'parent_record.hospitalName', 
+			'parent_record.doctorId', 
+			'parent_record.patientId', 
+			'parent_record->billing_items.checkUpId',
+			[Sequelize.fn('SUM', Sequelize.col('parent_record->billing_items.amount')), 'sumOfColumn']
+		],
+		where: {
+			active: true
+		},
+		group: [
+			"parent_record->billing_items.checkUpId", 
+			"inpatient_treatment.id", 
+			"parent_record.check_up_type", 
+			"parent_record.hospitalName", 
+			"parent_record.doctorId", 
+			"parent_record.patientId",
+			"parent_record->doctor->username.id"
+		],
+		raw: true,
+		include: include_option
+	}).then(ipt_list => {
+		OutPatient_Treatment.findAll({
+			attributes: [
+				'id', 
+				'date', 
+				'parent_record.check_up_type', 
+				'parent_record.hospitalName', 
+				'parent_record.doctorId', 
+				'parent_record.patientId', 
+				'parent_record->billing_items.checkUpId',
+				[Sequelize.fn('SUM', Sequelize.col('parent_record->billing_items.amount')), 'sumOfColumn']
+			],
 			where: {
 				active: true
 			},
-			attributes: ['id', ['conf_date', 'date']],
+			group: [
+				"parent_record->billing_items.checkUpId", 
+				"outpatient_treatment.id", 
+				"parent_record.check_up_type", 
+				"parent_record.hospitalName", 
+				"parent_record.doctorId", 
+				"parent_record.patientId",
+				"parent_record->doctor->username.id"
+			],
 			raw: true,
-			include: [{
-				model: Check_Up,
-				as: 'parent_record',
-				required: true,
+			include: include_option
+		}).then(opt_list => {
+			Consultation.findAll({
+				attributes: [
+					'id', 
+					'date', 
+					'parent_record.check_up_type', 
+					'parent_record.hospitalName', 
+					'parent_record.doctorId', 
+					'parent_record.patientId',
+					'parent_record->billing_items.checkUpId',
+					[Sequelize.fn('SUM', Sequelize.col('parent_record->billing_items.amount')), 'sumOfColumn']
+				],
 				where: {
-					active: true,
-					doctorId: req.session.doctor.id,
+					active: true
 				},
-				attributes: ['id', 'check_up_type', 'hospitalName', 'doctorId', 'patientId' ],
-				include: [{
-					model: Patient,
-					attributes: ['last_name', 'middle_name', 'first_name']
-				}]
-			}],
-		}).then(ipt_list => {
-			OutPatient_Treatment.findAll({
-				where: {
-					active: true,
-				},
-				attributes: ['id', 'date'],
+				group: [
+					"parent_record->billing_items.checkUpId", 
+					"consultation.id", 
+					"parent_record.check_up_type", 
+					"parent_record.hospitalName", 
+					"parent_record.doctorId", 
+					"parent_record.patientId",
+					"parent_record->doctor->username.id"
+				],
 				raw: true,
-				include: [{
-					model: Check_Up,
-					as: 'parent_record',
-					required: true,
-					where: {
-						active: true,
-						doctorId: req.session.doctor.id,
-					},
-					attributes: ['id', 'check_up_type', 'hospitalName', 'doctorId', 'patientId' ],
-					include: [{
-						model: Patient,
-						attributes: ['last_name', 'middle_name', 'first_name']
-					}]
-				}]
-			}).then(opt_list => {
-				Consultation.findAll({
-					attributes: ['id', 'date'],
-					where: {
-						active: true,
-					},
-					raw: true,
-					include: [{
-						model: Check_Up,
-						as: 'parent_record',
-						required: true,
-						where: {
-							active: true,
-							doctorId: req.session.doctor.id,
-						},
-						attributes: ['id', 'check_up_type', 'hospitalName', 'doctorId', 'patientId' ],
-						include: [{
-							model: Patient,
-							attributes: ['last_name', 'middle_name', 'first_name']
-						}]
-					}],
-				}).then(cc_list =>{
-					allRecords = ipt_list.concat(opt_list.concat(cc_list));
-					var keys = [];
-
-					for(var i = 0; i < allRecords.length; i++){
-						keys.push(allRecords[i]['parent_record.id']);
-					}
-
-					Billing_Item.findAll({
-						raw: true,
-						attributes: [
-							[Sequelize.fn('SUM', Sequelize.col('amount')), 'sumOfColumn'],
-							'checkUpId',
-						],
-						group: ['billing_item.checkUpId'],
-						where: {
-							checkUpId: keys,
-						}
-					}).then(billing_sum => {
-						for(var i = 0; i < allRecords.length; i++){
-							allRecords[i]['expense'] = 0;
-							for(var j = 0; j < billing_sum.length; j++){
-								if(allRecords[i]['parent_record.id'] == billing_sum[j]['checkUpId']){
-									allRecords[i]['expense'] = billing_sum[j]['sumOfColumn'];
-								}
-							}
-
-						}
-
-						res.json({
-							reports: allRecords,
-							session: req.session,
-						});
-					});
+				include: include_option
+			}).then(cc_list => {
+				allRecords = ipt_list.concat(opt_list.concat(cc_list));
+				res.json({
+					reports: allRecords,
+					session: req.session
 				});
 			});
 		});
-	} else{
-		InPatient_Treatment.findAll({
-			where: {
-				active: true
-			},
-			attributes: ['id', ['conf_date', 'date']],
-			raw: true,
-			include: [{
-				model: Check_Up,
-				as: 'parent_record',
-				required: true,
-				where: {
-					active: true,
-				},
-				attributes: ['id', 'check_up_type', 'hospitalName', 'doctorId', 'patientId' ],
-				include: [{
-					model: Patient,
-					attributes: ['last_name', 'middle_name', 'first_name']
-				}]
-			}],
-		}).then(ipt_list => {
-			OutPatient_Treatment.findAll({
-				where: {
-					active: true,
-				},
-				attributes: ['id', 'date'],
-				raw: true,
-				include: [{
-					model: Check_Up,
-					as: 'parent_record',
-					required: true,
-					where: {
-						active: true,
-					},
-					attributes: ['id', 'check_up_type', 'hospitalName', 'doctorId', 'patientId' ],
-					include: [{
-						model: Patient,
-						attributes: ['last_name', 'middle_name', 'first_name']
-					}]
-				}]
-			}).then(opt_list => {
-				Consultation.findAll({
-					attributes: ['id', 'date'],
-					where: {
-						active: true,
-					},
-					raw: true,
-					include: [{
-						model: Check_Up,
-						as: 'parent_record',
-						required: true,
-						where: {
-							active: true,
-						},
-						attributes: ['id', 'check_up_type', 'hospitalName', 'doctorId', 'patientId' ],
-						include: [{
-							model: Patient,
-							attributes: ['last_name', 'middle_name', 'first_name']
-						}]
-					}],
-				}).then(cc_list =>{
-					allRecords = ipt_list.concat(opt_list.concat(cc_list));
-					var keys = [];
-
-					for(var i = 0; i < allRecords.length; i++){
-						keys.push(allRecords[i]['parent_record.id']);
-					}
-
-					Billing_Item.findAll({
-						raw: true,
-						attributes: [
-							[Sequelize.fn('SUM', Sequelize.col('amount')), 'sumOfColumn'],
-							'checkUpId',
-						],
-						group: ['billing_item.checkUpId'],
-						where: {
-							checkUpId: keys,
-						}
-					}).then(billing_sum => {
-						Doctor.findAll({
-							raw: true,
-							attributes: ['id'],
-							include: [{
-								model: User_Account,
-								as: 'username',
-								attributes: ['first_name', 'middle_name', 'last_name'],
-								where: {
-									active: true,
-								}
-							}]
-						}).then(doctors => {
-							for(var i = 0; i < allRecords.length; i++){
-								allRecords[i]['expense'] = 0;
-								for(var j = 0; j < billing_sum.length; j++){
-									if( allRecords[i]['parent_record.id'] == billing_sum[j]['checkUpId'] ){
-										allRecords[i]['expense'] = billing_sum[j]['sumOfColumn'];
-									}
-								}
-								for(var k = 0; k < doctors.length; k++){
-									if( allRecords[i]['parent_record.doctorId'] == doctors[k]['id'] ){
-										if(doctors[k]['username.middle_name'] != "" && doctors[k]['username.middle_name'] != undefined){
-											allRecords[i]['doctorName'] = doctors[k]['username.first_name']+" "+doctors[k]['username.middle_name']+" "+doctors[k]['username.last_name'];
-										} else{
-											allRecords[i]['doctorName'] = doctors[k]['username.first_name']+" "+doctors[k]['username.last_name'];
-										}
-									}
-								}
-							}
-
-							res.json({
-								reports: allRecords,
-								session: req.session,
-							});
-						});
-					});
-				});
-			});
-		});
-	}
+	});
 });
 
 router.get('/financial_report', requireLoggedIn, function(req, res){
-	res.render('billing/financial-report.html', {
-		session: req.session,
+	var allRecords = [];
+	var checkup_where_option, include_option;
+
+	if(req.session.doctor) {
+		checkup_where_option = {
+			active: true,
+			doctorId: req.session.doctor.id
+		};
+	} else if (req.session.secretary) {
+		checkup_where_option = {
+			active: true
+		};
+	}
+
+	include_option = [{
+		model: Check_Up,
+		as: 'parent_record',
+		attributes: [],
+		required: true,
+		where: checkup_where_option,
+		include: [{
+			model: Billing_Item,
+			as: 'billing_items',
+			attributes: [],
+			required: true
+		}, {
+			model: Doctor,
+			attributes: [],
+			include: [{
+				model: User_Account,
+				as: 'username',
+				attributes: ['first_name', 'middle_name', 'last_name', 'suffix']
+			}]
+		}, {
+			model: Patient,
+			attributes: ['last_name', 'middle_name', 'first_name']
+		}]
+	}];
+
+	InPatient_Treatment.findAll({
+		attributes: [
+			'id', 
+			['conf_date', 'date'], 
+			'parent_record.check_up_type', 
+			'parent_record.hospitalName', 
+			'parent_record.doctorId', 
+			'parent_record.patientId', 
+			'parent_record->billing_items.checkUpId',
+			[Sequelize.fn('SUM', Sequelize.col('parent_record->billing_items.amount')), 'sumOfColumn']
+		],
+		where: {
+			active: true
+		},
+		group: [
+			"parent_record->billing_items.checkUpId", 
+			"inpatient_treatment.id", 
+			"parent_record.check_up_type", 
+			"parent_record.hospitalName", 
+			"parent_record.doctorId", 
+			"parent_record.patientId",
+			"parent_record->doctor->username.id",
+			"parent_record->patient.id"
+		],
+		raw: true,
+		include: include_option
+	}).then(ipt_list => {
+		OutPatient_Treatment.findAll({
+			attributes: [
+				'id', 
+				'date', 
+				'parent_record.check_up_type', 
+				'parent_record.hospitalName', 
+				'parent_record.doctorId', 
+				'parent_record.patientId', 
+				'parent_record->billing_items.checkUpId',
+				[Sequelize.fn('SUM', Sequelize.col('parent_record->billing_items.amount')), 'sumOfColumn']
+			],
+			where: {
+				active: true
+			},
+			group: [
+				"parent_record->billing_items.checkUpId", 
+				"outpatient_treatment.id", 
+				"parent_record.check_up_type", 
+				"parent_record.hospitalName", 
+				"parent_record.doctorId", 
+				"parent_record.patientId",
+				"parent_record->doctor->username.id",
+				"parent_record->patient.id"
+			],
+			raw: true,
+			include: include_option
+		}).then(opt_list => {
+			Consultation.findAll({
+				attributes: [
+					'id', 
+					'date', 
+					'parent_record.check_up_type', 
+					'parent_record.hospitalName', 
+					'parent_record.doctorId', 
+					'parent_record.patientId',
+					'parent_record->billing_items.checkUpId',
+					[Sequelize.fn('SUM', Sequelize.col('parent_record->billing_items.amount')), 'sumOfColumn']
+				],
+				where: {
+					active: true
+				},
+				group: [
+					"parent_record->billing_items.checkUpId", 
+					"consultation.id", 
+					"parent_record.check_up_type", 
+					"parent_record.hospitalName", 
+					"parent_record.doctorId", 
+					"parent_record.patientId",
+					"parent_record->doctor->username.id",
+					"parent_record->patient.id"
+				],
+				raw: true,
+				include: include_option
+			}).then(cc_list => {
+				allRecords = ipt_list.concat(opt_list.concat(cc_list));
+				res.render('billing/financial-report.html', {
+					reports: allRecords,
+					session: req.session
+				});
+			});
+		});
 	});
 });
 
 
-///////////////////////////POST//////////////////////////////
+/////////////////////////// POST //////////////////////////////
 
 router.post('/billing_item_add_check_up/:check_up_id', requireLoggedIn, requireDoctor, function(req, res){
 	var key = req.params.check_up_id;
@@ -594,7 +392,7 @@ router.post('/billing_item_edit/:billing_item_id', requireLoggedIn, function(req
 	});
 });
 
-router.post('/billing_item_delete', requireLoggedIn, requireDoctor, function(req, res){
+router.post('/billing_item_delete', requireLoggedIn, requireDoctor, function (req, res) {
 	var key = req.body['billing_items'];
 	Billing_Item.destroy({
 		where: {
