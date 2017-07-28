@@ -59,12 +59,18 @@ router.get('/login',
 );
 
 router.get('/logout', function (req, res) {
+	var superuser = false;
+	if(req.session.superuser && !req.session.spisinstance)
+		superuser = true;
 	req.session.user = null;
 	req.session.admin = null;
 	req.session.doctor = null;
 	req.session.secretary = null;
 	req.session.superuser = null;
-	res.redirect('/login');
+	if(!superuser)
+		res.redirect('/login');
+	else
+		res.redirect('/adminlicense');
 });
 
 router.get('/check_username/:name', requireLoggedIn, function (req, res) {
