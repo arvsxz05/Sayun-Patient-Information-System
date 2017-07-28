@@ -41,15 +41,15 @@
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>                        
           </button>
-          <a class="navbar-brand" href="#">SPIS LOGO HERE</a>
+          <a class="navbar-brand" href="/">SPIS LOGO HERE</a>
         </div>
         <div class="collapse navbar-collapse" id="navbar">
           <ul class="nav navbar-nav">
-            <li class="active"><a href="#">Home</a></li>
+            <li class="active"><a href="/">Home</a></li>
           </ul>
           <ul class="nav navbar-nav navbar-right">
-            <li><a href="#">NAME OF USER HERE</a></li>
-            <li><a href="#"><span class="glyphicon glyphicon-log-out"></span> Log out</a></li>
+            <li><a href="/account_edit/{{session.user.id}}">{{ session.user.id }}}</a></li>
+            <li><a href="/logout"><span class="glyphicon glyphicon-log-out"></span> Log out</a></li>
           </ul>
         </div>
       </div>
@@ -59,8 +59,8 @@
     <div class="container-fluid main-container">
         <!-- BREADCRUMBS -->
         <ol class="breadcrumb">
-          <li><a href="#">Home</a></li>
-          <li><a href="#">Patients List</a></li>
+          <li><a href="/">Home</a></li>
+          <li><a href="/patient_list">Patients List</a></li>
           <li class="active">Add Patient</li>
         </ol>
         <!-- END OF BREADCRUMBS -->
@@ -285,7 +285,7 @@
                                 <div class="col-md-6 col-md-offset-6 button-group" style="margin-top:30px">
                                     <div class="col-sm-7 col-sm-offset-5">     
                                         <button type="submit" class="btn btn-lime" id="save-btn">Save</button>    
-                                        <a href="/account_list" class="btn btn-gray">Cancel</a>
+                                        <a href="javascript:history.back()"" class="btn btn-gray">Cancel</a>
                                     </div>
                                 </div>
                                 <!-- END OF BUTTONS -->

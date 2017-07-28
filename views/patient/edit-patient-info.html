@@ -2,6 +2,7 @@
     <div class="col-md-10 col-md-offset-1">
         <h3>Patient Information
         <a class="btn btn-red" style="float: right; margin-top: -10px !important" id="delete-patient-button">Delete</a></h3>
+        <div id="snackbar"></div>
         <form id="add-patient-form" class="form-horizontal" role="form" method="POST" action="/patient_edit/{{patient.id}}" enctype="multipart/form-data">
         <!-- UPLOAD PHOTO -->   
             <div class="col-md-4 col-md-push-8">
@@ -222,7 +223,7 @@
             <!-- END OF PATIENT INFO DIVS -->
             <!-- BUTTONS -->
             <div class="row button-group" style="margin-top:30px"> 
-                <a href="/account_list" class="btn btn-gray pull-right">Cancel</a>    
+                <a href="/patient_list" class="btn btn-gray pull-right">Cancel</a>    
                 <button type="submit" class="btn btn-lime pull-right" id="save-btn">Save</button>    
             </div>
             <!-- END OF BUTTONS -->
@@ -232,8 +233,14 @@
 </div>
 
 <script type="text/javascript">
-    $("#delete-patient-button").click(function(e){
 
+    {% if messages.statusMessage %}
+        $(document).ready(function() {
+            showSnackBar("{{ messages.statusMessage }}");
+        });
+    {% endif %}
+
+    $("#delete-patient-button").click(function(e){
         var key = "{{patient.id}}";
         $.ajax({
             type: "GET",

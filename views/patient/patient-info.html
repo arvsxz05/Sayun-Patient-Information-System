@@ -2764,6 +2764,11 @@
         var x = document.getElementById("snackbar");
         x.innerHTML = str;
         x.className = "show";
+        if(str.includes("success")){
+            x.style.background = "#4BB543";
+        } else{
+            x.style.background = "#B33A3A";
+        }
         setTimeout(function(){ x.className = x.className.replace("show", ""); }, 3000);
     }
 

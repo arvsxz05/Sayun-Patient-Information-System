@@ -184,8 +184,8 @@ router.get('/account_edit/:id', requireLoggedIn,
 					type['Secretary'] = false;
 					if( result != null ){
 						type['Doctor'] = result;
-						console.log("DOCTOR");
-						console.log(type['Doctor']);
+						// console.log("DOCTOR");
+						// console.log(type['Doctor']);
 					}
 					Admin.findOne({
 						where: {
@@ -206,7 +206,7 @@ router.get('/account_edit/:id', requireLoggedIn,
 						}).then(function (result) {
 							if(result) {
 								contact_nums = result.contact_numbers;
-								console.log(req.session);
+								// console.log(req.session);
 								res.render('account/view-edit-account.html', {
 									user: result,
 									type: type,
@@ -411,6 +411,7 @@ router.post('/add_account', requireLoggedIn, requireSuperUser,
 							});
 						});
 					};
+					req.flash('statusMessage', "Account successfully added!");
 					res.redirect('/account_edit/'+doctor_instance._previousDataValues.usernameId);
 				}).catch(error => {
 					console.log(error);
@@ -438,6 +439,7 @@ router.post('/add_account', requireLoggedIn, requireSuperUser,
 							});
 						});
 					};
+					req.flash('statusMessage', "Account successfully added!");
 					res.redirect('/account_edit/'+secretary_instance.usernameId);
 				}).catch(error => {
 					console.log(error);
@@ -459,7 +461,7 @@ router.post('/account_delete', requireLoggedIn, requireSuperUser, function (req,
 		}, {
 			where: {name: result},
 		}).then(function (item) {
-			console.log("Disabled "+item+" successfully!");
+			// console.log("Disabled "+item+" successfully!");
 		}).catch(function (error) {
 			console.log(error.stack);
 		});
@@ -518,7 +520,7 @@ router.post('/account_edit/:id', requireLoggedIn,
 		
 		if(req.files['signature'] != undefined) {
 			sign = "/static/uploads/signatures/"+req.files['signature'][0].filename;	
-			console.log("IN HERE SIGNATURE");
+			// console.log("IN HERE SIGNATURE");
 		}
 
 		for(var i = 1; i <= contact_count; i++) {
@@ -545,7 +547,7 @@ router.post('/account_edit/:id', requireLoggedIn,
 				//////////////////////////BEWARE/////////////////////////
 			}
 			if( req.body['user-type'] == 'Doctor') {
-				console.log(sign);
+				// console.log(sign);
 				var lnum = req.body.license_num.trim();
 				var pnum = req.body.ptr_num.trim();
 				var s2num = req.body.s2_license_num.trim();
@@ -558,12 +560,23 @@ router.post('/account_edit/:id', requireLoggedIn,
 					usernameId: id
 				}}).then(doctor_updated => {
 					if (req.session.user.id == req.params.id) {
-						req.session.doctor = doctor_updated;
+						Doctor.findOne({
+							where: {
+								usernameId: req.session.user.id,
+							},
+							raw: true,
+						}).then(function(doctor_instance){
+							req.session.doctor = doctor_updated[1];
+							req.flash('statusMessage', "Profile successfully updated!");
+							return res.redirect('/account_edit/'+id);
+						});
 					}
-					return res.redirect('/');
+					req.flash('statusMessage', "Profile successfully updated!");
+						return res.redirect('/account_edit/'+id);
 				});
 			} else {
-				res.redirect('/');
+				req.flash('statusMessage', "Profile successfully updated!");
+				return res.redirect('/account_edit/'+id);
 			}
 		}).catch(function (error) {
 			console.log(error);

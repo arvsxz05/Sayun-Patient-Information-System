@@ -120,7 +120,9 @@ router.get('/patient_list', requireLoggedIn, function (req, res) {
 });
 
 router.get('/patient_add', requireLoggedIn, function (req, res) {
-	res.render('patient/add-patient.html');
+	res.render('patient/add-patient.html', {
+		session: req.session
+	});
 });
 
 router.get('/patient_edit/:id', requireLoggedIn, function (req, res) {
@@ -175,6 +177,22 @@ router.get('/patient_edit/:id', requireLoggedIn, function (req, res) {
 
 		});
 	});
+});
+
+router.get('/patient_edit_json/:id', requireLoggedIn, function (req, res) {
+	var key = req.params.id;
+
+		Patient.findOne({
+			where: {
+				id: key,
+				active: true,
+			},
+			raw: true
+		}).then(function (result) {
+			res.json({
+				patient: result,
+			});
+		});
 });
 
 router.get('/patient_delete/:id', requireLoggedIn, function(req, res) {
@@ -312,8 +330,8 @@ router.post('/patient_add', requireLoggedIn, upload.fields([{name: 'photo', maxC
 		photo = "/static/uploads/patients/"+req.files['photo'][0].filename;	
 	}
 
-	console.log("PATIENT ADD");
-	console.log(req.body);
+	// console.log("PATIENT ADD");
+	// console.log(req.body);
 
 	var lname = req.body['last_name'];
 	var fname = req.body['first_name'];
@@ -376,6 +394,7 @@ router.post('/patient_add', requireLoggedIn, upload.fields([{name: 'photo', maxC
 	}, {
 		raw: true
 	}).then(function (item) {
+		req.flash('statusMessage', "Patient successfully added!");
 		res.redirect("/patient_edit/"+item.dataValues.id);
 	}).catch(function (error) {
 		console.log(error);
@@ -466,6 +485,7 @@ router.post('/patient_edit/:id', requireLoggedIn, upload.fields([{name: 'photo',
 			active: true,
 		}
 	}).then(function (item) {
+		req.flash('statusMessage', "Patient record successfully updated!");
 		res.redirect('/patient_edit/'+key);
 	}).catch(function (error) {
 		console.log(error);
@@ -498,7 +518,9 @@ router.post('/patient_edit_notes/:id', requireLoggedIn, function (req, res) {
 			id: key,
 		}
 	}).then(function(result){
-		res.redirect('/patient_edit/'+key);
+		res.json({
+			success: true,
+		});
 	}).catch(function(error){
 		console.log("patient edit notes error");
 		console.log(error);

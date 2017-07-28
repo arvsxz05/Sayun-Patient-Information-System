@@ -47,7 +47,7 @@
           <li class="active">Edit Account</li>
         </ol>
         <!-- END OF BREADCRUMBS -->
-
+        <div id="snackbar"></div>
         <div class="container-fluid">
             <!-- <form id="delete-account-form" method="POST" action="/account_delete/{{user.id}}"> </form> -->
             <form id="edit-account-form" class="form-horizontal" role="form" method="POST" action="/account_edit/{{user.id}}" enctype="multipart/form-data">
@@ -362,6 +362,9 @@
         if($('#user-type :selected').text() == 'Doctor') {
             $('.doctor-fields').show();
         }
+        {% if messages.statusMessage %}
+            showSnackBar("{{ messages.statusMessage }}");
+        {% endif %}
     });   
     $(document).on("ready",function() {
         var next = 0;
@@ -604,6 +607,16 @@
             });
         });
 
-     
+function showSnackBar(str) {
+    var x = document.getElementById("snackbar");
+    x.innerHTML = str;
+    x.className = "show";
+    if(str.includes("success")){
+        x.style.background = "#4BB543";
+    } else{
+        x.style.background = "#B33A3A";
+    }
+    setTimeout(function(){ x.className = x.className.replace("show", ""); }, 3000);
+}
 </script>
 </html>
