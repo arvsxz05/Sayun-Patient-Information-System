@@ -894,7 +894,113 @@
                     url: "/clinic_consultation_list/{{patient.id}}",
                 }).done(updateCCListRows);
 
+                $('#list-cc-view-link').hide();
+                $('#add-cc-view').hide();
+                $('#edit-cc-view').hide();
+
+                $('#list-ipt-view-link').hide();
+                $('#add-ipt-view').hide();
+                $('#edit-ipt-view').hide();
+
+
+                $('#list-opt-view-link').hide();
+                $('#add-opt-view').hide();
+                $('#edit-opt-view').hide();
+
+
+                $('#list-lab-view-link').hide();
+                $('#add-lab-view').hide();
+                $('#edit-lab-view').hide();
+
                 edit_CC(consultationKey);
+
+            }
+            else if(tabUrl.indexOf("-") > -1 && tabUrl.indexOf("#ip-treatments-edit") > -1){
+                var iptKey = tabUrl.substring(tabUrl.lastIndexOf("-") + 1);
+                window.location.href = window.location.href.substring(0, window.location.href.indexOf("-edit"));
+
+                $('a[href="#ipt-treatments"').tab('show');
+                $( '.panel-collapse' ).removeClass( 'in' );
+                $( '.panel-body' ).removeClass( 'active' );
+                $('a[class="accordion-toggle"]').addClass('collapsed');
+                $('.collapsed').attr('aria-expanded', false);
+                $( '.panel-collapse' ).attr('aria-expanded', false);
+
+                $('#ipt-treatments').addClass('active');
+                $('#collapse-ipt-treatments').addClass('in');
+                $('#collapse-ipt-treatments').css("height", "auto");
+                $('#collapse-ipt-treatments').attr('aria-expanded', true);
+                $('a[href="#collapse-ipt-treatments"]').removeClass('collapsed');
+                $('a[href="#collapse-ipt-treatments"]').attr('aria-expanded', true);
+
+                $.ajax({
+                    type: "GET",
+                    url: "/ipt_list/{{patient.id}}",
+                }).done(updateIPTListRows);
+
+                $('#list-cc-view-link').hide();
+                $('#add-cc-view').hide();
+                $('#edit-cc-view').hide();
+
+                $('#list-ipt-view-link').hide();
+                $('#add-ipt-view').hide();
+                $('#edit-ipt-view').hide();
+
+
+                $('#list-opt-view-link').hide();
+                $('#add-opt-view').hide();
+                $('#edit-opt-view').hide();
+
+
+                $('#list-lab-view-link').hide();
+                $('#add-lab-view').hide();
+                $('#edit-lab-view').hide();
+
+                edit_IPT(iptKey);
+
+            }
+            else if(tabUrl.indexOf("-") > -1 && tabUrl.indexOf("#op-treatments-edit") > -1){
+                var optKey = tabUrl.substring(tabUrl.lastIndexOf("-") + 1);
+                window.location.href = window.location.href.substring(0, window.location.href.indexOf("-edit"));
+
+                $('a[href="#opt-treatments"').tab('show');
+                $( '.panel-collapse' ).removeClass( 'in' );
+                $( '.panel-body' ).removeClass( 'active' );
+                $('a[class="accordion-toggle"]').addClass('collapsed');
+                $('.collapsed').attr('aria-expanded', false);
+                $( '.panel-collapse' ).attr('aria-expanded', false);
+
+                $('#opt-treatments').addClass('active');
+                $('#collapse-opt-treatments').addClass('in');
+                $('#collapse-opt-treatments').css("height", "auto");
+                $('#collapse-opt-treatments').attr('aria-expanded', true);
+                $('a[href="#collapse-opt-treatments"]').removeClass('collapsed');
+                $('a[href="#collapse-opt-treatments"]').attr('aria-expanded', true);
+
+                $.ajax({
+                    type: "GET",
+                    url: "/opt_list/{{patient.id}}",
+                }).done(updateIPTListRows);
+
+                $('#list-cc-view-link').hide();
+                $('#add-cc-view').hide();
+                $('#edit-cc-view').hide();
+
+                $('#list-ipt-view-link').hide();
+                $('#add-ipt-view').hide();
+                $('#edit-ipt-view').hide();
+
+
+                $('#list-opt-view-link').hide();
+                $('#add-opt-view').hide();
+                $('#edit-opt-view').hide();
+
+
+                $('#list-lab-view-link').hide();
+                $('#add-lab-view').hide();
+                $('#edit-lab-view').hide();
+
+                edit_OPT(optKey);
 
             }
             else{
@@ -964,6 +1070,20 @@
                 $('#list-cc-view-link').hide();
                 $('#add-cc-view').hide();
                 $('#edit-cc-view').hide();
+
+                $('#list-ipt-view-link').hide();
+                $('#add-ipt-view').hide();
+                $('#edit-ipt-view').hide();
+
+
+                $('#list-opt-view-link').hide();
+                $('#add-opt-view').hide();
+                $('#edit-opt-view').hide();
+
+
+                $('#list-lab-view-link').hide();
+                $('#add-lab-view').hide();
+                $('#edit-lab-view').hide();
             }
             
         }
@@ -985,6 +1105,20 @@
             $('#list-cc-view-link').hide();
             $('#add-cc-view').hide();
             $('#edit-cc-view').hide();
+
+            $('#list-ipt-view-link').hide();
+            $('#add-ipt-view').hide();
+            $('#edit-ipt-view').hide();
+
+
+            $('#list-opt-view-link').hide();
+            $('#add-opt-view').hide();
+            $('#edit-opt-view').hide();
+
+
+            $('#list-lab-view-link').hide();
+            $('#add-lab-view').hide();
+            $('#edit-lab-view').hide();
         }  
 
         $("#confinement-date").dateDropdowns({
@@ -1051,20 +1185,6 @@
             displayFormat: "mdy"
         });
 
-        
-        $('#list-ipt-view-link').hide();
-        $('#add-ipt-view').hide();
-        $('#edit-ipt-view').hide();
-
-
-        $('#list-opt-view-link').hide();
-        $('#add-opt-view').hide();
-        $('#edit-opt-view').hide();
-
-
-        $('#list-lab-view-link').hide();
-        $('#add-lab-view').hide();
-        $('#edit-lab-view').hide();
 
 
         $(".date-div select").addClass("form-control");

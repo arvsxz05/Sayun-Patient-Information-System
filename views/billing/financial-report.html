@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<title>Patients List</title>
+	<title>Financial Report</title>
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<link rel="stylesheet" 	type="text/css" 		href="/static/css/bootstrap.css">
 	<link rel="stylesheet" 	type="text/css" 		href="/static/css/bootstrap.min.css">
@@ -68,7 +68,24 @@
 					        <tbody>
 					        	{% for record in reports %}
 					        	<tr>
-					        		<td><a onclick="edit_check_up('{{ record['check_up_type'] }}', '{{ record['id'] }}')">{{ record['date'] }}</a></td>
+					        		<td>
+					        			{% if record['check_up_type'] == 'Consultation' %}
+
+					        			<a href="/patient_edit/{{ record['parent_record.patient.id'] }}#consultations-{{ record['id'] }}">{{ record['date'] }}</a>
+
+					        			{% elif record['check_up_type'] == 'In-Patient-Treatment' %}
+
+					        			<a href="/patient_edit/{{ record['parent_record.patient.id'] }}#ip-treatments-edit-{{ record['id'] }}">{{ record['date'] }}</a>
+
+					        			{% elif record['check_up_type'] == 'Out-Patient-Treatment' %}
+
+					        			<a href="/patient_edit/{{ record['parent_record.patient.id'] }}#op-treatments-edit-{{ record['id'] }}">{{ record['date'] }}</a>
+
+					        			{% elif record['check_up_type'] == 'Laboratory Result' %}
+					        		
+					        			{% endif %}
+
+					        		</td>
 					        		<td>{{ record['parent_record.patient.first_name'] }} {{ record['parent_record.patient.middle_name'] }} {{ records['parent_record.patient.last_name'] }}</td>
 					        		<td>{{ record['check_up_type'] }}</td>
 					        		<td>{{ record['hospitalName'] }}</td>
@@ -104,9 +121,21 @@
 		});
 	});
 
-	function edit_check_up(type, key) {
-		console.log(type, key);
-		console.log(window.location.href);
+	function edit_record(type, key, p_id) {
+		if(type == 'Consultation'){
+			$(this).attr('href', '/patient_edit/' + p_id + '#consultations' + '-' + key);
+		}
+		else if(type == 'In-Patient-Treatment'){
+			$(this).attr('href', '/patient_edit/' + p_id + '#ipt-treatments' + '-edit-' + key);
+			// console.log($(this));
+			alert("what the shit");
+		}
+		else if(type == 'Out-Patient-Treatment'){
+
+		}
+		else if(type == 'Lab Result'){
+
+		}
         // if(type == 'Consultation'){
         //     window.location.href = window.location.href.substring(0, window.location.href.indexOf("#medication")) + '#consultations'
         //     edit_CC(key);
