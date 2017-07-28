@@ -78,6 +78,7 @@ router.post('/adminlicense', function (req, res) {
 			req.session.doctor = false;
 			req.session.admin = false;
 			req.session.secretary = false;
+			req.session.spisinstance = null;
 			res.redirect('/spis_list');
 		} else {
 			req.flash('statusMessage', "Wrong username and/or password");
