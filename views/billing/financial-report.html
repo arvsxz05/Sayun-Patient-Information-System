@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<title>Patients List</title>
+	<title>Financial Report</title>
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 	<link rel="stylesheet"	type="text/css"			href="/static/css/bootstrap.css">
@@ -58,7 +58,6 @@
 		<div class="container-fluid">
 			<div class="row feature-row" style="padding-top: 20px">
 				<div class="col-sm-10 col-sm-offset-1">
-
 					<div class="row form-horizontal">
 						<div class="col-sm-6 col-md-4">
 							<div class="form-group">
@@ -68,7 +67,7 @@
 								</div>
 							</div>
 						</div>
-						<div class="col-sm-6 col-md-4 col-md-offset-4">
+						<div class="col-sm-6 col-md-4">
 							<div class="form-group">
 								<label class="col-sm-3 control-label" for="queue-datepicker-to">To</label>
 								<div class="col-sm-9">
@@ -96,7 +95,9 @@
 					        	{% for record in reports %}
 					        	<tr>
 					        		<td>
+					        			<span class="hidden">{{ record['date'] }}</span>
 					        			{% if record['check_up_type'] == 'Consultation' %}
+
 
 					        			<a href="/patient_edit/{{ record['parent_record.patient.id'] }}#consultations-{{ record['id'] }}">{{ record['date'] }}</a>
 
@@ -145,6 +146,11 @@
 	</div>
 </body>
 <script type="text/javascript">
+	$("tbody tr").each(function( index ) {
+		var date = $(this).children("td:first").children("a").text();
+		$(this).children("td:first").children("a").text($.datepicker.formatDate('M dd yy', new Date(date)));
+	});
+
 	$(document).ready(function() {
 		var Financial_Report_List_Table = $('#financial-report').DataTable({
 	    	"bSort": true, 
@@ -161,28 +167,72 @@
             ],
             "order": [[ 0, "asc" ]]
 		});
+
+		$.fn.dataTable.ext.search.push(
+	        function (settings, data, dataIndex) {
+	            var min = $('#queue-datepicker-from').datepicker("getDate");
+	            var max = $('#queue-datepicker-to').datepicker("getDate");
+	            var startDate = new Date(data[0]);
+	            if (min == null && max == null) { return true; }
+	            if (min == null && startDate <= max) { return true;}
+	            if(max == null && startDate >= min) {return true;}
+	            if (startDate <= max && startDate >= min) { return true; }
+	            return false;
+	        }
+        );
+
 		var leastDate = $($.parseHTML(Financial_Report_List_Table.rows().data()[0][0]))[0].innerHTML;
 		var mostDate = $($.parseHTML(Financial_Report_List_Table.rows().data()[Financial_Report_List_Table.rows().data().length-1][0]))[0].innerHTML;
 
-		$(function() {
-			$( "#queue-datepicker-from" ).datepicker({
-				changeMonth: true,
-				changeYear:true,
-				maxDate: new Date(mostDate),
-				onSelect: function( selectedDate ) {
-					$( "#queue-datepicker-to" ).datepicker( "option", "minDate", selectedDate );
-				}
-			}).datepicker("setDate", new Date(leastDate));
+		var fromDate = leastDate;
+		var toDate = mostDate;
 
-			$( "#queue-datepicker-to" ).datepicker({
-				changeMonth: true,
-				changeYear:true,
-				minDate: new Date(leastDate),
-				onSelect: function( selectedDate ) {
-					$( "#queue-datepicker-from" ).datepicker( "option", "maxDate", selectedDate );
-				}
-			}).datepicker("setDate", new Date(mostDate));
+
+		$("#queue-datepicker-from").datepicker({ 
+			maxDate: new Date(mostDate),
+			onSelect: function (selectedDate) { 
+				Financial_Report_List_Table.draw(); 
+				$( "#queue-datepicker-to" ).datepicker( "option", "minDate", selectedDate );
+			}, 
+			changeMonth: true, 
+			changeYear: true 
 		});
+
+        $("#queue-datepicker-to").datepicker({ 
+        	minDate: new Date(leastDate),
+        	onSelect: function (selectedDate) { 
+        		Financial_Report_List_Table.draw(); 
+        		$( "#queue-datepicker-from" ).datepicker( "option", "maxDate", selectedDate );
+        	}, 
+        	changeMonth: true, 
+        	changeYear: true 
+        });
+            
+
+            // Event listener to the two range filtering inputs to redraw on input
+        $('#queue-datepicker-from, #queue-datepicker-to').change(function () {
+            Financial_Report_List_Table.draw();
+        });
+
+		// function filterReport(fromDate, toDate) {
+		// 	fromDate = fromDate.split("/");
+		// 	var fromYear = parseInt(fromDate[2], 10), // cast Strings as Numbers
+		// 		fromDay = parseInt(fromDate[1], 10),
+		// 	    fromMonth = parseInt(fromDate[0], 10);
+
+		// 	toDate = toDate.split("/");
+		// 	var toYear = parseInt(toDate[2], 10), // cast Strings as Numbers
+		// 		toDay = parseInt(toDate[1], 10),
+		// 	    toMonth = parseInt(toDate[0], 10);
+		// 	// don't expire until day after expiry date
+		// 	if (toYear > fromYear ||
+		// 	    toYear == fromYear && toMonth > fromMonth ||
+		// 	    toYear == fromYear && toMonth == fromMonth && toDay > fromDay) {
+
+		// 	   	Financial_Report_List_Table.columns(0).search('^'+ status + '$', true, false).draw();
+
+		// 	};
+		// }
 	});
 </script>
 </html>     
