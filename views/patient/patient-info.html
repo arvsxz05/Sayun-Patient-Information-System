@@ -853,7 +853,15 @@
     })(jQuery);
 
     $( '#myTab a' ).click( function ( e ) {
-    // e.preventDefault();
+        e.preventDefault();
+        var url = window.location.href;
+
+        if(url.indexOf("#") > -1){
+            window.location.href = url.substring(0, url.indexOf("#")) + $(this).attr('href');
+        }
+        else{
+            window.location.href = url + $(this).attr('href');
+        }
         $( this ).tab( 'show' );
     } );
 
