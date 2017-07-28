@@ -163,7 +163,8 @@ router.get('/patient_edit/:id', requireLoggedIn, function (req, res) {
 						user: req.session.user,
 						doctor: req.session.doctor,
 						doctors: doctors,
-						hospitals: hospitals
+						hospitals: hospitals,
+						session: req.session
 					});
 				});
 			} else{

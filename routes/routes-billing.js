@@ -10,6 +10,7 @@ const Consultation = require('../models/database').Consultation;
 const User_Account = require('../models/database').User_Account;
 const Doctor = require('../models/database').Doctor;
 const Patient = require('../models/database').Patient;
+const Laboratory = require('../models/database').Laboratory;
 const Sequelize = require('sequelize');
 
 ///////////////////// MIDDLEWARES ////////////////////////
@@ -151,10 +152,37 @@ router.get('/billing_list/:patient_id', requireLoggedIn, function(req, res) {
 				raw: true,
 				include: include_option
 			}).then(cc_list => {
-				allRecords = ipt_list.concat(opt_list.concat(cc_list));
-				res.json({
-					reports: allRecords,
-					session: req.session
+				Laboratory.findAll({
+					attributes: [
+						'id',
+						'date',
+						'hospitalName',
+						'patientId',
+						[Sequelize.fn('SUM', Sequelize.col('billing_items.amount')), 'sumOfColumn']
+					],
+					where: {
+						active: true,
+						patientId: key,
+					},
+					include: [{
+						model: Billing_Item,
+						as: 'billing_items',
+						attributes: [],
+						required: true,
+					}],
+					group: [
+						'laboratory.id',
+						'date',
+						'hospitalName',
+					],
+					raw: true,
+				}).then(lab_list => {
+					console.log(lab_list);
+					allRecords = ipt_list.concat(opt_list.concat(cc_list.concat(lab_list)));
+					res.json({
+						reports: allRecords,
+						session: req.session
+					});
 				});
 			});
 		});
@@ -282,10 +310,41 @@ router.get('/financial_report', requireLoggedIn, function(req, res){
 				raw: true,
 				include: include_option
 			}).then(cc_list => {
-				allRecords = ipt_list.concat(opt_list.concat(cc_list));
-				res.render('billing/financial-report.html', {
-					reports: allRecords,
-					session: req.session
+				Laboratory.findAll({
+					attributes: [
+						'id',
+						'date',
+						'hospitalName',
+						'patientId',
+						[Sequelize.fn('SUM', Sequelize.col('billing_items.amount')), 'sumOfColumn']
+					],
+					where: {
+						active: true,
+					},
+					include: [{
+						model: Patient,
+						required: true,
+						attributes: ['first_name', 'middle_name', 'last_name'],
+					}, {
+						model: Billing_Item,
+						as: 'billing_items',
+						attributes: [],
+						required: true,
+					}],
+					group: [
+						'laboratory.id',
+						'date',
+						'hospitalName',
+						'patient.id',
+					],
+					raw: true,
+				}).then(lab_list => {
+					console.log(lab_list);
+					allRecords = ipt_list.concat(opt_list.concat(cc_list.concat(lab_list)));
+					res.render('billing/financial-report.html', {
+						reports: allRecords,
+						session: req.session
+					});
 				});
 			});
 		});

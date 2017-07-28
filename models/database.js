@@ -50,6 +50,7 @@ if (!global.hasOwnProperty('db')) {
 	global.db.Medical_Procedure.belongsTo(global.db.Check_Up);
 	global.db.OutPatient_Treatment.belongsTo(global.db.Check_Up, {as: 'parent_record'});
 	global.db.Patient.hasMany(global.db.Laboratory);
+	global.db.Laboratory.belongsTo(global.db.Patient);
 	global.db.Hospital.hasMany(global.db.Laboratory);
 	global.db.User_Account.hasMany(global.db.Billing_Item, {
 		foreignKey: {
