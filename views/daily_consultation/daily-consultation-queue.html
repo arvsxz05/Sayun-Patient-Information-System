@@ -22,6 +22,7 @@
     <script src="/static/js/1.12.1-jquery-ui.js"></script>
     <link rel="stylesheet" href="/static/css/jquery-confirm.min.css">
     <script src="/static/js/jquery-confirm.min.js"></script>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" rel="stylesheet"/>
     <style>
 
         .myDragClass {
@@ -266,6 +267,77 @@
                                                     </select>
                                                 </div>
                                             </div>
+                                            <legend>Biometrics</legend>
+                                            <div class="row form-horizontal">
+                                                <div class="col-xs-6">
+                                                    <div class="form-group">
+                                                        <label class="col-sm-4 control-label">Height</label>
+                                                        <div class="col-sm-8">
+                                                            <div class="input-group">
+                                                                <input type="number" id="add-height" name="height" class="form-control" style="padding:5px;">
+                                                                <span class="input-group-addon" style="width:0px; padding-left:0px; padding-right:0px; border:none;"></span>
+                                                                <select id="add-height-unit" name="height-unit" class="form-control" style="padding:5px; width:65px;">
+                                                                    <option value="cm" selected>cm</option>
+                                                                    <option value="in">in</option>
+                                                                    <option value="inft">ft in</option>
+                                                                </select>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-xs-6">
+                                                    <div class="form-group">
+                                                        <label class="col-sm-4 control-label">Weight</label>
+                                                        <div class="col-sm-8">
+                                                            <div class="input-group">
+                                                                <input type="number" id="add-weight" name="weight" class="form-control" style="padding:5px;">
+                                                                <span class="input-group-addon" style="width:0px; padding-left:0px; padding-right:0px; border:none;"></span>
+                                                                <select id="add-weight-unit" name="weight-unit" class="form-control" style="padding:5px; width:65px;">
+                                                                    <option value="kg" selected>kg</option>
+                                                                    <option value="lb">lb</option>
+                                                                </select>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row form-horizontal">
+                                                <div class="col-xs-6">
+                                                    <div class="form-group">
+                                                        <label class="col-sm-4 control-label">Temperature</label>
+                                                        <div class="col-sm-8">
+                                                            <div class="input-group">
+                                                                <input type="number" id="add-temp" name="temp" class="form-control" style="padding:5px;">
+                                                                <span class="input-group-addon" style="width:0px; padding-left:0px; padding-right:0px; border:none;"></span>
+                                                                <select id="add-temp-unit" name="temp-unit" class="form-control" style="padding:5px; width:65px;">
+                                                                    <option value="C" selected>C</option>
+                                                                    <option value="F">F</option>
+                                                                </select>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-xs-6">
+                                                    <div class="form-group">
+                                                        <label class="col-sm-4 control-label">Blood Pressure</label>
+                                                        <div class="col-sm-8">
+                                                            <div class="input-group">
+                                                                <input type="text" id="add-bp" name="bp" class="form-control" style="padding:5px;">
+                                                                <span class="input-group-addon" style="width:65px;">mm Hg</span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="col-sm-3 control-label" for="daily-cc-date">Pulse Rate</label>
+                                                <div class="col-sm-9">
+                                                    <div class="input-group">
+                                                        <input type="number" id="add-pulse" name="pulse" class="form-control">
+                                                        <span class="input-group-addon">bpm</span>
+                                                    </div>
+                                                </div>
+                                            </div>
                                         </div>
                                     </fieldset>
                                     <div class="button-group">
@@ -352,6 +424,82 @@
                                                       <option value="Done">Done</option>
                                                       <option value="Current">Current</option>
                                                     </select>
+                                                </div>
+                                            </div>
+                                            <legend>Biometrics</legend>
+                                            <div class="row form-horizontal">
+                                                <div class="col-xs-6">
+                                                    <div class="form-group">
+                                                        <label class="col-sm-4 control-label">Height</label>
+                                                        <div class="col-sm-8">
+                                                            <div class="input-group">
+                                                                <input type="number" id="edit-height" name="searchbygenerals[priceFrom]" class="form-control" value="0">
+                                                                <!-- insert this line -->
+                                                                <span class="input-group-addon" style="width:0px; padding-left:0px; padding-right:0px; border:none;"></span>
+                                                                <select id="edit-height-unit" class="form-control" style="width:70px;">
+                                                                    <option value="1">cm</option>
+                                                                    <option value="2">in</option>
+                                                                    <option value="3">ft in</option>
+                                                                </select>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-xs-6">
+                                                    <div class="form-group">
+                                                        <label class="col-sm-4 control-label">Weight</label>
+                                                        <div class="col-sm-8">
+                                                            <div class="input-group">
+                                                                <input type="number" id="edit-weight" name="searchbygenerals[priceFrom]" class="form-control" value="0">
+                                                                <!-- insert this line -->
+                                                                <span class="input-group-addon" style="width:0px; padding-left:0px; padding-right:0px; border:none;"></span>
+                                                                <select id="edit-weight-unit" class="form-control" style="width:70px;">
+                                                                    <option value="1">kg</option>
+                                                                    <option value="2">lb</option>
+                                                                </select>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row form-horizontal">
+                                                <div class="col-xs-6">
+                                                    <div class="form-group">
+                                                        <label class="col-sm-4 control-label">Temperature</label>
+                                                        <div class="col-sm-8">
+                                                            <div class="input-group">
+                                                                <input type="number" id="edit-temp" name="searchbygenerals[priceFrom]" class="form-control" value="0">
+                                                                <!-- insert this line -->
+                                                                <span class="input-group-addon" style="width:0px; padding-left:0px; padding-right:0px; border:none;"></span>
+                                                                <select id="edit-temp-unit" class="form-control" style="width:70px;">
+                                                                    <option value="1">C</option>
+                                                                    <option value="2">F</option>
+                                                                </select>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-xs-6">
+                                                    <div class="form-group">
+                                                        <label class="col-sm-4 control-label">Blood Pressure</label>
+                                                        <div class="col-sm-8">
+                                                            <div class="input-group">
+                                                                <input type="number" id="edit-bp" name="searchbygenerals[priceFrom]" class="form-control" value="0">
+                                                                <!-- insert this line -->
+                                                                <span class="input-group-addon">mm Hg</span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="col-sm-3 control-label" for="daily-cc-date">Pulse Rate</label>
+                                                <div class="col-sm-9">
+                                                    <div class="input-group">
+                                                        <input type="number" id="edit-pulse" name="searchbygenerals[priceFrom]" class="form-control" value="0">
+                                                        <!-- insert this line -->
+                                                        <span class="input-group-addon">bpm</span>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
@@ -586,25 +734,21 @@
 
         return [month, day, year].join('/');
     }
-    $('#edit-daily-consultation-form').submit(function(e) {
+    $('#edit-daily-consultation-form').submit(function (e) {
+        e.preventDefault();
         var toAddDailyDate = $("#daily-cc-date").val();
         if (toAddDailyDate && toAddDailyDate.trim() !== '') {
             toAddDailyDate = new Date(toAddDailyDate)
             var dd = toAddDailyDate.getDate();
-            var mm = toAddDailyDate.getMonth()+1;
+            var mm = toAddDailyDate.getMonth() + 1;
             var yyyy = toAddDailyDate.getFullYear();
 
-            if(dd<10) {
-                dd = '0'+dd
-            } 
+            if (dd < 10) dd = '0' + dd;
 
-            if(mm<10) {
-                mm = '0'+mm
-            } 
+            if (mm < 10) mm = '0' + mm;
 
             toAddDailyDate = mm + '/' + dd + '/' + yyyy;
         }
-        e.preventDefault();
         $.ajax({
             type: "POST",
             url: "/edit_daily_consultation",
@@ -620,20 +764,15 @@
         });
     });
 
-    $('#add-daily-consultation-form').submit(function(e) {
+    $('#add-daily-consultation-form').submit(function (e) {
         e.preventDefault();
         var toAddDailyDate = new Date($("#daily-cc-date").val());
         var dd = toAddDailyDate.getDate();
-        var mm = toAddDailyDate.getMonth()+1; //January is 0!
+        var mm = toAddDailyDate.getMonth() + 1; //January is 0!
         var yyyy = toAddDailyDate.getFullYear();
 
-        if(dd<10) {
-            dd = '0'+dd
-        } 
-
-        if(mm<10) {
-            mm = '0'+mm
-        } 
+        if (dd < 10) dd = '0' + dd;
+        if (mm < 10) mm = '0' + mm;
 
         toAddDailyDate = mm + '/' + dd + '/' + yyyy;
 
@@ -644,7 +783,15 @@
                 doctor: $("#hidden-doctor").val(),
                 date: toAddDailyDate,
                 hospital: $("#hospital").val(),
-                p_id: $("#hidden_patient_id").val()
+                p_id: $("#hidden_patient_id").val(),
+                height: $("#add-height").val(),
+                height_unit: $("#add-height-unit").val(),
+                weight: $("#add-weight").val(),
+                weight_unit: $("#add-weight-unit").val(),
+                temp: $("#add-temp").val(),
+                temp_unit: $("#add-temp-unit").val(),
+                bp: $("#add-bp").val(),
+                pulse: $("#add-pulse").val()
             }
         }).done(function (data) {
             if(data.success) {

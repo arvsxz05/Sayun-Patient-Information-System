@@ -617,6 +617,62 @@ module.exports = function(io) {
 		console.log(req.body);
 		var date = new Date(req.body.date);
 		var date_iso = date.toISOString();
+
+		var height = req.body.height;
+        var height_unit = req.body.height_unit;
+        var weight = req.body.weight;
+        var weight_unit = req.body.weight_unit;
+        var temp = req.body.temp;
+        var temp_unit = req.body.temp_unit;
+        var bp = req.body.bp;
+        var pulse = req.body.pulse;
+        
+		if (height && height.trim() !== '') {
+            height = parseFloat(height.trim());
+            if (isNaN(height)) {
+                height = null;
+                height_unit = null;
+            }
+        } else {
+            height = null;
+            height_unit = null;
+        }
+
+        if (weight && weight.trim() !== '') {
+            weight = parseFloat(weight.trim());
+            if (isNaN(weight)) {
+                weight = null;
+                weight_unit = null;
+            }
+        } else {
+            weight = null;
+            weight_unit = null;
+        }
+
+        if (temp && temp.trim() !== '') {
+            temp = parseFloat(temp.trim());
+            if (isNaN(temp)) {
+                temp = null;
+                temp_unit = null;
+            }
+        } else {
+            temp = null;
+            temp_unit = null;
+        }
+
+        if (!bp || bp.trim() === '') {
+            bp = null;
+        }
+
+        if (pulse && pulse.trim() !== '') {
+            pulse = parseInt(pulse.trim());
+            if (isNaN(pulse)) {
+                pulse = null;
+            }
+        } else {
+            pulse = null;
+        }
+
 		Consultation.count({
 			where: {
 				date: date_iso,
@@ -636,6 +692,14 @@ module.exports = function(io) {
 				status: 'Waiting',
 				date: date_iso,
 				attachments: [],
+				height: height,
+				height_unit: height_unit,
+				weight: weight,
+				weight_unit: weight_unit,
+				temperature: temp,
+				temp_unit: temp_unit,
+				bp: bp,
+				pulse_rate: pulse,
 				parent_record: {
 					hospitalName: req.body.hospital,
 					patientId: req.body.p_id,
