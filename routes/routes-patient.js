@@ -483,7 +483,7 @@ router.post('/patient_edit_notes/:id', requireLoggedIn, function (req, res) {
 	var imm_fam_hh = req.body['immediate-family-hh'];
 	var prev_medproc = req.body['prev-med-proc'];
 	var gen_notes = req.body['general-notes'];
-	var surgeries = req.body['surgeries'];
+	var surgeries = req.body['prior-surgeries'];
 
 	Patient.update({
 		f_allergies: f_allergies,
