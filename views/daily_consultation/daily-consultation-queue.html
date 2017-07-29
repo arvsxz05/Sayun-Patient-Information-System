@@ -374,7 +374,7 @@
                                             <label class="col-sm-3 control-label" for="tags">Patient Name: </label>
                                             <div class="col-sm-9">
                                                 <div class = "ui-widget">
-                                                    <input type="text" class="form-control" id="edit-patients-names-list" disabled>
+                                                    <input type="text" class="form-control" id="edit-patients-name" disabled>
                                                 </div>
                                             </div>
                                         </div>
@@ -433,13 +433,13 @@
                                                         <label class="col-sm-4 control-label">Height</label>
                                                         <div class="col-sm-8">
                                                             <div class="input-group">
-                                                                <input type="number" id="edit-height" name="searchbygenerals[priceFrom]" class="form-control" value="0">
+                                                                <input type="number" id="edit-height" class="form-control" value="0">
                                                                 <!-- insert this line -->
                                                                 <span class="input-group-addon" style="width:0px; padding-left:0px; padding-right:0px; border:none;"></span>
                                                                 <select id="edit-height-unit" class="form-control" style="width:70px;">
-                                                                    <option value="1">cm</option>
-                                                                    <option value="2">in</option>
-                                                                    <option value="3">ft in</option>
+                                                                    <option value="cm">cm</option>
+                                                                    <option value="in">in</option>
+                                                                    <option value="inft">ft in</option>
                                                                 </select>
                                                             </div>
                                                         </div>
@@ -450,12 +450,12 @@
                                                         <label class="col-sm-4 control-label">Weight</label>
                                                         <div class="col-sm-8">
                                                             <div class="input-group">
-                                                                <input type="number" id="edit-weight" name="searchbygenerals[priceFrom]" class="form-control" value="0">
+                                                                <input type="number" id="edit-weight" class="form-control" value="0">
                                                                 <!-- insert this line -->
                                                                 <span class="input-group-addon" style="width:0px; padding-left:0px; padding-right:0px; border:none;"></span>
                                                                 <select id="edit-weight-unit" class="form-control" style="width:70px;">
-                                                                    <option value="1">kg</option>
-                                                                    <option value="2">lb</option>
+                                                                    <option value="kg">kg</option>
+                                                                    <option value="lb">lb</option>
                                                                 </select>
                                                             </div>
                                                         </div>
@@ -472,8 +472,8 @@
                                                                 <!-- insert this line -->
                                                                 <span class="input-group-addon" style="width:0px; padding-left:0px; padding-right:0px; border:none;"></span>
                                                                 <select id="edit-temp-unit" class="form-control" style="width:70px;">
-                                                                    <option value="1">C</option>
-                                                                    <option value="2">F</option>
+                                                                    <option value="C">C</option>
+                                                                    <option value="F">F</option>
                                                                 </select>
                                                             </div>
                                                         </div>
@@ -484,7 +484,7 @@
                                                         <label class="col-sm-4 control-label">Blood Pressure</label>
                                                         <div class="col-sm-8">
                                                             <div class="input-group">
-                                                                <input type="number" id="edit-bp" name="searchbygenerals[priceFrom]" class="form-control" value="0">
+                                                                <input type="number" id="edit-bp" class="form-control">
                                                                 <!-- insert this line -->
                                                                 <span class="input-group-addon">mm Hg</span>
                                                             </div>
@@ -496,7 +496,7 @@
                                                 <label class="col-sm-3 control-label" for="daily-cc-date">Pulse Rate</label>
                                                 <div class="col-sm-9">
                                                     <div class="input-group">
-                                                        <input type="number" id="edit-pulse" name="searchbygenerals[priceFrom]" class="form-control" value="0">
+                                                        <input type="number" id="edit-pulse" class="form-control">
                                                         <!-- insert this line -->
                                                         <span class="input-group-addon">bpm</span>
                                                     </div>
@@ -620,19 +620,40 @@
         }).on('click', 'tbody tr td:nth-child(2) a', function () {
 
             {% if session.secretary %}
+                var cc_id = $(this).parent().parent().children('td:nth-child(2)').children('input').val();
 
-                var data = queue_table.row($(this).parent().parent()).data();
-                var date =  $( "#queue-datepicker" ).val().split("/");
+                $.ajax({
+                    type: "GET",
+                    url: "/get_daily_cc/" + cc_id
+                }).done(function (data) {
+                    if (data.success) {
+                        console.log(data);
+                        var date =  $( "#queue-datepicker" ).val().split("/");
+                        $('#edit-daily-cc-id').val(data.cc_inst['id']);
+                        $('#edit-daily-consultation-modal select[name="date_[month]"').val(date[0]);
+                        $('#edit-daily-consultation-modal select[name="date_[day]"').val(date[1]);
+                        $('#edit-daily-consultation-modal select[name="date_[year]"').val(date[2]);
+                        $('#edit-patients-name').val(data.cc_inst['parent_record.patient.first_name'] + ' ' + data.cc_inst['parent_record.patient.middle_name'] + ' ' + data.cc_inst['parent_record.patient.last_name'] + ' ' + data.cc_inst['parent_record.patient.suffix']);
+                        $('#edit-hospital').val(data.cc_inst['parent_record.hospitalName']);
+                        $('#edit-hidden-doctor').val(data.cc_inst['parent_record.doctorId']);
+                        $('#edit-daily-cc-status').val(data.cc_inst['status']);
+                        $("#edit-height").val(data.cc_inst['height']);
+                        $("#edit-height-unit").val(data.cc_inst['height_unit']);
+                        $("#edit-weight").val(data.cc_inst['weight']);
+                        $("#edit-weight-unit").val(data.cc_inst['weight_unit']);
+                        $("#edit-temp").val(data.cc_inst['temperature']);
+                        $("#edit-temp-unit").val(data.cc_inst['temp_unit']);
+                        $("#edit-bp").val(data.cc_inst['bp']);
+                        $("#edit-pulse").val(data.cc_inst['pulse_rate']);
+                    } else {
+                        $.alert({
+                            title: 'Error',
+                            content: 'An error occured.'
+                        });
+                    }
+                });
 
                 $('#edit-daily-consultation-modal').modal('show');
-                $('#edit-daily-cc-id').val($(this).parent().parent().children('td:nth-child(2)').children('input').val());
-                $('#edit-daily-consultation-modal select[name="date_[month]"').val(date[0]);
-                $('#edit-daily-consultation-modal select[name="date_[day]"').val(date[1]);
-                $('#edit-daily-consultation-modal select[name="date_[year]"').val(date[2]);
-                $('#edit-patients-names-list').val($(this).parent().parent().children('td:nth-child(2)').children('a').text());
-                $('#edit-hospital').val(data[2]);
-                $('#edit-hidden-doctor').val($(this).parent().parent().children('td:nth-child(4)').children('input').val());
-                $('#edit-daily-cc-status').val($(this).parent().parent().children('td:nth-child(5)').children('select').val());
 
             {% elif session.doctor %}
                 $('tbody tr td:nth-child(2) a').attr('href', '/patient_edit/' + $('tbody tr td:nth-child(2) a').attr('id') + '#consultations' + '-' + $('tbody tr td:nth-child(2) input').val());
@@ -757,7 +778,15 @@
                 doctor: $("#edit-hidden-doctor").val(),
                 date: $("#edit-daily-cc-date").val(),
                 status: $("#edit-daily-cc-status").val(),
-                hospital: $("#edit-hospital").val()
+                hospital: $("#edit-hospital").val(),
+                height: $("#edit-height").val(),
+                height_unit: $("#edit-height-unit").val(),
+                weight: $("#edit-weight").val(),
+                weight_unit: $("#edit-weight-unit").val(),
+                temp: $("#edit-temp").val(),
+                temp_unit: $("#edit-temp-unit").val(),
+                bp: $("#edit-bp").val(),
+                pulse: $("#edit-pulse").val()
             }
         }).done(function (data) {
             $("#edit-daily-consultation-modal").modal("toggle");
@@ -825,7 +854,7 @@
             } else {
                 $.confirm({
                     title: 'Move to Archive',
-                    content: 'Are you sure you want to delete ' + $("#edit-patients-names-list").val() + ' from this queue? This cannot be undone.',
+                    content: 'Are you sure you want to delete ' + $("#edit-patients-name").val() + ' from this queue? This cannot be undone.',
                     type: 'red',
                     buttons: {
                         Confirm: {
@@ -839,7 +868,7 @@
                                     if(data.success){
                                         $.alert({
                                             title: 'Success',
-                                            content: $("#edit-patients-names-list").val() + ' successfully removed from queue.'
+                                            content: $("#edit-patients-name").val() + ' successfully removed from queue.'
                                         });
                                         $("#edit-daily-consultation-modal").modal("toggle");
                                     } else{

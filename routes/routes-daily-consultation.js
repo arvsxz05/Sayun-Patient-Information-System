@@ -166,6 +166,7 @@ module.exports = function(io) {
 					},
 					active: true
 				},
+				attributes: ['id', 'status', 'date', 'queue_no', 'parentRecordId'],
 				include: [{
 					model: Check_Up,
 					as: 'parent_record',
@@ -311,8 +312,39 @@ module.exports = function(io) {
 		}
 	});
 
+	router.get('/get_daily_cc/:cc_id', requireLoggedIn, function (req, res) {
+		Consultation.findOne({
+			raw: true,
+			where: {
+				id: req.params.cc_id,
+				active: true,
+				status: {
+					$ne: null,
+				}
+			},
+			include: [{
+				model: Check_Up,
+				as: 'parent_record',
+				include: [{
+					model: Patient,
+					attributes: ['first_name', 'middle_name', 'last_name', 'suffix']
+				}]
+			}]
+		}).then(consultation_instance => {
+			if(consultation_instance) {
+				res.json({
+					success: true,
+					cc_inst: consultation_instance
+				});
+			} else {
+				res.json({error: 'Data already not available.'});
+			}
+		}).catch(error => {
+			res.json({error: error});
+		});
+	});
+
 	router.post('/change_status', requireLoggedIn, function (req, res) {
-		// console.log(req.body);
 		Consultation.findOne({
 			where: {
 				id: req.body['con-id']
@@ -371,6 +403,61 @@ module.exports = function(io) {
 	});
 
 	router.post('/edit_daily_consultation', requireLoggedIn, function (req, res) {
+		var height = req.body.height;
+        var height_unit = req.body.height_unit;
+        var weight = req.body.weight;
+        var weight_unit = req.body.weight_unit;
+        var temp = req.body.temp;
+        var temp_unit = req.body.temp_unit;
+        var bp = req.body.bp;
+        var pulse = req.body.pulse;
+        
+		if (height && height.trim() !== '') {
+            height = parseFloat(height.trim());
+            if (isNaN(height)) {
+                height = null;
+                height_unit = null;
+            }
+        } else {
+            height = null;
+            height_unit = null;
+        }
+
+        if (weight && weight.trim() !== '') {
+            weight = parseFloat(weight.trim());
+            if (isNaN(weight)) {
+                weight = null;
+                weight_unit = null;
+            }
+        } else {
+            weight = null;
+            weight_unit = null;
+        }
+
+        if (temp && temp.trim() !== '') {
+            temp = parseFloat(temp.trim());
+            if (isNaN(temp)) {
+                temp = null;
+                temp_unit = null;
+            }
+        } else {
+            temp = null;
+            temp_unit = null;
+        }
+
+        if (!bp || bp.trim() === '') {
+            bp = null;
+        }
+
+        if (pulse && pulse.trim() !== '') {
+            pulse = parseInt(pulse.trim());
+            if (isNaN(pulse)) {
+                pulse = null;
+            }
+        } else {
+            pulse = null;
+        }
+
 		Consultation.findOne({
 			where: {
 				id: req.body['consultation_id'].trim()
@@ -379,6 +466,7 @@ module.exports = function(io) {
 				{ model: Check_Up, as: 'parent_record', include: [{ model: Doctor, }]}
 			]
 		}).then(consultation_instance => {
+			// console.log('eredsh');
 			if (consultation_instance) {
 				var fixed_date = new Date(consultation_instance.date);
 				var old_date = new Date(consultation_instance.date);
@@ -416,7 +504,7 @@ module.exports = function(io) {
 						required: true
 					}]
 				};
-				if (req.body['status'].trim() == 'Done') {		// meaning dili ta mucare sa iyang order sa queue, ang after ra niya
+				if (req.body['status'].trim() == 'Done') {		// meaning dili ta mucare sa iyang order sa queue, ang after ra niya'
 					Consultation.findAll(below_finder_options).then(consultation_below => {
 						var itemsProcessed = 0;
 						if(consultation_below.length > 0) {
@@ -430,6 +518,14 @@ module.exports = function(io) {
 										}).then(function (result) {
 											consultation_instance.date = fixed_date;
 											consultation_instance.status = req.body['status'].trim();
+											consultation_instance.height = height;
+											consultation_instance.height_unit = height_unit;
+											consultation_instance.weight = weight;
+											consultation_instance.weight_unit = weight_unit;
+											consultation_instance.temperature = temp;
+											consultation_instance.temp_unit = temp_unit;
+											consultation_instance.bp = bp;
+											consultation_instance.pulse_rate = pulse;
 											consultation_instance.save().then(() => {
 												getDailyConsultation(consultation_instance.parent_record.doctorId, old_date.getTime(), req.session);
 											});
@@ -444,6 +540,14 @@ module.exports = function(io) {
 							}).then(function (result) {
 								consultation_instance.date = fixed_date;
 								consultation_instance.status = req.body['status'].trim();
+								consultation_instance.height = height;
+								consultation_instance.height_unit = height_unit;
+								consultation_instance.weight = weight;
+								consultation_instance.weight_unit = weight_unit;
+								consultation_instance.temperature = temp;
+								consultation_instance.temp_unit = temp_unit;
+								consultation_instance.bp = bp;
+								consultation_instance.pulse_rate = pulse;
 								consultation_instance.save().then(() => {
 									getDailyConsultation(consultation_instance.parent_record.doctorId, old_date.getTime(), req.session);
 								});
@@ -470,6 +574,14 @@ module.exports = function(io) {
 													consultation_instance.date = fixed_date;
 													consultation_instance.status = req.body['status'].trim();
 													consultation_instance.queue_no = queue_no + 1;
+													consultation_instance.height = height;
+													consultation_instance.height_unit = height_unit;
+													consultation_instance.weight = weight;
+													consultation_instance.weight_unit = weight_unit;
+													consultation_instance.temperature = temp;
+													consultation_instance.temp_unit = temp_unit;
+													consultation_instance.bp = bp;
+													consultation_instance.pulse_rate = pulse;
 													consultation_instance.save().then(() => {
 														/////////////////
 														if(req.body['date'] && req.body['date'].trim() !== '') {
@@ -500,6 +612,14 @@ module.exports = function(io) {
 										consultation_instance.date = fixed_date;
 										consultation_instance.status = req.body['status'].trim();
 										consultation_instance.queue_no = queue_no + 1;
+										consultation_instance.height = height;
+										consultation_instance.height_unit = height_unit;
+										consultation_instance.weight = weight;
+										consultation_instance.weight_unit = weight_unit;
+										consultation_instance.temperature = temp;
+										consultation_instance.temp_unit = temp_unit;
+										consultation_instance.bp = bp;
+										consultation_instance.pulse_rate = pulse;
 										consultation_instance.save().then(() => {
 											if(req.body['date'] && req.body['date'].trim() !== '') {
 												if(consultation_instance.parent_record.doctorId != req.body['doctor'].trim()) { // nailisan ang both time and doctor
@@ -525,6 +645,14 @@ module.exports = function(io) {
 							hospitalName: req.body['hospital'].trim()
 						}).then(function (result) {
 							consultation_instance.status = req.body['status'].trim();
+							consultation_instance.height = height;
+							consultation_instance.height_unit = height_unit;
+							consultation_instance.weight = weight;
+							consultation_instance.weight_unit = weight_unit;
+							consultation_instance.temperature = temp;
+							consultation_instance.temp_unit = temp_unit;
+							consultation_instance.bp = bp;
+							consultation_instance.pulse_rate = pulse;
 							consultation_instance.save().then(() => {
 								getDailyConsultation(consultation_instance.parent_record.doctorId, old_date.getTime(), req.session);
 								res.json({});
@@ -910,14 +1038,7 @@ module.exports = function(io) {
 							returning: true,
 							raw: true,
 						}).then(function (check_up_result) {
-
-							// Billing.destroy({
-							// 	where: {
-							// 		receiptId: check_up_result[1][0]['id']
-							// 	}
-							// }).then(function(billing_result){
-								res.json({success: true});
-							// })
+							res.json({success: true});
 						});
 					}).catch(function (error) {
 						res.json({success: false});
