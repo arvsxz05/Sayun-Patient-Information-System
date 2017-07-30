@@ -136,33 +136,33 @@ body{
 .btn-red{
     color: white;
     background: #d9534f;
-    font-size: 12px;
+    font-size: 14px;
     width: 65px;
 }
 
 .btn-lime{
     color: white;
     background: #73c215;
-    font-size: 12px;
+    font-size: 14px;
     width: 65px;
 }
 
 .btn-gray{
     color: white;
     background: #a8acb0;
-    font-size: 12px;
+    font-size: 14px;
     width: 65px;
 }
 
 .btn-blue{
     color: white;
     background: #337ab7;
-    font-size: 12px;
+    font-size: 14px;
     width: 65px;
 }
 
 .btn{
-    width: 65px;
+    /*width: 65px;*/
 }
 
 .btn-icon{

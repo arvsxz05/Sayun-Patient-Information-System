@@ -5,7 +5,8 @@
             <input type="hidden" name="edit-p-id" id="edit-p-id">
             <input type="hidden" name="edit-c-id" id="edit-c-id">
             <legend><b>Edit Out-Patient Treatment</b>
-            <a class="btn btn-red" style="float: right; margin-top: -10px !important" id="delete-opt-button">Delete</a></legend>
+            <!-- <a class="btn btn-red" style="float: right; margin-top: -10px !important" id="delete-opt-button">Delete</a> -->
+            </legend>
             <div class="form-group">
                 <label class="col-sm-4 control-label" for="edit-opt-date">Date</label>
                 <div class="col-sm-8 date-div" id="edit-opt-date-div">
@@ -66,11 +67,13 @@
 
             <div class="button-group">
                 <a onclick="view_OPT()" class="btn btn-gray pull-right">Cancel</a>
+                <a class="btn btn-red pull-right" id="delete-opt-button">Delete</a>
                 <button type="submit" class="btn btn-lime pull-right" id="edit-btn">Save</button>    
             </div>
         </form>
         {% if doctor %}
         <!-- MEDICATION LIST FOR opt -->
+        <div class="row"></div>
         <form method="POST" action="/delete_medication">
             <legend><b>Medications</b></legend>
             <div class="table-responsive">
@@ -97,6 +100,7 @@
         <!-- END OF MEDICATION LIST FOR opt -->
 
         <!-- MEDICAL PROCEDURES LIST FOR opt -->
+        <div class="row"></div>
         <form method="POST" action="/delete_medication">
             <legend><b>Medical Procedures</b></legend>
             <div class="table-responsive">
@@ -119,7 +123,7 @@
             </div>
         </form>
         <!-- END OF MEDICAL PROCEDURES LIST FOR opt -->
-
+        <div class="row"></div>
         <legend><b>Add/Edit Attachments</b></legend>
         <div class="form-group">
             <input id="edit-opt-attachments" name="add-opt-attachments[]" type="file" multiple class="file-loading">
@@ -247,7 +251,7 @@
                     buttons: {
                         OK: {
                             text: 'OK',
-                            btnClass: 'btn-red',
+                            btnClass: 'btn-danger',
                             action: function () {
                                 // $.alert('Confirmed!');
                             }
@@ -262,7 +266,7 @@
                         Confirm: {
                             // $.alert('Confirmed!');
                             text: 'Confirm',
-                            btnClass: 'btn-red',
+                            btnClass: 'btn-danger',
                             action: function () {
                                 $.ajax({
                                     type: "POST",

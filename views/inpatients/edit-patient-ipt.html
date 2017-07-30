@@ -1,8 +1,5 @@
 <div class="row" id="edit-ipt-view">
     <div class="form-container col-md-8" style="padding: 20px">
-   <!--      <div class="button-group">
-            
-        </div> -->
         <form id="edit-ipt-form" class="form-horizontal" role="form" method="POST">
             <input type="hidden" name="edit-p-id" id="edit-p-id">
             <input type="hidden" name="edit-c-id" id="edit-c-id">
@@ -81,6 +78,7 @@
         </form>
         {% if doctor %}
         <!-- MEDICATION LIST FOR IPT -->
+        <div class="row"></div>
         <form method="POST" action="" id="edit-ipt-med-form">
             <legend><b>Medications</b></legend>
             <div class="table-responsive">
@@ -108,6 +106,7 @@
 
 
         <!-- MEDICAL PROCEDURES LIST FOR IPT -->
+        <div class="row"></div>
         <form method="POST" action="/delete_medication">
             <legend><b>Medical Procedures</b></legend>
             <div class="table-responsive">
@@ -130,7 +129,7 @@
             </div>
         </form>
         <!-- END OF MEDICAL PROCEDURES LIST FOR IPT -->
-
+        <div class="row"></div>
         <legend><b>Add/Edit Attachments</b></legend>
         <div class="form-group">
             <input id="edit-ipt-attachments" name="add-ipt-attachments[]" type="file" multiple class="file-loading">
@@ -264,7 +263,7 @@
                     buttons: {
                         OK: {
                             text: 'OK',
-                            btnClass: 'btn-red',
+                            btnClass: 'btn-danger',
                             action: function () {
                                 // $.alert('Confirmed!');
                             }
@@ -278,7 +277,7 @@
                     buttons: {
                         Confirm: {
                             text: 'Confirm',
-                            btnClass: 'btn-red',
+                            btnClass: 'btn-danger',
                             action: function () {
                                 $.ajax({
                                     type: "POST",
@@ -505,9 +504,7 @@
                         }).done(function (data) {
                             if(data.success){
                                 for(var x = 0; x < bill_rows.length; x++ ){
-                                    // var med_bill_name = 'med-bill-' + med_rows[x].children("td:first").children("input").attr('id');
                                     edit_ipt_billing_table.row(bill_rows[x]).remove().draw();
-                                    // edit_ipt_billing_table.row($("[name='" + med_bill_name + "']").parent().parent()).remove().draw();
                                 }
                                 $.alert({
                                     title: 'Delete Billing item/s',

@@ -4,7 +4,8 @@
             <input type="hidden" name="edit-cc-p-id" id="edit-cc-p-id">
             <input type="hidden" name="edit-cc-c-id" id="edit-cc-c-id">
             <legend><b>Edit Clinic Consultation</b>
-            <a class="btn btn-red" style="float: right; margin-top: -10px !important" id="delete-cc-button">Delete</a></legend>
+            <!-- <a class="btn btn-red" style="float: right; margin-top: -10px !important" id="delete-cc-button">Delete</a> -->
+            </legend>
             <div>
                 <p class="text-danger" id="cc-error-response"></p>
             </div>
@@ -66,11 +67,13 @@
             {% endif %}
             <div class="button-group">
                 <a onclick="view_CC()" class="btn btn-gray pull-right">Cancel</a>
+                <a class="btn btn-red pull-right" id="delete-cc-button">Delete</a>
                 <button type="submit" class="btn btn-lime pull-right" id="save-btn">Save</button>    
             </div>
         </form>
         {% if doctor %}
         <!-- MEDICATION LIST FOR CC -->
+        <div class="row"></div>
         <form method="POST" action="/delete_medication">
             <legend><b>Medications</b></legend>
             <div class="table-responsive">
@@ -97,7 +100,8 @@
         <!-- END OF MEDICATION LIST FOR CC -->
 
 
-<!--         MEDICAL PROCEDURES LIST FOR CC -->
+        <!-- MEDICAL PROCEDURES LIST FOR CC -->
+        <div class="row"></div>
         <form method="POST" action="/delete_medication">
             <legend><b>Medical Procedures</b></legend>
             <div class="table-responsive">
@@ -121,6 +125,7 @@
         </form>
         <!-- END OF MEDICAL PROCEDURES LIST FOR CC -->
 
+        <div class="row"></div>
         <legend><b>Add/Edit Attachments</b></legend>
         <div class="form-group">
             <input id="edit-cc-attachments" name="add-cc-attachments[]" type="file" multiple class="file-loading">
@@ -459,7 +464,7 @@
                     buttons: {
                         OK: {
                             text: 'OK',
-                            btnClass: 'btn-red',
+                            btnClass: 'btn-danger',
                             action: function () {
                                 // $.alert('Confirmed!');
                             }
@@ -473,7 +478,7 @@
                     buttons: {
                         Confirm: {
                             text: 'Confirm',
-                            btnClass: 'btn-red',
+                            btnClass: 'btn-danger',
                             action: function () {
                                 $.ajax({
                                     type: "POST",

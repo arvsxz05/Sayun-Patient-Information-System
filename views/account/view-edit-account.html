@@ -54,9 +54,6 @@
                 <div class="col-sm-8 col-sm-offset-2 form-container">
                     <div class="row">
                         <legend><b>Edit Account</b>
-                        {% if session.superuser %}
-                            <a class="btn btn-red" style="float: right; margin-top: -10px !important" id="delete-account-button">Delete</a>
-                        {% endif %}
                         </legend>
                         {% if messages.statusMessage %}
                         <div class="alert alert-success">
@@ -293,6 +290,9 @@
                         {% if session.user.id == user.id or session.superuser %}
                         <div class="button-group">
                             <a href="/account_list" class="btn btn-gray pull-right">Cancel</a>
+                            {% if session.superuser %}
+                            <a class="btn btn-red pull-right" id="delete-account-button">Delete</a>
+                            {% endif %}
                             <button type="submit" class="btn btn-lime pull-right" id="save-btn">Save</button>
                         </div>
                         {% endif %}

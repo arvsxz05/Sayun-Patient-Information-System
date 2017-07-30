@@ -3,20 +3,13 @@
         <form id="edit-lab-form" class="form-horizontal" role="form">
             <input type="hidden" name="lab-edit-patient-id" id="lab-edit-patient-id">
             <input type="hidden" id="lab-edit-id">
-            <legend><b>Edit Laboratory Result</b>
-            <a class="btn btn-red" style="float: right; margin-top: -10px !important" id="delete-lab-button">Delete</a></legend>
+            <legend><b>Edit Laboratory Result</b></legend>
             <div class="form-group">
                 <label class="col-sm-4 control-label" for="edit-lab-date">Date*</label>
                 <div class="col-sm-8 date-div" id="edit-lab-date-div">
                     <input type="hidden" name="edit-lab-date" id="edit-lab-date">
                 </div>
             </div>
-            <!-- <div class="form-group">
-                <label class="col-sm-4 control-label" for="lab-edit-date">Date*</label>
-                <div class="col-sm-8">
-                    <input type="date" class="form-control" name="date" id="lab-edit-date" required>
-                </div>
-            </div> -->
             <div class="form-group">
                 <label class="col-sm-4 control-label" for="lab-hospital">Hospital/Clinic*</label>
                 <div class="col-sm-8">
@@ -42,6 +35,7 @@
             </div>
             <div class="button-group">
                 <a onclick="view_lab()" class="btn btn-gray pull-right">Cancel</a>
+                <a class="btn btn-red pull-right" id="delete-lab-button">Delete</a>
                 <button type="submit" class="btn btn-lime pull-right">Save</button>
             </div><br><br><br><hr>
         </form>    
