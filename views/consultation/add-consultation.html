@@ -62,6 +62,86 @@
               </div>
             </div>
 
+            {% endif %}
+            <!-- START BIOMETRICS -->
+
+            <legend>Biometrics</legend>
+            <div class="row form-horizontal">
+                <div class="col-xs-6">
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">Height</label>
+                        <div class="col-sm-8">
+                            <div class="input-group">
+                                <input type="number" step=0.01 id="add-height-cc" name="height" class="form-control" style="padding:5px;">
+                                <span class="input-group-addon" style="width:0px; padding-left:0px; padding-right:0px; border:none;"></span>
+                                <select id="add-height-unit-cc" name="height-unit" class="form-control" style="padding:5px; width:65px;">
+                                    <option value="cm" selected>cm</option>
+                                    <option value="in">in</option>
+                                    <option value="inft">ft in</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xs-6">
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">Weight</label>
+                        <div class="col-sm-8">
+                            <div class="input-group">
+                                <input type="number" step=0.01 id="add-weight-cc" name="weight" class="form-control" style="padding:5px;">
+                                <span class="input-group-addon" style="width:0px; padding-left:0px; padding-right:0px; border:none;"></span>
+                                <select id="add-weight-unit-cc" name="weight-unit" class="form-control" style="padding:5px; width:65px;">
+                                    <option value="kg" selected>kg</option>
+                                    <option value="lb">lb</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row form-horizontal">
+                <div class="col-xs-6">
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">Temperature</label>
+                        <div class="col-sm-8">
+                            <div class="input-group">
+                                <input type="number" step=0.01 id="add-temp-cc" name="temp" class="form-control" style="padding:5px;">
+                                <span class="input-group-addon" style="width:0px; padding-left:0px; padding-right:0px; border:none;"></span>
+                                <select id="add-temp-unit-cc" name="temp-unit" class="form-control" style="padding:5px; width:65px;">
+                                    <option value="C" selected>C</option>
+                                    <option value="F">F</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xs-6">
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">Blood Pressure</label>
+                        <div class="col-sm-8">
+                            <div class="input-group">
+                                <input type="text" id="add-bp-cc" name="bp" class="form-control" style="padding:5px;">
+                                <span class="input-group-addon" style="width:65px;">mm Hg</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-3 control-label" for="daily-cc-date">Pulse Rate</label>
+                <div class="col-sm-9">
+                    <div class="input-group">
+                        <input type="number" id="add-pulse-cc" name="pulse" class="form-control">
+                        <span class="input-group-addon">bpm</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- END BIOMETRICS -->
+
+            <br>
+            {% if doctor %}
+
             <!-- MEDICATION LIST FOR CC -->
             <div class="row"></div>
             <legend><b>Medications</b></legend>
@@ -187,32 +267,78 @@
         var billings = [];
 
         {% if doctor %}
-        var files = $('#add-cc-attachments').fileinput('getFileStack');
-        if(files.length != 0) {
-            $(".unique-name-add-cc").click();
-        } else {
-            var medication = [], med_procedure = [];
+            var files = $('#add-cc-attachments').fileinput('getFileStack');
+            if(files.length != 0) {
+                $(".unique-name-add-cc").click();
+            } else {
+                var medication = [], med_procedure = [];
 
-            for(var i = 0; i < add_cc_meds_table.rows().data().length; i++){
-                var name = add_cc_meds_table.rows().data()[i][1];
-                medication.push({
-                    name: name.substring(3, name.length-4),
-                    dosage: add_cc_meds_table.rows().data()[i][2],
-                    frequency: add_cc_meds_table.rows().data()[i][3],
-                    type: add_cc_meds_table.rows().data()[i][4],
-                    notes: add_cc_meds_table.rows().data()[i][5],
+                for(var i = 0; i < add_cc_meds_table.rows().data().length; i++){
+                    var name = add_cc_meds_table.rows().data()[i][1];
+                    medication.push({
+                        name: name.substring(3, name.length-4),
+                        dosage: add_cc_meds_table.rows().data()[i][2],
+                        frequency: add_cc_meds_table.rows().data()[i][3],
+                        type: add_cc_meds_table.rows().data()[i][4],
+                        notes: add_cc_meds_table.rows().data()[i][5],
+                    });
+                }
+
+                for(var i = 0; i < add_cc_med_procedures_table.rows().data().length; i++){
+                    var date = add_cc_med_procedures_table.rows().data()[i][1];
+                    med_procedure.push({
+                        date: date.substring(3, date.length-4),
+                        description: add_cc_med_procedures_table.rows().data()[i][2],
+                        details: add_cc_med_procedures_table.rows().data()[i][3],
+                    });
+                }
+
+                for(var i = 0; i < add_cc_billing_table.rows().data().length; i++) {
+                    var item = add_cc_billing_table.rows().data()[i][1];
+                    billings.push({
+                        description: item.substring(item.indexOf(">") + 1, item.length - 4),
+                        ammount: add_cc_billing_table.rows().data()[i][2],
+                        last_edited: "{{user.id}}",
+                        issued_by: "{{user.id}}",
+                    });
+                }
+
+                $.ajax({
+                    type: "POST",
+                    url: "/clinic_consultation_add",
+                    data: {
+                        'date': $("#cc-date").val(),
+                        'hospital': $("#cc-hospital").val(),
+                        'summary': $("#cc-summary").val(),
+                        'detailed-diagnosis': $("#cc-detailed-diagnosis").val(),
+                        'notes': $("#cc-notes").val(),
+                        'doctor': $("#hidden-cc-doctor").val(),
+                        'height': $("#add-height-cc").val(),
+                        'height_unit': $("#add-height-unit-cc").val(),
+                        'weight': $("#add-weight-cc").val(),
+                        'weight_unit': $("#add-weight-unit-cc").val(),
+                        'temp': $("#add-temp-cc").val(),
+                        'temp_unit': $("#add-temp-unit-cc").val(),
+                        'bp': $("#add-bp-cc").val(),
+                        'pulse': $("#add-pulse-cc").val(),
+                        'p-id': $("#cc-p-id").val(),
+                        'meds':  medication,
+                        'med_procedures': med_procedure,
+                        'billings': billings
+                    }
+                }).done(function (data) {
+                    if(data.success) {
+                        // $('#list-cc-view').show();
+                        // $('#add-cc-view').hide();
+                        showSnackBar('Consultation successfully added.');
+                        $(window).scrollTop(0);
+                        edit_CC(data.consultation_id);
+                    } else {
+                        $("#cc-error-response").text(data.error);
+                    }
                 });
             }
-
-            for(var i = 0; i < add_cc_med_procedures_table.rows().data().length; i++){
-                var date = add_cc_med_procedures_table.rows().data()[i][1];
-                med_procedure.push({
-                    date: date.substring(3, date.length-4),
-                    description: add_cc_med_procedures_table.rows().data()[i][2],
-                    details: add_cc_med_procedures_table.rows().data()[i][3],
-                });
-            }
-
+        {% else %}
             for(var i = 0; i < add_cc_billing_table.rows().data().length; i++) {
                 var item = add_cc_billing_table.rows().data()[i][1];
                 billings.push({
@@ -222,21 +348,22 @@
                     issued_by: "{{user.id}}",
                 });
             }
-
             $.ajax({
                 type: "POST",
                 url: "/clinic_consultation_add",
                 data: {
                     'date': $("#cc-date").val(),
                     'hospital': $("#cc-hospital").val(),
-                    'summary': $("#cc-summary").val(),
-                    'detailed-diagnosis': $("#cc-detailed-diagnosis").val(),
-                    'notes': $("#cc-notes").val(),
                     'doctor': $("#hidden-cc-doctor").val(),
                     'p-id': $("#cc-p-id").val(),
-                    'meds':  medication,
-                    'med_procedures': med_procedure,
-                    'billings': billings,
+                    'height': $("#add-height-cc").val(),
+                    'height_unit': $("#add-height-unit-cc").val(),
+                    'weight': $("#add-weight-cc").val(),
+                    'weight_unit': $("#add-weight-unit-cc").val(),
+                    'temp': $("#add-temp-cc").val(),
+                    'temp_unit': $("#add-temp-unit-cc").val(),
+                    'bp': $("#add-bp-cc").val(),
+                    'pulse': $("#add-pulse-cc").val()
                 }
             }).done(function (data) {
                 if(data.success) {
@@ -249,37 +376,6 @@
                     $("#cc-error-response").text(data.error);
                 }
             });
-        }
-        {% else %}
-        for(var i = 0; i < add_cc_billing_table.rows().data().length; i++) {
-            var item = add_cc_billing_table.rows().data()[i][1];
-            billings.push({
-                description: item.substring(item.indexOf(">") + 1, item.length - 4),
-                ammount: add_cc_billing_table.rows().data()[i][2],
-                last_edited: "{{user.id}}",
-                issued_by: "{{user.id}}",
-            });
-        }
-        $.ajax({
-            type: "POST",
-            url: "/clinic_consultation_add",
-            data: {
-                'date': $("#cc-date").val(),
-                'hospital': $("#cc-hospital").val(),
-                'doctor': $("#hidden-cc-doctor").val(),
-                'p-id': $("#cc-p-id").val(),
-            }
-        }).done(function (data) {
-            if(data.success) {
-                // $('#list-cc-view').show();
-                // $('#add-cc-view').hide();
-                showSnackBar('Consultation successfully added.');
-                $(window).scrollTop(0);
-                edit_CC(data.consultation_id);
-            } else {
-                $("#cc-error-response").text(data.error);
-            }
-        });
         {% endif %}
     });
 
@@ -338,8 +434,6 @@
 
     }
     {% endif %}
-    // 
-
 
     // DELETING ROWS FOR MED PROCEDURES
     {% if doctor %}
@@ -392,14 +486,11 @@
         //         add_cc_med_procedures_table.row(med_proc_rows[x]).remove().draw();
         //         // add_cc_billing_table.row($(med_proc_bill_id).parent().parent()).remove().draw();
         //     }
-
         //     $('#add-cc-select-all-med-procedures').prop('checked', false);
 
         // }
     }
     {% endif %}
-    // 
-
 
     // DELETING ROWS FOR BILLING
     $('#add-cc-select-all-billing-items').change(function(){  //"select all" change 

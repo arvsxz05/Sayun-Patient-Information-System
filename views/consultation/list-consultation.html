@@ -186,6 +186,14 @@
 
             $('#edit-cc-p-id').val(data['consultation']['id']);
             $('#edit-cc-c-id').val(data['consultation']['parent_record.id']);
+            $("#edit-height").val(data['consultation']['height']);
+            $("#edit-height-unit").val(data['consultation']['height_unit']);
+            $("#edit-weight").val(data['consultation']['weight']);
+            $("#edit-weight-unit").val(data['consultation']['weight_unit']);
+            $("#edit-temp").val(data['consultation']['temperature']);
+            $("#edit-temp-unit").val(data['consultation']['temp_unit']);
+            $("#edit-bp").val(data['consultation']['bp']);
+            $("#edit-pulse").val(data['consultation']['pulse_rate']);
 
             if(edit_cc_billing_table instanceof $.fn.dataTable.Api) {
                 edit_cc_billing_table.destroy();

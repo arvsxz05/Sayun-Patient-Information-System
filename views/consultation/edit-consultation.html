@@ -7,7 +7,7 @@
             <!-- <a class="btn btn-red" style="float: right; margin-top: -10px !important" id="delete-cc-button">Delete</a> -->
             </legend>
             <div>
-                <p class="text-danger" id="cc-error-response"></p>
+                <p class="text-danger" id="cc-error-response-edit"></p>
             </div>
             <div class="form-group">
                 <label class="col-sm-4 control-label" for="edit-consultation-date">Consultation Date*</label>
@@ -65,6 +65,86 @@
               </div>
             </div>
             {% endif %}
+
+            <!-- START BIOMETRICS -->
+            <legend>Biometrics</legend>
+            <div class="row form-horizontal">
+                <div class="col-xs-6">
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">Height</label>
+                        <div class="col-sm-8">
+                            <div class="input-group">
+                                <input type="number" step=0.01 id="edit-height" class="form-control" value="0">
+                                <!-- insert this line -->
+                                <span class="input-group-addon" style="width:0px; padding-left:0px; padding-right:0px; border:none;"></span>
+                                <select id="edit-height-unit" class="form-control" style="width:70px;">
+                                    <option value="cm">cm</option>
+                                    <option value="in">in</option>
+                                    <option value="inft">ft in</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xs-6">
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">Weight</label>
+                        <div class="col-sm-8">
+                            <div class="input-group">
+                                <input type="number" step=0.01 id="edit-weight" class="form-control" value="0">
+                                <!-- insert this line -->
+                                <span class="input-group-addon" style="width:0px; padding-left:0px; padding-right:0px; border:none;"></span>
+                                <select id="edit-weight-unit" class="form-control" style="width:70px;">
+                                    <option value="kg">kg</option>
+                                    <option value="lb">lb</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row form-horizontal">
+                <div class="col-xs-6">
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">Temperature</label>
+                        <div class="col-sm-8">
+                            <div class="input-group">
+                                <input type="number" step=0.01 id="edit-temp" name="searchbygenerals[priceFrom]" class="form-control" value="0">
+                                <!-- insert this line -->
+                                <span class="input-group-addon" style="width:0px; padding-left:0px; padding-right:0px; border:none;"></span>
+                                <select id="edit-temp-unit" class="form-control" style="width:70px;">
+                                    <option value="C">C</option>
+                                    <option value="F">F</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xs-6">
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">Blood Pressure</label>
+                        <div class="col-sm-8">
+                            <div class="input-group">
+                                <input type="number" id="edit-bp" class="form-control">
+                                <!-- insert this line -->
+                                <span class="input-group-addon">mm Hg</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-3 control-label" for="daily-cc-date">Pulse Rate</label>
+                <div class="col-sm-9">
+                    <div class="input-group">
+                        <input type="number" id="edit-pulse" class="form-control">
+                        <!-- insert this line -->
+                        <span class="input-group-addon">bpm</span>
+                    </div>
+                </div>
+            </div>
+            <!-- END BIOMETRICS -->
+            
             <div class="button-group">
                 <a onclick="view_CC()" class="btn btn-gray pull-right">Cancel</a>
                 <a class="btn btn-red pull-right" id="delete-cc-button">Delete</a>
@@ -186,7 +266,14 @@
                     'detailed-diagnosis': $("#edit-cc-detailed-diagnosis").val(),
                     'notes': $("#edit-cc-notes").val(),
                     'doctor': $("#hidden-cc-doctor").val(),
-
+                    'height': $("#edit-height").val(),
+                    'height_unit': $("#edit-height-unit").val(),
+                    'weight': $("#edit-weight").val(),
+                    'weight_unit': $("#edit-weight-unit").val(),
+                    'temp': $("#edit-temp").val(),
+                    'temp_unit': $("#edit-temp-unit").val(),
+                    'bp': $("#edit-bp").val(),
+                    'pulse': $("#edit-pulse").val()
                 }
             }).done(function (data) {
                 if(data.success) {
@@ -196,7 +283,7 @@
                     showSnackBar('Consultation successfully updated.');
                 } 
                 else {
-                    $("#cc-error-response").text(data.error);
+                    $("#cc-error-response-edit").text(data.error);
                 }
             });
         }
@@ -209,7 +296,14 @@
                 $("#edit-cc-date-div select[name='date_[day]']").val(),
                 'hospital': $("#edit-cc-hospital").val(),
                 'doctor': $("#hidden-cc-doctor").val(),
-
+                'height': $("#edit-height").val(),
+                'height_unit': $("#edit-height-unit").val(),
+                'weight': $("#edit-weight").val(),
+                'weight_unit': $("#edit-weight-unit").val(),
+                'temp': $("#edit-temp").val(),
+                'temp_unit': $("#edit-temp-unit").val(),
+                'bp': $("#edit-bp").val(),
+                'pulse': $("#edit-pulse").val()
             }
         }).done(function (data) {
             if(data.success) {
@@ -219,7 +313,7 @@
                 showSnackBar('Consultation successfully updated.');
             } 
             else {
-                $("#cc-error-response").text(data.error);
+                $("#cc-error-response-edit").text(data.error);
             }
         });
         {% endif %}

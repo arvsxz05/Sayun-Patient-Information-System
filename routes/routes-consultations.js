@@ -209,11 +209,72 @@ router.get("/clinic_consultation_delete/:cc_id", requireLoggedIn, function(req, 
 
 router.post('/clinic_consultation_add', requireLoggedIn, upload_file_cc.array('add-cc-attachments[]'), function (req, res) {
 	var fileId = req.signedCookies.ccFileId;
+	var fields, includes;
 
 	var hospital = req.body['hospital'];
 	var p_id = req.body['p-id'];
 	var doc = req.body['doctor'];
 	var date = req.body['date'];
+	var height = req.body['height'];
+    var height_unit = req.body['height_unit'];
+    var weight = req.body['weight'];
+    var weight_unit = req.body['weight_unit'];
+    var temp = req.body['temp'];
+    var temp_unit = req.body['temp_unit'];
+    var bp = req.body['bp'];
+    var pulse = req.body['pulse'];
+    
+	if (height && height.trim() !== '') {
+        height = parseFloat(height.trim());
+        if (isNaN(height)) {
+            height = null;
+            height_unit = null;
+        } else if (!height_unit || height_unit.trim() === '') {
+        	return res.json({error: 'Please put unit in height.'});
+        }
+    } else {
+        height = null;
+        height_unit = null;
+    }
+
+    if (weight && weight.trim() !== '') {
+        weight = parseFloat(weight.trim());
+        if (isNaN(weight)) {
+            weight = null;
+            weight_unit = null;
+        } else if (!weight_unit || weight_unit.trim() === '') {
+        	return res.json({error: 'Please put unit in weight.'});
+        }
+    } else {
+        weight = null;
+        weight_unit = null;
+    }
+
+    if (temp && temp.trim() !== '') {
+        temp = parseFloat(temp.trim());
+        if (isNaN(temp)) {
+            temp = null;
+            temp_unit = null;
+        } else if (!temp_unit || temp_unit.trim() === '') {
+        	return res.json({error: 'Please put unit in temperature.'});
+        }
+    } else {
+        temp = null;
+        temp_unit = null;
+    }
+
+    if (!bp || bp.trim() === '') {
+        bp = null;
+    }
+
+    if (pulse && pulse.trim() !== '') {
+        pulse = parseInt(pulse.trim());
+        if (isNaN(pulse)) {
+            pulse = null;
+        }
+    } else {
+        pulse = null;
+    }
 
 	if(req.session.doctor) {
 		var summary = req.body['summary'].trim();
@@ -241,6 +302,14 @@ router.post('/clinic_consultation_add', requireLoggedIn, upload_file_cc.array('a
 			detailed_diag: detailed,
 			notes: notes,
 			attachments: addCCfileQueue[fileId].filesArr,
+			height: height,
+			height_unit: height_unit,
+			weight: weight,
+			weight_unit: weight_unit,
+			temperature: temp,
+			temp_unit: temp_unit,
+			bp: bp,
+			pulse_rate: pulse,
 			parent_record: {
 				check_up_type: "Consultation",
 				hospitalName: hospital,
@@ -271,6 +340,14 @@ router.post('/clinic_consultation_add', requireLoggedIn, upload_file_cc.array('a
 		fields = {
 			date: date,
 			attachments: [],
+			height: height,
+			height_unit: height_unit,
+			weight: weight,
+			weight_unit: weight_unit,
+			temperature: temp,
+			temp_unit: temp_unit,
+			bp: bp,
+			pulse_rate: pulse,
 			parent_record: {
 				check_up_type: "Consultation",
 				hospitalName: hospital,
@@ -316,6 +393,67 @@ router.post('/clinic_consultation_edit/:cc_id/:cu_id', function (req, res) {
 	var cu_id = req.params.cu_id;
 	var date = null;
 
+	var height = req.body['height'];
+    var height_unit = req.body['height_unit'];
+    var weight = req.body['weight'];
+    var weight_unit = req.body['weight_unit'];
+    var temp = req.body['temp'];
+    var temp_unit = req.body['temp_unit'];
+    var bp = req.body['bp'];
+    var pulse = req.body['pulse'];
+    
+	if (height && height.trim() !== '') {
+        height = parseFloat(height.trim());
+        if (isNaN(height)) {
+            height = null;
+            height_unit = null;
+        } else if (!height_unit || height_unit.trim() === '') {
+        	return res.json({error: 'Please put unit in height.'});
+        }
+    } else {
+        height = null;
+        height_unit = null;
+    }
+
+    if (weight && weight.trim() !== '') {
+        weight = parseFloat(weight.trim());
+        if (isNaN(weight)) {
+            weight = null;
+            weight_unit = null;
+        } else if (!weight_unit || weight_unit.trim() === '') {
+        	return res.json({error: 'Please put unit in weight.'});
+        }
+    } else {
+        weight = null;
+        weight_unit = null;
+    }
+
+    if (temp && temp.trim() !== '') {
+        temp = parseFloat(temp.trim());
+        if (isNaN(temp)) {
+            temp = null;
+            temp_unit = null;
+        } else if (!temp_unit || temp_unit.trim() === '') {
+        	return res.json({error: 'Please put unit in temperature.'});
+        }
+    } else {
+        temp = null;
+        temp_unit = null;
+    }
+
+    if (!bp || bp.trim() === '') {
+        bp = null;
+    }
+
+    if (pulse && pulse.trim() !== '') {
+        pulse = parseInt(pulse.trim());
+        if (isNaN(pulse)) {
+            pulse = null;
+        }
+    } else {
+        pulse = null;
+    }
+
 	date = req.body['date'];
 	var hospital = req.body['hospital'];
 	var doc = req.body['doctor'];
@@ -330,6 +468,14 @@ router.post('/clinic_consultation_edit/:cc_id/:cu_id', function (req, res) {
 			sum_of_diag: summary,
 			detailed_diag: details,
 			notes: notes,
+			height: height,
+			height_unit: height_unit,
+			weight: weight,
+			weight_unit: weight_unit,
+			temperature: temp,
+			temp_unit: temp_unit,
+			bp: bp,
+			pulse_rate: pulse,
 		},{
 			where:{
 				id: key,
@@ -354,7 +500,15 @@ router.post('/clinic_consultation_edit/:cc_id/:cu_id', function (req, res) {
 		});
 	} else if (req.session.secretary) {
 		Consultation.update({
-			date: date
+			date: date,
+			height: height,
+			height_unit: height_unit,
+			weight: weight,
+			weight_unit: weight_unit,
+			temperature: temp,
+			temp_unit: temp_unit,
+			bp: bp,
+			pulse_rate: pulse,
 		},{
 			where:{
 				id: key,
