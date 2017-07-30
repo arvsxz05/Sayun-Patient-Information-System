@@ -25,6 +25,8 @@
 
     <link rel="stylesheet" href="/static/css/jquery-confirm.min.css">
     <script src="/static/js/jquery-confirm.min.js"></script>
+    <script                                         src = "/static/js/jquery-ui.js"></script>
+
 
     <script type="text/javascript">
         $(window).load(function() {
@@ -1287,7 +1289,7 @@
 
         IPT_List_Table = $('#ipt-list').DataTable({
             "bSort": true, 
-            "aaSorting": [],
+            "aaSorting": [[0]],
             "aoColumns": [
                 { "bSortable": true },
                 { "bSortable": true },
@@ -1298,7 +1300,7 @@
 
         OPT_List_Table = $('#opt-list').DataTable({
             "bSort": true, 
-            "aaSorting": [],
+            "aaSorting": [[0]],
             "aoColumns": [
                 { "bSortable": true },
                 { "bSortable": true },
@@ -1308,7 +1310,7 @@
 
         Lab_List_Table = $('#list-lab-result').DataTable({
             "bSort": true, 
-            "aaSorting": [],
+            "aaSorting": [[0]],
             "aoColumns": [
                 { "bSortable": true },
                 { "bSortable": true },
@@ -1319,7 +1321,7 @@
 
         CC_List_Table = $('#cc-list').DataTable({
             "bSort": true, 
-            "aaSorting": [],
+            "aaSorting": [[0]],
             "aoColumns": [
                 { "bSortable": true },
                 { "bSortable": true },
@@ -1332,7 +1334,7 @@
 
         Medication_List_Table = $('#patient-medication-list').DataTable({
             "bSort": true, 
-            "aaSorting": [],
+            "aaSorting": [[0]],
             "aoColumns": [
                 { "bSortable": true },
                 { "bSortable": true },
@@ -1342,7 +1344,7 @@
 
         Diagnoses_List_Table = $('#patient-diagnoses-list').DataTable({
             "bSort": true, 
-            "aaSorting": [],
+            "aaSorting": [[0]],
             "aoColumns": [
                 { "bSortable": true },
                 { "bSortable": true },
@@ -1353,7 +1355,7 @@
 
         Billing_List_Table = $('#patient-billing-list').DataTable({
             "bSort": true, 
-            "aaSorting": [],
+            "aaSorting": [[0]],
             "aoColumns": [
                 { "bSortable": true },
                 { "bSortable": true },
@@ -2484,15 +2486,13 @@
 
 
     $("#list-cc-view").on('show', function() {
-        // alert("BESH");
         $.ajax({
             type: "GET",
             url: "/clinic_consultation_list/{{patient.id}}",
         }).done(updateCCListRows);
     });
-    // var temp_hehe = 1;
+
     $("#list-medication-view").on('show', function() {
-        // alert("BESH");
         $.ajax({
             type: "GET",
             url: "/patient_medication_list/{{patient.id}}",
@@ -2514,15 +2514,26 @@
     });
 
     function updateIPTListRows (data) {
-        console.log("WHY HEsRE BESHIE")
         IPT_List_Table = IPT_List_Table.rows().remove().draw();
         for (var i = data.ipt_list.length - 1; i >= 0; i--) {
-            IPT_List_Table.row.add([
-                '<a onclick="edit_IPT('+ data.ipt_list[i].id +')" value="' + data.ipt_list[i].id + '" id="ipt-data'+data.ipt_list[i].id+'">' + data.ipt_list[i].conf_date + '</a>',
-                data.ipt_list[i].discharge_date,
-                data.ipt_list[i]['parent_record.hospitalName'],
-                data.ipt_list[i]['parent_record.doctor.username.first_name'] + " " + data.ipt_list[i]['parent_record.doctor.username.middle_name'] + " " + data.ipt_list[i]['parent_record.doctor.username.last_name']
-            ]).draw();
+            if(data.ipt_list[i].discharge_date != null){
+                IPT_List_Table.row.add([
+                    '<span class="hidden">' + data.ipt_list[i].conf_date + '</span>' + 
+                    '<a onclick="edit_IPT('+ data.ipt_list[i].id +')" value="' + data.ipt_list[i].id + '" id="ipt-data'+data.ipt_list[i].id+'">' + $.datepicker.formatDate('M dd yy', new Date(data.ipt_list[i].conf_date)) + '</a>',
+                    '<span class="hidden">' + $.datepicker.formatDate('M dd yy', new Date(data.ipt_list[i].discharge_date)) + '</span>' + $.datepicker.formatDate('M dd yy', new Date(data.ipt_list[i].discharge_date)),
+                    data.ipt_list[i]['parent_record.hospitalName'],
+                    data.ipt_list[i]['parent_record.doctor.username.first_name'] + " " + data.ipt_list[i]['parent_record.doctor.username.middle_name'] + " " + data.ipt_list[i]['parent_record.doctor.username.last_name']
+                ]).draw();
+            }
+            else{
+                IPT_List_Table.row.add([
+                    '<span class="hidden">' + data.ipt_list[i].conf_date + '</span>' +
+                    '<a onclick="edit_IPT('+ data.ipt_list[i].id +')" value="' + data.ipt_list[i].id + '" id="ipt-data'+data.ipt_list[i].id+'">' + $.datepicker.formatDate('M dd yy', new Date(data.ipt_list[i].conf_date)) + '</a>',
+                    data.ipt_list[i].discharge_date,
+                    data.ipt_list[i]['parent_record.hospitalName'],
+                    data.ipt_list[i]['parent_record.doctor.username.first_name'] + " " + data.ipt_list[i]['parent_record.doctor.username.middle_name'] + " " + data.ipt_list[i]['parent_record.doctor.username.last_name']
+                ]).draw();
+            }        
         };
     } 
     // end of LIST IPT ROWS
@@ -2530,12 +2541,13 @@
     //////// UPDATE LIST OPT ROWS
 
     function updateOPTListRows (data) {
-        console.log("UPDATE OPT LIST ROWS");
-        console.log(data);
+        // console.log("UPDATE OPT LIST ROWS");
+        // console.log(data);
         OPT_List_Table = OPT_List_Table.rows().remove().draw();
         for (var i = data.opt_list.length - 1; i >= 0; i--) {
             OPT_List_Table.row.add([
-                '<a onclick="edit_OPT('+ data.opt_list[i].id +')" value="' + data.opt_list[i].id + '" id="opt-data-'+data.opt_list[i].id+'">' + data.opt_list[i].date + '</a>',
+                '<span class="hidden">' + data.opt_list[i].date + '</span>' + 
+                '<a onclick="edit_OPT('+ data.opt_list[i].id +')" value="' + data.opt_list[i].id + '" id="opt-data-'+data.opt_list[i].id+'">' + $.datepicker.formatDate('M dd yy', new Date(data.opt_list[i].date)) + '</a>',
                 data.opt_list[i]['parent_record.hospitalName'],
                 data.opt_list[i]['parent_record.doctor.username.first_name'] + " " + data.opt_list[i]['parent_record.doctor.username.middle_name'] + " " + data.opt_list[i]['parent_record.doctor.username.last_name']
             ]).draw();
@@ -2547,7 +2559,8 @@
         Lab_List_Table = Lab_List_Table.rows().remove().draw();
         for (var i = data.lab_results_list.length - 1; i >= 0; i--) {
             Lab_List_Table.row.add([
-                '<a onclick="edit_Lab(\'lab-data-' + data.lab_results_list[i].id + '\')" value="' + data.lab_results_list[i].id + '" id="lab-data-' + data.lab_results_list[i].id + '">' + data.lab_results_list[i].date + '</a>',
+                '<span class="hidden">' + data.lab_results_list[i].date + '</span>' + 
+                '<a onclick="edit_Lab(\'lab-data-' + data.lab_results_list[i].id + '\')" value="' + data.lab_results_list[i].id + '" id="lab-data-' + data.lab_results_list[i].id + '">' + $.datepicker.formatDate('M dd yy', new Date(data.lab_results_list[i].date)) + '</a>',
                 data.lab_results_list[i].hospitalName,
                 data.lab_results_list[i].description,
                 data.lab_results_list[i].notes
@@ -2559,7 +2572,8 @@
         CC_List_Table = CC_List_Table.rows().remove().draw();
         for (var i = data.cc_list.length - 1; i >= 0; i--) {
             CC_List_Table.row.add([
-                '<a onclick="edit_CC(' + data.cc_list[i].id + ')" value="' + data.cc_list[i].id + '" id="cc-data-' + data.cc_list[i].id + '">' + data.cc_list[i].date + '</a>',
+                '<span class="hidden">' + data.cc_list[i].date + '</span>' + 
+                '<a onclick="edit_CC(' + data.cc_list[i].id + ')" value="' + data.cc_list[i].id + '" id="cc-data-' + data.cc_list[i].id + '">' + $.datepicker.formatDate('M dd yy', new Date(data.cc_list[i].date)) + '</a>',
                 data.cc_list[i]['parent_record.hospitalName'],
                 data.cc_list[i]['parent_record.doctor.username.first_name'] + " " + data.cc_list[i]['parent_record.doctor.username.middle_name'] + " " + data.cc_list[i]['parent_record.doctor.username.last_name'],
                 {% if doctor %}
@@ -2571,8 +2585,6 @@
 
     function updateMedicationListRows (data) {
         Medication_List_Table = Medication_List_Table.rows().remove().draw();
-        console.log("IN HERE MEDICATION LIST ROWS");
-        console.log("what the fuck", data.meds);
         for (var i = data.meds.length - 1; i >= 0; i--) {
             var checkup_date;
             var checkup_type = data.meds[i]['parent_record.check_up_type'];
@@ -2585,12 +2597,11 @@
             }
 
             Medication_List_Table.row.add([
-                "<a onclick='edit_check_up(\"" + checkup_type + "\"," + data.meds[i]['id'] + ")'>" + checkup_date + "</a>",
+                '<span class="hidden">' + checkup_date + '</span>' + 
+                "<a onclick='edit_check_up(\"" + checkup_type + "\"," + data.meds[i]['id'] + ")'>" + $.datepicker.formatDate('M dd yy', new Date(checkup_date)) + "</a>",
                 data.meds[i]['parent_record.medication.name'],
                 data.meds[i]['parent_record.check_up_type']
-            ]).draw();
-           
-            
+            ]).draw();       
         };
     }
 
@@ -2608,7 +2619,8 @@
             }
 
             Diagnoses_List_Table.row.add([
-                "<a onclick='edit_check_up(\"" + checkup_type + "\"," + data.diagnoses[i]['id'] + ")'>" + checkup_date + "</a>",
+                '<span class="hidden">' + checkup_date + '</span>' + 
+                "<a onclick='edit_check_up(\"" + checkup_type + "\"," + data.diagnoses[i]['id'] + ")'>" + $.datepicker.formatDate('M dd yy', new Date(checkup_date)) + "</a>",
                 data.diagnoses[i]['parent_record.check_up_type'],
                 data.diagnoses[i]['parent_record.hospitalName'],
                 data.diagnoses[i].sum_of_diag,
@@ -2619,22 +2631,22 @@
     function updateBillingListRows (data) {
         Billing_List_Table = Billing_List_Table.rows().remove().draw();
 
-        console.log(data);
-
         if(data.session.doctor) {
             for (var i = data.reports.length - 1; i >= 0; i--) {
                 var checkup_type = data.reports[i]['check_up_type'];
                 console.log(checkup_type);
                 if(checkup_type){
                     Billing_List_Table.row.add([
-                        "<a onclick='edit_check_up(\"" + checkup_type + "\"," + data.reports[i]['id'] + ")'>" + data.reports[i]['date'] + "</a>",
+                        '<span class="hidden">' + data.reports[i]['date'] + '</span>' +
+                        "<a onclick='edit_check_up(\"" + checkup_type + "\"," + data.reports[i]['id'] + ")'>" + $.datepicker.formatDate('M dd yy', new Date(data.reports[i]['date'])) + "</a>",
                             data.reports[i]['check_up_type'],
                             data.reports[i]['hospitalName'],
                             data.reports[i]['sumOfColumn'],
                     ]).draw();
                 } else{
                     Billing_List_Table.row.add([
-                        "<a onclick='edit_check_up(\"" + "Laboratory" + "\"," + data.reports[i]['id'] + ")'>" + data.reports[i]['date'] + "</a>",
+                        '<span class="hidden">' + data.reports[i]['date'] + '</span>' +
+                        "<a onclick='edit_check_up(\"" + "Laboratory" + "\"," + data.reports[i]['id'] + ")'>" + $.datepicker.formatDate('M dd yy', new Date(data.reports[i]['date'])) + "</a>",
                             "Laboratory",
                             data.reports[i]['hospitalName'],
                             data.reports[i]['sumOfColumn'],
@@ -2644,10 +2656,10 @@
         } else {
             for (var i = data.reports.length - 1; i >= 0; i--) {
                 var checkup_type = data.reports[i]['check_up_type'];
-                console.log(checkup_type);
                 if(checkup_type){
                     Billing_List_Table.row.add([
-                        "<a onclick='edit_check_up(\"" + checkup_type + "\"," + data.reports[i]['id'] + ")'>" + data.reports[i]['date'] + "</a>",
+                        '<span class="hidden">' + data.reports[i]['date'] + '</span>' +
+                        "<a onclick='edit_check_up(\"" + checkup_type + "\"," + data.reports[i]['id'] + ")'>" + $.datepicker.formatDate('M dd yy', new Date(data.reports[i]['date'])) + "</a>",
                             data.reports[i]['check_up_type'],
                             data.reports[i]['hospitalName'],
                             data.reports[i]['parent_record.doctor.username.first_name'] + " " + data.reports[i]['parent_record.doctor.username.middle_name'] + " " + data.reports[i]['parent_record.doctor.username.last_name'],
@@ -2655,7 +2667,8 @@
                     ]).draw();
                 } else{
                     Billing_List_Table.row.add([
-                        "<a onclick='edit_check_up(\"" + "Laboratory" + "\"," + data.reports[i]['id'] + ")'>" + data.reports[i]['date'] + "</a>",
+                        '<span class="hidden">' + data.reports[i]['date'] + '</span>' +
+                        "<a onclick='edit_check_up(\"" + "Laboratory" + "\"," + data.reports[i]['id'] + ")'>" + $.datepicker.formatDate('M dd yy', new Date(data.reports[i]['date'])) + "</a>",
                             "Laboratory",
                             data.reports[i]['hospitalName'],
                             "",
