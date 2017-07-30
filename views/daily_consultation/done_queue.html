@@ -167,7 +167,7 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" style="color: black">&times;</button>
-                    <h4 class="modal-title" style="float:left"><strong>Edit Daily Consultation</strong></h4>
+                    <h4 class="modal-title" style="float:left"><strong>View Daily Consultation</strong></h4>
                 </div>
                 <div class="modal-body">
                     <div class="container-fluid">
@@ -208,8 +208,85 @@
                                             <input type="text" id="edit-daily-cc-status" class="form-control" disabled>
                                         </div>
                                     </div>
+                                    <legend>Biometrics</legend>
+                                    <div class="row form-horizontal">
+                                        <div class="col-xs-6">
+                                            <div class="form-group">
+                                                <label class="col-sm-4 control-label">Height</label>
+                                                <div class="col-sm-8">
+                                                    <div class="input-group">
+                                                        <input type="number" step=0.01 id="height-done" class="form-control" disabled>
+                                                        <!-- insert this line -->
+                                                        <span class="input-group-addon" style="width:0px; padding-left:0px; padding-right:0px; border:none;"></span>
+                                                        <select id="height-unit-done" class="form-control" style="width:70px;" disabled>
+                                                            <option value="cm">cm</option>
+                                                            <option value="in">in</option>
+                                                            <option value="inft">ft in</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-xs-6">
+                                            <div class="form-group">
+                                                <label class="col-sm-4 control-label">Weight</label>
+                                                <div class="col-sm-8">
+                                                    <div class="input-group">
+                                                        <input type="number" step=0.01 id="weight-done" class="form-control" disabled>
+                                                        <!-- insert this line -->
+                                                        <span class="input-group-addon" style="width:0px; padding-left:0px; padding-right:0px; border:none;"></span>
+                                                        <select id="weight-unit-done" class="form-control" style="width:70px;" disabled>
+                                                            <option value="kg">kg</option>
+                                                            <option value="lb">lb</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row form-horizontal">
+                                        <div class="col-xs-6">
+                                            <div class="form-group">
+                                                <label class="col-sm-4 control-label">Temperature</label>
+                                                <div class="col-sm-8">
+                                                    <div class="input-group">
+                                                        <input type="number" step=0.01 id="temp-done" class="form-control" disabled>
+                                                        <!-- insert this line -->
+                                                        <span class="input-group-addon" style="width:0px; padding-left:0px; padding-right:0px; border:none;"></span>
+                                                        <select id="temp-unit-done" class="form-control" style="width:70px;" disabled>
+                                                            <option value="C">C</option>
+                                                            <option value="F">F</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-xs-6">
+                                            <div class="form-group">
+                                                <label class="col-sm-4 control-label">Blood Pressure</label>
+                                                <div class="col-sm-8">
+                                                    <div class="input-group">
+                                                        <input type="number" id="bp-done" class="form-control" disabled>
+                                                        <!-- insert this line -->
+                                                        <span class="input-group-addon">mm Hg</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-sm-3 control-label" for="daily-cc-date">Pulse Rate</label>
+                                        <div class="col-sm-9">
+                                            <div class="input-group">
+                                                <input type="number" id="pulse-done" class="form-control" disabled>
+                                                <!-- insert this line -->
+                                                <span class="input-group-addon">bpm</span>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </fieldset>
                                 <div class="button-group">
+                                    <a class="btn btn-primary pull-right" id="edit-done-daily-cc">Edit</a>
                                     <a class="btn btn-gray pull-right" data-dismiss="modal">OK</a>
                                 </div>
                             </div>
@@ -267,25 +344,36 @@
                 { "bSortable": false }
             ],
         }).on('click', 'tbody tr td:nth-child(1) a', function () {
-
-            {% if session.secretary %}
-
-                var data = queue_table.row($(this).parent().parent()).data();
+            var cc_id = $(this).parent().parent().children('td:nth-child(1)').children('input').val();
+            $.ajax({
+                type: "GET",
+                url: "/get_daily_cc/" + cc_id
+            }).done(function (data) {
+                // var data = queue_table.row($(this).parent().parent()).data();
                 var date =  $( "#queue-datepicker" ).val().split("/");
 
                 $('#edit-daily-consultation-modal').modal('show');
-                $('#edit-daily-cc-id').val($(this).parent().parent().children('td:nth-child(1)').children('input').val());
+                $('#edit-daily-cc-id').val(data.cc_inst['id']);
                 $('#edit-daily-consultation-modal select[name="date_[month]"').val(date[0]);
                 $('#edit-daily-consultation-modal select[name="date_[day]"').val(date[1]);
                 $('#edit-daily-consultation-modal select[name="date_[year]"').val(date[2]);
-                $('#edit-patients-names-list').val($(this).parent().parent().children('td:nth-child(1)').children('a').text());
-                $('#edit-hospital').val(data[1]);
-                $('#edit-doctor').val($(this).parent().parent().children('td:nth-child(3)').html());
-                $('#edit-daily-cc-status').val($(this).parent().parent().children('td:nth-child(4)').html());
+                $('#edit-patients-names-list').val(data.cc_inst['parent_record.patient.first_name'] + ' ' + data.cc_inst['parent_record.patient.middle_name'] + ' ' + data.cc_inst['parent_record.patient.last_name'] + ' ' + data.cc_inst['parent_record.patient.suffix']);
 
-            {% elif session.doctor %}
-                $('tbody tr td:nth-child(2) a').attr('href', '/patient_edit/' + $('tbody tr td:nth-child(2) a').attr('id') + '#consultations' + '-' + $('tbody tr td:nth-child(2) input').val());
-            {% endif %}
+                $('#edit-hospital').val(data.cc_inst['parent_record.hospitalName']);
+                $('#edit-doctor').val(data.cc_inst['parent_record.doctorId']);
+                $('#edit-daily-cc-status').val(data.cc_inst['status']);
+                $("#height-done").val(data.cc_inst['height']);
+                $("#height-unit-done").val(data.cc_inst['height_unit']);
+                $("#weight-done").val(data.cc_inst['weight']);
+                $("#weight-unit-done").val(data.cc_inst['weight_unit']);
+                $("#temp-done").val(data.cc_inst['temperature']);
+                $("#temp-unit-done").val(data.cc_inst['temp_unit']);
+                $("#bp-done").val(data.cc_inst['bp']);
+                $("#pulse-done").val(data.cc_inst['pulse_rate']);
+
+                $('#edit-done-daily-cc').attr('href', '/patient_edit/' + data.cc_inst['parent_record.patient.id'] + '#consultations' + '-' + data.cc_inst['id']);
+
+            });
         });
 
         $('#edit-daily-consultation-modal select[name="date_[month]"').attr('disabled', true);
