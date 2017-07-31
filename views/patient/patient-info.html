@@ -2720,19 +2720,19 @@
         }
     }
 
-    function edit_check_up(type, key) {
+    function edit_check_up (type, key) {
         if(type == 'Consultation'){
             window.location.href = window.location.href.substring(0, window.location.href.indexOf("#medication")) + '#consultations'
             edit_CC(key);
         }
-        else if(type == 'In-Patient-Treatment'){
+        else if (type == 'In-Patient-Treatment') {
             window.location.href = window.location.href.substring(0, window.location.href.indexOf("#medication")) + '#ip-treatments'
             edit_IPT(key);
         }
-        else if(type == 'In-Patient-Treatment'){
+        else if (type == 'Out-Patient-Treatment') {
             window.location.href = window.location.href.substring(0, window.location.href.indexOf("#medication")) + '#op-treatments'
             edit_OPT(key);
-        } else{
+        } else {
             window.location.href = window.location.href.substring(0, window.location.href.indexOf("#medication")) + '#laboratories'
             edit_Lab(key);
         }
