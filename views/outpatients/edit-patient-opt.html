@@ -5,7 +5,6 @@
             <input type="hidden" name="edit-p-id" id="edit-p-id">
             <input type="hidden" name="edit-c-id" id="edit-c-id">
             <legend><b>Edit Out-Patient Treatment</b>
-            <!-- <a class="btn btn-red" style="float: right; margin-top: -10px !important" id="delete-opt-button">Delete</a> -->
             </legend>
             <div class="form-group">
                 <label class="col-sm-4 control-label" for="edit-opt-date">Date</label>
@@ -93,6 +92,7 @@
                 </table>
             </div>
             <div class="button-group">
+                <a class="btn btn-blue" onclick="generate_prescription($('#edit-c-id').val(), 'opt')">Generate Prescription</a>
                 <a class="btn btn-red pull-right btn-icon" onclick="edit_opt_delete_med()" name="delete" value="true" id="delete"><span class="glyphicon glyphicon-trash"></span></a>
                 <a href class="btn btn-lime pull-right btn-icon" id="edit-opt-add-med-button" data-toggle="modal" data-target="#add-medication-modal"><span class="glyphicon glyphicon-plus"></span></a>
             </div>

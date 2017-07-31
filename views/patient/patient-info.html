@@ -732,6 +732,44 @@
     </div>
     <!-- END MODAL EDIT BILLING -->
 
+
+
+    <!-- MODAL FOR GENERATE PRESCRIPTION -->
+    <div class="modal fade" id="prescription-note-modal" role="dialog">
+        <div class="modal-dialog">
+          <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" style="color: black">&times;</button>
+                    <h4 class="modal-title" style="float:left"><strong>Prescription Note</strong></h4>
+                </div>
+                <div class="modal-body">
+                    <div class="container-fluid">
+                        <div class="row">
+                            <div class="col-xs-12">
+                                <form id="prescription-note-form" class="form-horizontal" method="POST" action="">
+                                    <fieldset>
+                                        <div class="form-group">
+                                            <label class="col-sm-3 control-label" for="edit-billing-description">General Notes</label>
+                                            <div class="col-sm-9">
+                                                <textarea rows="5" class="form-control" name="general-notes" id="general-notes"></textarea>
+                                            </div>
+                                        </div>
+                                    </fieldset>
+                                    <div class="button-group">
+                                        <a class="btn btn-gray pull-right" data-dismiss="modal" style="width: 80px">Cancel</a>
+                                        <a type="submit" class="btn btn-lime pull-right" id="continue-generate-prescription" style="width: 80px">Continue</a>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- END OF MODAL FOR GENERATE PRESCRIPTION -->
+
 <!-- END OF MODAAAALLSSS -->
 {% endif %}
 </body>
@@ -755,6 +793,9 @@
     var edit_med_id;
     var edit_med_procedure_id;
     var edit_billing_id;
+
+    var generate_prescription_id = null;
+    var generate_prescription_record_type = null;
 
     $(window).on('hashchange',function() {
         var url = window.location.href;
@@ -2772,6 +2813,25 @@
         // edit_med_procedure_modal_caller = $(e.relatedTarget).children('input').attr('id');
         // alert(edit_med_procedure_id);
     });
+
+
+
+    //GENERATE PRESCRIPTION//
+    function generate_prescription(record_id, record_type) {
+        generate_prescription_id = record_id;
+        generate_prescription_record_type = record_type;
+
+        $('#prescription-note-modal').modal('show');
+    }
+
+    $('#continue-generate-prescription').on('click', function(){
+        $('#prescription-note-modal').modal('hide');
+        $('#prescription-note-form textarea').val("");
+        $(this).attr('href', '/prescription/' + generate_prescription_id +'/' + generate_prescription_record_type);
+        $(this).attr('target', '_blank');
+    });
+    //END OF GENERATE PRESCRIPTION
+
 
     function showSnackBar(str) {
         var x = document.getElementById("snackbar");
