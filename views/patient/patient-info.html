@@ -747,12 +747,12 @@
                     <div class="container-fluid">
                         <div class="row">
                             <div class="col-xs-12">
-                                <form id="prescription-note-form" class="form-horizontal" method="POST" action="">
+                                <!-- <form id="prescription-note-form" class="form-horizontal" method="POST" action=""> -->
                                     <fieldset>
                                         <div class="form-group">
                                             <label class="col-sm-3 control-label" for="edit-billing-description">General Notes</label>
                                             <div class="col-sm-9">
-                                                <textarea rows="5" class="form-control" name="general-notes" id="general-notes"></textarea>
+                                                <textarea rows="5" class="form-control" name="general-notes" id="presciption-general-notes"></textarea>
                                             </div>
                                         </div>
                                     </fieldset>
@@ -760,7 +760,7 @@
                                         <a class="btn btn-gray pull-right" data-dismiss="modal" style="width: 80px">Cancel</a>
                                         <a type="submit" class="btn btn-lime pull-right" id="continue-generate-prescription" style="width: 80px">Continue</a>
                                     </div>
-                                </form>
+                                <!-- </form> -->
                             </div>
                         </div>
                     </div>
@@ -2827,7 +2827,7 @@
     $('#continue-generate-prescription').on('click', function(){
         $('#prescription-note-modal').modal('hide');
         $('#prescription-note-form textarea').val("");
-        $(this).attr('href', '/prescription/' + generate_prescription_id +'/' + generate_prescription_record_type);
+        $(this).attr('href', '/prescription/' + generate_prescription_id +'/' + generate_prescription_record_type + "?note=" + encodeURIComponent($('#presciption-general-notes').val()));
         $(this).attr('target', '_blank');
     });
     //END OF GENERATE PRESCRIPTION

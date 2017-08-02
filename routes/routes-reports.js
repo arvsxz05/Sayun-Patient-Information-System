@@ -23,7 +23,8 @@ function requireLoggedIn(req, res, next) {
 
 /////////////////////////// GET ////////////////////////////////////
 
-router.get('/prescription/:checkUpId/:mode', requireLoggedIn, function (req, res, next) {
+router.get('/prescription/:checkUpId/:mode', requireLoggedIn, function (req, res) {
+	// console.log(req.query.note);
 	var checkUpId = req.params.checkUpId;
 	var mode = req.params.mode;
 
@@ -62,7 +63,8 @@ router.get('/prescription/:checkUpId/:mode', requireLoggedIn, function (req, res
 					if (ipt_instance) {
 						var html = nunjucks.render('reports/samplereport.html', {
 							medication_list: medication_list,
-							ipt_instance: ipt_instance
+							ipt_instance: ipt_instance,
+							note: req.query.note
 						});
 						var options = { 
 							format: 'Letter',
@@ -104,7 +106,8 @@ router.get('/prescription/:checkUpId/:mode', requireLoggedIn, function (req, res
 					if (opt_instance) {
 						var html = nunjucks.render('reports/samplereport.html', {
 							medication_list: medication_list,
-							ipt_instance: opt_instance
+							ipt_instance: opt_instance,
+							note: req.query.note
 						});
 						var options = { 
 							format: 'Letter',
@@ -146,7 +149,8 @@ router.get('/prescription/:checkUpId/:mode', requireLoggedIn, function (req, res
 					if (consultation_instance) {
 						var html = nunjucks.render('reports/samplereport.html', {
 							medication_list: medication_list,
-							ipt_instance: consultation_instance
+							ipt_instance: consultation_instance,
+							note: req.query.note
 						});
 						var options = { 
 							format: 'Letter',
